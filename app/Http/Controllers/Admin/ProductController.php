@@ -22,7 +22,6 @@ class ProductController extends Controller
     $data = $request->validate([
         'brand_id' => 'required|integer',
         'name' => 'required|string|max:255',
-        'slug' => 'required|unique:products,slug',
         'short_description' => 'required|string',
         'description' => 'required|string',
         'thumbnail' => 'required|image',  // bắt buộc có ảnh và là file ảnh
@@ -64,7 +63,6 @@ class ProductController extends Controller
         $data = $request->validate([
             'brand_id' => 'required|integer', // Vẫn giữ brand_id, validate kiểu integer
             'name' => 'required|string|max:255',
-            'slug' => 'required|unique:products,slug,' . $product->id,
             'thumbnail' => 'nullable|image',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
             'price' => 'required|numeric',
@@ -84,7 +82,10 @@ class ProductController extends Controller
         $product->update($data);
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
-
+    public function show(Product $product)
+    {
+        return view('admin.products.show', compact('product'));
+    }
     public function destroy(Product $product)
     {
         $product->forceDelete();

@@ -27,11 +27,6 @@
     </div>
 
     <div class="form-group">
-        <label for="slug">Slug (đường dẫn sản phẩm)</label>
-        <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug') }}" required>
-    </div>
-
-    <div class="form-group">
         <label for="short_description">Mô tả ngắn</label>
         <textarea class="form-control" id="short_description" name="short_description" rows="3" required>{{ old('short_description') }}</textarea>
     </div>
