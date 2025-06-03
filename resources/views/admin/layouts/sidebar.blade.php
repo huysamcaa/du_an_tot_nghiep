@@ -15,6 +15,9 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
+                <li class="active">
+                    <a href="http://127.0.0.1:8000/admin/manufacturers"><i class="menu-icon fa fa-laptop"></i>Nhà sản xuất </a>
+                </li>
 
                        <li class="menu-item-has-children dropdown">
                     <a href="admin.categories.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
