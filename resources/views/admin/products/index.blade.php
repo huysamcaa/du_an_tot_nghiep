@@ -44,6 +44,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Danh mục</th>
                                     <th>Ảnh</th>
                                     <th>Tên</th>
                                     <th>Giá gốc</th>
@@ -59,6 +60,7 @@
                                 @foreach($products as $product)
                                 <tr>
                                     <td>{{ $product->id }}</td>
+                                    <td>{{ $product->category->name ?? 'Không có danh mục' }}</td>
                                     <td>
                                         @if($product->thumbnail)
                                         <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">

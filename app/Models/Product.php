@@ -11,6 +11,7 @@ class Product extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'category_id',
         'brand_id',
         'name',
         'slug',
@@ -41,6 +42,9 @@ class Product extends Model
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
     ];
-
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
 }

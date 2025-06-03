@@ -15,30 +15,41 @@
 
 <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
+    <div class="form-group">
+        <label for="category_id">Danh mục</label>
+        <select class="form-control" id="category_id" name="category_id" required>
+            <option value="">-- Chọn danh mục --</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
     <div class="form-group">
         <label for="brand_id">ID thương hiệu (brand_id)</label>
-        <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id') }}" required>
+        <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id') }}" >
     </div>
 
     <div class="form-group">
         <label for="name">Tên sản phẩm</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
+        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" >
     </div>
 
     <div class="form-group">
         <label for="short_description">Mô tả ngắn</label>
-        <textarea class="form-control" id="short_description" name="short_description" rows="3" required>{{ old('short_description') }}</textarea>
+        <textarea class="form-control" id="short_description" name="short_description" rows="3" >{{ old('short_description') }}</textarea>
     </div>
 
     <div class="form-group">
         <label for="description">Mô tả dài</label>
-        <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
+        <textarea class="form-control" id="description" name="description" rows="5" >{{ old('description') }}</textarea>
     </div>
 
     <div class="form-group">
         <label for="thumbnail">Ảnh đại diện (thumbnail) <span class="text-danger">*</span></label>
-        <input type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" required>
+        <input type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" >
     </div>
 
     <div class="form-group">
@@ -48,7 +59,7 @@
 
     <div class="form-group">
         <label for="price">Giá gốc</label>
-        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price') }}" required>
+        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price') }}" >
     </div>
 
     <div class="form-group">

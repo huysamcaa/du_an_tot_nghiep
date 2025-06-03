@@ -2,24 +2,27 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::orderBy('created_at', 'desc')->get();
+        $products = Product::with('category')->orderBy('created_at', 'desc')->get();
         return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        return view('admin.products.create');
+        $categories = Category::all();
+        return view('admin.products.create', compact('categories'));
     }
 
    public function store(Request $request)
 {
     $data = $request->validate([
+        'category_id' => 'required|exists:categories,id',
         'brand_id' => 'required|integer',
         'name' => 'required|string|max:255',
         'short_description' => 'required|string',
@@ -50,18 +53,19 @@ class ProductController extends Controller
     Product::create($data);
 
     return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
-}
-
+    }
 
     public function edit(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $categories = Category::all();  // Lấy danh sách category
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'brand_id' => 'required|integer', // Vẫn giữ brand_id, validate kiểu integer
+            'category_id' => 'required|exists:categories,id',
+            'brand_id' => 'required|integer',
             'name' => 'required|string|max:255',
             'thumbnail' => 'nullable|image',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
