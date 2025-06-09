@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\Admin\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('parent')
-            ->orderBy('ordinal')
-            ->get();
-            
-        return view('admin.categories.index', compact('categories'));
-    }
+        $perPage = $request->input('per_page', 10); // mặc định 10
+        $query = Category::with('parent')->orderBy('ordinal');
 
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        }
+
+        $categories = $query->paginate($perPage)->appends($request->all());
+
+        return view('admin.categories.index', compact('categories', 'perPage'));
+    }
     public function create()
     {
         $parentCategories = Category::whereNull('parent_id')->get();
@@ -41,7 +45,7 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        return view('categories.show', compact('category'));
+        return view('admin.categories.show', compact('category'));
     }
 
     public function edit(Category $category)
