@@ -1,83 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<style>
-    body, .container {
-        background: #ecf5f4 !important;
-    }
-    .table-custom {
-        background: #fff;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 12px rgba(44, 62, 80, 0.07);
-    }
-    .table-custom th {
-        background: #b2dfdb;
-        color: #22577a;
-        font-weight: 700;
-        border: none;
-        text-align: center;
-    }
-    .table-custom td {
-        background: #ecf5f4;
-        color: #22577a;
-        vertical-align: middle;
-        border-top: 1px solid #b2dfdb;
-        text-align: center;
-    }
-    .table-custom tr:hover td {
-        background: #b2dfdb;
-        color: #22577a;
-    }
-    .btn-primary {
-        background: #38b6ff;
-        border: none;
-        color: #fff;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-    .btn-primary:hover {
-        background: #22577a;
-        color: #fff;
-    }
-    .btn-warning {
-        background: #ffd166;
-        border: none;
-        color: #22577a;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-    .btn-warning:hover {
-        background: #ffa600;
-        color: #fff;
-    }
-    .btn-danger {
-        background: #ef476f;
-        border: none;
-        color: #fff;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-    .btn-danger:hover {
-        background: #d90429;
-        color: #fff;
-    }
-    h1 {
-        color: #22577a;
-        font-weight: 700;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-    .alert-success {
-        background: #b2dfdb;
-        color: #22577a;
-        border: none;
-        border-radius: 6px;
-    }
-</style>
+
 <div class="container">
     <h1>Quản lý Danh mục</h1>
     <br>
@@ -86,10 +10,33 @@
             {{ session('success') }}
         </div>
     @endif
-    
+
     <a href="{{ route('admin.categories.create') }}" class="btn btn-primary mb-3">Thêm danh mục</a>
-    
-    <table class="table table-bordered">
+
+    <table id="bootstrap-data-table" class="table table-striped table-bordered">
+       
+       
+                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
+                        <div>
+                            <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                            <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
+                                @foreach([10, 25, 50, 100] as $size)
+                                    <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                            <span></span>
+                        </div>
+                        
+                    </form>
+               
+            
+                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
+                        <div class="input-group">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                        </div>
+                    </form>
+               
         <thead>
             <tr>
                 <th>ID</th>
@@ -111,6 +58,7 @@
                     <td>{{ $category->ordinal }}</td>
                     <td>{{ $category->is_active ? 'Hiển thị' : 'Ẩn' }}</td>
                     <td>
+                        <a href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-info btn-sm">Xem</a>
                         <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-warning">Sửa</a>
                         <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display: inline-block;">
                             @csrf
