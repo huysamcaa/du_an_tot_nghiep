@@ -58,10 +58,9 @@
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Categories</a>
                                         <ul>
-                                            <li><a href="">DM1</a></li>
-                                            <li><a href="">DM2</a></li>
-                                            <li><a href="">DM3</a></li>
-                                            <li><a href="">DM4</a></li>
+                                            <li><a href="#">Men</a></li>
+                                            <li><a href="#">Women</a></li>
+                                          
                                         </ul>
                                     </li>
                                     <li class="menu-item-has-children">
