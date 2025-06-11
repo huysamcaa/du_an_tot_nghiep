@@ -15,19 +15,7 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
-                <li class="active">
-                    <a href="http://127.0.0.1:8000/admin/manufacturers"><i class="menu-icon fa fa-laptop"></i>Nhà sản xuất </a>
-                </li>
 
-                       <li class="menu-item-has-children dropdown">
-                    <a href="admin.categories.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-cogs"></i>Sản Phẩm
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{route('admin.products.index')}}">Xem Sản Phẩm</a></li>
-                        <!-- Các mục con khác -->
-                    </ul>
-                </li>
                 <!-- Thêm các menu item khác tương tự -->
             </ul>
         </div>
