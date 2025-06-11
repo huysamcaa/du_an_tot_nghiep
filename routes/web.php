@@ -26,6 +26,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('manufacturers',ManufacturerController::class);
     Route::resource('promotions',PromotionController::class);
     Route::resource('products', ProductController::class);
+   // web.php
+Route::get('danhmuc/{id}', [ProductController::class, 'showByCategory'])->name('danhmuc.show');
+
+
 });
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');

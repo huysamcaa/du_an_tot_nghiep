@@ -56,12 +56,11 @@
                                         </div>
                                     </li>
                                     <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Pages</a>
+                                        <a href="javascript:void(0);">Categories</a>
                                         <ul>
-                                            <li><a href="team.html">Team</a></li>
-                                            <li><a href="faq.html">FAQ's</a></li>
-                                            <li><a href="testimonial.html">Testimonial</a></li>
-                                            <li><a href="404.html">Error 404</a></li>
+                                            <li><a href="#">Men</a></li>
+                                            <li><a href="#">Women</a></li>
+                                          
                                         </ul>
                                     </li>
                                     <li class="menu-item-has-children">

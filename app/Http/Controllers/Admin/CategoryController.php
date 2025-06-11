@@ -65,6 +65,7 @@ class CategoryController extends Controller
             'icon' => 'nullable|string|max:255',
             'ordinal' => 'required|integer',
             'is_active' => 'required|boolean',
+            
         ]);
 
         $category->update([
