@@ -16,6 +16,7 @@ return new class extends Migration
         $table->string('title');
         $table->text('description')->nullable();
         $table->decimal('discount_percent', 5, 2)->default(0);
+        $table->string('code')->nullable()->unique()->after('title');
         $table->date('start_date');
         $table->date('end_date');
         $table->timestamps();

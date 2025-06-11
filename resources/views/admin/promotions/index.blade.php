@@ -13,6 +13,7 @@
             <tr>
                 <th>Tiêu đề</th>
                 <th>Phầm trăm giảm giá</th>
+                <th>Mã khuyến mãi</th>
                 <th>Ngày Bắt đầu</th>
                 <th>Ngày Kết thúc</th>
                 <th>Hành động</th>
@@ -23,6 +24,7 @@
             <tr>
                 <td>{{$promotion->title}}</td>
                 <td>{{ rtrim(rtrim($promotion->discount_percent, '0'), '.') }}%</td>
+                <td>{{ $promotion->code ?? '—' }}</td>
                 <td>{{$promotion->start_date}}</td>
                 <td>{{$promotion->end_date}}</td>
                 <td>
