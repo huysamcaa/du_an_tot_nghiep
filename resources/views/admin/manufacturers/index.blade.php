@@ -1,45 +1,54 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <h1>Danh sách nhà sản xuất</h1>
-    @if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-    @endif
-    <a href="{{ route('admin.manufacturers.create') }}" class="btn btn-success mb-3">Thêm mới</a>
+<div class="animated fadeIn">
+   <div class="row mb-3">
+    <div class="col-6">
+    <h2>Quản lí nhà sản xuất</h2><br>
 
-    <table class="table table-striped table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Stt</th>
-                <th>Tên</th>
-                <th>Địa chỉ</th>
-                <th>SĐT</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($manufacturers as $item)
+     <a href="{{route('admin.manufacturers.create')}}" class="btn btn-success">Thêm mới nhà sản xuất</a></div>
+    <div class="">
+
+    </div>
+   </div>
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ $item->id }}</td>
-                    <td>{{ $item->name }}</td>
-                    <td>{{ $item->address }}</td>
-                    <td>{{ $item->phone }}</td>
-                    <td>{{ $item->is_active ? 'Hoạt động' : 'Không' }}</td>
+                <th>STT</th>
+                <th>Tên</th>
+                <th>Slug</th>
+                <th>Logo</th>
+                <th>Trạng thái</th>
+                 <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($manufacturers as $m )
+                <tr>
+                    <td>{{$loop->iteration}}</td>
+                    <td>{{$m->name}}</td>
+                    <td>{{$m->slug}}</td>
+                    <td>@if ($m->logo_path)
+                        <img src="{{asset('storage/'.$m->logo_path)}}" alt="logo" width="100px">
+                    @endif</td>
+                    <td><span class="badge{{$m->is_active?'bg_success' : 'bg-secondary'}}">
+                    {{$m->is_active?'Hiển thị':'Ẩn'}}
+                    </span></td>
                     <td>
-                        <a href="{{ route('admin.manufacturers.edit', $item) }}" class="btn btn-warning">Sửa</a>
-                        <form action="{{ route('admin.manufacturers.destroy', $item) }}" method="POST" style="display:inline;">
+                        <a href="{{route('admin.manufacturers.edit', $m)}}" class=" btn  btn-warning">Sửa</a>
+                        <form class="d-inline"  method="post" action="{{route('admin.manufacturers.destroy', $m)}}" onsubmit="return confirm('Xóa bản ghi này?')">
                             @csrf @method('DELETE')
-                            <button type="submit" onclick="return confirm('Bạn chắc chắn muốn xóa?')" class="btn btn-danger">Xóa</button>
+                            <button class="btn  btn-danger">Xóa</button>
                         </form>
                     </td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="d-flex justify-content-end">
-        {{ $manufacturers->links() }}
+
+                @endforeach
+            </tbody>
+        </table>
+        {{$manufacturers->links()}}
     </div>
+</div>
 @endsection
