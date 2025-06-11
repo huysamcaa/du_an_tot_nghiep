@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ManufacturerController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\ProductDetailController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Trang dashboard admin
@@ -21,3 +22,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
