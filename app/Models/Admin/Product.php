@@ -5,6 +5,8 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Admin\Category;
+use App\Models\Admin\Comment;
 
 class Product extends Model
 {
@@ -71,4 +73,8 @@ public function category()
 {
     return $this->belongsTo(Category::class);
 }
+ public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -154,13 +154,13 @@
             <div class="col-lg-12">
                 <ul class="nav productDetailsTab" id="productDetailsTab" role="tablist">
                     <li role="presentation">
-                        <button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+                        <button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Chi tiết sản phẩm</button>
                     </li>
                     <li role="presentation">
                         <button id="additionalinfo-tab" data-bs-toggle="tab" data-bs-target="#additionalinfo" type="button" role="tab" aria-controls="additionalinfo" aria-selected="false" tabindex="-1">Additional Information</button>
                     </li>
                     <li role="presentation">
-                        <button id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false" tabindex="-1">Item Review</button>
+                        <button id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false" tabindex="-1">Bình luận</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="desInfoRev_content">
@@ -222,61 +222,32 @@
                             </table>
                         </div>
                     </div>
+
                     <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
                         <div class="productReviewArea">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    <h3>10 Reviews</h3>
+                                    <h3>Bình Luận</h3>
                                     <div class="reviewList">
                                         <ol>
+                                            @foreach ($comments as $comment)
                                             <li>
                                                 <div class="postReview">
                                                     <img src="images/author/7.jpg" alt="Post Review">
-                                                    <h2>Greaet product. Packaging was also good!</h2>
+                                                    <h2>{{ $comment->user->fullname }}</h2>
                                                     <div class="postReviewContent">
-                                                        Desectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore ma na alihote pare ei gansh es gan quim veniam, quis nostr udg exercitation ullamco laboris nisi ut aliquip
+                                                        {{$comment->content}}
                                                     </div>
                                                     <div class="productRatingWrap">
                                                         <div class="star-rating"><span></span></div>
                                                     </div>
                                                     <div class="reviewMeta">
-                                                        <h4>John Manna</h4>
-                                                        <span>on June 10, 2022</span>
+
+                                                        <span> {{$comment->created_at}}</span>
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li>
-                                                <div class="postReview">
-                                                    <img src="images/author/8.jpg" alt="Post Review">
-                                                    <h2>The item is very comfortable and soft!</h2>
-                                                    <div class="postReviewContent">
-                                                        Desectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore ma na alihote pare ei gansh es gan quim veniam, quis nostr udg exercitation ullamco laboris nisi ut aliquip
-                                                    </div>
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"><span></span></div>
-                                                    </div>
-                                                    <div class="reviewMeta">
-                                                        <h4>Robert Thomas</h4>
-                                                        <span>on June 10, 2022</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="postReview">
-                                                    <img src="images/author/9.jpg" alt="Post Review">
-                                                    <h2>I liked the product, it is awesome.</h2>
-                                                    <div class="postReviewContent">
-                                                        Desectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore ma na alihote pare ei gansh es gan quim veniam, quis nostr udg exercitation ullamco laboris nisi ut aliquip
-                                                    </div>
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"><span></span></div>
-                                                    </div>
-                                                    <div class="reviewMeta">
-                                                        <h4>Ken Williams</h4>
-                                                        <span>on June 10, 2022</span>
-                                                    </div>
-                                                </div>
-                                            </li>
+                                            @endforeach
                                         </ol>
                                     </div>
                                 </div>
@@ -318,7 +289,7 @@
         </div>
         <div class="row relatedProductRow">
             <div class="col-lg-12">
-                <h2 class="secTitle">More Products Like This</h2>
+                <h2 class="secTitle">Sản phẩm liên quan</h2>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="productCarousel owl-carousel">
@@ -431,219 +402,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="productItem01 pi01NoRating">
-                                <div class="pi01Thumb">
-                                    <img src="images/products/3.jpg" alt="Ulina Product" />
-                                    <img src="images/products/3.1.jpg" alt="Ulina Product" />
-                                    <div class="pi01Actions">
-                                        <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                    </div>
-                                    <div class="productLabels clearfix">
-                                        <span class="plNew float-end">New</span>
-                                    </div>
-                                </div>
-                                <div class="pi01Details">
-                                    <h3><a href="shop_details1.html">Apple white jacket</a></h3>
-                                    <div class="pi01Price">
-                                        <ins>$39</ins>
-                                        <del>$57</del>
-                                    </div>
-                                    <div class="pi01Variations">
-                                        <div class="pi01VColor">
-                                            <div class="pi01VCItem">
-                                                <input checked type="radio" name="color3" value="Blue" id="color3_blue" />
-                                                <label for="color3_blue"></label>
-                                            </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color3" value="Yellow" id="color3_yellow" />
-                                                <label for="color3_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color3" value="Red" id="color3_red" />
-                                                <label for="color3_red"></label>
-                                            </div>
-                                        </div>
-                                        <div class="pi01VSize">
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size3" value="Blue" id="size3_s" />
-                                                <label for="size3_s">S</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size3" value="Yellow" id="size3_m" />
-                                                <label for="size3_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size3" value="Red" id="size3_xl" />
-                                                <label for="size3_xl">XL</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="productItem01 pi01NoRating">
-                                <div class="pi01Thumb">
-                                    <img src="images/products/4.jpg" alt="Ulina Product" />
-                                    <img src="images/products/4.1.jpg" alt="Ulina Product" />
-                                    <div class="pi01Actions">
-                                        <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                    </div>
-                                </div>
-                                <div class="pi01Details">
-                                    <h3><a href="shop_details2.html">One color cotton t-shirt</a></h3>
-                                    <div class="pi01Price">
-                                        <ins>$29</ins>
-                                    </div>
-                                    <div class="pi01Variations">
-                                        <div class="pi01VColor">
-                                            <div class="pi01VCItem">
-                                                <input checked type="radio" name="color4" value="Blue" id="color4_blue" />
-                                                <label for="color4_blue"></label>
-                                            </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color1" value="Yellow" id="color4_yellow" />
-                                                <label for="color4_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color4" value="Red" id="color4_red" />
-                                                <label for="color4_red"></label>
-                                            </div>
-                                        </div>
-                                        <div class="pi01VSize">
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size4" value="Blue" id="size4_s" />
-                                                <label for="size4_s">S</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size4" value="Yellow" id="size4_m" />
-                                                <label for="size4_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size4" value="Red" id="size4_xl" />
-                                                <label for="size4_xl">XL</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="productItem01">
-                                <div class="pi01Thumb">
-                                    <img src="images/products/5.jpg" alt="Ulina Product" />
-                                    <img src="images/products/5.1.jpg" alt="Ulina Product" />
-                                    <div class="pi01Actions">
-                                        <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                    </div>
-                                    <div class="productLabels clearfix">
-                                        <span class="plDis">- $49</span>
-                                        <span class="plSale">Sale</span>
-                                    </div>
-                                </div>
-                                <div class="pi01Details">
-                                    <div class="productRatings">
-                                        <div class="productRatingWrap">
-                                            <div class="star-rating"><span></span></div>
-                                        </div>
-                                        <div class="ratingCounts">10 Reviews</div>
-                                    </div>
-                                    <h3><a href="shop_details1.html">Stylish white leather bag</a></h3>
-                                    <div class="pi01Price">
-                                        <ins>$29</ins>
-                                        <del>$56</del>
-                                    </div>
-                                    <div class="pi01Variations">
-                                        <div class="pi01VColor">
-                                            <div class="pi01VCItem">
-                                                <input checked type="radio" name="color5" value="Blue" id="color5_blue" />
-                                                <label for="color5_blue"></label>
-                                            </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color5" value="Yellow" id="color5_yellow" />
-                                                <label for="color5_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color5" value="Red" id="color5_red" />
-                                                <label for="color5_red"></label>
-                                            </div>
-                                        </div>
-                                        <div class="pi01VSize">
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size5" value="Blue" id="size5_s" />
-                                                <label for="size5_s">S</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size5" value="Yellow" id="size5_m" />
-                                                <label for="size5_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size5" value="Red" id="size5_xl" />
-                                                <label for="size5_xl">XL</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="productItem01">
-                                <div class="pi01Thumb">
-                                    <img src="images/products/6.jpg" alt="Ulina Product" />
-                                    <img src="images/products/6.1.jpg" alt="Ulina Product" />
-                                    <div class="pi01Actions">
-                                        <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                    </div>
-                                    <div class="productLabels clearfix">
-                                        <span class="plNew float-end">New</span>
-                                    </div>
-                                </div>
-                                <div class="pi01Details">
-                                    <div class="productRatings">
-                                        <div class="productRatingWrap">
-                                            <div class="star-rating"><span></span></div>
-                                        </div>
-                                        <div class="ratingCounts">13 Reviews</div>
-                                    </div>
-                                    <h3><a href="shop_details2.html">Luxury maroon sweater</a></h3>
-                                    <div class="pi01Price">
-                                        <ins>$49</ins>
-                                        <del>$60</del>
-                                    </div>
-                                    <div class="pi01Variations">
-                                        <div class="pi01VColor">
-                                            <div class="pi01VCItem">
-                                                <input checked type="radio" name="color6" value="Blue" id="color6_blue" />
-                                                <label for="color6_blue"></label>
-                                            </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color6" value="Yellow" id="color6_yellow" />
-                                                <label for="color6_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color6" value="Red" id="color6_red" />
-                                                <label for="color6_red"></label>
-                                            </div>
-                                        </div>
-                                        <div class="pi01VSize">
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size6" value="Blue" id="size6_s" />
-                                                <label for="size6_s">S</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size6" value="Yellow" id="size6_m" />
-                                                <label for="size6_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size6" value="Red" id="size6_xl" />
-                                                <label for="size6_xl">XL</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
