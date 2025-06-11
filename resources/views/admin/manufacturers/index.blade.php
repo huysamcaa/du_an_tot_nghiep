@@ -37,10 +37,10 @@
                     {{$m->is_active?'Hiển thị':'Ẩn'}}
                     </span></td>
                     <td>
-                        <a href="{{route('admin.manufacturers.edit', $m)}}" class=" btn btn-sm btn-warning">Sửa</a>
+                        <a href="{{route('admin.manufacturers.edit', $m)}}" class=" btn  btn-warning">Sửa</a>
                         <form class="d-inline"  method="post" action="{{route('admin.manufacturers.destroy', $m)}}" onsubmit="return confirm('Xóa bản ghi này?')">
                             @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-danger">Xóa</button>
+                            <button class="btn  btn-danger">Xóa</button>
                         </form>
                     </td>
                 </tr>
