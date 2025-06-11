@@ -48,9 +48,6 @@ Route::middleware(['auth'])->group(function () {
 
 
     // --- 3. Các Route Dành riêng cho Admin (Admin-Only Routes) ---
-    // Các route này chỉ có thể truy cập được bởi người dùng có vai trò 'admin'.
-    // Áp dụng cả middleware 'auth' (đã đăng nhập) và 'admin' (kiểm tra vai trò 'admin').
-    // 'admin' là alias cho App\Http\Middleware\AdminMiddleware
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         // Trang dashboard admin
         // Controller này phải trả về view('admin.dashboard')
@@ -61,9 +58,6 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
             Route::resource('products', ProductController::class);
-
-        // Bạn có thể thêm các route quản lý người dùng, cài đặt, v.v. ở đây
-        // Route::resource('users', AdminUserController::class); // Nếu có AdminUserController
     });
 });
 
