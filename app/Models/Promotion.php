@@ -12,6 +12,7 @@ class Promotion extends Model
 'title',
 'description',
 'discount_percent',
+'code',
 'start_date',
 'end_date',
     ];

@@ -14,6 +14,10 @@
         <label for="discount_percent" name="discount_percent" class="">Phần trăm giảm giá: </label>
         <input type="number" name="discount_percent" class="form-control" value="{{old('discount_percent',$promotion->discount_percent)}}" id="" required>
     </div>
+<div class="form-group">
+    <label for="code">Mã khuyến mãi</label>
+    <input type="text" class="form-control" name="code" value="{{ old('code', $promotion->code) }}" placeholder="VD: SUMMER20">
+</div>
 
     <div class="mb-3">
         <label for="start_date" name="start_date" class="">Ngày bắt đầu: </label>
