@@ -3,9 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ManufacturerController;
+
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\CategoryClientController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Trang dashboard admin
@@ -16,8 +17,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // CRUD danh mục
     Route::resource('categories', CategoryController::class);
-    Route::resource('manufacturers', ManufacturerController::class);
     Route::resource('products', ProductController::class);
+   // web.php
+Route::get('category/{id}', [CategoryClientController::class, 'category'])->name('client.category');
+Route::get('categories', [CategoryClientController::class, 'index'])->name('client.categories');
+
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
