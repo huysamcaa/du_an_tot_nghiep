@@ -2,47 +2,67 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'phone_number',
+        'avatar',
+        'gender',
+        'birthday',
+        'loyalty_points',
+        'role', // Thêm 'role' vào fillable
+        'status',
+        'google_id',
+        'facebook_id',
+        'code_verified_email',
+        'bank_name',
+        'user_bank_name',
+        'bank_account',
+        'reason_lock',
+        'is_change_password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+        'code_verified_email',
+        'bank_account',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'code_verified_at' => 'datetime',
+        'password' => 'hashed', // Laravel 9+ tự động hash mật khẩu
+        'birthday' => 'date',
+        'is_change_password' => 'boolean',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Kiểm tra xem người dùng có phải là admin không.
+     * @return bool
      */
-    protected function casts(): array
+    public function isAdmin(): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Kiểm tra xem tài khoản người dùng có hoạt động không.
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
     }
 }

@@ -10,7 +10,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class, // Laravel đã có sẵn
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'admin' => \App\Http\Middleware\AdminMiddleware::class, // THÊM DÒNG NÀY
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
