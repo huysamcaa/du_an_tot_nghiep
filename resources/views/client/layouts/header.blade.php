@@ -157,7 +157,7 @@
                                             </div>
                                             <div class="totalPrice">Subtotal: <span class="price"><span><span>$</span>112.00</span></span></div>
                                             <div class="cartWidgetBTN clearfix">
-                                                <a class="cart" href="cart.html">View Cart</a>
+                                                <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
                                                 <a class="checkout" href="checkout.html">Checkout</a>
                                             </div>
                                         </div>
