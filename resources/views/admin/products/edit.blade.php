@@ -16,7 +16,17 @@
 <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
-
+    <div class="form-group">
+        <label for="category_id">Danh mục</label>
+        <select class="form-control" id="category_id" name="category_id" required>
+            <option value="">-- Chọn danh mục --</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
     <div class="form-group">
         <label for="brand_id">ID thương hiệu (brand_id)</label>
         <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id', $product->brand_id) }}" required>
@@ -45,11 +55,6 @@
                 <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="Thumbnail" width="100">
             </div>
         @endif
-    </div>
-
-    <div class="form-group">
-        <label for="sku">Mã SKU</label>
-        <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku', $product->sku) }}">
     </div>
 
     <div class="form-group">

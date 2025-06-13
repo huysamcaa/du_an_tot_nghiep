@@ -15,7 +15,15 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
-
+                <li class="menu-item-has-children dropdown">
+                    <a href="admin.products.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Sản phẩm
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-puzzle-piece"></i><a href="http://127.0.0.1:8000/admin/products">Xem sản phẩm</a></li>
+                        <!-- Các mục con khác -->
+                    </ul>
+                </li>
                   <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
