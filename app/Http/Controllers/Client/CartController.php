@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\CartItem;
+use Illuminate\Support\Facades\Auth;
+
 class CartController extends Controller
 {
     /**
@@ -12,13 +14,13 @@ class CartController extends Controller
      */
     public function index()
     {
-        $userId = 2;
+        $userId = Auth::id();
         $cartItems = CartItem::with('product')->where('user_id', $userId)->get();
         return view('client.carts.index', compact('cartItems'));
     }
     public function add(Request $request)
     {
-        $userId = 2;
+        $userId = Auth::id();
         $productId = $request->input('product_id');
 
         $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
@@ -40,7 +42,7 @@ class CartController extends Controller
 
 public function update(Request $request)
 {
-    $userId = 2;
+    $userId = Auth::id();
     $productId = $request->input('product_id');
     $quantity = (int) $request->input('quantity');
 
@@ -75,7 +77,7 @@ public function update(Request $request)
      */
     public function destroy($id)
     {
-        $userId = 2;
+        $userId = Auth::id();
         $item = CartItem::where('user_id', $userId)->where('id', $id)->first();
         if($item) {
             $item->delete();
