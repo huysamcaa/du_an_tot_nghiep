@@ -183,36 +183,22 @@
                                 </div>
                                 {{-- HẾT PHẦN USER --}}
                                     <div class="anCart">
-                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>3</span></a>
+                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
                                         <div class="cartWidgetArea">
+                                            @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
-                                                <img src="images/cart/1.jpg" alt="Marine Design">
-                                                <a href="shop_details1.html">Ulina luxurious bag for men women</a>
+                                                <img src="{{ asset($item->product->thumbnail) }}" alt="Marine Design">
+                                                <a href="shop_details1.html">{{ $item->product->name }}</a>
                                                 <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>19.00</span></span>
+                                                    <span class="price">{{ number_format($item->product->price) }}đ</span>
                                                 </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
+                                                <a href="{{ route('cart.destroy', $item->id) }}" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
                                             </div>
-                                            <div class="cartWidgetProduct">
-                                                <img src="images/cart/2.jpg" alt="Draped Neck">
-                                                <a href="shop_details2.html">Nasio stainless steel watch</a>
-                                                <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>41.00</span></span>
-                                                </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
-                                            </div>
-                                            <div class="cartWidgetProduct">
-                                                <img src="images/cart/3.jpg" alt="Long Pleated">
-                                                <a href="shop_details1.html">Winner men’s comfortable t-shirt</a>
-                                                <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>52.00</span></span>
-                                                </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
-                                            </div>
-                                            <div class="totalPrice">Subtotal: <span class="price"><span><span>$</span>112.00</span></span></div>
+                                            @endforeach
+                                            <div class="totalPrice" id="cart-total">Subtotal: <span class="price">{{ number_format($total) }}đ</span></div>
                                             <div class="cartWidgetBTN clearfix">
                                                 <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
-                                                <a class="checkout" href="checkout.html">Checkout</a>
+                                                <a class="checkout" href="{{ route('checkout') }}">Checkout</a>
                                             </div>
                                         </div>
                                     </div>

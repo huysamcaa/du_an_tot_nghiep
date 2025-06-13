@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
+use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -28,8 +29,14 @@ use App\Http\Controllers\Auth\RegisterController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
 Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
-
-
+    
+// Route giỏ hàng (client)
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+// Route::get('/checkout',[CheckoutController::class, 'index'])->name('checkout');
+// Route::post('/checkout',[CheckoutController::class, 'process'])->name('checkout.process');
 Route::middleware(['auth'])->group(function () {
 
 });
@@ -53,12 +60,6 @@ Route::middleware(['auth'])->group(function () {
     // DÒNG ĐÃ CHỈNH SỬA: Bây giờ trỏ đến HomeController@index
     Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
 
-    // Route giỏ hàng (client)
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-    Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
-    
     // --- 3. Các Route Dành riêng cho Admin (Admin-Only Routes) ---
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         // Trang dashboard admin

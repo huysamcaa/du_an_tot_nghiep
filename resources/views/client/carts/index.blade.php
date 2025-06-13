@@ -8,7 +8,7 @@
                         <div class="pageBannerContent text-center">
                             <h2>Shopping Cart</h2>
                             <div class="pageBannerPath">
-                                <a href="index.html">Home</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Cart</span>
+                                <a href="{{ route('client.home') }}">Home</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Cart</span>
                             </div>
                         </div>
                     </div>
@@ -35,128 +35,56 @@
                                     <th class="product-remove">&nbsp;</th>
                                 </tr>
                             </thead>
+                                @php 
+                                    $total = 0; 
+                                    $totalQuantity = 0;
+                                @endphp
+                                @foreach($cartItems as $item)
+                                @php 
+                                    $total += $item->product->price * $item->quantity; 
+                                    $totalQuantity += $item->quantity;
+                                @endphp
                             <tbody>
-                                <tr>
+                                <tr data-id="{{ $item->product_id }}">
                                     <td class="product-thumbnail">
-                                        <a href="shop_details1.html"><img src="images/cart/1.jpg" alt="Cart Item"></a>
+                                        <a href="shop_details1.html"><img src="{{ asset($item->product->thumbnail) }}" alt="Cart Item"></a>
                                     </td>
                                     <td class="product-name">
-                                        <a href="shop_details1.html">Ulina luxurious bag for men women</a>
+                                        <a href="shop_details1.html">{{ $item->product->name }}</a>
                                     </td>
                                     <td class="product-price">
                                         <div class="pi01Price">
-                                            <ins>$48.00</ins>
+                                            <ins>{{ number_format($item->product->price) }}đ</ins>
                                         </div>
                                     </td>
                                     <td class="product-quantity">
                                         <div class="quantity clearfix">
-                                            <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
-                                            <input type="number" class="carqty input-text qty text" name="quantity" value="01">
-                                            <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
+                                            <form class="update-cart-form mt-3" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $item->product_id }}">
+                                                <button class="change-qty" type="submit" data-action="decrease">_</button>
+                                                <span class="quantity-num">{{ $item->quantity }}</span>
+                                                <button class="change-qty" type="submit" data-action="increase">+</button>
+                                            </form>
                                         </div>
                                     </td>
-                                    <td class="product-subtotal">
+                                    <td class="product-subtotal" data-id="{{$item->id}}">
                                         <div class="pi01Price">
-                                            <ins>$48.00</ins>
+                                            <ins>{{ number_format($item->product->price * $item->quantity) }}đ</ins>
                                         </div>
                                     </td>
                                     <td class="product-remove">
-                                        <a href="javascript:void(0);" class="remove"><span></span></a>
+                                        <a href="{{ route('cart.destroy', $item->id) }}" class="remove"><span>
+                                        </span></a>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="shop_details2.html"><img src="images/cart/2.jpg" alt="Cart Item"></a>
-                                    </td>
-                                    <td class="product-name">
-                                        <a href="shop_details2.html">Nasio stainless steel watch</a>
-                                    </td>
-                                    <td class="product-price">
-                                        <div class="pi01Price">
-                                            <ins>$52.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-quantity">
-                                        <div class="quantity clearfix">
-                                            <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
-                                            <input type="number" class="carqty input-text qty text" name="quantity" value="01">
-                                            <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="product-subtotal">
-                                        <div class="pi01Price">
-                                            <ins>$52.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-remove">
-                                        <a href="javascript:void(0);" class="remove"><span></span></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="shop_details1.html"><img src="images/cart/3.jpg" alt="Cart Item"></a>
-                                    </td>
-                                    <td class="product-name">
-                                        <a href="shop_details1.html">Winner men’s comfortable t-shirt</a>
-                                    </td>
-                                    <td class="product-price">
-                                        <div class="pi01Price">
-                                            <ins>$33.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-quantity">
-                                        <div class="quantity clearfix">
-                                            <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
-                                            <input type="number" class="carqty input-text qty text" name="quantity" value="01">
-                                            <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="product-subtotal">
-                                        <div class="pi01Price">
-                                            <ins>$33.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-remove">
-                                        <a href="javascript:void(0);" class="remove"><span></span></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="shop_details2.html"><img src="images/cart/4.jpg" alt="Cart Item"></a>
-                                    </td>
-                                    <td class="product-name">
-                                        <a href="shop_details2.html">Ulina easy carry bag for women</a>
-                                    </td>
-                                    <td class="product-price">
-                                        <div class="pi01Price">
-                                            <ins>$99.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-quantity">
-                                        <div class="quantity clearfix">
-                                            <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
-                                            <input type="number" class="carqty input-text qty text" name="quantity" value="01">
-                                            <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="product-subtotal">
-                                        <div class="pi01Price">
-                                            <ins>$99.00</ins>
-                                        </div>
-                                    </td>
-                                    <td class="product-remove">
-                                        <a href="javascript:void(0);" class="remove"><span></span></a>
-                                    </td>
-                                </tr>
                             </tbody>
+                            @endforeach
                             <tfoot>
                                 <tr class="actions">
                                     <td colspan="2" class="text-start">
                                         <a href="shop_full_width.html" class="ulinaBTN"><span>Continue Shopping</span></a>  
                                     </td>
                                     <td colspan="4" class="text-end">
-                                        <a href="shop_full_width.html" class="ulinaBTN2">Update Cart</a>  
-                                        <a href="shop_full_width.html" class="ulinaBTN2">Clear All</a>  
                                     </td>
                                 </tr>
                             </tfoot>
@@ -207,8 +135,8 @@
                                 <tbody><tr class="cart-subtotal">
                                     <th>Subtotal</th>
                                     <td data-title="Subtotal">
-                                        <div class="pi01Price">
-                                            <ins>$133.00</ins>
+                                        <div class="pi01Price" id="cart-total">
+                                            <ins>{{ number_format($total) }}đ</ins>
                                         </div>
                                     </td>
                                 </tr>
@@ -216,20 +144,20 @@
                                     <th>Shipping</th>
                                     <td data-title="Subtotal">
                                         <div class="pi01Price">
-                                            <ins>$10.00</ins>
+                                            <ins>30,000đ</ins>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr class="order-total">
                                     <th>Grand Total</th>
                                     <td data-title="Subtotal">
-                                        <div class="pi01Price">
-                                            <ins>$143.00</ins>
+                                        <div class="pi01Price" id="grand-total">
+                                            <ins>{{ number_format($total + 30000)}}đ</ins>
                                         </div>
                                     </td>
                                 </tr>
                             </tbody></table>
-                            <a href="checkout.html" class="checkout-button ulinaBTN">
+                            <a href="{{ route('checkout') }}" class="checkout-button ulinaBTN">
                                 <span>Proceed to checkout</span>
                             </a>
                             <p class="cartHints">Checkout with multiple address</p>
@@ -238,128 +166,48 @@
                 </div>
             </div>
         </section>
-<div class="container">
-    <h2 class="mb-4">Giỏ hàng của bạn</h2>
-    <div class="card shadow-sm">
-    @php 
-        $total = 0; 
-        $totalQuantity = 0;
-    @endphp
-    @foreach($cartItems as $item)
-    @php 
-        $total += $item->product->price * $item->quantity; 
-        $totalQuantity += $item->quantity;
-    @endphp
-    <div class="border rounded my-3 mx-3 p-3 bg-white">
-        <div class="d-flex align-items-start mt-3" data-id="{{ $item->product_id }}">
-            <div class="me-3">
-                <img src="{{ asset($item->product->thumbnail) }}" width="80" alt="ảnh sản phẩm">
-            </div>
-            <div class="flex-grow-1">
-                <div class="row">
-                    <div class="col-3">
-                        <h5 class="mb-1">{{ $item->product->name }}</h5>
-                    </div>
-                    <div class="col-2">
-                        <p class="text-muted small">Phân loại hàng: {{$item->variant}}</p>
-                    </div>
-                    <div class="col-2">
-                        <strong class=" me-3">{{ number_format($item->product->price) }}đ</strong>
-                    </div>
-                    <div class="col-2">
-                        <div class="d-flex align-items-center">
-                            <form action="{{ route('cart.update') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $item->product_id }}">
-                                <button class="btn btn-outline-secondary btn-sm px-2 decrease-btn" type="submit" name="quantity" value="{{ max(1, $item->quantity - 1) }}">-</button>
-                                <span class="mx-3 quantity">{{ $item->quantity }}</span>
-                                <button class="btn btn-outline-secondary btn-sm px-2 increase-btn" type="submit" name="quantity" value="{{ $item->quantity + 1 }}">+</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                            <p class="mb-0 text-danger item-total"><strong>{{ number_format($item->product->price * $item->quantity) }}đ</strong></p>
-                    </div>
-                    <div class="col-1">
-                        <a href="{{ route('cart.destroy', $item->id) }}" onclick="return confirm('Xoá sản phẩm này?')" class="text-danger small">Xoá</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endforeach
-    <div class="d-flex justify-content-end mt-3 border-top ">
-        <h5 class="mx-2 my-3">Tổng cộng({{$totalQuantity}} sản phẩm): <span id="cart-total"  >{{ number_format($total) }}đ</span></h5>
-        <a href="" class="btn btn-info px-3 py-3">Mua hàng ngay</a>
-    </div>
 </div>    
 </div>
 
 @endsection
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
-@push('scripts')
 <script>
-    document.querySelectorAll('.increase-btn, .decrease-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const container = this.closest('[data-id]');
-            const productId = container.dataset.id;
-            const quantitySpan = container.querySelector('.quantity');
-            let quantity = parseInt(quantitySpan.textContent);
+$(document).ready(function(){
+    $('.change-qty').click(function(e){
+        e.preventDefault();
 
-            if(this.classList.contains('increase-btn')) {
-                quantity++;
-            }else if(this.classList.contains('decrease-btn') && quantity > 1){
-                quantity--;
-            }
+        let button = $(this);
+        let form = button.closest('form');
+        let action = button.data('action');
+        let productId = form.find('input[name="product_id"]').val();
 
-            fetch("{{ route('cart.update') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{csrf_token() }}'
-                },
-                body: JSON.stringify({product_id: productId, quantity: quantity})
-            })
-            .then(res => res.json())
-            .then(data =>{
-                if(data.success) {
-                    quantitySpan.textContent = data.quantity;
-                    container.querySelector('.item-total strong').textContent = data.item_total + 'đ';
-                    document.getElementById('cart-total').textContent = data.cart_total + 'đ';
-                    document.querySelector('h5.mb-0').textContent =
-                        `Tổng cộng (${data.total_quantity} sản phẩm): ${data.cart_total}đ`;
-                }
-            });
-        });
-    });
-    document.querySelectorAll('.pi01Cart').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const productId = this.closest('[data-product-id]').dataset.productId;
-
-            fetch("{{ route('cart.add') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    product_id: productId
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Sản phẩm đã được thêm vào giỏ hàng!');
+        $.ajax({
+            url: '{{ route("cart.update") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                product_id: productId,
+                quantity: action
+            },
+            success: function(res){
+                if(res.success){
+                    form.find('.quantity-num').text(res.new_quantity);
+                    form.closest('tr').find('.product-subtotal ins').text(res.item_total + 'đ');
+                    $('#cart-total ins').text(res.cart_total + 'đ');
+                    $('#grand-total').text(res.grand_total + 'đ');
                 } else {
-                    alert('Thêm vào giỏ hàng thất bại!');
+                    alert('Không cập nhật được sản phẩm');
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('⚠ Đã xảy ra lỗi khi thêm vào giỏ hàng!');
-            });
+            },
+            error: function(err){
+                alert('Đã xảy ra lỗi.');
+                console.log(err);
+            }
         });
     });
+});
+
 </script>
-@endpush
