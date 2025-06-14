@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ManufacturerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductGalleryController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
@@ -23,6 +25,20 @@ use App\Http\Controllers\Auth\RegisterController;
 // --- 1. Các Route Công khai (Public Routes) ---
 // Các route mà bất kỳ ai cũng có thể truy cập (kể cả chưa đăng nhập)
 
+    // Dashboard
+//     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+//     // CRUD Danh mục
+//     Route::resource('categories', CategoryController::class);
+//     Route::resource('manufacturers',ManufacturerController::class);
+//     Route::resource('promotions',PromotionController::class);
+//     Route::resource('products', ProductController::class);
+//     Route::resource('attributes', AttributeController::class);
+
+// Route::prefix('products/{product}')->name('products.')->group(function () {
+//         Route::resource('variants', ProductVariantController::class)->except(['show']);
+//     });
+// });
 // Trang chủ chung của ứng dụng (Home của Client)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
@@ -59,6 +75,11 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
             Route::resource('products', ProductController::class);
+                Route::resource('attributes', AttributeController::class);
+
+Route::prefix('products/{product}')->name('products.')->group(function () {
+        Route::resource('variants', ProductVariantController::class)->except(['show']);
+    });
     });
 });
 

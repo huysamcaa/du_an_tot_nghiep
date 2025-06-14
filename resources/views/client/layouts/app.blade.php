@@ -24,6 +24,7 @@
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
+    
     @include('client.layouts.header')
 
     @yield('content')
@@ -48,7 +49,7 @@
         <script src="{{ asset('assets/Client/js/circle-progress.js') }}"></script>
 
         <script src="{{ asset('assets/Client/js/gmaps.js') }}"></script>
-        <!-- <script src="https://maps.google.com/maps/api/js?key=AIzaSyCA_EDGVQleQtHIp2fZ-V56QFRbRL8cXT8"></script> -->
+       
 
         <script src="{{ asset('assets/Client/js/jquery.themepunch.tools.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/jquery.themepunch.revolution.min.js') }}"></script>

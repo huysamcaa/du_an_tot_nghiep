@@ -12,6 +12,7 @@ class AttributeValue extends Model
     protected $fillable = [
         'attribute_id',
         'value',
+        'hex',
         'is_active'
     ];
 
