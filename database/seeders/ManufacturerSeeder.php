@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Str;
+use App\Models\Manufacturer;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ManufacturerSeeder extends Seeder
 {
@@ -12,31 +14,13 @@ class ManufacturerSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('manufacturers')->insert([
-            [
-                'name' => 'Công ty 1',
-                'address' => '789 Lê Lợi, Đà Nẵng',
-                'phone' => '0912345678',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Công ty 2',
-                'address' => '101 Trần Phú, Nha Trang',
-                'phone' => '0908765432',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Công ty 3',
-                'address' => 'Hà Đông, Hà Nội',
-                'phone' => '0900456347',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        foreach(['Nike','Adidas','Puma'] as $name){
+            Manufacturer::create([
+                'name'=>$name,
+                'slug'=>Str::slug($name),
+                'website'=>  'https://'.Str::slug($name).'.com',
+                'description'=> fake()->sentence(),
+            ]);
+        }
     }
 }
