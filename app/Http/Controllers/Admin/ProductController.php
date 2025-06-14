@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Product;
+use App\Models\Admin\Category;
 use App\Models\Admin\ProductVariant;
 use App\Models\Admin\Attribute;
 use App\Models\Admin\AttributeValue;
@@ -26,8 +27,8 @@ class ProductController extends Controller
         $sizes = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'size');
         })->get();
-
-        return view('admin.products.create', compact('colors', 'sizes'));
+        $categories = Category::all();
+        return view('admin.products.create', compact('colors', 'sizes', 'categories'));
     }
 
 public function store(Request $request)
@@ -38,7 +39,7 @@ public function store(Request $request)
         'short_description' => 'required|string',
         'description' => 'required|string',
         'thumbnail' => 'required|image',
-
+        'category_id' => 'required|exists:categories,id',
         'price' => 'required|numeric',
         'sale_price' => 'nullable|numeric',
         'sale_price_start_at' => 'nullable|date',
@@ -100,6 +101,17 @@ public function store(Request $request)
             $variant->attributeValues()->attach($attributeValueIds);
         }
     }
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            if ($image->isValid()) {
+                $path = $image->store('uploads/images', 'public');
+                $product->galleries()->create([
+                    'image' => $path,
+                ]);
+            }
+        }
+    }
+
 
     return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
 }
@@ -114,8 +126,8 @@ public function store(Request $request)
         $sizes = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'size');
         })->get();
-
-        return view('admin.products.edit', compact('product', 'colors', 'sizes'));
+ $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'colors', 'sizes','categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -233,7 +245,7 @@ public function store(Request $request)
 
     public function show(Product $product)
     {
-        $product->load(['variants.attributeValues.attribute']);
+        $product->load(['variants.attributeValues.attribute','galleries']);
         return view('admin.products.show', compact('product'));
     }
 

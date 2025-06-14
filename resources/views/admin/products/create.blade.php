@@ -15,7 +15,17 @@
 
 <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-
+    <div class="form-group">
+        <label for="category_id">Danh mục</label>
+        <select name="category_id" id="category_id" class="form-control" >
+            <option value="">-- Chọn danh mục --</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
     <div class="form-group">
         <label for="brand_id">ID thương hiệu (brand_id)</label>
         <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id') }}" required>
@@ -42,9 +52,10 @@
     </div>
 
     <div class="form-group">
-        <label for="sku">Mã SKU</label>
-        <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku') }}">
+        <label for="images">Hình ảnh chi tiết</label>
+        <input type="file" class="form-control-file" id="images" name="images[]" accept="image/*" multiple>
     </div>
+
 
     <div class="form-group">
         <label for="price">Giá gốc</label>
@@ -101,13 +112,13 @@
         </select>
         <input type="number" name="variants[0][price]" class="form-control" placeholder="Giá" required>
         <input type="number" name="variants[0][stock]" class="form-control" placeholder="Kho" required>
-       
+
         <input type="file" name="variants[0][thumbnail]" class="form-control" accept="image/*">
         <button type="button" class="btn btn-danger remove-variant">X</button>
     </div>
 </div>
 <button type="button" class="btn btn-success mb-3" id="add-variant">+ Thêm biến thể</button>
-  
+
 <script>
 let variantIndex = 1;
 document.getElementById('add-variant').onclick = function() {
@@ -115,9 +126,9 @@ document.getElementById('add-variant').onclick = function() {
     <div class="variant-row mb-3" style="display: flex; gap: 10px;">
         <select name="variants[${variantIndex}][color_id]" class="form-control" required>
             <option value="">Chọn màu</option>
-            
+
             @foreach($colors as $color)
-            
+
                 <option value="{{ $color->id }}">{{ $color->value }}</option>
             @endforeach
         </select>

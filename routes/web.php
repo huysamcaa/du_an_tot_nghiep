@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ManufacturerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductGalleryController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
