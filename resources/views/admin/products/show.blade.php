@@ -20,10 +20,25 @@
             <th>Ảnh đại diện</th>
             <td>
                 @if($product->thumbnail)
-                    <img src="{{ asset('storage/' . $product->thumbnail) }}" width="100">
+                    <img src="{{ asset('storage/' . $product->thumbnail) }}" width="80">
                 @endif
             </td>
         </tr>
+
+        <tr>
+            <th>Ảnh chi tiết</th>
+            <td>
+                @if($product->galleries && $product->galleries->count())
+                    @foreach($product->galleries as $gallery)
+                        <img src="{{ asset('storage/' . $gallery->image) }}" width="80" class="img-thumbnail me-2 mb-2">
+                    @endforeach
+                @else
+                    <em>Không có ảnh chi tiết.</em>
+                @endif
+            </td>
+        </tr>
+
+
         <tr>
             <th>Mô tả ngắn</th>
             <td>{{ $product->short_description }}</td>

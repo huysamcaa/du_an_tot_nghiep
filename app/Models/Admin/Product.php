@@ -75,5 +75,10 @@ public function variantsWithAttributes()
         ->with(['attributeValues.attribute'])
         ->get();
 }
+public function galleries()
+{
+    return $this->hasMany(ProductGallery::class);
+}
+
 
 }
