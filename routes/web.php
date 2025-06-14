@@ -11,7 +11,11 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+
 /*
 |--------------------------------------------------------------------------
 | Route quản trị KHÔNG yêu cầu đăng nhập
@@ -19,22 +23,56 @@ use App\Http\Controllers\Client\PromotionController as ClientPromotionController
 | Chỉ dùng để thử chức năng CRUD. Khi đã cài hệ đăng nhập,
 | bạn hãy thêm lại middleware ['auth','is_admin'].
 */
-Route::prefix('admin')->name('admin.')->group(function () {
 
+Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // CRUD Danh mục
+    // CRUD quản trị
     Route::resource('categories', CategoryController::class);
-    Route::resource('manufacturers',ManufacturerController::class);
-    Route::resource('promotions',PromotionController::class);
+    Route::resource('manufacturers', ManufacturerController::class);
+    Route::resource('promotions', PromotionController::class);
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
 
-Route::prefix('products/{product}')->name('products.')->group(function () {
+    Route::prefix('products/{product}')->name('products.')->group(function () {
         Route::resource('variants', ProductVariantController::class)->except(['show']);
     });
 });
+
+// --- 1. Các Route Công khai ---
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
 Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
+
+// Đăng ký
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
+
+// Đăng nhập
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+
+// Chuyển hướng /admin/login về login chung
+Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
+Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
+
+// --- 2. Route yêu cầu xác thực ---
+Route::middleware(['auth'])->group(function () {
+    // Đăng xuất
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Dashboard người dùng
+    Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
+
+    // Các route chỉ cho admin
+    Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+        Route::resource('categories', CategoryController::class);
+        Route::resource('manufacturers', ManufacturerController::class);
+        Route::resource('promotions', PromotionController::class);
+        Route::resource('products', ProductController::class);
+    });
+});
