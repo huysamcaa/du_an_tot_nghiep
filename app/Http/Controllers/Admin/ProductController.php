@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Product;
+use App\Models\Admin\Category;
 use App\Models\Admin\ProductVariant;
 use App\Models\Admin\Attribute;
 use App\Models\Admin\AttributeValue;
@@ -16,20 +17,17 @@ class ProductController extends Controller
         $products = Product::with(['variants'])->orderBy('created_at', 'desc')->get();
         return view('admin.products.index', compact('products'));
     }
+    
 
     public function create()
     {
-        $colors = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'color');
-        })->get();
-        
-        $sizes = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'size');
-        })->get();
-        
-        return view('admin.products.create', compact('colors', 'sizes'));
-    }
+         $categories = Category::all();
+        $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
+    return view('admin.products.create', compact('attributes','categories'));
 
+        
+        
+    }
 public function store(Request $request)
 {
     $data = $request->validate([
@@ -38,7 +36,6 @@ public function store(Request $request)
         'short_description' => 'required|string',
         'description' => 'required|string',
         'thumbnail' => 'required|image',
-        
         'price' => 'required|numeric',
         'sale_price' => 'nullable|numeric',
         'sale_price_start_at' => 'nullable|date',
@@ -48,11 +45,10 @@ public function store(Request $request)
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
         'variants' => 'required_if:has_variants,true|array',
-        'variants.*.color_id' => 'required|exists:attribute_values,id',
-        'variants.*.size_id' => 'required|exists:attribute_values,id',
+        'variants.*.attribute_id' => 'required|exists:attributes,id',
+        'variants.*.attribute_value_id' => 'required|exists:attribute_values,id',
         'variants.*.price' => 'required|numeric',
-        'variants.*.stock' => 'required|integer|min:0',
-        'variants.*.sku' => 'nullable|string|unique:product_variants,sku',
+        'variants.*.sku' => 'nullable|string|max:255',
         'variants.*.thumbnail' => 'nullable|image',
     ]);
 
@@ -72,50 +68,46 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
-        foreach ($request->variants as $variantData) {
-            $variant = new ProductVariant([
-              
-                'price' => $variantData['price'],
-                'stock' => $variantData['stock'],
-            ]);
+    foreach ($request->variants as $variantData) {
+        $variant = new ProductVariant([
+            'price' => $variantData['price'],
+            'sku' => $variantData['sku'] ?? null,
+        ]);
 
-            // Upload ảnh biến thể nếu có
-            if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
-                $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
-            } else {
-                $variant->thumbnail = $product->thumbnail;
-            }
+        // Upload ảnh biến thể nếu có
+        if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
+            $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
+        } else {
+            $variant->thumbnail = $product->thumbnail;
+        }
 
-            // Lưu biến thể
-            $product->variants()->save($variant);
+        // Lưu biến thể
+        $product->variants()->save($variant);
 
-            // Gán các thuộc tính biến thể (color_id, size_id) vào bảng trung gian
-            $attributeValueIds = [];
-            if (!empty($variantData['color_id'])) {
-                $attributeValueIds[] = $variantData['color_id'];
-            }
-            if (!empty($variantData['size_id'])) {
-                $attributeValueIds[] = $variantData['size_id'];
-            }
-            $variant->attributeValues()->attach($attributeValueIds);
+        // Gán giá trị thuộc tính cho biến thể (sửa lại ở đây)
+        // $variantData['attribute_value_id'] là mảng các id
+        if (isset($variantData['attribute_value_id'])) {
+            $variant->attributeValues()->attach($variantData['attribute_value_id']);
         }
     }
+}
 
     return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
 }
 
     public function edit(Product $product)
     {
+         
         $product->load(['variants.attributeValues']);
         $colors = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'color');
         })->get();
-        
+
         $sizes = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'size');
         })->get();
-        
-        return view('admin.products.edit', compact('product', 'colors', 'sizes'));
+ $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'colors', 'sizes','categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -166,10 +158,10 @@ public function store(Request $request)
         // Xử lý biến thể
         if ($request->has('variants')) {
             $existingVariantIds = [];
-            
+
             foreach ($request->variants as $variantData) {
                 $variantData = array_filter($variantData);
-                
+
                 if (isset($variantData['id'])) {
                     // Cập nhật biến thể hiện có
                     $variant = ProductVariant::find($variantData['id']);
@@ -178,7 +170,7 @@ public function store(Request $request)
                         'stock' => $variantData['stock'],
                         'sku' => $variantData['sku'] ?? $variant->sku,
                     ]);
-                    
+
                     // Upload ảnh biến thể nếu có
                     if (isset($variantData['thumbnail']) && $variantData['thumbnail']->isValid()) {
                         // Xóa ảnh cũ nếu tồn tại
@@ -188,13 +180,13 @@ public function store(Request $request)
                         $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
                         $variant->save();
                     }
-                    
+
                     // Cập nhật thuộc tính biến thể
                     $variant->attributeValues()->sync([
                         $variantData['color_id'],
                         $variantData['size_id']
                     ]);
-                    
+
                     $existingVariantIds[] = $variantData['id'];
                 } else {
                     // Tạo biến thể mới
@@ -203,27 +195,27 @@ public function store(Request $request)
                         'price' => $variantData['price'],
                         'stock' => $variantData['stock'],
                     ]);
-                    
+
                     // Upload ảnh biến thể nếu có
                     if (isset($variantData['thumbnail']) && $variantData['thumbnail']->isValid()) {
                         $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
                     } else {
                         $variant->thumbnail = $product->thumbnail;
                     }
-                    
+
                     // Lưu biến thể
                     $product->variants()->save($variant);
-                    
+
                     // Gán các thuộc tính biến thể
                     $variant->attributeValues()->attach([
                         $variantData['color_id'],
                         $variantData['size_id']
                     ]);
-                    
+
                     $existingVariantIds[] = $variant->id;
                 }
             }
-            
+
             // Xóa các biến thể không còn tồn tại
             $product->variants()->whereNotIn('id', $existingVariantIds)->delete();
         }
@@ -233,7 +225,7 @@ public function store(Request $request)
 
     public function show(Product $product)
     {
-        $product->load(['variants.attributeValues.attribute']);
+        $product->load(['variants.attributeValues.attribute','galleries']);
         return view('admin.products.show', compact('product'));
     }
 
@@ -243,17 +235,17 @@ public function store(Request $request)
         if ($product->thumbnail) {
             Storage::disk('public')->delete($product->thumbnail);
         }
-        
+
         // Xóa các ảnh biến thể
         foreach ($product->variants as $variant) {
             if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
                 Storage::disk('public')->delete($variant->thumbnail);
             }
         }
-        
+
         $product->variants()->delete();
         $product->forceDelete();
-        
+
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 
@@ -264,11 +256,11 @@ public function store(Request $request)
     {
         $color = AttributeValue::find($variantData['color_id']);
         $size = AttributeValue::find($variantData['size_id']);
-        
+
         $productSku = $product->sku ?: substr(strtoupper(preg_replace('/[^a-z0-9]/i', '', $product->name)), 0, 3);
         $colorCode = substr(strtoupper($color->value), 0, 3);
         $sizeCode = $size->value;
-        
+
         return $productSku . '-' . $colorCode . '-' . $sizeCode;
     }
 }

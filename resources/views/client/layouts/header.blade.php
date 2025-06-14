@@ -57,11 +57,7 @@
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Categories</a>
-                                        <ul>
-                                            <li><a href="#">Men</a></li>
-                                            <li><a href="#">Women</a></li>
-                                          
-                                        </ul>
+                                        @include('client.categories.index')
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Blog</a>

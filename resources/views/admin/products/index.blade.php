@@ -86,7 +86,7 @@
                                     </td>
                                     <td>{{ $product->created_at->format('d/m/Y') }}</td>
                                     <td>
-                                        <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-info btn-sm">Xem chi tiết</a>
+                                        <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-info btn-sm">Chi tiết</a>
                                         <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-warning">Sửa</a>
                                         <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline-block">
                                             @csrf @method('DELETE')

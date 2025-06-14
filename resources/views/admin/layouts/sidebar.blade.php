@@ -11,10 +11,20 @@
                         <i class="menu-icon fa fa-cogs"></i>Danh mục
                     </a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-puzzle-piece"></i><a href="http://127.0.0.1:8000/admin/categories">Xem Danh Mục</a></li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.categories.index') }}">Xem Danh Mục</a></li>
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
+              
+                    <li class="menu-title"></li><!-- /.menu-title -->
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-archive"></i>Sản Phẩm</a>
+                        <ul class="sub-menu children dropdown-menu">                            
+                            <li><i class="fa fa-calendar"></i><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
+                            <li><i class="fa fa-bars"></i><a href="{{ route('admin.products.create') }}">Thêm sản phẩm</a></li>
+                        </ul>
+                    </li>
+               
 
                   <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"
@@ -26,6 +36,19 @@
                             <i class="fa fa-puzzle-piece"></i>
                             <a href="{{ route('admin.manufacturers.index') }}">
                                 Quản lý nhà sản xuất
+                            </a>
+                        </li>
+                    </ul>
+                     <li class="menu-item-has-children dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-industry"></i>Biến thể
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li>
+                            <i class="fa fa-puzzle-piece"></i>
+                            <a href="{{ route('admin.attributes.index') }}">
+                                Quản lý Biến thể
                             </a>
                         </li>
                     </ul>
