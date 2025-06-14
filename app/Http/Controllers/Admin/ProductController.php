@@ -16,20 +16,16 @@ class ProductController extends Controller
         $products = Product::with(['variants'])->orderBy('created_at', 'desc')->get();
         return view('admin.products.index', compact('products'));
     }
+    
 
     public function create()
     {
-        $colors = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'color');
-        })->get();
-        
-        $sizes = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'size');
-        })->get();
-        
-        return view('admin.products.create', compact('colors', 'sizes'));
-    }
+        $attributes = \App\Models\Admin\Attribute::with('attributeValues')->where('is_active', 1)->get();
+    return view('admin.products.create', compact('attributes'));
 
+        
+        
+    }
 public function store(Request $request)
 {
     $data = $request->validate([
@@ -38,7 +34,6 @@ public function store(Request $request)
         'short_description' => 'required|string',
         'description' => 'required|string',
         'thumbnail' => 'required|image',
-        
         'price' => 'required|numeric',
         'sale_price' => 'nullable|numeric',
         'sale_price_start_at' => 'nullable|date',
@@ -48,11 +43,10 @@ public function store(Request $request)
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
         'variants' => 'required_if:has_variants,true|array',
-        'variants.*.color_id' => 'required|exists:attribute_values,id',
-        'variants.*.size_id' => 'required|exists:attribute_values,id',
+        'variants.*.attribute_id' => 'required|exists:attributes,id',
+        'variants.*.attribute_value_id' => 'required|exists:attribute_values,id',
         'variants.*.price' => 'required|numeric',
-        'variants.*.stock' => 'required|integer|min:0',
-        'variants.*.sku' => 'nullable|string|unique:product_variants,sku',
+        'variants.*.sku' => 'nullable|string|max:255',
         'variants.*.thumbnail' => 'nullable|image',
     ]);
 
@@ -72,34 +66,29 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
-        foreach ($request->variants as $variantData) {
-            $variant = new ProductVariant([
-              
-                'price' => $variantData['price'],
-                'stock' => $variantData['stock'],
-            ]);
+    foreach ($request->variants as $variantData) {
+        $variant = new ProductVariant([
+            'price' => $variantData['price'],
+            'sku' => $variantData['sku'] ?? null,
+        ]);
 
-            // Upload ảnh biến thể nếu có
-            if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
-                $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
-            } else {
-                $variant->thumbnail = $product->thumbnail;
-            }
+        // Upload ảnh biến thể nếu có
+        if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
+            $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
+        } else {
+            $variant->thumbnail = $product->thumbnail;
+        }
 
-            // Lưu biến thể
-            $product->variants()->save($variant);
+        // Lưu biến thể
+        $product->variants()->save($variant);
 
-            // Gán các thuộc tính biến thể (color_id, size_id) vào bảng trung gian
-            $attributeValueIds = [];
-            if (!empty($variantData['color_id'])) {
-                $attributeValueIds[] = $variantData['color_id'];
-            }
-            if (!empty($variantData['size_id'])) {
-                $attributeValueIds[] = $variantData['size_id'];
-            }
-            $variant->attributeValues()->attach($attributeValueIds);
+        // Gán giá trị thuộc tính cho biến thể (sửa lại ở đây)
+        // $variantData['attribute_value_id'] là mảng các id
+        if (isset($variantData['attribute_value_id'])) {
+            $variant->attributeValues()->attach($variantData['attribute_value_id']);
         }
     }
+}
 
     return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
 }

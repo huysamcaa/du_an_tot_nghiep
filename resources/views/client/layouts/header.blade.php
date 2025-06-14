@@ -1,11 +1,11 @@
-<header class="header01 isSticky">
+       <header class="header01 isSticky">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="headerInner01">
                             <div class="logo">
                                 <a href="index.html">
-                                    <img src="{{ asset('assets/Client/images/logo.png') }}" alt="Ulina"/>
+                                    <img src="images/logo.png" alt="Ulina"/>
                                 </a>
                             </div>
                             <div class="mainMenu">
@@ -141,7 +141,7 @@
                                             </div>
                                             <div class="cartWidgetProduct">
                                                 <img src="images/cart/2.jpg" alt="Draped Neck">
-                                                <a href="shop_details2.html">Nasio stainless steel watch</a>
+                                                <a href="shop_details1.html">Nasio stainless steel watch</a>
                                                 <div class="cartProductPrice clearfix">
                                                     <span class="price"><span><span>$</span>41.00</span></span>
                                                 </div>
@@ -174,3 +174,41 @@
                 </div>
             </div>
         </header>
+        <!-- END: Header 01 Section -->
+
+        <!-- BEGIN: Search Popup Section -->
+        <section class="popup_search_sec">
+            <div class="popup_search_overlay"></div>
+            <div class="pop_search_background">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="popup_logo">
+                                <a href="index.html"><img src="images/logo2.png" alt="Ulina"></a>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <a href="javascript:void(0);" id="search_Closer" class="search_Closer"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="middle_search">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <div class="popup_search_form">
+                                    <form method="get" action="#">
+                                        <input type="search" name="s" id="s" placeholder="Type Words and Hit Enter">
+                                        <button type="submit"><i class="fa-solid fa-search"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END: Search Popup Section -->
+
+        <!-- BEGIN: Page Banner Section -->
+       
