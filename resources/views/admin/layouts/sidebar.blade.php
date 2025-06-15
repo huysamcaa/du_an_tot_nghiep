@@ -53,18 +53,28 @@
                         </li>
                     </ul>
                      <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-credit-card"></i>Khuyến mãi
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                            <i class="menu-icon fa fa-credit-card"></i>Khuyến mãi
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+                            <li>
+                                <i class="fa fa fa-tag"></i>
+                                <a href="{{ route('admin.promotions.index') }}">
+                                    Quản lý khuyến mãi
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <li class="menu-item-has-children dropdown">
+                    <a href="admin.carts.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Giỏ Hàng
                     </a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li>
-                            <i class="fa fa fa-tag"></i>
-                            <a href="{{ route('admin.promotions.index') }}">
-                                Quản lý khuyến mãi
-                            </a>
-                        </li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{route('admin.carts.index')}}">Xem Giỏ Hàng</a></li>
+                        <!-- Các mục con khác -->
                     </ul>
+                </li>
                 <!-- Thêm các menu item khác tương tự -->
             </ul>
         </div>
