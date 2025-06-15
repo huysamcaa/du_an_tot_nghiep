@@ -21,22 +21,9 @@ class ProductController extends Controller
 
     public function create()
     {
-<<<<<<< HEAD
-        $colors = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'color');
-        })->get();
-
-        $sizes = AttributeValue::whereHas('attribute', function($q) {
-            $q->where('slug', 'size');
-        })->get();
-
-        return view('admin.products.create', compact('colors', 'sizes'));
-    }
-=======
          $categories = Category::all();
         $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
     return view('admin.products.create', compact('attributes','categories'));
->>>>>>> 00138753e8d8857bbe41e249eaf9897d5290ba3f
 
         
         
@@ -49,10 +36,6 @@ public function store(Request $request)
         'short_description' => 'required|string',
         'description' => 'required|string',
         'thumbnail' => 'required|image',
-<<<<<<< HEAD
-
-=======
->>>>>>> 00138753e8d8857bbe41e249eaf9897d5290ba3f
         'price' => 'required|numeric',
         'sale_price' => 'nullable|numeric',
         'sale_price_start_at' => 'nullable|date',
@@ -85,20 +68,11 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
-<<<<<<< HEAD
-        foreach ($request->variants as $variantData) {
-            $variant = new ProductVariant([
-
-                'price' => $variantData['price'],
-                'stock' => $variantData['stock'],
-            ]);
-=======
     foreach ($request->variants as $variantData) {
         $variant = new ProductVariant([
             'price' => $variantData['price'],
             'sku' => $variantData['sku'] ?? null,
         ]);
->>>>>>> 00138753e8d8857bbe41e249eaf9897d5290ba3f
 
         // Upload ảnh biến thể nếu có
         if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
@@ -132,13 +106,8 @@ public function store(Request $request)
         $sizes = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'size');
         })->get();
-<<<<<<< HEAD
-
-        return view('admin.products.edit', compact('product', 'colors', 'sizes'));
-=======
  $categories = Category::all();
         return view('admin.products.edit', compact('product', 'colors', 'sizes','categories'));
->>>>>>> 00138753e8d8857bbe41e249eaf9897d5290ba3f
     }
 
     public function update(Request $request, Product $product)
