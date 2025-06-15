@@ -14,13 +14,15 @@ class CartController extends Controller
      */
     public function index()
     {
-        $userId = Auth::id();
+        // $userId = Auth::id();
+        $userId = Auth::id() ?? 2;
         $cartItems = CartItem::with('product')->where('user_id', $userId)->get();
         return view('client.carts.index', compact('cartItems'));
     }
     public function add(Request $request)
     {
-        $userId = Auth::id();
+        // $userId = Auth::id();
+        $userId = Auth::id() ?? 2;
         $productId = $request->input('product_id');
 
         $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
@@ -40,44 +42,50 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng');
     }
 
-public function update(Request $request)
-{
-    $userId = Auth::id();
-    $productId = $request->input('product_id');
-    $quantity = (int) $request->input('quantity');
+    public function update(Request $request)
+    {
+        $userId = Auth::id() ?? 2; // fallback ID nếu chưa login
 
-    $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->with('product')->first();
+        $productId = $request->input('product_id');
+        $action = $request->input('quantity'); // có thể là 'increase' hoặc 'decrease'
 
-    if ($item) {
-        $item->quantity = max(1, $quantity);
-        $item->save();
+        $item = CartItem::with('product')
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
 
-        if ($request->ajax()) {
-            $total = CartItem::where('user_id', $userId)->get()->sum(fn($i) => $i->product->price * $i->quantity);
-
-            return response()->json([
-                'success' => true,
-                'item_total' => number_format($item->product->price * $item->quantity),
-                'cart_total' => number_format($total),
-                'quantity' => $item->quantity,
-                'total_quantity' => CartItem::where('user_id', $userId)->sum('quantity')
-
-            ]);
+        if (!$item) {
+            return response()->json(['success' => false, 'message' => 'Item not found']);
         }
 
-        return redirect()->back()->with('success', 'Cập nhật số lượng thành công!');
+        if ($action === 'increase') {
+            $item->quantity += 1;
+        } elseif ($action === 'decrease' && $item->quantity > 1) {
+            $item->quantity -= 1;
+        }
+
+        $item->save();
+
+        $cartTotal = CartItem::where('user_id', $userId)
+            ->get()
+            ->sum(fn($i) => $i->product->price * $i->quantity);
+
+        return response()->json([
+            'success' => true,
+            'item_total' => number_format($item->product->price * $item->quantity),
+            'cart_total' => number_format($cartTotal),
+            'new_quantity' => $item->quantity,
+            'grand_total' => number_format($cartTotal + 30000)
+        ]);
     }
-
-    return response()->json(['success' => false], 404);
-}
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
-        $userId = Auth::id();
+        // $userId = Auth::id();
+        $userId = Auth::id() ?? 2;
         $item = CartItem::where('user_id', $userId)->where('id', $id)->first();
         if($item) {
             $item->delete();

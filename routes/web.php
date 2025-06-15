@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard cho người dùng thường (Client)
     // DÒNG ĐÃ CHỈNH SỬA: Bây giờ trỏ đến HomeController@index
     Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
-
+    
     // --- 3. Các Route Dành riêng cho Admin (Admin-Only Routes) ---
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         // Trang dashboard admin

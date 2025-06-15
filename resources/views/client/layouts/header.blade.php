@@ -161,7 +161,6 @@
                                                         @csrf
                                                     </form>
                                                 </div>
-
                                             @else
                                                 {{-- Nếu người dùng chưa đăng nhập --}}
                                                 <div class="userDropdownHeader">
