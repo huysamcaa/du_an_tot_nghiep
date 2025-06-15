@@ -56,6 +56,15 @@ public function availableVariantValues($attributeSlug)
         ->active()
         ->get();
 }
+
+public function getVariantByAttributes($attributes)
+{
+    // Ví dụ: tìm biến thể theo color_id và size_id
+    return $this->variants()
+        ->where('color_id', $attributes['color_id'] ?? null)
+        ->where('size_id', $attributes['size_id'] ?? null)
+        ->first();
+}
  public function variants()
     {
         return $this->hasMany(ProductVariant::class);
@@ -63,8 +72,13 @@ public function availableVariantValues($attributeSlug)
 public function variantsWithAttributes()
 {
     return $this->variants()
-        ->with(['attributeValues.attribute', 'stock'])
+        ->with(['attributeValues.attribute'])
         ->get();
 }
+public function galleries()
+{
+    return $this->hasMany(ProductGallery::class);
+}
+
 
 }
