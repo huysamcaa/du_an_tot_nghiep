@@ -96,65 +96,107 @@
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
         <label class="form-check-label" for="is_active">Hiển thị</label>
     </div>
-      <div id="variants">
-    <div class="variant-row mb-3" style="display: flex; gap: 10px;">
-        <select name="variants[0][color_id]" class="form-control" required>
-            <option value="">Chọn màu</option>
-            @foreach($colors as $color)
-                <option value="{{ $color->id }}">{{ $color->value }}</option>
-            @endforeach
-        </select>
-        <select name="variants[0][size_id]" class="form-control" required>
-            <option value="">Chọn size</option>
-            @foreach($sizes as $size)
-                <option value="{{ $size->id }}">{{ $size->value }}</option>
-            @endforeach
-        </select>
-        <input type="number" name="variants[0][price]" class="form-control" placeholder="Giá" required>
-        <input type="number" name="variants[0][stock]" class="form-control" placeholder="Kho" required>
-
-        <input type="file" name="variants[0][thumbnail]" class="form-control" accept="image/*">
-        <button type="button" class="btn btn-danger remove-variant">X</button>
-    </div>
+    
+   <div class="form-group">
+    <button type="button" class="btn btn-info mb-2" id="toggle-attributes">Chọn thuộc tính và giá trị biến thể</button>
+    
+    <div id="attributes-select-area" style="display:none;">
+    @foreach($attributes as $attribute)
+        <div class="mb-2">
+            <strong>{{ $attribute->name }}</strong>
+            <select class="form-control attribute-value-select" name="attribute_values[{{ $attribute->id }}][]" multiple>
+                @foreach($attribute->attributeValues as $value)
+                    <option value="{{ $value->id }}">{{ $value->value }}{{ $value->hex ? ' ('.$value->hex.')' : '' }}</option>
+                @endforeach
+            </select>
+        </div>
+        
+    @endforeach
+    
+    <button type="button" class="btn btn-danger mt-2" id="clear-variants">Xóa tất cả biến thể</button>
+    <button type="button" class="btn btn-info mt-2" id="generate-variants">Tạo các biến thể</button>
 </div>
+</div>
+<div id="variants-table"></div>
 <button type="button" class="btn btn-success mb-3" id="add-variant">+ Thêm biến thể</button>
 
+@php
+    $attributesData = [];
+    foreach ($attributes as $attribute) {
+        $attributesData[$attribute->id] = $attribute->attributeValues->map(function($v) {
+            return ['id' => $v->id, 'value' => $v->value];
+        });
+    }
+@endphp
+
 <script>
-let variantIndex = 1;
-document.getElementById('add-variant').onclick = function() {
-    let html = `
-    <div class="variant-row mb-3" style="display: flex; gap: 10px;">
-        <select name="variants[${variantIndex}][color_id]" class="form-control" required>
-            <option value="">Chọn màu</option>
+const attributesData = @json($attributesData);
 
-            @foreach($colors as $color)
+// Hàm sinh tổ hợp
+function cartesian(arr) {
+    return arr.reduce(function(a, b) {
+        return a.flatMap(d => b.map(e => [d, e].flat()));
+    });
+}
 
-                <option value="{{ $color->id }}">{{ $color->value }}</option>
-            @endforeach
-        </select>
-        <select name="variants[${variantIndex}][size_id]" class="form-control" required>
-            <option value="">Chọn size</option>
-            @foreach($sizes as $size)
-                <option value="{{ $size->id }}">{{ $size->value }}</option>
-            @endforeach
-        </select>
-        <input type="number" name="variants[${variantIndex}][price]" class="form-control" placeholder="Giá" required>
-        <input type="number" name="variants[${variantIndex}][stock]" class="form-control" placeholder="Kho" required>
-        <input type="text" name="variants[${variantIndex}][sku]" class="form-control" placeholder="SKU (tùy chọn)">
-        <input type="file" name="variants[${variantIndex}][thumbnail]" class="form-control" accept="image/*">
-        <button type="button" class="btn btn-danger remove-variant">X</button>
-    </div>
-    `;
-    document.getElementById('variants').insertAdjacentHTML('beforeend', html);
-    variantIndex++;
+document.getElementById('generate-variants').onclick = function() {
+    // Lấy các giá trị đã chọn
+    let selects = document.querySelectorAll('.attribute-value-select');
+    let allValues = [];
+    let attributeIds = [];
+    selects.forEach(sel => {
+        // Lấy attribute_id từ name (attribute_values[ID][])
+        let attrIdMatch = sel.name.match(/\d+/);
+        let attrId = attrIdMatch ? attrIdMatch[0] : null;
+        let vals = Array.from(sel.selectedOptions).map(opt => ({
+            id: opt.value,
+            text: opt.text,
+            attribute_id: attrId
+        }));
+        if (vals.length) allValues.push(vals);
+    });
+    if (allValues.length < 1) return;
+
+    // Sinh tổ hợp
+    let combos = allValues.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))));
+    let html = '<table class="table"><tr><th>Biến thể</th><th>Giá</th><th>SKU</th><th>Ảnh</th></tr>';
+    combos.forEach((combo, i) => {
+        let label = combo.map(v => v.text).join(' - ');
+        html += `<tr>
+            <td>`;
+        combo.forEach(v => {
+            html += `<input type="hidden" name="variants[${i}][attribute_id][]" value="${v.attribute_id}">`;
+            html += `<input type="hidden" name="variants[${i}][attribute_value_id][]" value="${v.id}">`;
+        });
+        html += `${label}</td>
+            <td><input type="number" name="variants[${i}][price]" class="form-control" required></td>
+            <td><input type="text" name="variants[${i}][sku]" class="form-control"></td>
+            <td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>
+        </tr>`;
+    });
+    html += '</table>';
+    document.getElementById('variants-table').innerHTML = html;
 };
 
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('remove-variant')) {
-        e.target.closest('.variant-row').remove();
+document.getElementById('clear-variants').onclick = function() {
+    document.getElementById('variants-table').innerHTML = '';
+};
+
+// Toggle ẩn/hiện phần chọn thuộc tính và đổi text nút
+const toggleBtn = document.getElementById('toggle-attributes');
+const attributesArea = document.getElementById('attributes-select-area');
+toggleBtn.onclick = function() {
+    if (attributesArea.style.display === '' || attributesArea.style.display === 'none') {
+        attributesArea.style.display = 'block';
+        toggleBtn.textContent = 'Ẩn thuộc tính và giá trị biến thể';
+    } else {
+        attributesArea.style.display = 'none';
+        toggleBtn.textContent = 'Chọn thuộc tính và giá trị biến thể';
     }
-});
+};
 </script>
-    <button type="submit" class="btn btn-primary mt-3">Thêm sản phẩm</button>
+
+<button type="submit" class="btn btn-primary mt-3">Thêm sản phẩm</button>
 </form>
+<a href="{{ route('admin.attributes.create') }}" class="btn btn-success mb-2">Thêm thuộc tính</a>
 @endsection
