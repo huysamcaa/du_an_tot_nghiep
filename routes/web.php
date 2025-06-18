@@ -12,7 +12,7 @@ use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-
+use App\Http\Controllers\Admin\UserController;
 /*
 |--------------------------------------------------------------------------
 | Route quản trị KHÔNG yêu cầu đăng nhập
@@ -59,6 +59,10 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
             Route::resource('products', ProductController::class);
+            Route::resource('users', UserController::class)->except(['show']);
+            Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
+            Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
+            Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     });
 });
 
