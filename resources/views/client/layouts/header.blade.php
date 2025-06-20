@@ -127,7 +127,57 @@
                                 </div>
                                 <div class="anItems">
                                     <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
-                                    <div class="anUser"><a href="javascript:void(0);"><i class="fa-solid fa-user"></i></a></div>
+                                    <div class="anUser" id="userMenuWrapper">
+                                        <a href="#" id="userMenuToggle">
+                                            <i class="fa-solid fa-user"></i>
+                                        </a>
+
+                                        <div class="userDropdownMenu" id="userDropdown" style="display: none;">
+                                            <div class="userDropdownInner">
+                                                @auth
+                                                    <div class="userDropdownHeader">
+                                                        <h3>Chào mừng, {{ Auth::user()->name }}!</h3>
+                                                    </div>
+
+                                                    <div class="userDropdownItem">
+                                                        @if(Auth::user()->role === 'admin')
+                                                            <a href="{{ route('admin.dashboard') }}">
+                                                                <i class="fa-solid fa-dashboard"></i> Dashboard Admin
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('user.dashboard') }}">
+                                                                <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                    <div class="userDropdownFooter">
+                                                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                            <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
+                                                        </a>
+                                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                            @csrf
+                                                        </form>
+                                                    </div>
+                                                @else
+                                                    <div class="userDropdownHeader">
+                                                        <h3>Chào mừng, Khách!</h3>
+                                                    </div>
+                                                    <div class="userDropdownItem">
+                                                        <a href="{{ route('login') }}">
+                                                            <i class="fa-solid fa-sign-in-alt"></i> Đăng nhập
+                                                        </a>
+                                                    </div>
+                                                    <div class="userDropdownItem">
+                                                        <a href="{{ route('register') }}">
+                                                            <i class="fa-solid fa-user-plus"></i> Đăng ký
+                                                        </a>
+                                                    </div>
+                                                @endauth
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {{-- hết user --}}
                                     <div class="anCart">
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>3</span></a>
                                         <div class="cartWidgetArea">
