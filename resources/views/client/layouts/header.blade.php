@@ -56,13 +56,8 @@
                                         </div>
                                     </li>
                                     <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Pages</a>
-                                        <ul>
-                                            <li><a href="team.html">Team</a></li>
-                                            <li><a href="faq.html">FAQ's</a></li>
-                                            <li><a href="testimonial.html">Testimonial</a></li>
-                                            <li><a href="404.html">Error 404</a></li>
-                                        </ul>
+                                        <a href="javascript:void(0);">Categories</a>
+                                        @include('client.categories.index')
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Blog</a>
