@@ -39,6 +39,6 @@
         <p>Hiện tại không có khuyến mãi nào.</p>
     @endif
 </div>
-</body>
 @endsection
+</body>
 
