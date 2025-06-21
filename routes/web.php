@@ -20,6 +20,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Client\UserAddressController;
 
+
 use App\Http\Controllers\Client\CategoryClientController;
 
 /*
@@ -56,6 +57,9 @@ use App\Http\Controllers\Client\CategoryClientController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
 Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+// Route chi tiết sản phẩm (client)
+
+Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
 // Route danh mục sản phẩm (client)
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
 // Route giỏ hàng (client)
@@ -112,7 +116,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD danh mục, nhà sản xuất, sản phẩm 
+        // CRUD danh mục, nhà sản xuất, sản phẩm
             Route::resource('categories', CategoryController::class);
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
