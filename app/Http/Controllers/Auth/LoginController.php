@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-// XÓA DÒNG NÀY: use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException; // Import để xử lý lỗi validation
 
 class LoginController extends Controller
 {
-    // XÓA DÒNG NÀY: use AuthenticatesUsers;
-
     protected $redirectTo = '/home';
 
     public function __construct()

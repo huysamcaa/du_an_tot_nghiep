@@ -14,8 +14,9 @@ class ProductController extends Controller
 {
     public function index()
     {
+        $categories = Category::all();
         $products = Product::with(['variants'])->orderBy('created_at', 'desc')->get();
-        return view('admin.products.index', compact('products'));
+        return view('admin.products.index', compact('products','categories'));
     }
     
 
