@@ -56,13 +56,8 @@
                                         </div>
                                     </li>
                                     <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Pages</a>
-                                        <ul>
-                                            <li><a href="team.html">Team</a></li>
-                                            <li><a href="faq.html">FAQ's</a></li>
-                                            <li><a href="testimonial.html">Testimonial</a></li>
-                                            <li><a href="404.html">Error 404</a></li>
-                                        </ul>
+                                        <a href="javascript:void(0);">Categories</a>
+                                        @include('client.categories.index')
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Blog</a>
@@ -127,38 +122,77 @@
                                 </div>
                                 <div class="anItems">
                                     <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
-                                    <div class="anUser"><a href="javascript:void(0);"><i class="fa-solid fa-user"></i></a></div>
+                                    {{-- PHẦN USER ĐÃ SỬA CẤU TRÚC PHỨC TẠP HƠN --}}
+                                <div class="anUser">
+                                    <a href="javascript:void(0);">
+                                        <i class="fa-solid fa-user"></i>
+                                    </a>
+
+                                    <div class="userDropdownMenu">
+                                        <div class="userDropdownInner"> {{-- Wrapper cho nội dung dropdown --}}
+
+                                            @auth
+                                                {{-- Nếu người dùng đã đăng nhập --}}
+                                                <div class="userDropdownHeader">
+                                                    <h3>Chào mừng, {{ Auth::user()->name }}!</h3> {{-- Hiển thị tên người dùng --}}
+                                                </div>
+
+                                                <div class="userDropdownItem">
+                                                    @if(Auth::user()->role === 'admin')
+                                                        <a href="{{ route('admin.dashboard') }}">
+                                                            <i class="fa-solid fa-dashboard"></i> Dashboard Admin
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('user.dashboard') }}">
+                                                            <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                                <div class="userDropdownFooter">
+                                                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                        <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
+                                                    </a>
+                                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                        @csrf
+                                                    </form>
+                                                </div>
+                                            @else
+                                                {{-- Nếu người dùng chưa đăng nhập --}}
+                                                <div class="userDropdownHeader">
+                                                    <h3>Chào mừng, Khách!</h3>
+                                                </div>
+                                                <div class="userDropdownItem">
+                                                    <a href="{{ route('login') }}">
+                                                        <i class="fa-solid fa-sign-in-alt"></i> Đăng nhập
+                                                    </a>
+                                                </div>
+                                                <div class="userDropdownItem">
+                                                    <a href="{{ route('register') }}">
+                                                        <i class="fa-solid fa-user-plus"></i> Đăng ký
+                                                    </a>
+                                                </div>
+                                            @endauth
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- HẾT PHẦN USER --}}
                                     <div class="anCart">
-                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>3</span></a>
+                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
                                         <div class="cartWidgetArea">
+                                            @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
-                                                <img src="images/cart/1.jpg" alt="Marine Design">
-                                                <a href="shop_details1.html">Ulina luxurious bag for men women</a>
+                                                <img src="{{ asset($item->product->thumbnail) }}" alt="Marine Design">
+                                                <a href="shop_details1.html">{{ $item->product->name }}</a>
                                                 <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>19.00</span></span>
+                                                    <span class="price">{{ number_format($item->product->price) }}đ</span>
                                                 </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
+                                                <a href="{{ route('cart.destroy', $item->id) }}" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
                                             </div>
-                                            <div class="cartWidgetProduct">
-                                                <img src="images/cart/2.jpg" alt="Draped Neck">
-                                                <a href="shop_details2.html">Nasio stainless steel watch</a>
-                                                <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>41.00</span></span>
-                                                </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
-                                            </div>
-                                            <div class="cartWidgetProduct">
-                                                <img src="images/cart/3.jpg" alt="Long Pleated">
-                                                <a href="shop_details1.html">Winner men’s comfortable t-shirt</a>
-                                                <div class="cartProductPrice clearfix">
-                                                    <span class="price"><span><span>$</span>52.00</span></span>
-                                                </div>
-                                                <a href="javascript:void(0);" class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
-                                            </div>
-                                            <div class="totalPrice">Subtotal: <span class="price"><span><span>$</span>112.00</span></span></div>
+                                            @endforeach
+                                            <div class="totalPrice" id="cart-total">Subtotal: <span class="price">{{ number_format($total) }}đ</span></div>
                                             <div class="cartWidgetBTN clearfix">
-                                                <a class="cart" href="cart.html">View Cart</a>
-                                                <a class="checkout" href="checkout.html">Checkout</a>
+                                                <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
+                                                <a class="checkout" href="{{ route('checkout') }}">Checkout</a>
                                             </div>
                                         </div>
                                     </div>
