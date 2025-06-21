@@ -35,24 +35,30 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // 2. Thử xác thực người dùng
+        // 2. Lấy user theo email
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        // 3. Nếu user tồn tại và bị khóa
+        if ($user && $user->status === 'locked') {
+            throw ValidationException::withMessages([
+                'email' => ['Tài khoản của bạn đã bị khóa.'],
+            ]);
+        }
+
+        // 4. Thử đăng nhập
         $credentials = $request->only('email', 'password');
-        $remember = $request->filled('remember'); // Kiểm tra checkbox "Ghi nhớ"
+        $remember = $request->filled('remember');
 
         if (Auth::attempt($credentials, $remember)) {
-            // Xác thực thành công
-            $request->session()->regenerate(); // Tạo lại session ID để tránh session fixation
-
-            // Chuyển hướng người dùng dựa trên vai trò
+            $request->session()->regenerate();
             return $this->authenticated($request, Auth::user());
         }
 
-        // Xác thực thất bại
+        // 5. Nếu thông tin sai
         throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')], // Thông báo lỗi mặc định của Laravel
+            'email' => [trans('auth.failed')],
         ]);
     }
-
     /**
      * The user has been authenticated.
      * Chuyển hướng sau khi đăng nhập thành công dựa trên vai trò.
