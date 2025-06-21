@@ -18,6 +18,8 @@ use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Client\UserAddressController;
+
 
 use App\Http\Controllers\Client\CategoryClientController;
 
@@ -55,6 +57,9 @@ use App\Http\Controllers\Client\CategoryClientController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
 Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+// Route chi tiết sản phẩm (client)
+
+Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
 // Route danh mục sản phẩm (client)
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
 // Route giỏ hàng (client)
@@ -75,7 +80,7 @@ Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart
 // Route::get('/checkout',[CheckoutController::class, 'index'])->name('checkout');
 // Route::post('/checkout',[CheckoutController::class, 'process'])->name('checkout.process');
 
-// Đăng ký
+
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
@@ -95,11 +100,23 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard người dùng
     Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
 
+    // Các route chỉ cho người dùng đã đăng nhập
+     Route::resource('my-addresses', UserAddressController::class)->names([
+        'index' => 'user.addresses.index',
+        'create' => 'user.addresses.create',
+        'store' => 'user.addresses.store',
+        'edit' => 'user.addresses.edit',
+        'update' => 'user.addresses.update',
+        'destroy' => 'user.addresses.destroy',
+
+    ]);
+    Route::post('/my-addresses/{id}/set-default', [UserAddressController::class, 'setDefault'])->name('user.addresses.set_default');;
+
     // Các route chỉ cho admin
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD danh mục, nhà sản xuất, sản phẩm 
+        // CRUD danh mục, nhà sản xuất, sản phẩm
             Route::resource('categories', CategoryController::class);
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
