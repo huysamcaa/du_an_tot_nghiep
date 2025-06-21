@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{{ asset('assets/Client/css/ignore_for_wp.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/Client/css/preset.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/Client/css/responsive.css') }}">
+     <link rel="stylesheet" href="{{ asset('assets/Client/css/cssuser.css') }}">
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
@@ -47,7 +48,7 @@
         <script src="{{ asset('assets/Client/js/jquery.plugin.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/jquery.countdown.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/circle-progress.js') }}"></script>
-
+        <script src="{{ asset('assets/Client/js/jsuser.js') }}"></script>
         <script src="{{ asset('assets/Client/js/gmaps.js') }}"></script>
 
 
