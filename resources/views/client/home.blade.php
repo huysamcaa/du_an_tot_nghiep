@@ -19,7 +19,7 @@
         <!-- END: PreLoder Section -->
 
         <!-- BEGIN: Header 01 Section -->
-       
+
         <!-- END: Header 01 Section -->
 
         <!-- BEGIN: Search Popup Section -->
@@ -88,12 +88,12 @@
                                  data-visibility="['on','on','on','off']"
                                  data-textAlign="['left','left','left','right']"
                                  data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_1.png') }}" alt="Slider Shape"/></div>
-                            <div class="tp-caption jost theSubTitle" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption jost theSubTitle"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['-38','-38','-38','-58']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['-38','-38','-38','-58']"
 
                                  data-fontsize="['21','21','21','21']"
                                  data-fontweight="['500','500','500','500']"
@@ -103,8 +103,8 @@
                                  data-whitespace="nowrap"
                                  data-color="['#7b9496','#7b9496','#7b9496','#7b9496']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1100,"speed":400,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -116,12 +116,12 @@
                                  data-marginleft="['0','10','10','0']"
 
                                  >SUMMER SALE IS ON</div>
-                            <div class="tp-caption jost textLayer theTitles" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['-5','-5','0','0']" 
+                            <div class="tp-caption jost textLayer theTitles"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['-5','-5','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['68','68','68','28']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['68','68','68','28']"
 
                                  data-fontsize="['72','72','52','52']"
                                  data-fontweight="['400','400','400','400']"
@@ -131,8 +131,8 @@
                                  data-whitespace="normal"
                                  data-color="['#52586d','#52586d','#52586d','#52586d']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1200,"speed":500,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -144,12 +144,12 @@
                                  data-marginleft="['0','0','0','0']"
 
                                  >Discover Men’s Latest Fashion</div>
-                            <div class="tp-caption ws_nowrap textLayer theBTNS" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption ws_nowrap textLayer theBTNS"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['231','231','211','171']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['231','231','211','171']"
 
                                  data-fontsize="['16','16','16','16']"
                                  data-fontweight="500"
@@ -159,8 +159,8 @@
                                  data-whitesapce="normal"
                                  data-color="#FFFFFF"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1300,"speed":600,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -201,12 +201,12 @@
                                  data-visibility="['on','on','on','off']"
                                  data-textAlign="['left','left','left','right']"
                                  data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_2.png') }}" alt="Slider Shape"/></div>
-                            <div class="tp-caption jost theSubTitle" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption jost theSubTitle"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['-38','-38','-38','-58']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['-38','-38','-38','-58']"
 
                                  data-fontsize="['21','21','21','21']"
                                  data-fontweight="['500','500','500','500']"
@@ -216,8 +216,8 @@
                                  data-whitespace="nowrap"
                                  data-color="['#7b9496','#7b9496','#7b9496','#7b9496']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1100,"speed":400,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -229,12 +229,12 @@
                                  data-marginleft="['0','10','10','0']"
 
                                  >SUMMER SALE IS ON</div>
-                            <div class="tp-caption jost textLayer theTitles" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['-5','-5','0','0']" 
+                            <div class="tp-caption jost textLayer theTitles"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['-5','-5','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['68','68','68','28']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['68','68','68','28']"
 
                                  data-fontsize="['72','72','52','52']"
                                  data-fontweight="['400','400','400','400']"
@@ -244,8 +244,8 @@
                                  data-whitespace="normal"
                                  data-color="['#52586d','#52586d','#52586d','#52586d']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1200,"speed":500,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -257,12 +257,12 @@
                                  data-marginleft="['0','0','0','0']"
 
                                  >Discover Women Latest Fashion</div>
-                            <div class="tp-caption ws_nowrap textLayer theBTNS" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption ws_nowrap textLayer theBTNS"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['231','231','211','171']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['231','231','211','171']"
 
                                  data-fontsize="['16','16','16','16']"
                                  data-fontweight="500"
@@ -272,8 +272,8 @@
                                  data-whitesapce="normal"
                                  data-color="#FFFFFF"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1300,"speed":600,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -314,12 +314,12 @@
                                  data-visibility="['on','on','on','off']"
                                  data-textAlign="['left','left','left','right']"
                                  data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_3.png') }}" alt="Slider Shape"/></div>
-                            <div class="tp-caption jost theSubTitle" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption jost theSubTitle"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['-38','-38','-38','-58']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['-38','-38','-38','-58']"
 
                                  data-fontsize="['21','21','21','21']"
                                  data-fontweight="['500','500','500','500']"
@@ -329,8 +329,8 @@
                                  data-whitespace="nowrap"
                                  data-color="['#7b9496','#7b9496','#7b9496','#7b9496']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1100,"speed":400,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -342,12 +342,12 @@
                                  data-marginleft="['0','10','10','0']"
 
                                  >SUMMER SALE IS ON</div>
-                            <div class="tp-caption jost textLayer theTitles" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['-5','-5','0','0']" 
+                            <div class="tp-caption jost textLayer theTitles"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['-5','-5','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['68','68','68','28']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['68','68','68','28']"
 
                                  data-fontsize="['72','72','52','52']"
                                  data-fontweight="['400','400','400','400']"
@@ -357,8 +357,8 @@
                                  data-whitespace="normal"
                                  data-color="['#52586d','#52586d','#52586d','#52586d']"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1200,"speed":500,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -370,12 +370,12 @@
                                  data-marginleft="['0','0','0','0']"
 
                                  >Discover Summer Latest Fashion</div>
-                            <div class="tp-caption ws_nowrap textLayer theBTNS" 
-                                 data-x="['left','left','left','center']" 
-                                 data-hoffset="['0','0','0','0']" 
+                            <div class="tp-caption ws_nowrap textLayer theBTNS"
+                                 data-x="['left','left','left','center']"
+                                 data-hoffset="['0','0','0','0']"
 
-                                 data-y="['middle','middle','middle','middle']" 
-                                 data-voffset="['231','231','211','171']" 
+                                 data-y="['middle','middle','middle','middle']"
+                                 data-voffset="['231','231','211','171']"
 
                                  data-fontsize="['16','16','16','16']"
                                  data-fontweight="500"
@@ -385,8 +385,8 @@
                                  data-whitesapce="normal"
                                  data-color="#FFFFFF"
 
-                                 data-type="text" 
-                                 data-responsive_offset="off" 
+                                 data-type="text"
+                                 data-responsive_offset="off"
 
                                  data-frames='[{"delay":1300,"speed":600,"frame":"0","from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;","to":"o:1;","ease":"power4.inOut"},{"delay":"wait","speed":300,"frame":"999","to":"auto:auto;","ease":"power3.inOut"}]'
 
@@ -415,7 +415,7 @@
                             <i class="ulina-fast-delivery"></i>
                             <h3>Free Shipping</h3>
                             <p>
-                                Ut enim ad minim veniam liquip ami tomader 
+                                Ut enim ad minim veniam liquip ami tomader
                             </p>
                         </div>
                     </div>
@@ -424,7 +424,7 @@
                             <i class="ulina-credit-card tm5"></i>
                             <h3>Secure Payments</h3>
                             <p>
-                                Eonim ad minim veniam liquip tomader 
+                                Eonim ad minim veniam liquip tomader
                             </p>
                         </div>
                     </div>
@@ -433,7 +433,7 @@
                             <i class="ulina-refund tm1"></i>
                             <h3>Easy Returns</h3>
                             <p>
-                                Be enim ad minim veniam liquipa ami tomader 
+                                Be enim ad minim veniam liquipa ami tomader
                             </p>
                         </div>
                     </div>
@@ -442,7 +442,7 @@
                             <i class="ulina-hours-support t1"></i>
                             <h3>24/7 Support</h3>
                             <p>
-                                Ut enim ad minim veniam liquip ami tomader 
+                                Ut enim ad minim veniam liquip ami tomader
                             </p>
                         </div>
                     </div>
@@ -468,11 +468,15 @@
     <div class="pi01Thumb" style="height: 400px; overflow: hidden;">
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
+
         
         <div class="pi01Actions" data-product-id="{{ $product->id }}">
+
             <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
             <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
             <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
+            <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
+
         </div>
 
         @if ($product->sale_price && $product->price > $product->sale_price)
@@ -538,7 +542,7 @@
     </div>
 </div>
 
-    
+
 @endforeach
                             <!-- <div class="productItem01 pi01NoRating">
                                 <div class="pi01Thumb">
@@ -2852,7 +2856,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -2873,7 +2877,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -2894,7 +2898,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -2915,7 +2919,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -2936,7 +2940,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -2957,7 +2961,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna 
+                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
                                         aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
                                     </div>
                                     <div class="ti01Author">
@@ -3113,7 +3117,7 @@
         <!-- END: Brand Section -->
 
         <!-- BEGIN: Footer Section -->
-      
+
         <!-- END: Footer Section -->
 
         <!-- BEGIN: Site Info Section -->
@@ -3212,7 +3216,7 @@
                                         </div>
                                     </div>
                                     <div class="pcExcerpt">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusncididunt ut labo re et dolore magna aliqua. Ut enim ad minim 
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusncididunt ut labo re et dolore magna aliqua. Ut enim ad minim
                                         veniam
                                     </div>
                                     <div class="pcVariations">
@@ -3289,6 +3293,6 @@
         </div>
         <!-- END: Product QuickView -->
 
-        
+
     </body>
 @endsection
