@@ -1,0 +1,36 @@
+.anUser {
+    position: relative;
+}
+
+.userDropdownMenu {
+    position: absolute;
+    top: calc(100% + 8px); /* ngay dưới icon, cách ra 8px */
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    width: 220px;
+    padding: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    z-index: 999;
+}
+.userDropdownMenu h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #333;
+}
+.userDropdownItem a {
+    display: block;
+    padding: 8px 0;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+.userDropdownItem a:hover {
+    color: #007bff;
+}
+.userDropdownFooter {
+    border-top: 1px solid #eee;
+    margin-top: 8px;
+    padding-top: 8px;
+}
