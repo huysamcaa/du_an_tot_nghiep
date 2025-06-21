@@ -84,7 +84,6 @@
                          <li><i class="fa fa-lock"></i><a href="{{ route('admin.users.locked') }}">Tài khoản bị khóa</a></li>
                         <!-- Các mục con khác -->
                     </ul>
-
                 </li>
                 <!-- Thêm các menu item khác tương tự -->
             </ul>

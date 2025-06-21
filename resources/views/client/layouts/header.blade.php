@@ -88,7 +88,7 @@
                                             </li>
                                         </ul>
                                     </li>
-                                    <li><a href="contact.html">Contacts</a></li>
+                              
                                 </ul>
                             </div>
                             <div class="accessNav">
@@ -122,6 +122,7 @@
                                 </div>
                                 <div class="anItems">
                                     <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
+
 
                                     <div class="anUser" id="userMenuWrapper">
                                         <a href="#" id="userMenuToggle">
@@ -183,6 +184,7 @@
                                                 <div class="cartProductPrice clearfix">
                                                     <span class="price"><span><span>$</span>19.00</span></span>
 
+
                                                 </div>
 
                                                 <div class="userDropdownItem">
@@ -219,12 +221,37 @@
                                                         <i class="fa-solid fa-user-plus"></i> Đăng ký
                                                     </a>
                                                 </div>
+
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        const userIcon = document.querySelector('.anUser > a');
+                                                        const dropdown = document.querySelector('.userDropdownMenu');
+                                                        if(userIcon && dropdown) {
+                                                            userIcon.addEventListener('click', function(e) {
+                                                                e.preventDefault();
+                                                                dropdown.classList.toggle('show');
+                                                            });
+                                                            // Ẩn dropdown khi click ra ngoài
+                                                            document.addEventListener('click', function(e) {
+                                                                if (!userIcon.contains(e.target) && !dropdown.contains(e.target)) {
+                                                                    dropdown.classList.remove('show');
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                </script>
+                                                <style>
+                                                    .userDropdownMenu { display: none; position: absolute; right: 0; z-index: 100; }
+                                                    .userDropdownMenu.show { display: block; }
+                                                </style>
                                             @endauth
                                         </div>
                                     </div>
                                 </div>
+
                                 {{-- HẾT PHẦN USER --}}
                                     <div class="anCart">
+
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
                                         <div class="cartWidgetArea">
                                             @foreach($cartItems as $item)
@@ -245,6 +272,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {{-- HẾT PHẦN USER --}}
+                                    
+                                </div>
                                 <div class="anSupport">
                                     <i class="fa-solid fa-headset"></i>
                                     <h3>Helpline</h3>
@@ -256,3 +287,4 @@
                 </div>
             </div>
         </header>
+

@@ -18,12 +18,53 @@ use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Admin\UserController;
 
+use App\Http\Controllers\Client\CategoryClientController;
+
+/*
+|--------------------------------------------------------------------------
+| Route quản trị KHÔNG yêu cầu đăng nhập
+|--------------------------------------------------------------------------
+| Chỉ dùng để thử chức năng CRUD. Khi đã cài hệ đăng nhập,
+| bạn hãy thêm lại middleware ['auth','is_admin'].
+*/
+// --- 1. Các Route Công khai (Public Routes) ---
+// Các route mà bất kỳ ai cũng có thể truy cập (kể cả chưa đăng nhập)
+
+
+// --- 2. Các Route Cần Xác thực (Authenticated User Routes) ---
+// Các route này chỉ có thể truy cập được khi người dùng đã đăng nhập.
+// Sử dụng middleware 'auth' đã được định nghĩa trong bootstrap/app.php
+
+    // Dashboard
+//     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+//     // CRUD Danh mục
+//     Route::resource('categories', CategoryController::class);
+//     Route::resource('manufacturers',ManufacturerController::class);
+//     Route::resource('promotions',PromotionController::class);
+//     Route::resource('products', ProductController::class);
+//     Route::resource('attributes', AttributeController::class);
+
+// Route::prefix('products/{product}')->name('products.')->group(function () {
+//         Route::resource('variants', ProductVariantController::class)->except(['show']);
+//     });
+// });
+// Trang chủ chung của ứng dụng (Home của Client)
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
 Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+// Route danh mục sản phẩm (client)
+Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
+// Route giỏ hàng (client)
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::get('/checkout',[CheckoutController::class, 'index'])->name('checkout');
+// Route::post('/checkout',[CheckoutController::class, 'process'])->name('checkout.process');
+
 
 
 // Route giỏ hàng (client)
@@ -58,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD danh mục, nhà sản xuất, sản phẩm (ví dụ)
+        // CRUD danh mục, nhà sản xuất, sản phẩm 
             Route::resource('categories', CategoryController::class);
             Route::resource('manufacturers',ManufacturerController::class);
             Route::resource('promotions',PromotionController::class);
@@ -72,4 +113,5 @@ Route::prefix('products/{product}')->name('products.')->group(function () {
 
     });
 });
+
 

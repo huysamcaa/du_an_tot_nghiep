@@ -1,4 +1,6 @@
-<ul>
+
+{{-- <ul>
+
 @foreach($categories as $category)
 <li>
     <a href="#">{{$category->name}}</a>
@@ -13,4 +15,10 @@
     @endif
 </li>
 @endforeach
-</ul>
+
+</ul> --}}
+
+
+
+
+
