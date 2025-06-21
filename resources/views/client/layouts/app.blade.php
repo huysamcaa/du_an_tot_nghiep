@@ -24,7 +24,7 @@
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
-    
+
     @include('client.layouts.header')
 
     @yield('content')
@@ -32,7 +32,7 @@
     @include('client.layouts.footer')
 
     {{-- JS --}}
-   
+
 
         <script src="{{ asset('assets/Client/js/jquery.js') }}"></script>
         <script src="{{ asset('assets/Client/js/jquery-ui.js') }}"></script>
@@ -49,7 +49,7 @@
         <script src="{{ asset('assets/Client/js/circle-progress.js') }}"></script>
 
         <script src="{{ asset('assets/Client/js/gmaps.js') }}"></script>
-       
+
 
         <script src="{{ asset('assets/Client/js/jquery.themepunch.tools.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/jquery.themepunch.revolution.min.js') }}"></script>
@@ -63,7 +63,7 @@
         <script src="{{ asset('assets/Client/js/extensions/revolution.extension.parallax.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/extensions/revolution.extension.slideanims.min.js') }}"></script>
         <script src="{{ asset('assets/Client/js/extensions/revolution.extension.video.min.js') }}"></script>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{ asset('assets/Client/js/theme.js') }}"></script>
     {{-- ... Thêm các file js cần thiết tương tự ... --}}
 </body>
