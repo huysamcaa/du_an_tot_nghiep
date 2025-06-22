@@ -22,11 +22,10 @@ class ProductController extends Controller
 
     public function create()
     {
+
          $categories = Category::all();
         $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
-    return view('admin.products.create', compact('attributes','categories'));
-
-        
+    return view('admin.products.create', compact('attributes','categories'));  
         
     }
 public function store(Request $request)
@@ -69,6 +68,7 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
+
     foreach ($request->variants as $variantData) {
         $variant = new ProductVariant([
             'price' => $variantData['price'],
@@ -107,8 +107,9 @@ public function store(Request $request)
         $sizes = AttributeValue::whereHas('attribute', function($q) {
             $q->where('slug', 'size');
         })->get();
-        
+
         return view('admin.products.edit', compact('product', 'colors', 'sizes','categories'));
+
     }
 
     public function update(Request $request, Product $product)

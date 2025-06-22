@@ -9,7 +9,6 @@ class CategoryClientController extends Controller
 {
     public function index()
     {
-        
         $categories = Category::where('is_active', 1)
             ->whereNull('parent_id')
             ->with('children') // load danh mục con nếu có

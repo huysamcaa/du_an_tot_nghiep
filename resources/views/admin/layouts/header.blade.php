@@ -61,7 +61,13 @@
 
             <div class="user-area dropdown float-right">
                 <a href="#" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="user-avatar rounded-circle" src="{{ asset('https://antimatter.vn/wp-content/uploads/2022/12/hinh-anh-avatar-tiktok-dep-nam.jpg') }}" alt="User Avatar">
+                    @php
+    $currentUser = Auth::user();
+@endphp
+
+<img class="user-avatar rounded-circle"
+     src="{{ $currentUser && $currentUser->avatar ? asset('storage/' . $currentUser->avatar) : asset('images/default-avatar.png') }}"
+     alt="User Avatar">
                 </a>
 
                 <div class="user-menu dropdown-menu">

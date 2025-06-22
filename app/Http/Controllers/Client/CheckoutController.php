@@ -10,7 +10,8 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $userId = auth()->id ?? 2; // hoặc giả định 2 cho test
+        $userId = auth()->id() ?? 2; // hoặc giả định 2 cho test
+
         $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
         $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
 
