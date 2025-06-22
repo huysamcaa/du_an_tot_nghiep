@@ -145,6 +145,9 @@
                                                             <a href="{{ route('user.dashboard') }}">
                                                                 <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                             </a>
+                                                              <a href="{{route('user.addresses.index')}}">
+                                                                <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
+                                                            </a>
                                                         @endif
                                                     </div>
                                                     <div class="userDropdownFooter">
@@ -160,7 +163,7 @@
                                                         <h3>Chào mừng, Khách!</h3>
                                                     </div>
                                                     <div class="userDropdownItem">
-<a href="{{ route('login') }}">
+                                                        <a href="{{ route('login') }}">
                                                             <i class="fa-solid fa-sign-in-alt"></i> Đăng nhập
                                                         </a>
                                                     </div>
@@ -202,7 +205,7 @@
                                 <div class="anSupport">
                                     <i class="fa-solid fa-headset"></i>
                                     <h3>Helpline</h3>
-<h3>+123 - 456 - 7890</h3>
+                                    <h3>+123 - 456 - 7890</h3>
                                 </div>
                             </div>
                         </div>
