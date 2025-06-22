@@ -171,6 +171,7 @@
                                                         <i class="fa-solid fa-user-plus"></i> Đăng ký
                                                     </a>
                                                 </div>
+                                            @endauth
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function() {
                                                         const userIcon = document.querySelector('.anUser > a');
@@ -193,7 +194,6 @@
                                                     .userDropdownMenu { display: none; position: absolute; right: 0; z-index: 100; }
                                                     .userDropdownMenu.show { display: block; }
                                                 </style>
-                                            @endauth
                                         </div>
                                     </div>
                                 </div>
