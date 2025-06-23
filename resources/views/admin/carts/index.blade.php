@@ -29,7 +29,7 @@
                                 @foreach($items as $item)
                                 <tr>
                                     <td>
-                                        <img src="{{ asset($item->variant->thumbnail ?? $item->product->thumbnail) }}"
+                                        <img src="{{ asset('storage/' . $item->thumbnail) }}"
                                             width="50" alt="ảnh">
                                     </td>
                                     <td>{{ $item->product->name ?? '[Đã xoá]' }}</td>

@@ -12,10 +12,6 @@
                                 <ul>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Home</a>
-                                        <ul>
-                                            <li><a href="index.html">Home One</a></li>
-                                            <li><a href="index2.html">Home Two</a></li>
-                                        </ul>
                                     </li>
                                     <li><a href="about.html">About</a></li>
                                     <li class="menu-item-has-children">

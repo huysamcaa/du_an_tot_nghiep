@@ -47,7 +47,7 @@
                             <tbody>
                                 <tr data-id="{{ $item->product_id }}">
                                     <td class="product-thumbnail">
-                                        <a href="shop_details1.html"><img src="{{ asset($item->product->thumbnail) }}" alt="Cart Item"></a>
+                                        <a href="shop_details1.html"><img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="Cart Item"></a>
                                     </td>
                                     <td class="product-name">
                                         <a href="shop_details1.html">{{ $item->product->name }}</a>

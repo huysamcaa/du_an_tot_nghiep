@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Attribute;
-use App\Models\AttributeValue;
+use App\Models\Admin\AttributeValue;
 use Illuminate\Database\Seeder;
 
 class VariantAttributesSeeder extends Seeder

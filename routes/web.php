@@ -56,7 +56,7 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
-// Route::get('/checkout',[CheckoutController::class, 'index'])->name('checkout');
+Route::get('/checkout',[CheckoutController::class, 'index'])->name('checkout');
 // Route::post('/checkout',[CheckoutController::class, 'process'])->name('checkout.process');
 
 
