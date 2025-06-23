@@ -35,7 +35,7 @@
                                                         <li><a href="shop_details2.html">Shop Details 02</a></li>
                                                         <li><a href="cart.html">Shopping Cart</a></li>
                                                         <li><a href="checkout.html">Checkout</a></li>
-                                                        <li><a href="wishlist.html">Wishlist</a></li>
+<li><a href="wishlist.html">Wishlist</a></li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-lg-4 hideOnMobile">
@@ -74,7 +74,7 @@
                                                     <li><a href="blog_grid_rsb.html">Right Sidebar</a></li>
                                                 </ul>
                                             </li>
-                                            <li class="menu-item-has-children">
+<li class="menu-item-has-children">
                                                 <a href="javascript:void(0);">Blog Details</a>
                                                 <ul>
                                                     <li><a href="blog_details_lsb.html">Left Sidebar</a></li>
@@ -84,7 +84,7 @@
                                             </li>
                                         </ul>
                                     </li>
-                              
+
                                 </ul>
                             </div>
                             <div class="accessNav">
@@ -117,7 +117,7 @@
                                     </div>
                                 </div>
                                 <div class="anItems">
-                                    <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
+<div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
 
 
                                     <div class="anUser" id="userMenuWrapper">
@@ -140,6 +140,9 @@
                                                         @else
                                                             <a href="{{ route('user.dashboard') }}">
                                                                 <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
+                                                            </a>
+                                                              <a href="{{route('user.addresses.index')}}">
+                                                                <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                             </a>
                                                         @endif
                                                     </div>
@@ -195,6 +198,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 </div>
                                 <div class="anSupport">
                                     <i class="fa-solid fa-headset"></i>
@@ -207,4 +211,3 @@
                 </div>
             </div>
         </header>
-
