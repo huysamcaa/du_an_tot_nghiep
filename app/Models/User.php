@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Client\UserAddress;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Coupon;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -69,5 +70,10 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(UserAddress::class);
-    }
+    }public function coupons(): BelongsToMany
+{
+    return $this->belongsToMany(Coupon::class, 'coupon_user')
+                ->withPivot('amount')
+                ->withTimestamps();
+}
 }
