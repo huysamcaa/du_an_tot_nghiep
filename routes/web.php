@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\Admin\UserController;
+
+use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\ProductDetailController;
