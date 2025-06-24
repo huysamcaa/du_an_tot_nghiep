@@ -5,14 +5,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\AdminCartController;
 
+use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
@@ -91,7 +92,7 @@ Route::post('/profile/update', [UserProfileController::class, 'update'])->name('
  Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
-  
+
     /*
     |--------------------------------------------------------------------------
     | 3. Admin Routes (Yêu cầu role admin)
@@ -106,7 +107,7 @@ Route::post('/profile/update', [UserProfileController::class, 'update'])->name('
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
-
+        Route::resource('brands', BrandController::class);
         // Quản lý biến thể sản phẩm
         Route::prefix('products/{product}')->name('products.')->group(function () {
             Route::resource('variants', ProductVariantController::class)->except(['show']);

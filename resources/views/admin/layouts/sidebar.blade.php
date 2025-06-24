@@ -52,7 +52,7 @@
                             </a>
                         </li>
                     </ul>
-                   
+
                 <li class="menu-item-has-children dropdown">
                     <a href="admin.carts.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Giỏ Hàng
@@ -73,7 +73,21 @@
                     </ul>
                 </li>
                 <!-- Thêm các menu item khác tương tự -->
-            </ul>
+       <li class="menu-item-has-children dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        <i class="menu-icon fa fa-tag"></i> Thương Hiệu
+    </a>
+    <ul class="sub-menu children dropdown-menu">
+        <li>
+            <i class="fa fa-trademark"></i>
+            <a href="{{ route('admin.brands.index') }}">
+                Quản lý thương hiệu
+            </a>
+        </li>
+    </ul>
+</li>
+
         </div>
     </nav>
 </aside>
