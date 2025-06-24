@@ -57,6 +57,7 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+    
 
     /**
      * Kiểm tra xem tài khoản người dùng có hoạt động không.

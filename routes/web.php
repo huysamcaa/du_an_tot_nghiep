@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ManufacturerController;
@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
-use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\Client\HomeController;
