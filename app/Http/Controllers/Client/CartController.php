@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\CartItem;
+use App\Models\Admin\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
@@ -15,43 +16,68 @@ class CartController extends Controller
     public function index()
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 2;
-        $cartItems = CartItem::with('product')->where('user_id', $userId)->get();
+        $userId = Auth::id();
+        $cartItems = CartItem::with('product', 'variant.attributeValues.attribute')
+        ->where('user_id', $userId)->get();
         return view('client.carts.index', compact('cartItems'));
     }
     public function add(Request $request)
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 2;
+        $userId = Auth::id();
         $productId = $request->input('product_id');
+        $color = $request->input('color');
+        $size = $request->input('size');
+        $quantity = (int)$request->input('quantity') ?: 1;
 
-        $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
+        $variant = ProductVariant::where('product_id', $productId)
+            ->whereHas('attributeValues', function($q) use ($color) {
+                $q->where('attribute_value_id', $color);
+            })
+            ->whereHas('attributeValues', function($q) use ($size) {
+                $q->where('attribute_value_id', $size);
+            })
+            ->first();
+
+        if(!$variant){
+            return redirect()->back()->with('error', 'Biến thể không tồn tại');
+        }
+        // Kiểm tra giỏ đã có biến thể này chưa
+        $item = CartItem::where('user_id', $userId)
+        ->where('product_id', $productId)
+        ->where('product_variant_id', $variant->id)
+        ->first();
         if($item) {
-            $item->quantity += 1;
+            $item->quantity += $quantity;
             $item->save();
         }else {
             CartItem::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
-                'quantity' => 1
+                'product_variant_id' => $variant->id,
+                'quantity' => $quantity
             ]);
         }
         if($request->ajax()) {
-            return response()->json(['success' => true]);
+            $totalProduct = CartItem::where('user_id', $userId)->sum('quantity');
+            return response()->json([
+                'success' => true,
+                'totalProduct' => $totalProduct
+            ]);
         }
         return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng');
     }
 
     public function update(Request $request)
     {
-        $userId = Auth::id() ?? 2; // fallback ID nếu chưa login
+        $userId = Auth::id(); // fallback ID nếu chưa login
 
-        $productId = $request->input('product_id');
+        $cartItemId = $request->input('cart_item_id');
         $action = $request->input('quantity'); // có thể là 'increase' hoặc 'decrease'
 
         $item = CartItem::with('product')
             ->where('user_id', $userId)
-            ->where('product_id', $productId)
+            ->where('id', $cartItemId)
             ->first();
 
         if (!$item) {
@@ -85,7 +111,7 @@ class CartController extends Controller
     public function destroy($id)
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 2;
+        $userId = Auth::id();
         $item = CartItem::where('user_id', $userId)->where('id', $id)->first();
         if($item) {
             $item->delete();
