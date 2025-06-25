@@ -73,59 +73,47 @@
                     <div class="pcExcerpt">
                         <p>{{ $product->short_description }}</p>
                     </div>
-
+                    <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}" />
                     <!-- Check biến thể -->
-                    <div class="pcVariations">
-                        <div class="pcVariation">
-                            <span>Màu</span>
-                            <div class="pcvContainer">
-                                <div class="pi01VCItem">
-                                    <input checked type="radio" name="color_4_6" value="Blue" id="color_4_6251_1_blue" />
-                                    <label for="color_4_6251_1_blue"></label>
+                        <div class="pcVariations">
+                            <div class="pcVariation">
+                                <span>Màu</span>
+                                <div class="pcvContainer">
+                                    @foreach($colors as $color)
+                                        <div class="pi01VCItem">
+                                            <input checked type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if($loop->first) checked @endif>
+                                            <label for="color_{{ $color->id }}"></label>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <div class="pi01VCItem yellows">
-                                    <input type="radio" name="color_4_6" value="Yellow" id="color_4_6502_2_blue" />
-                                    <label for="color_4_6502_2_blue"></label>
-                                </div>
-                                <div class="pi01VCItem reds">
-                                    <input type="radio" name="color_4_6" value="Red" id="color_4_603rt_3_blue" />
-                                    <label for="color_4_603rt_3_blue"></label>
+
+                            </div>
+                            <div class="pcVariation pcv2">
+                                <span>Size</span>
+                                <div class="pcvContainer">
+                                @foreach($sizes as $size)
+                                    <div class="pswItem">
+                                        <input type="radio" name="size" value="{{ $size->id }}" id="size_{{ $size->id }}" @if($loop->first) checked @endif>
+                                        <label for="size_{{ $size->id }}">{{ $size->value }}</label>
+                                    </div>
+                                @endforeach
                                 </div>
                             </div>
                         </div>
-                        <div class="pcVariation pcv2">
-                            <span>Size</span>
-                            <div class="pcvContainer">
-                                <div class="pswItem">
-                                    <input checked="" type="radio" name="ws_1" value="S" id="ws_145gb_s">
-                                    <label for="ws_145gb_s">S</label>
-                                </div>
-                                <div class="pswItem">
-                                    <input type="radio" name="ws_1" value="M" id="ws_1780fg_m">
-                                    <label for="ws_1780fg_m">M</label>
-                                </div>
-                                <div class="pswItem">
-                                    <input type="radio" name="ws_1" value="L" id="ws_14rghb_l">
-                                    <label for="ws_14rghb_l">L</label>
-                                </div>
-                                <div class="pswItem">
-                                    <input type="radio" name="ws_1" value="XL" id="ws_1t67u_xl">
-                                    <label for="ws_1t67u_xl">XL</label>
-                                </div>
+                        <!-- //////// -->
+                        <div class="pcBtns">
+                            <div class="quantity clearfix">
+                                <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
+                                <input type="number" class="carqty input-text qty text" name="quantity" value="1">
+                                <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
                             </div>
+                            <button type="submit" class="ulinaBTN"><span>Add to Cart</span></button>
+                            <a href="wishlist.html" class="pcWishlist"><i class="fa-solid fa-heart"></i></a>
+                            <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                         </div>
-                    </div>
-                    <!-- //////// -->
-                    <div class="pcBtns">
-                        <div class="quantity clearfix">
-                            <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
-                            <input type="number" class="carqty input-text qty text" name="quantity" value="01">
-                            <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
-                        </div>
-                        <button type="submit" class="ulinaBTN"><span>Add to Cart</span></button>
-                        <a href="wishlist.html" class="pcWishlist"><i class="fa-solid fa-heart"></i></a>
-                        <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
-                    </div>
+                    </form>
                     <div class="pcMeta">
                         <p>
                             <span>Sku</span>
@@ -411,5 +399,71 @@
     </div>
 </section>
 <!-- END: Shop Details Section -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qtyWrappers = document.querySelectorAll('.quantity');
+
+    qtyWrappers.forEach(wrapper => {
+        const minusBtn = wrapper.querySelector('.btnMinus');
+        const plusBtn = wrapper.querySelector('.btnPlus');
+        const qtyInput = wrapper.querySelector('.carqty');
+
+        minusBtn.addEventListener('click', function() {
+            let current = parseInt(qtyInput.value) || 1;
+            if (current > 1) qtyInput.value = current - 1;
+        });
+
+        plusBtn.addEventListener('click', function() {
+            let current = parseInt(qtyInput.value) || 1;
+            qtyInput.value = current + 1;
+        });
+    });
+
+    const form = document.getElementById('addToCartForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.anCart span').innerText = data.totalProduct;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Sản phẩm đã được thêm vào giỏ hàng.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
+        });
+    });
+});
+</script>
 
 @endsection
+
+
+

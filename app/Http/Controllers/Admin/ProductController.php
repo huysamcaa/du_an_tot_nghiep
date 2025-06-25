@@ -68,7 +68,6 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
-
     foreach ($request->variants as $variantData) {
         $variant = new ProductVariant([
             'price' => $variantData['price'],
