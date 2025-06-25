@@ -33,7 +33,17 @@
                                             width="50" alt="ảnh">
                                     </td>
                                     <td>{{ $item->product->name ?? '[Đã xoá]' }}</td>
-                                    <td>{{ $item->variant->sku ?? '-' }}</td>
+                                    <td>
+                                        @if($item->variant)
+                                            @if($item->variant->variant_name)
+                                                <p>{{$item->variant->variant_name}}</p>
+                                            @else
+                                            <p>Chưa cấu hình thuộc tính</p>
+                                            @endif
+                                        @else
+                                            <p>Default</p>
+                                        @endif
+                                    </td>
                                     
                                     <td class="item-total" data-id="{{$item->id}}">
                                         {{ number_format(($item->variant->price ?? $item->product->price) * $item->quantity) }}đ
