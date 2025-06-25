@@ -39,7 +39,7 @@
                                                         <li><a href="shop_details2.html">Shop Details 02</a></li>
                                                         <li><a href="cart.html">Shopping Cart</a></li>
                                                         <li><a href="checkout.html">Checkout</a></li>
-<li><a href="wishlist.html">Wishlist</a></li>
+                                                        <li><a href="wishlist.html">Wishlist</a></li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-lg-4 hideOnMobile">
