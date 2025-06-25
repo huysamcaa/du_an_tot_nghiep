@@ -74,6 +74,16 @@
                         <li><i class="fa fa-puzzle-piece"></i><a href="{{route('admin.carts.index')}}">Xem Giỏ Hàng</a></li>
                         <!-- Các mục con khác -->
                     </ul>
+
+                <li class="menu-item-has-children dropdown">
+                    <a href="admin.users.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Người dùng
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-puzzle-piece"></i><a href="http://127.0.0.1:8000/admin/users">Xem tài khoản</a></li>
+                         <li><i class="fa fa-lock"></i><a href="{{ route('admin.users.locked') }}">Tài khoản bị khóa</a></li>
+                        <!-- Các mục con khác -->
+                    </ul>
                 </li>
                 <!-- Thêm các menu item khác tương tự -->
             </ul>

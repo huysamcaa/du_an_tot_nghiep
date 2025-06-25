@@ -5,6 +5,8 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Admin\Category;
+use App\Models\Admin\Comment;
 
 class Product extends Model
 {
@@ -12,6 +14,7 @@ class Product extends Model
 
     protected $fillable = [
         'brand_id',
+        'category_id',
         'name',
         'slug',
         'views',
@@ -81,4 +84,12 @@ public function galleries()
 }
 
 
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+ public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
