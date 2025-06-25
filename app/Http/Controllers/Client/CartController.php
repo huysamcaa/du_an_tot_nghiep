@@ -16,7 +16,7 @@ class CartController extends Controller
     public function index()
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 4;
+        $userId = Auth::id();
         $cartItems = CartItem::with('product', 'variant.attributeValues.attribute')
         ->where('user_id', $userId)->get();
         return view('client.carts.index', compact('cartItems'));
@@ -24,7 +24,7 @@ class CartController extends Controller
     public function add(Request $request)
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 4;
+        $userId = Auth::id();
         $productId = $request->input('product_id');
         $color = $request->input('color');
         $size = $request->input('size');
@@ -70,7 +70,7 @@ class CartController extends Controller
 
     public function update(Request $request)
     {
-        $userId = Auth::id() ?? 4; // fallback ID nếu chưa login
+        $userId = Auth::id(); // fallback ID nếu chưa login
 
         $cartItemId = $request->input('cart_item_id');
         $action = $request->input('quantity'); // có thể là 'increase' hoặc 'decrease'
@@ -111,7 +111,7 @@ class CartController extends Controller
     public function destroy($id)
     {
         // $userId = Auth::id();
-        $userId = Auth::id() ?? 4;
+        $userId = Auth::id();
         $item = CartItem::where('user_id', $userId)->where('id', $id)->first();
         if($item) {
             $item->delete();
