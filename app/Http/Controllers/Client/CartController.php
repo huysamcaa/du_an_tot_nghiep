@@ -17,54 +17,64 @@ class CartController extends Controller
     {
         // $userId = Auth::id();
         $userId = Auth::id();
-        $cartItems = CartItem::with('product', 'variant.attributeValues.attribute')
-        ->where('user_id', $userId)->get();
+
+        // Eager load thông tin sản phẩm, biến thể và thuộc tính của biến thể
+        $cartItems = CartItem::with(['product', 'variant.attributeValues.attribute'])
+                            ->where('user_id', $userId)
+                            ->get();
         return view('client.carts.index', compact('cartItems'));
     }
     public function add(Request $request)
     {
-        // $userId = Auth::id();
         $userId = Auth::id();
         $productId = $request->input('product_id');
-        $color = $request->input('color');
-        $size = $request->input('size');
-        $quantity = (int)$request->input('quantity') ?: 1;
+        $colorId = $request->input('color'); // Lấy màu sắc từ form
+        $sizeId = $request->input('size');  // Lấy kích thước từ form
+        $quantity = (int)$request->input('quantity') ?: 1; // Số lượng mặc định là 1 nếu không có giá trị
 
+        // Tìm biến thể sản phẩm theo màu sắc và kích thước
         $variant = ProductVariant::where('product_id', $productId)
-            ->whereHas('attributeValues', function($q) use ($color) {
-                $q->where('attribute_value_id', $color);
+            ->whereHas('attributeValues', function($q) use ($colorId) {
+                $q->where('attribute_value_id', $colorId);  // Kiểm tra màu sắc
             })
-            ->whereHas('attributeValues', function($q) use ($size) {
-                $q->where('attribute_value_id', $size);
+            ->whereHas('attributeValues', function($q) use ($sizeId) {
+                $q->where('attribute_value_id', $sizeId);  // Kiểm tra kích thước
             })
             ->first();
 
-        if(!$variant){
+        if (!$variant) {
             return redirect()->back()->with('error', 'Biến thể không tồn tại');
         }
-        // Kiểm tra giỏ đã có biến thể này chưa
+
+        // Kiểm tra giỏ hàng đã có sản phẩm với biến thể này chưa
         $item = CartItem::where('user_id', $userId)
-        ->where('product_id', $productId)
-        ->where('product_variant_id', $variant->id)
-        ->first();
-        if($item) {
+            ->where('product_id', $productId)
+            ->where('product_variant_id', $variant->id)
+            ->first();
+
+        if ($item) {
+            // Nếu đã có, cộng thêm số lượng vào sản phẩm hiện tại trong giỏ hàng
             $item->quantity += $quantity;
             $item->save();
-        }else {
+        } else {
+            // Nếu chưa có, tạo mới một mục trong giỏ hàng
             CartItem::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
-                'product_variant_id' => $variant->id,
+                'product_variant_id' => $variant->id, // Lưu product_variant_id để phân biệt các biến thể
                 'quantity' => $quantity
             ]);
         }
-        if($request->ajax()) {
+
+        // Trả lại tổng số sản phẩm trong giỏ nếu là yêu cầu AJAX
+        if ($request->ajax()) {
             $totalProduct = CartItem::where('user_id', $userId)->sum('quantity');
             return response()->json([
                 'success' => true,
                 'totalProduct' => $totalProduct
             ]);
         }
+
         return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng');
     }
 

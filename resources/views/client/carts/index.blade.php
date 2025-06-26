@@ -48,21 +48,19 @@
                             <tbody>
                                 <tr data-id="{{ $item->product_id }}">
                                     <td class="product-thumbnail">
-                                        <a href="shop_details1.html"><img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="Cart Item"></a>
+                                        <a href="shop_details1.html"><img src="{{ asset($item->product->thumbnail) }}" alt="Cart Item"></a>
                                     </td>
                                     <td class="product-name">
                                         <a href="shop_details1.html">{{ $item->product->name }}</a>
                                     </td>
                                     <td class="product-variant">
-                                        @if($item->variant)
-                                            @if($item->variant->variant_name)
-                                                <p>{{$item->variant->variant_name}}</p>
-                                            @else
-                                            <p>Chưa cấu hình thuộc tính</p>
-                                            @endif
-                                        @else
-                                            <p>Default</p>
-                                        @endif
+                                    @if($item->variant)
+                                        @foreach($item->variant->attributeValues as $attributeValue)
+                                            <p>{{ $attributeValue->attribute->name }}: {{ $attributeValue->value }}</p>
+                                        @endforeach
+                                    @else
+                                        <p>Chưa cấu hình thuộc tính</p>
+                                    @endif
                                     </td>
                                     <td class="product-price">
                                         <div class="pi01Price">
