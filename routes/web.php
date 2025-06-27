@@ -59,8 +59,8 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
 // Redirect admin/login và admin/register
-Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
-Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
+Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
+Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
 /*
 |--------------------------------------------------------------------------
@@ -85,11 +85,11 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'user.addresses.destroy',
     ]);
     Route::post('/my-addresses/{id}/set-default', [UserAddressController::class, 'setDefault'])->name('user.addresses.set_default');
-//// Thông tin người dùng
-Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
-Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
-Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
- Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
+    //// Thông tin người dùng
+    Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
+    Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
+    Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
