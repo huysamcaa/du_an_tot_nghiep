@@ -10,8 +10,8 @@
                             </div>
                             <div class="mainMenu">
                                 <ul>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Home</a>
+                                    <li class="menu-item">
+                                        <a href="{{ route('client.home') }}">Home</a>
                                     </li>
                                     <li><a href="about.html">About</a></li>
                                     <li class="menu-item-has-children">
@@ -174,8 +174,6 @@
                                     </div>
 
                                 {{-- hết user --}}
-                                </div>
-
                                     <div class="anCart">
 
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
