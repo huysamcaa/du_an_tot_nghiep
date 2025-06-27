@@ -2,36 +2,35 @@
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">Đánh Giá Của Tôi</h2>
+    <h2>Đánh Giá Của Tôi</h2>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
     @forelse($reviews as $review)
-        <div class="card mb-4 shadow-sm">
+        <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title">{{ $review->product->name ?? 'Sản phẩm không xác định' }}</h5>
-                <h6 class="card-subtitle text-muted mb-2">Đơn hàng {{ $review->order_id }}</h6>
+                <h5>{{ $review->product->name ?? 'Sản phẩm không xác định' }}</h5>
+                <h6>Đơn hàng: {{ $review->order->id ?? 'N/A' }}</h6>
 
-                <div class="mb-2">
+                <p>
                     <strong>Đánh giá:</strong>
-                    <span class="text-warning">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</span>
-                </div>
+                    {{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
+                </p>
 
-                <div class="mb-2">
-                    <strong>Nội dung:</strong><br>
-                    <p class="mb-1">{{ $review->review_text }}</p>
-                </div>
+                <p><strong>Nội dung:</strong> {{ $review->review_text }}</p>
 
-                <div class="mb-2">
-                    <strong>File đính kèm:</strong><br>
+                <p>
+                    <strong>File đính kèm:</strong>
                     @forelse($review->multimedia as $media)
-                        <a href="{{ $media->file }}" target="_blank" class="badge badge-info">
-                            {{ strtoupper($media->file_type) }}
-                        </a>
+                        <a href="{{ $media->file }}" target="_blank" class="badge badge-info">{{ strtoupper($media->file_type) }}</a>
                     @empty
-                        <span class="text-muted">Không có</span>
+                        <span>Không có</span>
                     @endforelse
-                </div>
+                </p>
 
-                <div>
+                <p>
                     <strong>Trạng thái:</strong>
                     @if(is_null($review->is_active))
                         <span class="badge badge-warning">Chờ duyệt</span>
@@ -43,13 +42,13 @@
                             <br><small class="text-muted">Lý do: {{ $review->reason }}</small>
                         @endif
                     @endif
-                </div>
+                </p>
+
+                <a href="{{ route('client.reviews.edit', $review->id) }}" class="btn btn-sm btn-primary">Sửa đánh giá</a>
             </div>
         </div>
     @empty
-        <div class="alert alert-info">
-            Bạn chưa có đánh giá nào.
-        </div>
+        <div class="alert alert-info">Bạn chưa có đánh giá nào.</div>
     @endforelse
 </div>
 @endsection

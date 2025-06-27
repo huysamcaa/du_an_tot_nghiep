@@ -3,10 +3,12 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
+    // Hiển thị tất cả đánh giá của người dùng
     public function index()
     {
         $reviews = Review::with(['product', 'order', 'multimedia'])
@@ -15,5 +17,38 @@ class ReviewController extends Controller
             ->get();
 
         return view('client.reviews.index', compact('reviews'));
+    }
+
+    // Form chỉnh sửa đánh giá
+    public function edit($id)
+    {
+        $review = Review::with(['product', 'order', 'multimedia'])
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        return view('client.reviews.edit', compact('review'));
+    }
+
+    // Lưu cập nhật đánh giá
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'review_text' => 'required|string|max:1000',
+        ]);
+
+        $review = Review::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $review->update([
+            'rating' => $request->rating,
+            'review_text' => $request->review_text,
+            'is_active' => null, // Chờ admin duyệt lại sau khi sửa
+            'reason' => null,
+        ]);
+
+        return redirect()->route('client.reviews.index')->with('success', 'Đánh giá cập nhật thành công và chờ duyệt.');
     }
 }
