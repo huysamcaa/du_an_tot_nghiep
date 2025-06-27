@@ -220,52 +220,101 @@
                                     <h3>Bình Luận</h3>
                                     <div class="reviewList">
                                         <ol>
-                                            @foreach ($comments as $comment)
-                                            <li>
-                                                <div class="postReview">
-                                                    <img src="images/author/7.jpg" alt="Post Review">
-                                                    <h2>{{ $comment->user->fullname }}</h2>
-                                                    <div class="postReviewContent">
-                                                        {{$comment->content}}
-                                                    </div>
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"><span></span></div>
-                                                    </div>
-                                                    <div class="reviewMeta">
-
-                                                        <span> {{$comment->created_at}}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            @endforeach
+                                            @if($comments && $comments->isNotEmpty())
+                                                <!-- Trong phần hiển thị bình luận -->
+                                                @foreach ($comments as $comment)
+                                                    <li>
+                                                        <div class="postReview" data-comment-id="{{ $comment->id }}">
+                                                            <img src="images/author/7.jpg" alt="Post Review">
+                                                            <h2>{{ $comment->user->name }}</h2>
+                                                            <div class="postReviewContent">
+                                                                {{ $comment->content }}
+                                                                @auth
+                                                                    @if(Auth::id() === $comment->user_id)
+                                                                        <a href="javascript:void(0);" class="edit-comment" data-comment-id="{{ $comment->id }}"> Sửa</a>
+                                                                    @endif
+                                                                    <a href="javascript:void(0);" class="reply-link" data-comment-id="{{ $comment->id }}"> Trả lời</a>
+                                                                @endauth
+                                                            </div>
+                                                            <div class="reviewMeta">
+                                                                <span>{{ $comment->created_at }}</span>
+                                                            </div>
+                                                            @if($comment->replies->isNotEmpty())
+                                                                <button class="show-replies-btn btn btn-outline-secondary" data-comment-id="{{ $comment->id }}">Hiển thị</button>
+                                                                <ul class="replies" style="display: none;">
+                                                                    @foreach($comment->replies as $reply)
+                                                                        <li>
+                                                                            <div class="postReview reply" data-reply-id="{{ $reply->id }}">
+                                                                                <img src="images/author/7.jpg" alt="Reply Review">
+                                                                                <h2>{{ $reply->user->name }} <small>(Trả lời)</small></h2>
+                                                                                <div class="postReviewContent">
+                                                                                    {{ $reply->content }}
+                                                                                    @auth
+                                                                                        @if(Auth::id() === $reply->user_id)
+                                                                                            <a href="javascript:void(0);" class="edit-reply" data-reply-id="{{ $reply->id }}"> Sửa</a>
+                                                                                        @endif
+                                                                                    @endauth
+                                                                                </div>
+                                                                                <div class="reviewMeta">
+                                                                                    <span>{{ $reply->created_at }}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                            @else
+                                                <p>Chưa có bình luận nào.</p>
+                                            @endif
                                         </ol>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="commentFormArea">
-                                        <h3>Add A Review</h3>
-                                        <div class="reviewFrom">
-                                            <form method="post" action="#" class="row">
-                                                <div class="col-lg-12">
-                                                    <div class="reviewStar">
-                                                        <label>Your Rating</label>
-                                                        <div class="rsStars"><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <input type="text" name="comTitle" placeholder="Review title">
-                                                </div>
+                                        <h3>Thêm bình luận</h3>
+                                            <div class="reviewFrom">
+                                            <form method="post" action="{{ route('product.addComment', $product->id) }}" class="row" id="commentForm">
+                                                @csrf
                                                 <div class="col-lg-12">
                                                     <textarea name="comComment" placeholder="Write your review here"></textarea>
                                                 </div>
-                                                <div class="col-lg-6">
-                                                    <input type="text" name="comName" placeholder="Your name">
+                                                <div class="col-lg-12">
+                                                    @if($userHasPurchased)
+                                                        <button type="submit" name="reviewtSubmit" class="ulinaBTN"><span>Submit Now</span></button>
+                                                    @else
+                                                        <p>Bạn cần mua sản phẩm này để được bình luận.</p>
+                                                    @endif
                                                 </div>
-                                                <div class="col-lg-6">
-                                                    <input type="email" name="comEmail" placeholder="Your email">
+                                            </form>
+                                            <!-- Form phản hồi (ẩn đi, hiển thị bằng JavaScript) -->
+                                            <form method="post" action="{{ route('product.addReply', $product->id) }}" class="row" id="replyForm" style="display: none;">
+                                                @csrf
+                                                <input type="hidden" name="comment_id" id="reply_comment_id_input">
+                                                <div class="col-lg-12">
+                                                    <textarea name="content" placeholder="Viết phản hồi của bạn"></textarea>
                                                 </div>
                                                 <div class="col-lg-12">
-                                                    <button type="submit" name="reviewtSubmit" class="ulinaBTN"><span>Submit Now</span></button>
+                                                    @auth
+                                                        <button type="submit" name="replySubmit" class="ulinaBTN"><span>Submit Reply</span></button>
+                                                    @else
+                                                        <p>Bạn cần đăng nhập để trả lời.</p>
+                                                    @endauth
+                                                </div>
+                                            </form>
+                                            <!-- Cập nhật form sửa để hỗ trợ cả comment và reply -->
+                                            <form method="post" action="{{ route('product.updateCommentOrReply', ['id' => $product->id]) }}" class="row" id="editCommentForm" style="display: none;">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="comment_id" id="edit_comment_id_input">
+                                                <div class="col-lg-12">
+                                                    <textarea name="content" id="edit_comment_content" placeholder="Sửa bình luận hoặc phản hồi của bạn"></textarea>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <button type="submit" name="editSubmit" class="ulinaBTN"><span>Lưu Sửa</span></button>
+                                                    <button type="button" class="cancel-edit ulinaBTN"><span>Hủy</span></button>
                                                 </div>
                                             </form>
                                         </div>
@@ -404,30 +453,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const qtyWrappers = document.querySelectorAll('.quantity');
-
-    qtyWrappers.forEach(wrapper => {
-        const minusBtn = wrapper.querySelector('.btnMinus');
-        const plusBtn = wrapper.querySelector('.btnPlus');
-        const qtyInput = wrapper.querySelector('.carqty');
-
-        minusBtn.addEventListener('click', function() {
-            let current = parseInt(qtyInput.value) || 1;
-            if (current > 1) qtyInput.value = current - 1;
-        });
-
-        plusBtn.addEventListener('click', function() {
-            let current = parseInt(qtyInput.value) || 1;
-            qtyInput.value = current + 1;
-        });
+    // Xử lý số lượng sản phẩm
+    document.querySelectorAll('.quantity').forEach(wrapper => {
+        const [minusBtn, plusBtn, qtyInput] = [wrapper.querySelector('.btnMinus'), wrapper.querySelector('.btnPlus'), wrapper.querySelector('.carqty')];
+        minusBtn.addEventListener('click', () => qtyInput.value = Math.max(1, parseInt(qtyInput.value) - 1));
+        plusBtn.addEventListener('click', () => qtyInput.value = parseInt(qtyInput.value) + 1);
     });
 
-    const form = document.getElementById('addToCartForm');
-    form.addEventListener('submit', function(e) {
+    // Xử lý thêm vào giỏ hàng
+    document.getElementById('addToCartForm')?.addEventListener('submit', e => {
         e.preventDefault();
-
-        const formData = new FormData(form);
-
+        const form = e.target;
         fetch(form.action, {
             method: 'POST',
             headers: {
@@ -435,33 +471,147 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             },
-            body: formData
+            body: new FormData(form)
         })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error('Network response was not ok');
+        .then(res => res.ok ? res.json() : Promise.reject(new Error('Network error')))
+        .then(data => data.success ? Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Sản phẩm đã được thêm vào giỏ hàng.', timer: 1500, showConfirmButton: false }) : Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error'))
+        .catch(error => Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error'));
+    });
+
+    // Xử lý nút Hiện
+    document.querySelectorAll('.show-replies-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const commentId = btn.getAttribute('data-comment-id');
+            const repliesList = document.querySelector(`.postReview[data-comment-id="${commentId}"] .replies`);
+            if (repliesList) {
+                const isHidden = repliesList.style.display === 'none' || !repliesList.style.display;
+                repliesList.style.display = isHidden ? 'block' : 'none';
+                btn.textContent = isHidden ? 'Ẩn' : 'Hiển thị';
             }
-            return res.json();
-        })
-        .then(data => {
-            if (data.success) {
-                document.querySelector('.anCart span').innerText = data.totalProduct;
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: 'Sản phẩm đã được thêm vào giỏ hàng.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-            Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
         });
     });
+
+    // Xử lý nút Trả lời
+    document.querySelectorAll('.reply-link').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const id = link.getAttribute('data-comment-id');
+            toggleForm('replyForm', id, 'reply_comment_id_input');
+        });
+    });
+
+    // Xử lý nút Sửa bình luận
+    document.querySelectorAll('.edit-comment').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const id = link.getAttribute('data-comment-id');
+            editContent(id, `.postReview[data-comment-id="${id}"] .postReviewContent`, 'edit-comment');
+        });
+    });
+
+    // Xử lý nút Sửa phản hồi
+    document.querySelectorAll('.edit-reply').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const id = link.getAttribute('data-reply-id');
+            editContent(id, `.postReview.reply[data-reply-id="${id}"] .postReviewContent`, 'edit-reply');
+        });
+    });
+
+    // Hàm chung cho toggle form
+    function toggleForm(formId, id, inputId) {
+        const [form, commentForm, editForm] = ['replyForm', 'commentForm', 'editCommentForm'].map(id => document.getElementById(id));
+        if (form && commentForm && editForm) {
+            document.getElementById(inputId).value = id;
+            [commentForm.style.display, editForm.style.display, form.style.display] = ['none', 'none', 'block'];
+        }
+    }
+
+    // Hàm chung cho chỉnh sửa nội dung
+    function editContent(id, selector, className) {
+        const element = document.querySelector(selector);
+        const content = element.textContent.trim().replace(' Sửa', '').replace(' Trả lời', '');
+        const [editForm, commentForm, replyForm] = ['editCommentForm', 'commentForm', 'replyForm'].map(id => document.getElementById(id));
+        if (editForm && commentForm && replyForm) {
+            document.getElementById('edit_comment_id_input').value = id;
+            document.getElementById('edit_comment_content').value = content;
+            [commentForm.style.display, replyForm.style.display, editForm.style.display] = ['none', 'none', 'block'];
+        }
+    }
+
+    // Xử lý submit form trả lời
+    document.getElementById('replyForm')?.addEventListener('submit', e => {
+        e.preventDefault();
+        const form = e.target;
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.ok ? res.json() : Promise.reject(new Error(res.statusText)))
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Đã trả lời bình luận thành công.', timer: 1500, showConfirmButton: false }).then(() => {
+                    const id = document.getElementById('reply_comment_id_input').value;
+                    const content = form.querySelector('textarea[name="content"]').value;
+                    const userName = data.data.user_name;
+                    const replyHtml = `<li><div class="postReview reply"><img src="images/author/7.jpg" alt="Reply Review"><h2>${userName} <small>(Trả lời)</small></h2><div class="postReviewContent">${content}</div><div class="reviewMeta"><span>{{ now()->format('Y-m-d H:i:s') }}</span></div></div></li>`;
+                    const commentElement = document.querySelector(`[data-comment-id="${id}"] .postReview`);
+                    let repliesList = commentElement.querySelector('.replies');
+                    if (!repliesList) {
+                        repliesList = Object.assign(document.createElement('ul'), { className: 'replies', style: 'display:none' });
+                        const showBtn = Object.assign(document.createElement('button'), { className: 'show-replies-btn', textContent: 'Hiện', dataset: { commentId: id } });
+                        showBtn.addEventListener('click', e => { e.preventDefault(); toggleReplies(showBtn, repliesList); });
+                        commentElement.append(repliesList, showBtn);
+                    }
+                    repliesList.insertAdjacentHTML('beforeend', replyHtml);
+                    [form.style.display, form.querySelector('textarea[name="content"]').value, document.getElementById('commentForm').style.display] = ['none', '', 'block'];
+                });
+            } else Swal.fire('Lỗi', data.message || 'Thêm phản hồi thất bại', 'error');
+        })
+        .catch(error => Swal.fire('Lỗi', `Đã xảy ra lỗi, vui lòng thử lại. Chi tiết: ${error.message}`, 'error'));
+    });
+
+    // Xử lý submit form sửa
+    document.getElementById('editCommentForm')?.addEventListener('submit', e => {
+        e.preventDefault();
+        const form = e.target;
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.ok ? res.json() : Promise.reject(new Error('Network error')))
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Đã cập nhật thành công.', timer: 1500, showConfirmButton: false }).then(() => {
+                    const id = form.querySelector('#edit_comment_id_input').value;
+                    const content = form.querySelector('#edit_comment_content').value;
+                    const replyElement = document.querySelector(`.postReview.reply[data-reply-id="${id}"] .postReviewContent`);
+                    const element = replyElement || document.querySelector(`.postReview[data-comment-id="${id}"] .postReviewContent`);
+                    element.innerHTML = `${content} <a href="javascript:void(0);" class="${replyElement ? 'edit-reply' : 'edit-comment'}" data-${replyElement ? 'reply' : 'comment'}-id="${id}"> Sửa</a>${!replyElement ? ' <a href="javascript:void(0);" class="reply-link" data-comment-id="${id}"> Trả lời</a>' : ''}`;
+                    [form.style.display, document.getElementById('commentForm').style.display] = ['none', 'block'];
+                });
+            } else Swal.fire('Lỗi', data.message || 'Cập nhật thất bại', 'error');
+        })
+        .catch(error => Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error'));
+    });
+
+    // Hàm toggle replies
+    function toggleReplies(btn, list) {
+        const isHidden = list.style.display === 'none' || !list.style.display;
+        list.style.display = isHidden ? 'block' : 'none';
+        btn.textContent = isHidden ? 'Ẩn' : 'Hiển thị';
+    }
 });
 </script>
 

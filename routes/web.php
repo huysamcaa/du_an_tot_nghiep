@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CommentController;
 
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
@@ -39,6 +40,11 @@ Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show']
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
+
+// Route cho việc thêm bình luận (chỉ khi đã mua sản phẩm)
+Route::post('/product/{id}/add-comment', [ProductDetailController::class, 'addComment'])->name('product.addComment');
+Route::post('/product/{id}/add-reply', [ProductDetailController::class, 'addReply'])->name('product.addReply');
+Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::class, 'updateCommentOrReply'])->name('product.updateCommentOrReply');
 
 // Danh mục sản phẩm (client)
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
@@ -103,6 +109,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
+        Route::resource('comments', CommentController::class);
+
+        // Thêm route cho toggleVisibility
+        Route::get('comments/{comment}/toggle', [CommentController::class, 'toggleVisibility'])->name('comments.toggle');
+        // Thêm route cho danh sách phản hồi
+        Route::get('replies', [CommentController::class, 'indexReplies'])->name('replies.index');
 
         // Quản lý biến thể sản phẩm
         Route::prefix('products/{product}')->name('products.')->group(function () {

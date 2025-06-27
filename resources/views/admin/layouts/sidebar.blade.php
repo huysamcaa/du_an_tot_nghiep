@@ -85,6 +85,16 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
+                <li class="menu-item-has-children dropdown">
+                    <a href="{{ route('admin.comments.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Bình luận
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.comments.index') }}">Danh sách bình luận</a></li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.replies.index') }}">Danh sách phản hồi bình luận</a></li>
+                        <!-- Các mục con khác -->
+                    </ul>
+                </li>
                 <!-- Thêm các menu item khác tương tự -->
             </ul>
         </div>
