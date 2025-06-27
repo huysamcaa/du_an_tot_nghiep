@@ -25,6 +25,7 @@ use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use CheckoutController as GlobalCheckoutController;
+use App\Http\Controllers\Client\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,11 @@ use CheckoutController as GlobalCheckoutController;
 
 // Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+//Binh luận và trả lời bình luận
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
 
 // Trang khuyến mãi
 

@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('comments', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+    // public function up(): void
+    // {
+    //     Schema::create('comments', function (Blueprint $table) {
+    //         $table->id();
+    //         $table->timestamps();
+    //     });
+    // }
 
     /**
      * Reverse the migrations.
@@ -24,4 +24,11 @@ return new class extends Migration
     {
         Schema::dropIfExists('comments');
     }
+
+    public function up()
+{
+    Schema::table('comments', function (Blueprint $table) {
+        $table->tinyInteger('rating')->nullable();
+    });
+}
 };
