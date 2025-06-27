@@ -15,6 +15,3 @@
 </li>
 @endforeach
 </ul> 
-
-
-
