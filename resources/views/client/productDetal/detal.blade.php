@@ -83,8 +83,10 @@
                                 <div class="pcvContainer">
                                     @foreach($colors as $color)
                                         <div class="pi01VCItem">
-                                            <input checked type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if($loop->first) checked @endif>
+                                            <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color') == $color->id || $loop->first) checked @endif >
+                                            
                                             <label for="color_{{ $color->id }}"></label>
+                                            <p>{{ $color->id }}</p>
                                         </div>
                                     @endforeach
                                 </div>
@@ -95,7 +97,7 @@
                                 <div class="pcvContainer">
                                 @foreach($sizes as $size)
                                     <div class="pswItem">
-                                        <input type="radio" name="size" value="{{ $size->id }}" id="size_{{ $size->id }}" @if($loop->first) checked @endif>
+                                        <input type="radio" name="size" value="{{ $size->id }}" id="size_{{ $size->id }}" @if(old('size') == $size->id || $loop->first) checked @endif>
                                         <label for="size_{{ $size->id }}">{{ $size->value }}</label>
                                     </div>
                                 @endforeach
