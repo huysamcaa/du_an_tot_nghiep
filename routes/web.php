@@ -19,7 +19,7 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Admin\AttributeValueController;
-
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\CategoryClientController;
@@ -120,7 +120,12 @@ Route::post('/profile/update', [UserProfileController::class, 'update'])->name('
         Route::prefix('products/{product}')->name('products.')->group(function () {
             Route::resource('variants', ProductVariantController::class)->except(['show']);
         });
-   
+
+
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
 
 
         // Quản lý người dùng
