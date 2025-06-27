@@ -103,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
-       Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
+    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
     /*
     |--------------------------------------------------------------------------
     | 3. Admin Routes (Yêu cầu role admin)
