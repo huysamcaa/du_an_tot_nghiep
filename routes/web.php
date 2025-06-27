@@ -125,7 +125,7 @@ Route::post('/profile/update', [UserProfileController::class, 'update'])->name('
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
-    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name(' orders.destroy');
 
 
         // Quản lý người dùng
