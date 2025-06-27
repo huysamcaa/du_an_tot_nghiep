@@ -19,10 +19,12 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Admin\AttributeValueController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
+use CheckoutController as GlobalCheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +49,12 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/checkout', [\App\Http\Controllers\Client\CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [\App\Http\Controllers\Client\CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+    Route::get('/orders/{code}', [\App\Http\Controllers\Client\CheckoutController::class, 'orderDetail'])->name('client.orders.show');
+});
 // Checkout
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 // Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
@@ -112,6 +120,13 @@ Route::post('/profile/update', [UserProfileController::class, 'update'])->name('
         Route::prefix('products/{product}')->name('products.')->group(function () {
             Route::resource('variants', ProductVariantController::class)->except(['show']);
         });
+
+
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
 
         // Quản lý người dùng
         Route::resource('users', UserController::class)->except(['show']);

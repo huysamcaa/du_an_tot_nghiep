@@ -87,6 +87,20 @@
         </li>
     </ul>
 </li>
+ <li class="menu-item-has-children dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        <i class="menu-icon fa fa-tag"></i> Thanh Toán
+    </a>
+    <ul class="sub-menu children dropdown-menu">
+        <li>
+            <i class="fa fa-trademark"></i>
+            <a href="{{ route('admin.orders.index') }}">
+                Quản lý đơn hàng
+            </a>
+        </li>
+    </ul>
+</li>
 
         </div>
     </nav>
