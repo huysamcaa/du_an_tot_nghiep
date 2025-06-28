@@ -101,6 +101,20 @@
         </li>
     </ul>
 </li>
+<li class="menu-item-has-children dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        <i class="menu-icon fa fa-comments"></i> Đánh Giá
+    </a>
+    <ul class="sub-menu children dropdown-menu">
+        <li>
+            <i class="fa fa-check-square-o"></i>
+            <a href="{{ route('admin.reviews.index') }}">
+                Kiểm soát đánh giá
+            </a>
+        </li>
+    </ul>
+</li>
 
         </div>
     </nav>
