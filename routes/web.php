@@ -25,14 +25,15 @@ use App\Http\Controllers\Client\CheckoutController;
 
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
-use App\Http\Controllers\Admin\AttributeValueController;
+// use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CommentController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ProductVariantController;
+// use App\Http\Controllers\Admin\OrderController;
+// use App\Http\Controllers\Admin\ProductVariantController;
+
 
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
-use App\Http\Controllers\Client\UserAddressController;
+// use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
@@ -50,8 +51,8 @@ use App\Http\Controllers\Auth\RegisterController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
 // Trang khuyến mãi
-Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
-Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+// Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
+// Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -63,6 +64,7 @@ Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::cl
 
 // Danh mục sản phẩm (client)
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
+Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('client.category.show');
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
