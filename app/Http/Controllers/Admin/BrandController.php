@@ -10,9 +10,23 @@ use Illuminate\Support\Facades\Storage;
 
 class BrandController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $brands = Brand::latest()->paginate(10);
+        // Khởi tạo truy vấn với phân trang
+        $query = Brand::latest();
+
+        // Kiểm tra nếu có giá trị tìm kiếm trong yêu cầu
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('slug', 'like', "%$search%");
+            });
+        }
+
+        // Paginate kết quả
+        $brands = $query->paginate(10);
+
         return view('admin.brands.index', compact('brands'));
     }
 
