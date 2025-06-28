@@ -42,9 +42,7 @@ use App\Http\Controllers\Auth\RegisterController;
 // Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
-// Trang khuyến mãi
-Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
-Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show'])->name('client.promotions.show');
+
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -126,8 +124,7 @@ Route::middleware(['auth'])->group(function () {
 
         // CRUD chính
         Route::resource('categories', CategoryController::class);
-        Route::resource('manufacturers', ManufacturerController::class);
-        Route::resource('promotions', PromotionController::class);
+        
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
