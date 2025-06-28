@@ -107,9 +107,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
-   Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
-    Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
-    Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
+//    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
+//     Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
+//     Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
     /*
     |--------------------------------------------------------------------------
     | 3. Admin Routes (Yêu cầu role admin)
@@ -143,8 +143,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
         // Quản lý đánh giá sản phẩm (admin)
-        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+        // Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        // Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        // Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     });
 });
