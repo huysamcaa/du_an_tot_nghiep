@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.2.0/css/flag-icon.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/cs-skin-elastic.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    
+
     <link href="https://cdn.jsdelivr.net/npm/chartist@0.11.0/dist/chartist.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/jqvmap@1.5.1/dist/jqvmap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
@@ -57,6 +57,24 @@
         #cellPaiChart {
             height: 160px;
         }
+
+
+    html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#right-panel {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;
+}
+
+
     </style>
 </head>
 
@@ -64,21 +82,21 @@
     <!-- Left Panel -->
     @include('admin.layouts.sidebar')
     <!-- /#left-panel -->
-    
+
     <!-- Right Panel -->
     <div id="right-panel" class="right-panel">
         <!-- Header-->
         @include('admin.layouts.header')
         <!-- /#header -->
-        
+
         <!-- Content -->
         <div class="content">
             @yield('content')
         </div>
         <!-- /.content -->
-        
+
         <div class="clearfix"></div>
-        
+
         <!-- Footer -->
         @include('admin.layouts.footer')
         <!-- /.site-footer -->
