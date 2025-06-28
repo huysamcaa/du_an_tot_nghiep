@@ -18,23 +18,18 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\CommentController;
 
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
-
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
-use App\Http\Controllers\Admin\AttributeValueController;
-use App\Http\Controllers\Admin\CommentController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ProductVariantController;
-
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
-use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
+use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -46,8 +41,12 @@ use App\Http\Controllers\Auth\RegisterController;
 |--------------------------------------------------------------------------
 */
 
-// Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+// Bình luận và trả lời bình luận
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
 
 // Trang khuyến mãi
 Route::get('/promotions', [ClientPromotionController::class, 'index'])->name('client.promotions.index');
@@ -56,12 +55,12 @@ Route::get('/promotions/{promotion}', [ClientPromotionController::class, 'show']
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
 
-// Route cho việc thêm bình luận (chỉ khi đã mua sản phẩm)
+// Thêm và cập nhật bình luận
 Route::post('/product/{id}/add-comment', [ProductDetailController::class, 'addComment'])->name('product.addComment');
 Route::post('/product/{id}/add-reply', [ProductDetailController::class, 'addReply'])->name('product.addReply');
 Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::class, 'updateCommentOrReply'])->name('product.updateCommentOrReply');
 
-// Danh mục sản phẩm (client)
+// Danh mục sản phẩm
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
 
 // Giỏ hàng
@@ -70,21 +69,20 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-// Checkout (đã có middleware auth ở bên dưới, nên mình chỉ giữ phần /checkout trong group)
+// Checkout
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
 });
 
-// Đăng ký & Đăng nhập
+// Đăng ký & đăng nhập
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-// Redirect admin/login và admin/register
 Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
 Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
 
@@ -93,15 +91,13 @@ Route::get('/admin/register', fn () => redirect()->route('register'))->name('adm
 | 2. Protected Routes (Yêu cầu đăng nhập)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth'])->group(function () {
 
-    // Đăng xuất
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-    // Dashboard người dùng
     Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
 
-    // Quản lý địa chỉ người dùng
+    // Quản lý địa chỉ
     Route::resource('my-addresses', UserAddressController::class)->names([
         'index' => 'user.addresses.index',
         'create' => 'user.addresses.create',
@@ -117,7 +113,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
     Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
 
-    // Danh sách coupon
+    // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
@@ -136,7 +132,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD chính
         Route::resource('categories', CategoryController::class);
         Route::resource('manufacturers', ManufacturerController::class);
         Route::resource('promotions', PromotionController::class);
@@ -147,13 +142,12 @@ Route::middleware(['auth'])->group(function () {
 
         // Thêm route cho toggleVisibility
         Route::get('comments/{comment}/toggle', [CommentController::class, 'toggleVisibility'])->name('comments.toggle');
-        // Thêm route cho danh sách phản hồi
         Route::get('replies', [CommentController::class, 'indexReplies'])->name('replies.index');
 
         Route::resource('brands', BrandController::class);
         Route::resource('coupon', CouponController::class);
 
-        // Phần của Văn Chính
+        // Quản lý trạng thái đơn hàng
         Route::resource('order_statuses', OrderStatusController::class);
 
         // Quản lý biến thể sản phẩm
@@ -172,10 +166,5 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
-
-        // Quản lý đánh giá sản phẩm (admin)
-        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     });
 });
