@@ -12,10 +12,6 @@
                                 <ul>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Home</a>
-                                        <ul>
-                                            <li><a href="index.html">Home One</a></li>
-                                            <li><a href="index2.html">Home Two</a></li>
-                                        </ul>
                                     </li>
                                     <li><a href="about.html">About</a></li>
                                     <li class="menu-item-has-children">
@@ -39,7 +35,7 @@
                                                         <li><a href="shop_details2.html">Shop Details 02</a></li>
                                                         <li><a href="cart.html">Shopping Cart</a></li>
                                                         <li><a href="checkout.html">Checkout</a></li>
-                                                        <li><a href="wishlist.html">Wishlist</a></li>
+<li><a href="wishlist.html">Wishlist</a></li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-lg-4 hideOnMobile">
@@ -78,7 +74,7 @@
                                                     <li><a href="blog_grid_rsb.html">Right Sidebar</a></li>
                                                 </ul>
                                             </li>
-                                            <li class="menu-item-has-children">
+<li class="menu-item-has-children">
                                                 <a href="javascript:void(0);">Blog Details</a>
                                                 <ul>
                                                     <li><a href="blog_details_lsb.html">Left Sidebar</a></li>
@@ -121,7 +117,7 @@
                                     </div>
                                 </div>
                                 <div class="anItems">
-                                    <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
+<div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
 
 
                                     <div class="anUser" id="userMenuWrapper">
@@ -142,10 +138,10 @@
                                                                 <i class="fa-solid fa-dashboard"></i> Dashboard Admin
                                                             </a>
                                                         @else
-                                                            <a href="{{ route('user.dashboard') }}">
+                                                            <a href="{{ route('client.profile.show') }}">
                                                                 <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                             </a>
-                                                            <a href="{{route('user.addresses.index')}}">
+                                                              <a href="{{route('user.addresses.index')}}">
                                                                 <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                             </a>
                                                         @endif
@@ -177,50 +173,9 @@
                                         </div>
                                     </div>
 
-                              @if(Auth::check())
-    {{-- Nếu đã đăng nhập --}}
-    <div class="userDropdownItem">
-        @if(Auth::user()->role === 'admin')
-            <a href="{{ route('admin.dashboard') }}">
-                <i class="fa-solid fa-dashboard"></i> Dashboard Admin
-            </a>
-        @else
-            <a href="{{ route('user.dashboard') }}">
-                <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
-            </a>
-            <a href="{{route('user.addresses.index')}}">
-                <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
-            </a>
-        @endif
-    </div>
 
-    <div class="userDropdownFooter">
-        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
-        </a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-            @csrf
-        </form>
-    </div>
-@else
-    {{-- Nếu chưa đăng nhập --}}
-    <div class="userDropdownHeader">
-        <h3>Chào mừng, Khách!</h3>
-    </div>
-    <div class="userDropdownItem">
-        <a href="{{ route('login') }}">
-            <i class="fa-solid fa-sign-in-alt"></i> Đăng nhập
-        </a>
-    </div>
-    <div class="userDropdownItem">
-        <a href="{{ route('register') }}">
-            <i class="fa-solid fa-user-plus"></i> Đăng ký
-        </a>
-    </div>
-@endif
+                                {{-- hết user --}}
 
-
-                                {{-- HẾT PHẦN USER --}}
                                     <div class="anCart">
 
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
@@ -244,8 +199,6 @@
                                     </div>
                                 </div>
 
-                                {{-- HẾT PHẦN USER --}}
-
                                 </div>
                                 <div class="anSupport">
                                     <i class="fa-solid fa-headset"></i>
@@ -258,4 +211,3 @@
                 </div>
             </div>
         </header>
-
