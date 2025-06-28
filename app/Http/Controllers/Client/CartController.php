@@ -104,11 +104,15 @@ class CartController extends Controller
 
         $cartTotal = CartItem::where('user_id', $userId)
             ->get()
-            ->sum(fn($i) => $i->product->price * $i->quantity);
+            ->sum(function($i){
+                $price = $i->product->sale_price ?? $i->product->price; // Lấy sale_price nếu có, nếu không lấy price
+                return $price * $i->quantity;
+            });
 
+            $itemPrice = $item->product->sale_price ?? $item->product->price; // Giá của item hiện tại
         return response()->json([
             'success' => true,
-            'item_total' => number_format($item->product->price * $item->quantity),
+            'item_total' => number_format($itemPrice * $item->quantity),
             'cart_total' => number_format($cartTotal),
             'new_quantity' => $item->quantity,
             'grand_total' => number_format($cartTotal + 30000)
