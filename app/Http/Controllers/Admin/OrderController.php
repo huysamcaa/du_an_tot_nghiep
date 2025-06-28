@@ -36,6 +36,6 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $order->delete();
-        return redirect()->route('admin.orders.index')->with('success', 'Đã xóa đơn hàng');
+        return redirect()->route('admin.orders.destroy')->with('success', 'Đã xóa đơn hàng');
     }
 }
