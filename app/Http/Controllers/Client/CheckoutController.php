@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
@@ -81,6 +82,7 @@ class CheckoutController extends Controller
             CartItem::where('user_id', $userId)->delete();
 
             DB::commit();
+            // Đảm bảo đã có file resources/views/client/orders/show.blade.php
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Đặt hàng thành công! Đơn hàng sẽ được giao và thanh toán khi nhận hàng.');
         } catch (\Exception $e) {
