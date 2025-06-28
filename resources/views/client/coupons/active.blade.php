@@ -1,6 +1,20 @@
 @extends('client.layouts.app')
 
 @section('content')
+<section class="pageBannerSection">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="pageBannerContent text-center">
+                            <h2>Danh sách mã giảm giá</h2>
+                            <div class="pageBannerPath">
+                                <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Mã giảm giá</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</section>
 <div class="container py-4">
     <h2 class="mb-4">Danh sách mã giảm giá</h2>
 
