@@ -2,7 +2,9 @@
 
 @section('content')
 <h1>Danh sách phản hồi bình luận</h1>
-
+@if(session('success'))
+    <div class="alert alert-success mt-2">{{ session('success') }}</div>
+@endif
 <div class="content">
     <div class="animated fadeIn">
         <div class="row">

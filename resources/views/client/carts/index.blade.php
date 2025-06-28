@@ -42,13 +42,14 @@
                                 @endphp
                                 @foreach($cartItems as $item)
                                 @php 
-                                    $total += $item->product->price * $item->quantity; 
+                                    $price = $item->product->sale_price ?? $item->product->price; // Lấy sale_price nếu có, nếu không lấy price
+                                    $total += $price * $item->quantity; 
                                     $totalQuantity += $item->quantity;
                                 @endphp
                             <tbody>
                                 <tr data-id="{{ $item->product_id }}">
                                     <td class="product-thumbnail">
-                                        <a href="shop_details1.html"><img src="{{ asset($item->product->thumbnail) }}" alt="Cart Item"></a>
+                                        <a href="shop_details1.html"><img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="Cart Item"></a>
                                     </td>
                                     <td class="product-name">
                                         <a href="shop_details1.html">{{ $item->product->name }}</a>
@@ -64,7 +65,7 @@
                                     </td>
                                     <td class="product-price">
                                         <div class="pi01Price">
-                                            <ins>{{ number_format($item->product->price) }}đ</ins>
+                                            <ins>{{ number_format($price) }}đ</ins>
                                         </div>
                                     </td>
                                     <td class="product-quantity">
@@ -80,7 +81,7 @@
                                     </td>
                                     <td class="product-subtotal" data-id="{{$item->id}}">
                                         <div class="pi01Price">
-                                            <ins>{{ number_format($item->product->price * $item->quantity) }}đ</ins>
+                                            <ins>{{ number_format($price * $item->quantity) }}đ</ins>
                                         </div>
                                     </td>
                                     <td class="product-remove">

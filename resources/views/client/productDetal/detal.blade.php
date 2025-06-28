@@ -86,7 +86,7 @@
                                             <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color') == $color->id || $loop->first) checked @endif >
                                             
                                             <label for="color_{{ $color->id }}"></label>
-                                            <p>{{ $color->id }}</p>
+                                            <p>{{ $color->value }}</p>
                                         </div>
                                     @endforeach
                                 </div>
@@ -220,12 +220,11 @@
                                     <h3>Bình Luận</h3>
                                     <div class="reviewList">
                                         <ol>
-                                            @if($comments && $comments->isNotEmpty())
                                             @foreach ($comments as $comment)
                                             <li>
                                                 <div class="postReview">
                                                     <img src="images/author/7.jpg" alt="Post Review">
-                                                    <h2>{{ $comment->user->name }}</h2>
+                                                    <h2>{{ $comment->user->fullname }}</h2>
                                                     <div class="postReviewContent">
                                                         {{$comment->content}}
                                                     </div>
@@ -239,35 +238,35 @@
                                                 </div>
                                             </li>
                                             @endforeach
-                                            @else
-                                            <p>Chưa có bình luận nào.</p>
-                                            @endif
                                         </ol>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="commentFormArea">
-                                        <h3>Thêm bình luận</h3>
+                                        <h3>Add A Review</h3>
                                         <div class="reviewFrom">
-                                            <form method="post" action="{{ route('product.addComment', $product->id) }}" class="row">
-                                                @csrf
-                                                <!-- <div class="col-lg-12">
+                                            <form method="post" action="#" class="row">
+                                                <div class="col-lg-12">
                                                     <div class="reviewStar">
                                                         <label>Your Rating</label>
                                                         <div class="rsStars"><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></div>
                                                     </div>
-                                                </div> -->
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <input type="text" name="comTitle" placeholder="Review title">
+                                                </div>
                                                 <div class="col-lg-12">
                                                     <textarea name="comComment" placeholder="Write your review here"></textarea>
                                                 </div>
-
+                                                <div class="col-lg-6">
+                                                    <input type="text" name="comName" placeholder="Your name">
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <input type="email" name="comEmail" placeholder="Your email">
+                                                </div>
                                                 <div class="col-lg-12">
-                                                    @if($userHasPurchased)
-                                                        <button type="submit" name="reviewtSubmit" class="ulinaBTN"><span>Submit Now</span></button>
-                                                    @else
-                                                        <p>Bạn cần mua sản phẩm này để được bình luận.</p>
-                                                    @endif
-                                                    </div>
+                                                    <button type="submit" name="reviewtSubmit" class="ulinaBTN"><span>Submit Now</span></button>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -467,6 +466,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
-
 
 

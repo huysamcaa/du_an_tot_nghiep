@@ -138,7 +138,7 @@
                                                                 <i class="fa-solid fa-dashboard"></i> Dashboard Admin
                                                             </a>
                                                         @else
-                                                            <a href="{{ route('user.dashboard') }}">
+                                                            <a href="{{ route('client.profile.show') }}">
                                                                 <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                             </a>
                                                               <a href="{{route('user.addresses.index')}}">
