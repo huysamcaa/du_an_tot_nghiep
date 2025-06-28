@@ -132,6 +132,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
         Route::resource('categories', CategoryController::class);
+        
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
