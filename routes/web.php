@@ -109,9 +109,6 @@ Route::middleware(['auth'])->group(function () {
 
         /// Phần của Văn Chính
         Route::resource('order_statuses', OrderStatusController::class);
-         Route::resource('order-status-histories', OrderOrderStatusController::class);
-        Route::get('admin/order-status-histories/edit', [OrderOrderStatusController::class, 'edit'])->name('admin.order-status-histories.edit');
-
         /////////
 
         // Quản lý biến thể sản phẩm
@@ -126,5 +123,3 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     });
 });
-
-
