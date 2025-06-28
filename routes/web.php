@@ -31,10 +31,12 @@ use App\Http\Controllers\Client\PromotionController as ClientPromotionController
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\CommentController;
-use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use CheckoutController as GlobalCheckoutController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,8 +84,9 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
-Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
+// Redirect admin/login và admin/register
+Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
+Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
 /*
 |--------------------------------------------------------------------------
@@ -106,13 +109,10 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'user.addresses.destroy',
     ]);
     Route::post('/my-addresses/{id}/set-default', [UserAddressController::class, 'setDefault'])->name('user.addresses.set_default');
-
-    // Thông tin người dùng
+    //// Thông tin người dùng
     Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
     Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
-
-    // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
@@ -164,5 +164,9 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
+        // Quản lý đánh giá sản phẩm (admin)
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     });
 });
