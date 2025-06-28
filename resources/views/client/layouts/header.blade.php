@@ -188,7 +188,9 @@
             <a href="{{ route('user.dashboard') }}">
                 <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
             </a>
-
+            <a href="{{route('user.addresses.index')}}">
+                <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
+            </a>
         @endif
     </div>
 
