@@ -73,8 +73,8 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
 // Redirect admin/login và admin/register
-Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
-Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
+Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
+Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
 /*
 |--------------------------------------------------------------------------
@@ -160,3 +160,4 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     });
 });
+

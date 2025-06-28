@@ -1,5 +1,5 @@
-
-{{-- <ul>
+{{-- 
+<ul>
 
 @foreach($categories as $category)
 <li>
@@ -16,9 +16,9 @@
 </li>
 @endforeach
 
-</ul> --}}
+</ul>
 
 
 
 
-
+ --}}
