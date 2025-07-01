@@ -86,7 +86,7 @@
                                             <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color') == $color->id || $loop->first) checked @endif >
                                             
                                             <label for="color_{{ $color->id }}"></label>
-                                            <p>{{ $color->id }}</p>
+                                            <p>{{ $color->value }}</p>
                                         </div>
                                     @endforeach
                                 </div>
@@ -215,63 +215,87 @@
 
                     <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
                         <div class="productReviewArea">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <h3>Bình Luận</h3>
-                                    <div class="reviewList">
-                                        <ol>
-                                            @foreach ($comments as $comment)
-                                            <li>
-                                                <div class="postReview">
-                                                    <img src="images/author/7.jpg" alt="Post Review">
-                                                    <h2>{{ $comment->user->fullname }}</h2>
-                                                    <div class="postReviewContent">
-                                                        {{$comment->content}}
-                                                    </div>
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"><span></span></div>
-                                                    </div>
-                                                    <div class="reviewMeta">
+<div class="row">
+    <div class="col-lg-6">
+        <h3>Bình Luận</h3>
+        <div id="comment-list"></div>
+    </div>
 
-                                                        <span> {{$comment->created_at}}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            @endforeach
-                                        </ol>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="commentFormArea">
-                                        <h3>Add A Review</h3>
-                                        <div class="reviewFrom">
-                                            <form method="post" action="#" class="row">
-                                                <div class="col-lg-12">
-                                                    <div class="reviewStar">
-                                                        <label>Your Rating</label>
-                                                        <div class="rsStars"><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <input type="text" name="comTitle" placeholder="Review title">
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <textarea name="comComment" placeholder="Write your review here"></textarea>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <input type="text" name="comName" placeholder="Your name">
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <input type="email" name="comEmail" placeholder="Your email">
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <button type="submit" name="reviewtSubmit" class="ulinaBTN"><span>Submit Now</span></button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="col-lg-6">
+        <div class="commentFormArea">
+            <h3>Thêm bình luận</h3>
+            <div class="reviewFrom">
+                <form id="comment-form" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
+                    <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình luận</span></button>
+                </form>
+                <div id="comment-message" class="text-success mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    function loadComments(page = 1) {
+        $.get(`{{ url('comments/list') }}?product_id={{ $product->id }}&page=${page}`, function (data) {
+            $('#comment-list').html(data);
+        });
+    }
+
+    $('#comment-form').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('comments.store') }}',
+            data: $(this).serialize(),
+            success: function (res) {
+                $('#comment-form textarea').val('');
+                $('#comment-message').text(res.message);
+                loadComments();
+            },
+            error: function () {
+                alert('Lỗi khi gửi bình luận');
+            }
+        });
+    });
+
+    $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        const page = $(this).attr('href').split('page=')[1];
+        loadComments(page);
+    });
+
+    // Xử lý gửi trả lời bằng AJAX
+    $(document).on('submit', '.reply-form', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('comments.reply') }}',
+            data: form.serialize(),
+            success: function (res) {
+                loadComments();
+            },
+            error: function () {
+                alert('Lỗi khi gửi trả lời');
+            }
+        });
+    });
+
+    loadComments();
+    
+});
+$(document).on('click', '.toggle-reply', function () {
+    let id = $(this).data('id');
+    $('.reply-form').addClass('d-none');
+    $('#reply-form-' + id).toggleClass('d-none');
+});
+</script>
+
                         </div>
                     </div>
                 </div>
@@ -466,6 +490,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
-
 
 

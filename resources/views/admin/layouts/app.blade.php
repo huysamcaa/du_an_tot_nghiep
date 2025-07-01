@@ -57,6 +57,24 @@
         #cellPaiChart {
             height: 160px;
         }
+
+
+    html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#right-panel {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;
+}
+
+
     </style>
 </head>
 
