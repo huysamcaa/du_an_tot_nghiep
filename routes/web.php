@@ -35,7 +35,6 @@ use App\Http\Controllers\Client\CommentController2;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 /*

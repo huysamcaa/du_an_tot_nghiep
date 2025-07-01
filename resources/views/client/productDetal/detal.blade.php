@@ -6,47 +6,61 @@
     <div class="container">
         <div class="row">
 
+            <!-- 1. Import Slick CSS/JS -->
+
+
             <div class="col-lg-6">
                 <div class="productGalleryWrap">
+
+                    <!-- Slider ảnh lớn -->
                     <div class="productGallery">
                         <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                            <img
+                                src="{{ asset('storage/' . $product->thumbnail) }}"
+                                alt="{{ $product->name }}" />
                         </div>
+                        @foreach($product->variants as $variant)
+                        @if($variant->thumbnail)
                         <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                            <img
+                                src="{{ asset('storage/' . $variant->thumbnail) }}"
+                                alt="{{ $product->name }} - Biến thể" />
                         </div>
-                        <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                        </div>
-                        <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                        </div>
-                        <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                        </div>
-
+                        @endif
+                        @endforeach
                     </div>
+
+                    <!-- Slider thumbnail -->
                     <div class="productGalleryThumbWrap">
                         <div class="productGalleryThumb">
                             <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                                <img
+                                    src="{{ asset('storage/' . $product->thumbnail) }}"
+                                    alt="{{ $product->name }}" />
                             </div>
+                            @foreach($product->variants as $variant)
+                            @if($variant->thumbnail)
                             <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                                <img
+                                    src="{{ asset('storage/' . $variant->thumbnail) }}"
+                                    alt="{{ $product->name }} - Biến thể" />
                             </div>
-                            <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                            </div>
-                            <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                            </div>
-                            <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                            </div>
+                            @endif
+                            @endforeach
                         </div>
                     </div>
+
                 </div>
             </div>
+
+            <script>
+                document.querySelectorAll('.productGalleryThumb .pgtImage img')
+                    .forEach(img => img.addEventListener('click', () => {
+                        document.querySelector('.productGallery .pgImage img').src = img.src;
+                    }));
+            </script>
+
+
             <div class="col-lg-6">
                 <div class="productContent">
                     <div class="pcCategory">
@@ -76,7 +90,7 @@
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                    <!-- Check biến thể -->
+                        <!-- Check biến thể -->
                         <div class="pcVariations">
                             <div class="pcVariation">
                                 <span>Màu</span>
@@ -96,12 +110,12 @@
                             <div class="pcVariation pcv2">
                                 <span>Size</span>
                                 <div class="pcvContainer">
-                                @foreach($sizes as $size)
+                                    @foreach($sizes as $size)
                                     <div class="pswItem">
-                                        <input type="radio" name="size" value="{{ $size->id }}" id="size_{{ $size->id }}" @if(old('size') == $size->id || $loop->first) checked @endif>
+                                        <input type="radio" name="size" value="{{ $size->id }}" id="size_{{ $size->id }}" @if(old('size')==$size->id || $loop->first) checked @endif>
                                         <label for="size_{{ $size->id }}">{{ $size->value }}</label>
                                     </div>
-                                @endforeach
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -140,7 +154,7 @@
             </div>
 
         </div>
-<!--  sản phẩm liên quan  -->
+        <!--  sản phẩm liên quan  -->
         <div class="row productTabRow">
             <div class="col-lg-12">
                 <ul class="nav productDetailsTab" id="productDetailsTab" role="tablist">
@@ -216,86 +230,86 @@
 
                     <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
                         <div class="productReviewArea">
-<div class="row">
-    <div class="col-lg-6">
-        <h3>Bình Luận</h3>
-        <div id="comment-list"></div>
-    </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <h3>Bình Luận</h3>
+                                    <div id="comment-list"></div>
+                                </div>
 
-    <div class="col-lg-6">
-        <div class="commentFormArea">
-            <h3>Thêm bình luận</h3>
-            <div class="reviewFrom">
-                <form id="comment-form" method="POST">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
-                    <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình luận</span></button>
-                </form>
-                <div id="comment-message" class="text-success mt-2"></div>
-            </div>
-        </div>
-    </div>
-</div>
+                                <div class="col-lg-6">
+                                    <div class="commentFormArea">
+                                        <h3>Thêm bình luận</h3>
+                                        <div class="reviewFrom">
+                                            <form id="comment-form" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
+                                                <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình luận</span></button>
+                                            </form>
+                                            <div id="comment-message" class="text-success mt-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function () {
-    function loadComments(page = 1) {
-        $.get(`{{ url('comments/list') }}?product_id={{ $product->id }}&page=${page}`, function (data) {
-            $('#comment-list').html(data);
-        });
-    }
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                            <script>
+                                $(document).ready(function() {
+                                    function loadComments(page = 1) {
+                                        $.get(`{{ url('comments/list') }}?product_id={{ $product->id }}&page=${page}`, function(data) {
+                                            $('#comment-list').html(data);
+                                        });
+                                    }
 
-    $('#comment-form').submit(function (e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: '{{ route('comments.store') }}',
-            data: $(this).serialize(),
-            success: function (res) {
-                $('#comment-form textarea').val('');
-                $('#comment-message').text(res.message);
-                loadComments();
-            },
-            error: function () {
-                alert('Lỗi khi gửi bình luận');
-            }
-        });
-    });
+                                    $('#comment-form').submit(function(e) {
+                                        e.preventDefault();
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: "{{ route('comments.store') }}",
+                                            data: $(this).serialize(),
+                                            success: function(res) {
+                                                $('#comment-form textarea').val('');
+                                                $('#comment-message').text(res.message);
+                                                loadComments();
+                                            },
+                                            error: function() {
+                                                alert('Lỗi khi gửi bình luận');
+                                            }
+                                        });
+                                    });
 
-    $(document).on('click', '.pagination a', function(e) {
-        e.preventDefault();
-        const page = $(this).attr('href').split('page=')[1];
-        loadComments(page);
-    });
+                                    $(document).on('click', '.pagination a', function(e) {
+                                        e.preventDefault();
+                                        const page = $(this).attr('href').split('page=')[1];
+                                        loadComments(page);
+                                    });
 
-    // Xử lý gửi trả lời bằng AJAX
-    $(document).on('submit', '.reply-form', function(e) {
-        e.preventDefault();
-        const form = $(this);
-        $.ajax({
-            type: 'POST',
-            url: '{{ route('comments.reply') }}',
-            data: form.serialize(),
-            success: function (res) {
-                loadComments();
-            },
-            error: function () {
-                alert('Lỗi khi gửi trả lời');
-            }
-        });
-    });
+                                    // Xử lý gửi trả lời bằng AJAX
+                                    $(document).on('submit', '.reply-form', function(e) {
+                                        e.preventDefault();
+                                        const form = $(this);
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: "{{ route('comments.reply') }}",
+                                            data: form.serialize(),
+                                            success: function(res) {
+                                                loadComments();
+                                            },
+                                            error: function() {
+                                                alert('Lỗi khi gửi trả lời');
+                                            }
+                                        });
+                                    });
 
-    loadComments();
-    
-});
-$(document).on('click', '.toggle-reply', function () {
-    let id = $(this).data('id');
-    $('.reply-form').addClass('d-none');
-    $('#reply-form-' + id).toggleClass('d-none');
-});
-</script>
+                                    loadComments();
+
+                                });
+                                $(document).on('click', '.toggle-reply', function() {
+                                    let id = $(this).data('id');
+                                    $('.reply-form').addClass('d-none');
+                                    $('#reply-form-' + id).toggleClass('d-none');
+                                });
+                            </script>
 
                         </div>
                     </div>
@@ -308,122 +322,88 @@ $(document).on('click', '.toggle-reply', function () {
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="productCarousel owl-carousel">
-                            <div class="productItem01">
+
+                            @foreach($relatedProducts as $prod)
+                            <div class="productItem01 {{ $prod->comments_count ? '' : 'pi01NoRating' }}">
                                 <div class="pi01Thumb">
-                                    <img src="images/products/1.jpg" alt="Ulina Product" />
-                                    <img src="images/products/1.1.jpg" alt="Ulina Product" />
+                                    {{-- 2 ảnh hover: chính + biến thể đầu --}}
+                                    <img src="{{ asset('storage/' . $prod->thumbnail) }}" alt="{{ $prod->name }}" />
+                                    @if($firstVar = $prod->variants->first())
+                                    <img src="{{ asset('storage/' . $firstVar->thumbnail) }}" alt="{{ $prod->name }} - Biến thể" />
+                                    @else
+                                    <img src="{{ asset('storage/' . $prod->thumbnail) }}" alt="{{ $prod->name }}" />
+                                    @endif
+
+                                    {{-- Actions --}}
                                     <div class="pi01Actions">
                                         <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
                                         <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                         <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
                                     </div>
+
+                                    {{-- Sale label --}}
                                     <div class="productLabels clearfix">
-                                        <span class="plDis">- $49</span>
+                                        @if($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                        <span class="plDis">-{{ round(100 * ($prod->price - $prod->sale_price) / $prod->price) }}%</span>
                                         <span class="plSale">Sale</span>
+                                        @endif
                                     </div>
                                 </div>
+
                                 <div class="pi01Details">
+                                    {{-- Star rating + Reviews --}}
+                                    @if($prod->comments_count)
                                     <div class="productRatings">
                                         <div class="productRatingWrap">
                                             <div class="star-rating"><span></span></div>
                                         </div>
-                                        <div class="ratingCounts">10 Reviews</div>
+                                        <div class="ratingCounts">{{ $prod->comments_count }} Reviews</div>
                                     </div>
-                                    <h3><a href="shop_details1.html">Men’s blue cotton t-shirt</a></h3>
+                                    @endif
+
+                                    {{-- Tên sản phẩm --}}
+                                    <h3><a href="{{ route('product.detail', $prod->id) }}">{{ Str::limit($prod->name, 40) }}</a></h3>
+
+                                    {{-- Giá --}}
                                     <div class="pi01Price">
-                                        <ins>$49</ins>
-                                        <del>$60</del>
+                                        @if($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                        <ins>{{ number_format($prod->sale_price) }}</ins>
+                                        <del>{{ number_format($prod->price) }}</del>
+                                        @else
+                                        <ins>{{ number_format($prod->price) }}</ins>
+                                        @endif
                                     </div>
+
+                                    {{-- Màu & Size --}}
                                     <div class="pi01Variations">
                                         <div class="pi01VColor">
+                                            @foreach($prod->variants->pluck('sku')->take(3) as $i => $sku)
                                             <div class="pi01VCItem">
-                                                <input checked type="radio" name="color1" value="Blue" id="color1_blue" />
-                                                <label for="color1_blue"></label>
+                                                <input {{ $i === 0 ? 'checked' : '' }} type="radio" name="color{{ $prod->id }}" id="color{{ $prod->id }}_{{ $i }}" />
+                                                <label for="color{{ $prod->id }}_{{ $i }}"></label>
                                             </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color1" value="Yellow" id="color1_yellow" />
-                                                <label for="color1_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color1" value="Red" id="color1_red" />
-                                                <label for="color1_red"></label>
-                                            </div>
+                                            @endforeach
                                         </div>
                                         <div class="pi01VSize">
+                                            @foreach(['S', 'M', 'L'] as $j => $size)
                                             <div class="pi01VSItem">
-                                                <input type="radio" name="size1" value="Blue" id="size1_s" />
-                                                <label for="size1_s">S</label>
+                                                <input {{ $j === 0 ? 'checked' : '' }} type="radio" name="size{{ $prod->id }}" id="size{{ $prod->id }}_{{ $size }}" />
+                                                <label for="size{{ $prod->id }}_{{ $size }}">{{ $size }}</label>
                                             </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size1" value="Yellow" id="size1_m" />
-                                                <label for="size1_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size1" value="Red" id="size1_xl" />
-                                                <label for="size1_xl">XL</label>
-                                            </div>
+                                            @endforeach
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
-                            <div class="productItem01 pi01NoRating">
-                                <div class="pi01Thumb">
-                                    <img src="images/products/2.jpg" alt="Ulina Product" />
-                                    <img src="images/products/2.1.jpg" alt="Ulina Product" />
-                                    <div class="pi01Actions">
-                                        <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                    </div>
-                                    <div class="productLabels clearfix">
-                                        <span class="plHot">Hot</span>
-                                    </div>
-                                </div>
-                                <div class="pi01Details">
-                                    <h3><a href="shop_details2.html">Ulina black clean t-shirt</a></h3>
-                                    <div class="pi01Price">
-                                        <ins>$14</ins>
-                                        <del>$30</del>
-                                    </div>
-                                    <div class="pi01Variations">
-                                        <div class="pi01VColor">
-                                            <div class="pi01VCItem">
-                                                <input checked type="radio" name="color2" value="Blue" id="color2_blue" />
-                                                <label for="color2_blue"></label>
-                                            </div>
-                                            <div class="pi01VCItem yellows">
-                                                <input type="radio" name="color2" value="Yellow" id="color2_yellow" />
-                                                <label for="color2_yellow"></label>
-                                            </div>
-                                            <div class="pi01VCItem reds">
-                                                <input type="radio" name="color2" value="Red" id="color2_red" />
-                                                <label for="color2_red"></label>
-                                            </div>
-                                        </div>
-                                        <div class="pi01VSize">
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size2" value="Blue" id="size2_s" />
-                                                <label for="size2_s">S</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size2" value="Yellow" id="size2_m" />
-                                                <label for="size2_m">M</label>
-                                            </div>
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size2" value="Red" id="size2_xl" />
-                                                <label for="size2_xl">XL</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
 
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
 </section>
 <!-- END: Shop Details Section -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -517,6 +497,5 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire('Hết hàng', 'Thêm vào giỏ hàng thất bại', 'error');
         }
     });
-});
 </script>
 @endsection
