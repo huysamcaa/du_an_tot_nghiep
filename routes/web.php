@@ -18,7 +18,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;

@@ -21,6 +21,12 @@ class ProductDetailController extends Controller
     $colors = AttributeValue::where('attribute_id', 1)->where('is_active', 1)->get();
     $sizes = AttributeValue::where('attribute_id', 2)->where('is_active', 1)->get();
     $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
-    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes'));
+    $relatedProducts = Product::with('variants')
+   ->withCount('comments')   // đếm comments thay vì reviews
+        ->where('category_id', $product->category_id)
+        ->where('id', '<>', $product->id)
+        ->take(8)
+        ->get();
+    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts'));
 }
 }
