@@ -29,8 +29,8 @@ use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+use App\Http\Controllers\Client\ReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -122,6 +122,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
     Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
     Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
+
+    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
+    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+    
+    Route::middleware(['auth'])->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+});
+
 
     /*
     |--------------------------------------------------------------------------
