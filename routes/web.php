@@ -121,6 +121,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
     Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
 
+    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
+    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+    
+    Route::middleware(['auth'])->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+});
+
+
     /*
     |--------------------------------------------------------------------------
     | 3. Admin Routes (Yêu cầu role admin)
