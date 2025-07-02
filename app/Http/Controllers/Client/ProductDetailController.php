@@ -10,10 +10,10 @@ use App\Models\Admin\OrderItem;
 use App\Models\Admin\AttributeValue;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 class ProductDetailController extends Controller
 {
-  public function show($id)
+public function show($id)
 {
     $product = Product::findOrFail($id);
     $category = $product->category;
@@ -28,5 +28,6 @@ class ProductDetailController extends Controller
         ->take(8)
         ->get();
     return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts'));
+
 }
 }

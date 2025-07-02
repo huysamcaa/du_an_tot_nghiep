@@ -94,17 +94,18 @@
                         <div class="pcVariations">
                             <div class="pcVariation">
                                 <span>Màu</span>
-                                <div class="pcvContainer">
-                                    @foreach($colors as $color)
-                                    <div class="pi01VCItem">
-                                        <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color')==$color->id || $loop->first) checked @endif >
-
-                                        <label for="color_{{ $color->id }}"></label>
-                                        <p>{{ $color->value }}</p>
+                                    <div class="pcvContainer">
+                                        @foreach($colors as $color)
+                                            <div class="colorOptionWrapper">
+                                                <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}"
+                                                    @if(old('color') == $color->id || $loop->first) checked @endif hidden>
+                                                <label for="color_{{ $color->id }}"
+                                                    class="customColorCircle"
+                                                    style="background-color: {{ $color->hex }};"></label>
+                                                <p>{{ $color->value }}</p>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                </div>
-
                             </div>
                             <div class="pcVariation pcv2">
                                 <span>Size</span>
@@ -407,6 +408,7 @@
 <!-- END: Shop Details Section -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
         const qtyWrappers = document.querySelectorAll('.quantity');
 
@@ -465,8 +467,39 @@
                     console.error('Lỗi:', error);
                     Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
                 });
+
         });
+    };
+
+    form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
+        input.addEventListener('change', checkVariantAvailability)
+    );
+    checkVariantAvailability();
+
+    // Xử lý submit form
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(form)
+        });
+
+        const data = await res.json();
+        if (res.status === 401 || data.unauthenticated) {
+            Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập.', showConfirmButton: true })
+                .then(() => location.href = '/login');
+        } else if (data.success) {
+            document.querySelector('.anCart span').innerText = data.totalProduct;
+            Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Đã thêm vào giỏ hàng.', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire('Hết hàng', 'Thêm vào giỏ hàng thất bại', 'error');
+        }
     });
 </script>
+
 
 @endsection

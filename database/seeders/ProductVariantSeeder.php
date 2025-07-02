@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Admin\Product;
+use App\Models\Admin\ProductVariant;
+use App\Models\Admin\AttributeValue;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -10,30 +12,27 @@ class ProductVariantSeeder extends Seeder
 {
     public function run()
     {
-        // Lấy tất cả các sản phẩm
+        DB::table('product_variants')->truncate();  // Xóa tất cả bản ghi trong bảng
         $products = Product::all();
 
-        // Lấy tất cả giá trị thuộc tính "Color" (Màu sắc)
-        $colors = ['Red', 'Blue', 'Green', 'Black', 'White'];
+        $colors = AttributeValue::whereHas('attribute', fn($q) => $q->where('slug', 'color'))->get();
+        $sizes = AttributeValue::whereHas('attribute', fn($q) => $q->where('slug', 'size'))->get();
 
-        // Lấy tất cả giá trị thuộc tính "Size" (Kích thước)
-        $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-
-        // Duyệt qua tất cả các sản phẩm và tạo các biến thể cho mỗi kết hợp màu sắc và kích thước
         foreach ($products as $product) {
             foreach ($colors as $color) {
                 foreach ($sizes as $size) {
-                    // Tạo biến thể cho mỗi kết hợp màu sắc và kích thước
-                    $sku = $product->sku . '-' . $color . '-' . $size;
+                    $sku = $product->sku . '-' . $color->value . '-' . $size->value;
 
-                    DB::table('product_variants')->insert([
+                    $variant = ProductVariant::create([
                         'product_id' => $product->id,
                         'sku' => $sku,
                         'price' => $product->price,
-                        'sale_price' => $product->price - rand(5000, 20000),  // Giảm giá ngẫu nhiên từ 5k đến 20k
+                        'sale_price' => $product->sale_price ?? ($product->price - rand(5000, 20000)),
                         'thumbnail' => 'default.jpg',
-                        'is_active' => 1,
+                        'is_active' => 1
                     ]);
+
+                    $variant->attributeValues()->sync([$color->id, $size->id]);
                 }
             }
         }
