@@ -80,17 +80,18 @@
                         <div class="pcVariations">
                             <div class="pcVariation">
                                 <span>Màu</span>
-                                <div class="pcvContainer">
-                                    @foreach($colors as $color)
-                                        <div class="pi01VCItem">
-                                            <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color') == $color->id || $loop->first) checked @endif >
-                                            
-                                            <label for="color_{{ $color->id }}"></label>
-                                            <p>{{ $color->value }}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-
+                                    <div class="pcvContainer">
+                                        @foreach($colors as $color)
+                                            <div class="colorOptionWrapper">
+                                                <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}"
+                                                    @if(old('color') == $color->id || $loop->first) checked @endif hidden>
+                                                <label for="color_{{ $color->id }}"
+                                                    class="customColorCircle"
+                                                    style="background-color: {{ $color->hex }};"></label>
+                                                <p>{{ $color->value }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
                             </div>
                             <div class="pcVariation pcv2">
                                 <span>Size</span>
@@ -427,67 +428,77 @@ $(document).on('click', '.toggle-reply', function () {
 <!-- END: Shop Details Section -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const qtyWrappers = document.querySelectorAll('.quantity');
-
-    qtyWrappers.forEach(wrapper => {
-        const minusBtn = wrapper.querySelector('.btnMinus');
-        const plusBtn = wrapper.querySelector('.btnPlus');
-        const qtyInput = wrapper.querySelector('.carqty');
-
-        minusBtn.addEventListener('click', function() {
-            let current = parseInt(qtyInput.value) || 1;
-            if (current > 1) qtyInput.value = current - 1;
-        });
-
-        plusBtn.addEventListener('click', function() {
-            let current = parseInt(qtyInput.value) || 1;
-            qtyInput.value = current + 1;
-        });
-    });
-
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('addToCartForm');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+    const qtyInput = form.querySelector('.carqty');
+    const addToCartBtn = form.querySelector('button[type="submit"]');
 
-        const formData = new FormData(form);
+    // Tăng/giảm số lượng
+    form.querySelector('.btnMinus').onclick = () => {
+        qtyInput.value = Math.max(1, parseInt(qtyInput.value) - 1);
+    };
+    form.querySelector('.btnPlus').onclick = () => {
+        qtyInput.value = parseInt(qtyInput.value) + 1 || 1;
+    };
 
-        fetch(form.action, {
+    // Kiểm tra biến thể có tồn tại không
+    const checkVariantAvailability = () => {
+        const productId = form.querySelector('[name="product_id"]').value;
+        const colorId = form.querySelector('[name="color"]:checked')?.value;
+        const sizeId = form.querySelector('[name="size"]:checked')?.value;
+
+        if (!colorId || !sizeId) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.innerText = 'Chọn biến thể';
+            return;
+        }
+
+        fetch(`{{ route('check.variant') }}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value
             },
-            body: formData
+            body: JSON.stringify({ product_id: productId, color: colorId, size: sizeId })
         })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                document.querySelector('.anCart span').innerText = data.totalProduct;
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: 'Sản phẩm đã được thêm vào giỏ hàng.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-            Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
+            addToCartBtn.disabled = !data.found;
+            addToCartBtn.innerHTML = data.found ? '<span>Add to card</span>' : '<span>SOLDOUT</span>';
         });
+    };
+
+    form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
+        input.addEventListener('change', checkVariantAvailability)
+    );
+    checkVariantAvailability();
+
+    // Xử lý submit form
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(form)
+        });
+
+        const data = await res.json();
+        if (res.status === 401 || data.unauthenticated) {
+            Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập.', showConfirmButton: true })
+                .then(() => location.href = '/login');
+        } else if (data.success) {
+            document.querySelector('.anCart span').innerText = data.totalProduct;
+            Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Đã thêm vào giỏ hàng.', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire('Hết hàng', 'Thêm vào giỏ hàng thất bại', 'error');
+        }
     });
 });
 </script>
+
 
 @endsection
 
