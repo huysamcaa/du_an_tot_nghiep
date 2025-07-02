@@ -1639,6 +1639,28 @@ header .form-inline {
 .twt-footer, .twt-footer a {
   color: #d2d2d2; }
 
+
+.colorOptionWrapper {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.customColorCircle {
+    display: inline-block;
+    width: 20px;             
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1.5px solid #ccc;  
+    transition: all 0.2s ease-in-out;
+}
+
+/* Khi được chọn: hiển thị viền đậm hơn */
+input[type="radio"]:checked + .customColorCircle {
+    border: 2px solid #444;
+    box-shadow: 0 0 0 1px #999;
+}
+
 /* Button Reset */
 .btn, .button {
   display: inline-block;

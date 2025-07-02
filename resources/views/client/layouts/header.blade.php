@@ -116,8 +116,8 @@
                                         <div class="cartWidgetArea">
                                             @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
-                                                <img src="{{ asset($item->product->thumbnail) }}" alt="Marine Design">
-                                                <a href="shop_details1.html">{{ $item->product->name }}</a>
+                                                <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" />
+                                                <a href="{{ route('product.detail',['id' => $item->product->id]) }}">{{ $item->product->name }}</a>
                                                 <div class="cartProductPrice clearfix">
                                                     <span class="price">{{ number_format($item->product->price) }}đ</span>
                                                 </div>
