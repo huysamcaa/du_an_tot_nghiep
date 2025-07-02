@@ -86,7 +86,7 @@
                                             <input type="radio" name="color" value="{{ $color->id }}" id="color_{{ $color->id }}" @if(old('color') == $color->id || $loop->first) checked @endif >
                                             
                                             <label for="color_{{ $color->id }}"></label>
-                                            <p>{{ $color->id }}</p>
+                                            <p>{{ $color->value }}</p>
                                         </div>
                                     @endforeach
                                 </div>
@@ -490,6 +490,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
-
 
 
