@@ -7,7 +7,7 @@ use App\Models\Client\CommentReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class CommentController extends Controller
+class CommentController2 extends Controller
 {
     public function store(Request $request)
     {
