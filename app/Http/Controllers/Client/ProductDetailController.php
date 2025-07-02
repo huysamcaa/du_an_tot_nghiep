@@ -17,8 +17,7 @@ public function show($id)
 {
     $product = Product::findOrFail($id);
     $category = $product->category;
-
-     // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
+    // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
     $colors = AttributeValue::where('attribute_id', 1)->where('is_active', 1)->get();
     $sizes = AttributeValue::where('attribute_id', 2)->where('is_active', 1)->get();
     $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
@@ -29,5 +28,6 @@ public function show($id)
         ->take(8)
         ->get();
     return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts'));
+
 }
 }
