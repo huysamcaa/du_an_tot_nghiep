@@ -19,7 +19,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\CommentController as AdminCommentController;
+
 
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
@@ -48,6 +48,7 @@ Route::get('/', [HomeController::class, 'index'])->name('client.home');
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
 Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
+
 
 
 // Chi tiết sản phẩm
@@ -140,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
         Route::resource('categories', CategoryController::class);
+
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
