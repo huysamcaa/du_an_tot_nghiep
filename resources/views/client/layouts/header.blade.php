@@ -177,8 +177,12 @@
                                 </div>
 
                                     <div class="anCart">
+                                        <a href="javascript:void(0);" class="anCartToggle">
+    <i class="fa-solid fa-shopping-cart"></i>
+    <span class="cart-count">{{ $totalProduct }}</span>
+</a>
 
-                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
+                                        
                                         <div class="cartWidgetArea">
                                             @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
@@ -199,11 +203,6 @@
                                     </div>
                                 </div>
 
-                                </div>
-                                <div class="anSupport">
-                                    <i class="fa-solid fa-headset"></i>
-                                    <h3>Helpline</h3>
-                                    <h3>+123 - 456 - 7890</h3>
                                 </div>
                             </div>
                         </div>
