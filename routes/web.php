@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminController;
@@ -18,7 +19,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
@@ -31,7 +32,7 @@ use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\CommentController2;
 
-use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+use App\Http\Controllers\Client\ReviewController2;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -45,6 +46,7 @@ use App\Http\Controllers\Auth\RegisterController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
 // Bình luận và trả lời bình luận
+
 Route::post('/comments', [CommentController2::class, 'store'])->name('comments.store');
 Route::post('/comments/reply', [CommentController2::class, 'reply'])->name('comments.reply');
 Route::get('/comments/list', [CommentController2::class, 'list'])->name('comments.list');
@@ -62,9 +64,10 @@ Route::get('/categories', [CategoryClientController::class, 'index'])->name('cli
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add')->middleware('auth');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::post('/check-variant', [CartController::class, 'checkVariant'])->name('check.variant');
 
 // Checkout
 Route::middleware(['auth'])->group(function () {
@@ -117,9 +120,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
     // Đánh giá sản phẩm (client)
-    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
-    Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
-    Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
+    Route::get('/reviews', [ReviewController2::class, 'index'])->name('client.reviews.index');
+    Route::get('/reviews/{id}/edit', [ReviewController2::class, 'edit'])->name('client.reviews.edit');
+    Route::post('/reviews/{id}/update', [ReviewController2::class, 'update'])->name('client.reviews.update');
+
+    Route::get('/reviews/create/{order_id}/{product_id}', [ReviewController2::class, 'create'])->name('client.reviews.create');
+    Route::post('/reviews', [ReviewController2::class, 'store'])->name('client.reviews.store');
+    
+    Route::middleware(['auth'])->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+});
+
 
     /*
     |--------------------------------------------------------------------------
@@ -134,11 +145,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
-        Route::resource('comments', CommentController::class);
+        Route::resource('comments', AdminCommentController::class);
+        Route::resource('reviews', ReviewController::class);
 
         // Thêm route cho toggleVisibility
-        Route::get('comments/{comment}/toggle', [CommentController::class, 'toggleVisibility'])->name('comments.toggle');
-        Route::get('replies', [CommentController::class, 'indexReplies'])->name('replies.index');
+        Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
+        Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
 
         Route::resource('brands', BrandController::class);
         Route::resource('coupon', CouponController::class);
