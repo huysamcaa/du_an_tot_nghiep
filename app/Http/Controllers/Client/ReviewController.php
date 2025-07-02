@@ -51,4 +51,22 @@ class ReviewController extends Controller
 
         return redirect()->route('client.reviews.index')->with('success', 'Đánh giá cập nhật thành công và chờ duyệt.');
     }
+       public function store(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'content' => 'required|string|max:1000',
+        ]);
+
+        Review::create([
+            'user_id' => auth()->id(),
+            'product_id' => $request->product_id,
+            'rating' => $request->rating,
+            'content' => $request->content,
+            'status' => 'pending', // Đánh giá chờ duyệt
+        ]);
+
+        return back()->with('success', 'Cảm ơn bạn đã đánh giá! Đánh giá sẽ được duyệt sớm.');
+    }
 }
