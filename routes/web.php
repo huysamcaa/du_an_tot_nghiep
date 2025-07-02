@@ -25,12 +25,12 @@ use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
-use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use App\Http\Controllers\Client\CommentController;
+use App\Http\Controllers\Client\CommentController2;
+
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -44,7 +44,10 @@ use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
-
+// Bình luận và trả lời bình luận
+Route::post('/comments', [CommentController2::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController2::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController2::class, 'list'])->name('comments.list');
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -159,5 +162,10 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
+
+         // Quản lý đánh giá sản phẩm (admin)
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     });
 });
