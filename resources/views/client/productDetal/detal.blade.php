@@ -428,43 +428,64 @@ $(document).on('click', '.toggle-reply', function () {
 <!-- END: Shop Details Section -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('addToCartForm');
-    const qtyInput = form.querySelector('.carqty');
-    const addToCartBtn = form.querySelector('button[type="submit"]');
+document.addEventListener('DOMContentLoaded', function() {
+        const qtyWrappers = document.querySelectorAll('.quantity');
 
-    // Tăng/giảm số lượng
-    form.querySelector('.btnMinus').onclick = () => {
-        qtyInput.value = Math.max(1, parseInt(qtyInput.value) - 1);
-    };
-    form.querySelector('.btnPlus').onclick = () => {
-        qtyInput.value = parseInt(qtyInput.value) + 1 || 1;
-    };
+        qtyWrappers.forEach(wrapper => {
+            const minusBtn = wrapper.querySelector('.btnMinus');
+            const plusBtn = wrapper.querySelector('.btnPlus');
+            const qtyInput = wrapper.querySelector('.carqty');
 
-    // Kiểm tra biến thể có tồn tại không
-    const checkVariantAvailability = () => {
-        const productId = form.querySelector('[name="product_id"]').value;
-        const colorId = form.querySelector('[name="color"]:checked')?.value;
-        const sizeId = form.querySelector('[name="size"]:checked')?.value;
+            minusBtn.addEventListener('click', function() {
+                let current = parseInt(qtyInput.value) || 1;
+                if (current > 1) qtyInput.value = current - 1;
+            });
 
-        if (!colorId || !sizeId) {
-            addToCartBtn.disabled = true;
-            addToCartBtn.innerText = 'Chọn biến thể';
-            return;
-        }
+            plusBtn.addEventListener('click', function() {
+                let current = parseInt(qtyInput.value) || 1;
+                qtyInput.value = current + 1;
+            });
+        });
 
-        fetch(`{{ route('check.variant') }}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value
-            },
-            body: JSON.stringify({ product_id: productId, color: colorId, size: sizeId })
-        })
-        .then(res => res.json())
-        .then(data => {
-            addToCartBtn.disabled = !data.found;
-            addToCartBtn.innerHTML = data.found ? '<span>Add to card</span>' : '<span>SOLDOUT</span>';
+        const form = document.getElementById('addToCartForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector('.anCart span').innerText = data.totalProduct;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: 'Sản phẩm đã được thêm vào giỏ hàng.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
+                });
         });
     };
 
