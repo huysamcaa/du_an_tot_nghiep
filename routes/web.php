@@ -142,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
-        // Quản lý đánh giá sản phẩm (admin)
+     
         // Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
         // Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
         // Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
