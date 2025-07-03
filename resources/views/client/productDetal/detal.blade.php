@@ -87,7 +87,7 @@
                                                     @if(old('color') == $color->id || $loop->first) checked @endif hidden>
                                                 <label for="color_{{ $color->id }}"
                                                     class="customColorCircle"
-                                                    style="background-color: {{ $color->hex }};"></label>
+                                                    style="background-color: {{ $color->hex }}"></label>
                                                 <p>{{ $color->value }}</p>
                                             </div>
                                         @endforeach
@@ -498,8 +498,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-
 @endsection
-
-
