@@ -74,6 +74,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
+    Route::post('/checkout/momo', [CheckoutController::class, 'momo_payment'])->name('checkout.momo_payment');
+    Route::post('/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('momo.ipn');
+    Route::get('/momo/return/{order_code}', [CheckoutController::class, 'momoReturn'])->name('momo.return');
+    Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
+    Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
 });
 
 // Đăng ký & đăng nhập
@@ -154,7 +159,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('brands', BrandController::class);
         Route::resource('coupon', CouponController::class);
-
+        
         // Quản lý trạng thái đơn hàng
         Route::resource('order_statuses', OrderStatusController::class);
 

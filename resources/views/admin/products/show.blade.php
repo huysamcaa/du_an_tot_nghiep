@@ -24,7 +24,6 @@
                 @endif
             </td>
         </tr>
-
         <tr>
             <th>Ảnh chi tiết</th>
             <td>
@@ -37,8 +36,6 @@
                 @endif
             </td>
         </tr>
-
-
         <tr>
             <th>Mô tả ngắn</th>
             <td>{{ $product->short_description }}</td>
@@ -57,8 +54,7 @@
                 <th>SKU</th>
                 <th>Giá</th>
                 <th>Số lượng</th>
-                <th>Màu</th>
-                <th>Size</th>
+                <th>Thuộc tính</th>
             </tr>
         </thead>
         <tbody>
@@ -69,15 +65,19 @@
                             <img src="{{ asset('storage/' . $variant->thumbnail) }}" width="60">
                         @endif
                     </td>
-                    <td>{{ $variant->sku ?? '' }}</td>
+                    <td>{{ $variant->sku ?? '-' }}</td>
                     <td>{{ number_format($variant->price, 0, ',', '.') }} đ</td>
-                    <td>{{ $variant->stock }}</td>
-                    <td>{{ optional($variant->color)->value }}</td>
-                    <td>{{ optional($variant->size)->value }}</td>
+                    <td>{{ $variant->quantity }}</td>
+                    <td>
+                        @foreach($variant->attributeValues as $value)
+                            <span class="badge bg-primary">{{ $value->attribute->name }}: {{ $value->value }}</span>
+                        @endforeach
+                    </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
     <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Quay lại</a>
 </div>
 @endsection
