@@ -27,39 +27,47 @@
         </select>
     </div>
     <div class="form-group">
-        <label for="brand_id">ID thương hiệu (brand_id)</label>
-        <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id') }}" required>
+        <label for="brand_id">Nhà sản xuất (Brand)</label>
+        <select name="brand_id" id="brand_id" class="form-control" required>
+            <option value="">-- Chọn nhà sản xuất --</option>
+            @foreach ($brands as $brand)
+                <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                    {{ $brand->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
     <div class="form-group">
         <label for="name">Tên sản phẩm</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
+        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" >
     </div>
 
     <div class="form-group">
         <label for="short_description">Mô tả ngắn</label>
-        <textarea class="form-control" id="short_description" name="short_description" rows="3" required>{{ old('short_description') }}</textarea>
+        <textarea class="form-control" id="short_description" name="short_description" rows="3" >{{ old('short_description') }}</textarea>
     </div>
 
     <div class="form-group">
         <label for="description">Mô tả dài</label>
-        <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
+        <textarea class="form-control" id="description" name="description" rows="5" >{{ old('description') }}</textarea>
     </div>
-
+    <div class="form-group">
+        <label for="stock">Số lượng</label>
+        <input type="number" class="form-control" id="stock" name="stock" value="{{ old('stock', 0) }}" min="0" required>
+    </div>
     <div class="form-group">
         <label for="thumbnail">Ảnh đại diện (thumbnail) <span class="text-danger">*</span></label>
-        <input type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" required>
+        <input type="file" class="form-control-file" id="thumbnail" name="thumbnail" accept="image/*" >
     </div>
 
     <div class="form-group">
         <label for="images">Hình ảnh chi tiết</label>
         <input type="file" class="form-control-file" id="images" name="images[]" accept="image/*" multiple>
     </div>
-
-
     <div class="form-group">
         <label for="price">Giá gốc</label>
-        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price') }}" required>
+        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price') }}" >
     </div>
 
     <div class="form-group">
@@ -96,10 +104,10 @@
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
         <label class="form-check-label" for="is_active">Hiển thị</label>
     </div>
-    
+
    <div class="form-group">
     <button type="button" class="btn btn-info mb-2" id="toggle-attributes">Chọn thuộc tính và giá trị biến thể</button>
-    
+
     <div id="attributes-select-area" style="display:none;">
     @foreach($attributes as $attribute)
         <div class="mb-2">
@@ -110,9 +118,9 @@
                 @endforeach
             </select>
         </div>
-        
+
     @endforeach
-    
+
     <button type="button" class="btn btn-danger mt-2" id="clear-variants">Xóa tất cả biến thể</button>
     <button type="button" class="btn btn-info mt-2" id="generate-variants">Tạo các biến thể</button>
 </div>
@@ -169,7 +177,7 @@ document.getElementById('generate-variants').onclick = function() {
             html += `<input type="hidden" name="variants[${i}][attribute_value_id][]" value="${v.id}">`;
         });
         html += `${label}</td>
-            <td><input type="number" name="variants[${i}][price]" class="form-control" required></td>
+            <td><input type="number" name="variants[${i}][price]" class="form-control" ></td>
             <td><input type="text" name="variants[${i}][sku]" class="form-control"></td>
             <td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>
         </tr>`;

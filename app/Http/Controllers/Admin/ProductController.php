@@ -8,6 +8,7 @@ use App\Models\Admin\Category;
 use App\Models\Admin\ProductVariant;
 use App\Models\Admin\Attribute;
 use App\Models\Admin\AttributeValue;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,15 +24,16 @@ class ProductController extends Controller
 
     public function create()
     {
-
         $categories = Category::all();
         $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
-        return view('admin.products.create', compact('attributes', 'categories'));
+        $brands = Brand::where('is_active', 1)->get(); // Lấy danh sách brand đang hoạt động
+        return view('admin.products.create', compact('attributes', 'categories', 'brands'));
     }
     public function store(Request $request)
     {
         $data = $request->validate([
-            'brand_id' => 'required|integer',
+            'brand_id' => 'required|exists:brands,id',
+            'stock' => 'required|integer|min:0',
             'name' => 'required|string|max:255',
             'short_description' => 'required|string',
             'description' => 'required|string',
@@ -107,6 +109,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
+        $brands = Brand::where('is_active', 1)->get(); // Thêm dòng này
         $product->load(['variants.attributeValues']);
         $colors = AttributeValue::whereHas('attribute', function ($q) {
             $q->where('slug', 'color');
@@ -116,13 +119,14 @@ class ProductController extends Controller
             $q->where('slug', 'size');
         })->get();
 
-        return view('admin.products.edit', compact('product', 'colors', 'sizes', 'categories'));
+        return view('admin.products.edit', compact('product', 'colors', 'sizes', 'categories', 'brands'));
     }
 
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'brand_id' => 'required|integer',
+            'brand_id' => 'required|exists:brands,id',
+            'stock' => 'required|integer|min:0',
             'name' => 'required|string|max:255',
             'short_description' => 'required|string',
             'description' => 'required|string',

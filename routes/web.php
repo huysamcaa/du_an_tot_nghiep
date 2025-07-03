@@ -1,6 +1,6 @@
+
 <?php
 
-use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AdminController;
@@ -31,7 +31,6 @@ use App\Http\Controllers\Client\PromotionController as ClientPromotionController
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
-use App\Http\Controllers\Client\ReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -82,11 +81,8 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-
-// Redirect admin/login và admin/register
-Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
-Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
-
+Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login.redirect');
+Route::get('/admin/register', fn () => redirect()->route('register'))->name('admin.register.redirect');
 
 /*
 |--------------------------------------------------------------------------
@@ -110,17 +106,15 @@ Route::middleware(['auth'])->group(function () {
     ]);
     Route::post('/my-addresses/{id}/set-default', [UserAddressController::class, 'setDefault'])->name('user.addresses.set_default');
 
-
     // Thông tin người dùng
-Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
-Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
-Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
+    Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
+    Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
 
-// Coupon
-Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
-Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
-Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
-
+    // Coupon
+    Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
+    Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
+    Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
     // Đánh giá sản phẩm (client)
     Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
@@ -129,7 +123,7 @@ Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('clie
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-    
+
     Route::middleware(['auth'])->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
