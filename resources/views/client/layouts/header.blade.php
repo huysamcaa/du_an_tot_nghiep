@@ -10,8 +10,8 @@
                             </div>
                             <div class="mainMenu">
                                 <ul>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Home</a>
+                                    <li class="menu-item">
+                                        <a href="{{ route('client.home') }}">Home</a>
                                     </li>
                                     <li><a href="about.html">About</a></li>
                                     <li class="menu-item-has-children">
@@ -35,7 +35,7 @@
                                                         <li><a href="shop_details2.html">Shop Details 02</a></li>
                                                         <li><a href="cart.html">Shopping Cart</a></li>
                                                         <li><a href="checkout.html">Checkout</a></li>
-<li><a href="wishlist.html">Wishlist</a></li>
+                                                        <li><a href="wishlist.html">Wishlist</a></li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-lg-4 hideOnMobile">
@@ -173,17 +173,16 @@
                                         </div>
                                     </div>
 
-                                {{-- hết user --}}
-                                </div>
 
+                                {{-- hết user --}}
                                     <div class="anCart">
 
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
                                         <div class="cartWidgetArea">
                                             @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
-                                                <img src="{{ asset($item->product->thumbnail) }}" alt="Marine Design">
-                                                <a href="shop_details1.html">{{ $item->product->name }}</a>
+                                                <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" />
+                                                <a href="{{ route('product.detail',['id' => $item->product->id]) }}">{{ $item->product->name }}</a>
                                                 <div class="cartProductPrice clearfix">
                                                     <span class="price">{{ number_format($item->product->price) }}đ</span>
                                                 </div>

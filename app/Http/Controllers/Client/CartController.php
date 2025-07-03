@@ -7,18 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Admin\CartItem;
 use App\Models\Admin\ProductVariant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // $userId = Auth::id();
         $userId = Auth::id();
 
-        // Eager load thông tin sản phẩm, biến thể và thuộc tính của biến thể
+        // Lấy danh sách sản phẩm trong giỏ hàng cùng với thông tin sản phẩm và biến thể
         $cartItems = CartItem::with(['product', 'variant.attributeValues.attribute'])
                             ->where('user_id', $userId)
                             ->get();
@@ -26,106 +23,129 @@ class CartController extends Controller
     }
     public function add(Request $request)
     {
+        // Nếu chưa đăng nhập, trả về JSON báo lỗi
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'unauthenticated' => true,
+                'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.'
+            ], 401);
+        }
+
         $userId = Auth::id();
         $productId = $request->input('product_id');
-        $colorId = $request->input('color'); // Lấy màu sắc từ form
-        $sizeId = $request->input('size');  // Lấy kích thước từ form
-        $quantity = (int)$request->input('quantity') ?: 1; // Số lượng mặc định là 1 nếu không có giá trị
 
-        // Tìm biến thể sản phẩm theo màu sắc và kích thước
+        // Lấy các giá trị thuộc tính như màu và size
+        $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+
+        // Nếu không truyền số lượng thì mặc định là 1
+        $quantity = (int) $request->input('quantity') ?: 1;
+
+        // Tìm biến thể phù hợp với sản phẩm và các thuộc tính đã chọn
         $variant = ProductVariant::where('product_id', $productId)
-            ->whereHas('attributeValues', function($q) use ($colorId) {
-                $q->where('attribute_value_id', $colorId);  // Kiểm tra màu sắc
-            })
-            ->whereHas('attributeValues', function($q) use ($sizeId) {
-                $q->where('attribute_value_id', $sizeId);  // Kiểm tra kích thước
-            })
+            ->whereHas('attributeValues', fn($q) =>
+                $q->whereIn('attribute_value_id', $attributeValueIds),
+                '=', count($attributeValueIds)
+            )
+            ->withCount('attributeValues')
+            ->having('attribute_values_count', '=', count($attributeValueIds))
             ->first();
 
+        // Nếu không tìm thấy biến thể thì trả về lỗi
         if (!$variant) {
-            return redirect()->back()->with('error', 'Biến thể không tồn tại');
+            return response()->json(['success' => false]);
         }
 
-        // Kiểm tra giỏ hàng đã có sản phẩm với biến thể này chưa
-        $item = CartItem::where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->where('product_variant_id', $variant->id)
-            ->first();
-
-        if ($item) {
-            // Nếu đã có, cộng thêm số lượng vào sản phẩm hiện tại trong giỏ hàng
-            $item->quantity += $quantity;
-            $item->save();
-        } else {
-            // Nếu chưa có, tạo mới một mục trong giỏ hàng
-            CartItem::create([
+        // Tạo mới hoặc cập nhật số lượng nếu đã có biến thể này trong giỏ hàng
+        $item = CartItem::updateOrCreate(
+            [
                 'user_id' => $userId,
                 'product_id' => $productId,
-                'product_variant_id' => $variant->id, // Lưu product_variant_id để phân biệt các biến thể
-                'quantity' => $quantity
-            ]);
-        }
+                'product_variant_id' => $variant->id,
+            ],
+            [
+                'quantity' => DB::raw("quantity + $quantity") // Tăng số lượng
+            ]
+        );
 
-        // Trả lại tổng số sản phẩm trong giỏ nếu là yêu cầu AJAX
+        // Nếu là AJAX request thì trả về tổng số lượng sản phẩm trong giỏ hàng
         if ($request->ajax()) {
             $totalProduct = CartItem::where('user_id', $userId)->sum('quantity');
-            return response()->json([
-                'success' => true,
-                'totalProduct' => $totalProduct
-            ]);
+            return response()->json(['success' => true, 'totalProduct' => $totalProduct]);
         }
 
-        return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng');
+        return back()->with('success', 'Đã thêm vào giỏ hàng');
     }
 
     public function update(Request $request)
     {
-        $userId = Auth::id(); // fallback ID nếu chưa login
-
+        $userId = Auth::id();
         $cartItemId = $request->input('cart_item_id');
-        $action = $request->input('quantity'); // có thể là 'increase' hoặc 'decrease'
+        $action = $request->input('quantity'); // 'increase' hoặc 'decrease'
 
+        // Tìm sản phẩm trong giỏ hàng kèm theo thông tin sản phẩm
         $item = CartItem::with('product')
             ->where('user_id', $userId)
-            ->where('id', $cartItemId)
-            ->first();
+            ->find($cartItemId);
 
         if (!$item) {
-            return response()->json(['success' => false, 'message' => 'Item not found']);
+            return response()->json(['success' => false, 'message' => 'Sản phẩm không tồn tại trong giỏ hàng.']);
         }
 
         if ($action === 'increase') {
-            $item->quantity += 1;
+            $item->quantity++;
         } elseif ($action === 'decrease' && $item->quantity > 1) {
-            $item->quantity -= 1;
+            $item->quantity--;
         }
 
         $item->save();
 
-        $cartTotal = CartItem::where('user_id', $userId)
+        // Tính lại tổng tiền giỏ hàng
+        $cartTotal = CartItem::with('product')
+            ->where('user_id', $userId)
             ->get()
-            ->sum(fn($i) => $i->product->price * $i->quantity);
+            ->sum(fn($i) => ($i->product->sale_price ?? $i->product->price) * $i->quantity);
+
+        // Tính lại giá của sản phẩm hiện tại
+        $itemPrice = $item->product->sale_price ?? $item->product->price;
 
         return response()->json([
             'success' => true,
-            'item_total' => number_format($item->product->price * $item->quantity),
-            'cart_total' => number_format($cartTotal),
-            'new_quantity' => $item->quantity,
-            'grand_total' => number_format($cartTotal + 30000)
+            'item_total' => number_format($itemPrice * $item->quantity), // Tổng giá của sản phẩm đó
+            'cart_total' => number_format($cartTotal), // Tổng giá toàn bộ giỏ hàng
+            'new_quantity' => $item->quantity, // Số lượng mới
+            'grand_total' => number_format($cartTotal + 30000) // Tổng tiền sau phí ship 30.000đ
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Xoá sản phẩm khỏi giỏ hàng
     public function destroy($id)
     {
-        // $userId = Auth::id();
         $userId = Auth::id();
-        $item = CartItem::where('user_id', $userId)->where('id', $id)->first();
-        if($item) {
-            $item->delete();
-        }
-        return redirect()->back()->with('success', 'Đã xoá sản phẩm khỏi giỏ hàng');
+
+        // Xoá sản phẩm trong giỏ hàng nếu tồn tại
+        CartItem::where('user_id', $userId)->where('id', $id)->delete();
+
+        return back()->with('success', 'Đã xoá sản phẩm khỏi giỏ hàng');
+    }
+
+    // Kiểm tra biến thể có tồn tại không khi chọn thuộc tính
+    public function checkVariant(Request $request)
+    {
+        // Lấy các thuộc tính đã chọn (color, size,...)
+        $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+
+        // Tìm biến thể có đầy đủ các thuộc tính
+        $variant = ProductVariant::where('product_id', $request->input('product_id'))
+            ->whereHas('attributeValues', fn($q) =>
+                $q->whereIn('attribute_value_id', $attributeValueIds),
+                '=', count($attributeValueIds)
+            )
+            ->withCount('attributeValues')
+            ->having('attribute_values_count', '=', count($attributeValueIds))
+            ->first();
+
+        // Trả về true nếu tìm thấy, false nếu không
+        return response()->json(['found' => (bool) $variant]);
     }
 }

@@ -39,6 +39,12 @@
         .text-center a { color: #007bff; text-decoration: none; }
         .text-center a:hover { text-decoration: underline; }
         .alert-danger ul { list-style: none; padding: 0; margin: 0; color: red; }
+        .text-danger {
+            color: #dc3545;
+            margin-top: 6px;
+            font-size: 0.97em;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -46,7 +52,7 @@
         <h2>Đăng ký tài khoản mới</h2>
 
         {{-- Hiển thị lỗi validation --}}
-        @if ($errors->any())
+        {{-- @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -54,34 +60,49 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif --}}
 
         <form action="{{ route('register') }}" method="POST">
             @csrf {{-- CSRF token cho bảo mật --}}
 
             <div class="form-group">
                 <label for="name">Tên của bạn:</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus>
+                <input type="text" id="name" name="name" value="{{ old('name') }}"  autofocus>
+                @error('name')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="email">Địa chỉ Email:</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" >
+                @error('email')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="password">Mật khẩu:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" >
+                @error('password')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="password_confirmation">Xác nhận mật khẩu:</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" required>
+                <input type="password" id="password_confirmation" name="password_confirmation" >
+                @error('password_confirmation')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="phone_number">Số điện thoại (tùy chọn):</label>
                 <input type="tel" id="phone_number" name="phone_number" value="{{ old('phone_number') }}">
+                @error('phone_number')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -92,11 +113,17 @@
                     <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Nữ</option>
                     <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Khác</option>
                 </select>
+                @error('gender')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="birthday">Ngày sinh (tùy chọn):</label>
                 <input type="date" id="birthday" name="birthday" value="{{ old('birthday') }}">
+                @error('birthday')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <button type="submit">Đăng ký</button>
