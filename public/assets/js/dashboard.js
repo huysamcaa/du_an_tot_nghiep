@@ -1,3 +1,5 @@
+console.log("dashboard.js loaded!");
+
 ( function ( $ ) {
   "use strict";
 
@@ -8,7 +10,7 @@
   bars: {
     show: true,
     lineWidth: 0,
-    fillColor: '#85c988'          
+    fillColor: '#85c988'
   }
 }], {
   grid: {
@@ -222,7 +224,7 @@
         radius: 2/3,
         threshold: 1
       },
-      stroke: { 
+      stroke: {
         width: 0.1
       }
     }
@@ -373,7 +375,7 @@ function getRandomData() {
     barSpacing: '2',
     barColor: '#42a5f5'
   });
-  
+
   $('#sparklinedash2, #sparklinedash7, #sparklinedash12').sparkline([ 0, 5, 6, 10, 9, 12, 4, 9], {
     type: 'bar',
     height: '30',

@@ -13,6 +13,14 @@
             <td>{{ $product->name }}</td>
         </tr>
         <tr>
+            <th>Nhà sản xuất</th>
+            <td>{{ optional($product->brand)->name ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <th>Số lượng</th>
+            <td>{{ $product->stock }}</td>
+        </tr>
+        <tr>
             <th>Giá gốc</th>
             <td>{{ number_format($product->price, 0, ',', '.') }} đ</td>
         </tr>
