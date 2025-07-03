@@ -46,10 +46,11 @@ public function store(Request $request)
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
         'variants' => 'required_if:has_variants,true|array',
-        'variants.*.attribute_id' => 'required|exists:attributes,id',
-        'variants.*.attribute_value_id' => 'required|exists:attribute_values,id',
+        'variants.*.attribute_id' => 'required|array|min:1',
+        'variants.*.attribute_value_id' => 'required|array|min:1',
         'variants.*.price' => 'required|numeric',
-        'variants.*.sku' => 'nullable|string|max:255',
+        'variants.*.quantity' => 'required|integer|min:0',
+        'variants.*.sku' => 'nullable|string|max:255|unique:product_variants,sku',
         'variants.*.thumbnail' => 'nullable|image',
     ]);
 
@@ -59,7 +60,7 @@ public function store(Request $request)
     $data['is_trending'] = $request->has('is_trending');
     $data['is_active'] = $request->has('is_active');
 
-    // Upload ảnh chính
+    // Upload ảnh đại diện sản phẩm
     if ($request->hasFile('thumbnail')) {
         $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
     }
@@ -67,33 +68,35 @@ public function store(Request $request)
     // Tạo sản phẩm
     $product = Product::create($data);
 
-    // Tạo các biến thể
+    // Lưu các biến thể sản phẩm
     if ($request->has('variants')) {
-    foreach ($request->variants as $variantData) {
-        $variant = new ProductVariant([
-            'price' => $variantData['price'],
-            'sku' => $variantData['sku'] ?? null,
-        ]);
+        foreach ($request->variants as $variantData) {
+            $variant = new ProductVariant([
+                'price' => $variantData['price'],
+                'quantity' => $variantData['quantity'],
+                'sku' => $variantData['sku'] ?? null,
+            ]);
 
-        // Upload ảnh biến thể nếu có
-        if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
-            $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
-        } else {
-            $variant->thumbnail = $product->thumbnail;
-        }
+            // Upload ảnh của biến thể nếu có, hoặc dùng ảnh đại diện của sản phẩm
+            if (isset($variantData['thumbnail']) &&
+                $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile &&
+                $variantData['thumbnail']->isValid()) {
+                $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
+            } else {
+                $variant->thumbnail = $product->thumbnail;
+            }
 
-        // Lưu biến thể
-        $product->variants()->save($variant);
+            // Lưu biến thể
+            $product->variants()->save($variant);
 
-        // Gán giá trị thuộc tính cho biến thể (sửa lại ở đây)
-        // $variantData['attribute_value_id'] là mảng các id
-        if (isset($variantData['attribute_value_id'])) {
-            $variant->attributeValues()->attach($variantData['attribute_value_id']);
+            // Gán giá trị thuộc tính
+            if (isset($variantData['attribute_value_id'])) {
+                $variant->attributeValues()->sync($variantData['attribute_value_id']);
+            }
         }
     }
-}
 
-    return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
+    return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
 }
 
     public function edit(Product $product)
