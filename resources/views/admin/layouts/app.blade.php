@@ -133,5 +133,6 @@
         // Giữ nguyên phần script JavaScript từ file gốc
         // ... (phần script dài ở cuối file HTML)
     </script>
+    @stack('scripts')
 </body>
 </html>
