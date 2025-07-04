@@ -3,79 +3,124 @@
 @section('content')
 <h1>Sửa Mã Giảm Giá</h1>
 
+@php
+    use Carbon\Carbon;
+
+    $startDate = $coupon->start_date ? Carbon::parse($coupon->start_date)->format('Y-m-d\TH:i') : '';
+    $endDate = $coupon->end_date ? Carbon::parse($coupon->end_date)->format('Y-m-d\TH:i') : '';
+
+    $validCategories = json_decode($restriction->valid_categories ?? '[]', true);
+    if (!is_array($validCategories)) $validCategories = [];
+
+    $validProducts = json_decode($restriction->valid_products ?? '[]', true);
+    if (!is_array($validProducts)) $validProducts = [];
+@endphp
+
 <form action="{{ route('admin.coupon.update', $coupon->id) }}" method="POST">
     @csrf
     @method('PUT')
 
-    <!-- Mã giảm giá -->
+    <!-- Thông tin cơ bản -->
     <div class="form-group">
-        <label for="code">Mã Giảm Giá</label>
-        <input type="text" class="form-control" id="code" name="code" value="{{ old('code', $coupon->code) }}" required>
-        @error('code')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Mã Giảm Giá</label>
+        <input type="text" name="code" class="form-control" value="{{ old('code', $coupon->code) }}" required>
     </div>
 
-    <!-- Tiêu đề -->
     <div class="form-group">
-        <label for="title">Tiêu Đề</label>
-        <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $coupon->title) }}" required>
-        @error('title')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Tiêu Đề</label>
+        <input type="text" name="title" class="form-control" value="{{ old('title', $coupon->title) }}" required>
     </div>
 
-    <!-- Giá trị giảm -->
     <div class="form-group">
-        <label for="discount_value">Giảm Giá</label>
-        <input type="number" class="form-control" id="discount_value" name="discount_value" value="{{ old('discount_value', $coupon->discount_value) }}" required>
-        @error('discount_value')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Mô Tả</label>
+        <textarea name="description" class="form-control">{{ old('description', $coupon->description) }}</textarea>
     </div>
 
-    <!-- Kiểu giảm giá -->
     <div class="form-group">
-        <label for="discount_type">Kiểu Giảm Giá</label>
-        <select name="discount_type" id="discount_type" class="form-control">
-            <option value="percent" {{ old('discount_type', $coupon->discount_type) == 'percent' ? 'selected' : '' }}>Phần trăm</option>
-            <option value="fixed" {{ old('discount_type', $coupon->discount_type) == 'fixed' ? 'selected' : '' }}>Số tiền cố định</option>
+        <label>Giá Trị Giảm</label>
+        <input type="number" name="discount_value" class="form-control" value="{{ old('discount_value', $coupon->discount_value) }}" required>
+    </div>
+
+    <div class="form-group">
+        <label>Kiểu Giảm Giá</label>
+        <select name="discount_type" class="form-control">
+            <option value="percent" {{ $coupon->discount_type == 'percent' ? 'selected' : '' }}>Phần trăm</option>
+            <option value="fixed" {{ $coupon->discount_type == 'fixed' ? 'selected' : '' }}>Số tiền</option>
         </select>
     </div>
 
-    <!-- Kích hoạt -->
     <div class="form-group">
-        <label for="is_active">Kích Hoạt</label>
-        <input type="hidden" name="is_active" value="0">
-        <input type="checkbox" id="is_active" name="is_active" value="1"
-            {{ old('is_active', $coupon->is_active) ? 'checked' : '' }}>
+        <label>Giới Hạn Sử Dụng</label>
+        <input type="number" name="usage_limit" class="form-control" value="{{ old('usage_limit', $coupon->usage_limit) }}">
     </div>
 
-    <!-- Các ràng buộc nếu có -->
-    @if (isset($restriction))
-        <hr>
-        <h4>Ràng Buộc Mã Giảm Giá</h4>
+    <div class="form-group">
+        <label>Nhóm Người Dùng</label>
+        <select name="user_group" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="guest" {{ $coupon->user_group == 'guest' ? 'selected' : '' }}>Guest</option>
+            <option value="member" {{ $coupon->user_group == 'member' ? 'selected' : '' }}>Member</option>
+            <option value="vip" {{ $coupon->user_group == 'vip' ? 'selected' : '' }}>VIP</option>
+        </select>
+    </div>
 
-        <div class="form-group">
-            <label for="min_order_value">Giá Trị Đơn Hàng Tối Thiểu</label>
-            <input type="number" class="form-control" name="min_order_value" value="{{ old('min_order_value', $restriction->min_order_value) }}">
-        </div>
+    <div class="form-group">
+        <label>Ngày Bắt Đầu</label>
+        <input type="datetime-local" name="start_date" class="form-control" value="{{ old('start_date', $startDate) }}">
+    </div>
 
-        <div class="form-group">
-            <label for="max_discount_value">Số Tiền Giảm Tối Đa</label>
-            <input type="number" class="form-control" name="max_discount_value" value="{{ old('max_discount_value', $restriction->max_discount_value) }}">
-        </div>
+    <div class="form-group">
+        <label>Ngày Kết Thúc</label>
+        <input type="datetime-local" name="end_date" class="form-control" value="{{ old('end_date', $endDate) }}">
+    </div>
 
-        <div class="form-group">
-            <label for="valid_categories">Danh Mục Áp Dụng (ID, cách nhau bởi dấu phẩy)</label>
-            <input type="text" class="form-control" name="valid_categories" value="{{ old('valid_categories', implode(',', json_decode($restriction->valid_categories, true) ?? [])) }}">
-        </div>
+    <!-- Checkboxes -->
+    <div class="form-group">
+        <label><input type="checkbox" name="is_expired" value="1" {{ $coupon->is_expired ? 'checked' : '' }}> Có Thời Hạn</label>
+    </div>
 
-        <div class="form-group">
-            <label for="valid_products">Sản Phẩm Áp Dụng (ID, cách nhau bởi dấu phẩy)</label>
-            <input type="text" class="form-control" name="valid_products" value="{{ old('valid_products', implode(',', json_decode($restriction->valid_products, true) ?? [])) }}">
-        </div>
-    @endif
+    <div class="form-group">
+        <label><input type="checkbox" name="is_active" value="1" {{ $coupon->is_active ? 'checked' : '' }}> Kích Hoạt</label>
+    </div>
+
+    <div class="form-group">
+        <label><input type="checkbox" name="is_notified" value="1" {{ $coupon->is_notified ? 'checked' : '' }}> Đã Thông Báo</label>
+    </div>
+
+    <hr>
+    <h4>Ràng Buộc</h4>
+
+    <div class="form-group">
+        <label>Giá Trị Đơn Hàng Tối Thiểu</label>
+        <input type="number" name="min_order_value" class="form-control" value="{{ old('min_order_value', $restriction->min_order_value ?? 0) }}">
+    </div>
+
+    <div class="form-group">
+        <label>Số Tiền Giảm Tối Đa</label>
+        <input type="number" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', $restriction->max_discount_value ?? 0) }}">
+    </div>
+
+    <div class="form-group">
+        <label>Danh Mục Áp Dụng</label>
+        <select name="valid_categories[]" class="form-control" multiple>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" {{ in_array($category->id, $validCategories) ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Sản Phẩm Áp Dụng</label>
+        <select name="valid_products[]" class="form-control" multiple>
+            @foreach ($products as $product)
+                <option value="{{ $product->id }}" {{ in_array($product->id, $validProducts) ? 'selected' : '' }}>
+                    {{ $product->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
     <button type="submit" class="btn btn-primary">Cập Nhật</button>
 </form>
