@@ -232,6 +232,39 @@
                         <div class="productReviewArea">
                             <div class="row">
                                 <div class="col-lg-6">
+                                    <h3>Đánh giá sản phẩm</h3>
+
+@if($reviews->count())
+    {{-- Trung bình sao --}}
+    <p>Điểm trung bình: {{ number_format($reviews->avg('rating'), 1) }}/5 ⭐</p>
+
+    @foreach ($reviews as $review)
+        <div class="border p-3 mb-3 rounded">
+            <p>
+                <strong>{{ $review->user->fullname ?? 'Ẩn danh' }}</strong>
+                – ⭐ {{ $review->rating }}/5
+            </p>
+            <p>{{ $review->review_text }}</p>
+
+            @if($review->multimedia->count())
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    @foreach ($review->multimedia as $media)
+                        @if(Str::contains($media->mime_type, 'image'))
+                            <img src="{{ asset('storage/' . $media->file) }}" width="100">
+                        @elseif(Str::contains($media->mime_type, 'video'))
+                            <video width="180" controls>
+                                <source src="{{ asset('storage/' . $media->file) }}" type="{{ $media->mime_type }}">
+                            </video>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endforeach
+@else
+    <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+@endif
+
                                     <h3>Bình Luận</h3>
                                     <div id="comment-list"></div>
                                 </div>
