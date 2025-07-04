@@ -47,7 +47,11 @@
     // kết nối danh mục với sản phẩm
     Route::get('/category/{id}/product', [ClientProductController::class, 'listByCategory'])->name('category.products');
     Route::get('/show-category', [CategoryClientController::class, 'showCategory'])->name('client.show.category');
+<<<<<<< Updated upstream
     // Route::get('/product/{id}', [\App\Http\Controllers\Client\ProductController::class, 'show'])->name('product.detail');
+=======
+    Route::get('/product/{id}', [\App\Http\Controllers\Client\ProductController::class, 'show'])->name('product.detail');
+>>>>>>> Stashed changes
 
 
 
@@ -61,7 +65,11 @@
 
     Route::middleware(['auth'])->group(function() {
         Route::get('/checkout', [\App\Http\Controllers\Client\CheckoutController::class, 'index'])->name('checkout');
+<<<<<<< Updated upstream
         // Route::post('/checkout', [\App\Http\Controllers\Client\CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+=======
+        Route::post('/checkout', [\App\Http\Controllers\Client\CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+>>>>>>> Stashed changes
         Route::get('/orders/{code}', [\App\Http\Controllers\Client\CheckoutController::class, 'orderDetail'])->name('client.orders.show');
     });
     // Checkout
