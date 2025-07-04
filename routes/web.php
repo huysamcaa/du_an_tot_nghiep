@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
+    Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
     // Đánh giá sản phẩm (client)
     Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');

@@ -33,10 +33,20 @@ class Coupon extends Model
     }
 
     // Quan hệ nhiều-nhiều với người dùng
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'coupon_user')
-                    ->withPivot('amount') // lấy thêm cột amount
-                    ->withTimestamps();   // lấy thời gian tạo/sửa
-    }
+  public function users()
+{
+    return $this->belongsToMany(User::class, 'coupon_user')
+                ->using(CouponUser::class)
+                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
+                ->withTimestamps();
 }
+
+    protected $casts = [
+    'start_date' => 'datetime',
+    'end_date' => 'datetime',
+    'is_active' => 'boolean',
+    'is_expired' => 'boolean',
+    'is_notified' => 'boolean',
+];
+}
+
