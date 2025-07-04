@@ -14,10 +14,10 @@ class OrderStatus extends Model
 
     // app/Models/Admin/OrderStatus.php
 
-    public function histories()
+    public function orderOrderStatuses()
     {
-        return $this->hasMany(OrderOrderStatus::class, 'order_status_id');
+        return $this->hasMany(\App\Models\Admin\OrderOrderStatus::class, 'order_status_id');
     }
-
+    public $timestamps = false;
 }
 
