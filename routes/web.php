@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\OrderOrderStatusController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
 use App\Http\Controllers\Client\HomeController;
@@ -28,11 +28,11 @@ use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 
-
-
+use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Client\CommentController;
+use App\Http\Controllers\Admin\CommentController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -121,9 +121,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');  
     Route::middleware(['auth'])->group(function () {
-    Route::post('/reviews', [AdminReviewController::class, 'store'])->name('reviews.store');
-});
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
+});
 
     /*
     |--------------------------------------------------------------------------
@@ -139,7 +139,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('attributes', AttributeController::class);
         Route::resource('carts', AdminCartController::class);
         Route::resource('comments', AdminCommentController::class);
-        Route::resource('reviews', AdminReviewController::class);
+        Route::resource('reviews', ReviewController::class);
 
         // Thêm route cho toggleVisibility
         Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
@@ -169,8 +169,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
          // Quản lý đánh giá sản phẩm (admin)
-        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
     });
 });

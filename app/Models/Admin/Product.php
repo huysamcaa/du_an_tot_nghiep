@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Admin\Category;
 use App\Models\Client\Comment;
-
+use App\Models\Admin\Review;
 
 class Product extends Model
 {
@@ -93,5 +93,9 @@ public function category()
  public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+  public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id', 'id');
     }
 }
