@@ -72,18 +72,8 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
-
                 <li class="menu-item-has-children dropdown">
-                    <a href="{{ route('admin.comments.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-cogs"></i>Bình luận
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.comments.index') }}">Danh sách bình luận</a></li>
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.replies.index') }}">Danh sách phản hồi bình luận</a></li>
-
-
-                <li class="menu-item-has-children dropdown">
-                    <a href="admin.users.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a href="{{ route('admin.order_statuses.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Trạng thái đơn hàng
                     </a>
                     <ul class="sub-menu children dropdown-menu">
@@ -93,6 +83,13 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
+                <li class="menu-item-has-children dropdown">
+                    <a href="{{ route('admin.comments.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Bình luận
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.comments.index') }}">Danh sách bình luận</a></li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.replies.index') }}">Danh sách phản hồi bình luận</a></li>
                 <!-- Thêm các menu item khác tương tự -->
        <li class="menu-item-has-children dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown"
