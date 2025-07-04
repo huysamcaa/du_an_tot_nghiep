@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
@@ -32,7 +31,7 @@ class CheckoutController extends Controller
         'vnp_Url' => 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
         'vnp_TmnCode' => 'PBDJFA7H',
         'vnp_HashSecret' => 'ANBVL0AXYOROIENQ5A945WKXIATVQ3KL',
-        'vnp_Returnurl' => 'http://localhost:8000/checkout/vnpay/return' // Cập nhật URL return của bạn
+        'vnp_Returnurl' => 'http://localhost:8000/checkout/vnpay/return' 
     ];
 
     public function index()

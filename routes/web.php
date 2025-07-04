@@ -7,8 +7,6 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ManufacturerController;
-use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
@@ -27,10 +25,9 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
-use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+
 
 
 use App\Http\Controllers\Auth\LoginController;
@@ -122,17 +119,7 @@ Route::middleware(['auth'])->group(function () {
     // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
-    Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
-
-    // Đánh giá sản phẩm (client)
-    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('client.reviews.index');
-    Route::get('/reviews/{id}/edit', [AdminReviewController::class, 'edit'])->name('client.reviews.edit');
-    Route::post('/reviews/{id}/update', [AdminReviewController::class, 'update'])->name('client.reviews.update');
-
-
-    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
-    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-  
+    Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');  
     Route::middleware(['auth'])->group(function () {
     Route::post('/reviews', [AdminReviewController::class, 'store'])->name('reviews.store');
 });

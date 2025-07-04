@@ -21,6 +21,7 @@ class Product extends Model
         'views',
         'short_description',
         'description',
+        'stock',
         'thumbnail',
         'type',
         'sku',

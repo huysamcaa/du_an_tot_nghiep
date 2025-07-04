@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Client;
 
 use App\Models\Coupon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+
 
 class CouponController extends Controller
 {

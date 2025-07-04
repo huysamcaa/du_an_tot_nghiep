@@ -36,6 +36,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'short_description' => 'required|string',
             'description' => 'required|string',
+            'stock' => 'required|integer|min:0',
             'thumbnail' => 'required|image',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
@@ -81,6 +82,7 @@ class ProductController extends Controller
             foreach ($request->variants as $variantData) {
                 $variant = new ProductVariant([
                     'price' => $variantData['price'],
+                    'quantity' => $variantData['quantity'],
                     'sku' => $variantData['sku'] ?? null,
                 ]);
 
