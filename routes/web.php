@@ -7,8 +7,6 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ManufacturerController;
-use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
@@ -18,7 +16,7 @@ use App\Http\Controllers\Admin\OrderOrderStatusController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
 use App\Http\Controllers\Client\HomeController;
@@ -27,13 +25,12 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
-use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use App\Http\Controllers\Client\ReviewController as ClientReviewController;
-
+use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,18 +113,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
 
-    // Đánh giá sản phẩm (client)
-    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
-    Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
-    Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
 
-    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
-    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
 
-    Route::middleware(['auth'])->group(function () {
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
-
 
     /*
     |--------------------------------------------------------------------------
@@ -172,4 +160,3 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
         Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     });
-});

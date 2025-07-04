@@ -1,10 +1,47 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
 <h1 class="mb-4">Danh Sách Mã Giảm Giá</h1>
 
 <a href="{{ route('admin.coupon.create') }}" class="btn btn-primary mb-4">Thêm Mới</a>
 
+<!-- Thanh Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item d-flex justify-content-between w-100">
+            <span>Admin</span>
+            <div>
+                <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">Trang chủ</a>
+                <a href="{{ route('admin.coupon.index') }}" class="breadcrumb-item">Khuyến mãi</a>
+                <span class="breadcrumb-item active">Danh Sách Mã Giảm Giá</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<!-- Tạo phần "Show entries" và tìm kiếm -->
+<form method="GET" action="{{ route('admin.coupon.index') }}" class="d-flex justify-content-between mb-3">
+    <div>
+        <label for="entries">Show</label>
+        <select name="perPage" class="form-control d-inline w-auto" onchange="this.form.submit()">
+            <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
+        </select>
+        entries
+    </div>
+
+    <div>
+        <!-- Tìm kiếm -->
+        <label for="search" class="mr-2">Search:</label>
+        <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Tìm kiếm">
+        <button type="submit" class="btn btn-primary ml-2">Tìm kiếm</button>
+    </div>
+</form>
+
+<!-- Bảng Danh Sách Mã Giảm Giá -->
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
@@ -51,8 +88,17 @@
     </tbody>
 </table>
 
-<!-- Phân trang -->
-<div class="d-flex justify-content-center">
-    {{ $coupons->links() }}
+<!-- Hiển thị thông tin "Showing X to Y of Z entries" -->
+<div class="d-flex justify-content-between mt-3">
+    <div>
+        <p>Showing {{ $coupons->firstItem() }} to {{ $coupons->lastItem() }} of {{ $coupons->total() }} entries</p>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="d-flex justify-content-center">
+        <!-- Phân trang với nút Previous và Next -->
+        {{ $coupons->links('pagination::simple-bootstrap-4') }}
+    </div>
 </div>
+
 @endsection
