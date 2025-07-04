@@ -50,16 +50,34 @@
                     </td>
                     <td>{{ optional($user->birthday)->format('d/m/Y') }}</td>
                     <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                  <td class="d-flex" style="gap: 5px;">
+    <td class="d-flex" style="gap: 5px;">
+    {{-- Nút Sửa --}}
+    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning" title="Sửa tài khoản">
+        <i class="fa fa-pencil"></i>
+    </a>
 
-                        @if($user->status === 'active')
-                            <form action="{{ route('admin.users.lock', $user->id) }}" method="POST">
-                                @csrf @method('PATCH')
-                                <button class="btn btn-sm btn-secondary" onclick="return confirm('Khóa tài khoản này?')">Khóa</button>
-                            </form>
-                        @endif
-                    </td>
+    {{-- Nút Khóa hoặc Mở khóa --}}
+    @if($user->status === 'active')
+        {{-- Nút Khóa --}}
+        <form action="{{ route('admin.users.lock', $user->id) }}" method="POST" style="display: inline;">
+            @csrf @method('PATCH')
+            <button type="submit" class="btn btn-sm btn-secondary" title="Khóa tài khoản" onclick="return confirm('Khóa tài khoản này?')">
+                <i class="fa fa-lock"></i>
+            </button>
+        </form>
+    @else
+        {{-- Nút Mở khóa --}}
+        <form action="{{ route('admin.users.unlock', $user->id) }}" method="POST" style="display: inline;">
+            @csrf @method('PATCH')
+            <button type="submit" class="btn btn-sm btn-success" title="Mở khóa tài khoản" onclick="return confirm('Mở khóa tài khoản này?')">
+                <i class="fa fa-unlock"></i>
+            </button>
+        </form>
+    @endif
+</td>
+
+
                 </tr>
                 @endforeach
             </tbody>

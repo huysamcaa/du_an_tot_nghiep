@@ -68,7 +68,6 @@ public function store(Request $request)
 
     // Tạo các biến thể
     if ($request->has('variants')) {
-
     foreach ($request->variants as $variantData) {
         $variant = new ProductVariant([
             'price' => $variantData['price'],
@@ -254,4 +253,15 @@ if ($request->has('variants')) {
 
         return $productSku . '-' . $colorCode . '-' . $sizeCode;
     }
+   public function adminListByCategory($id)
+{
+    $category = Category::findOrFail($id);
+    $products = Product::whereHas('categories', function($query) use ($id) {
+        $query->where('categories.id', $id);
+    })->with('variants')->get();
+
+    $categories = Category::all(); 
+    return view('admin.products.index', compact('category', 'products', 'categories'));
+}
+
 }

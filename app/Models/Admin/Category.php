@@ -29,4 +29,9 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+        // kết nối với bảng SP
+public function products()
+{
+    return $this->belongsToMany(Product::class, 'category_product', 'category_id', 'product_id');
+}
 }

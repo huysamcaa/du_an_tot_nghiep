@@ -57,15 +57,21 @@
                     <td>{!! $category->icon !!}</td>
                     <td>{{ $category->ordinal }}</td>
                     <td>{{ $category->is_active ? 'Hiển thị' : 'Ẩn' }}</td>
-                    <td>
-                        <a href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-info btn-sm">Xem</a>
-                        <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-warning">Sửa</a>
-                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display: inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</button>
-                        </form>
-                    </td>
+                   <td class="text-center">
+    <a href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-sm btn-info icon-btn" title="Xem">
+        <i class="fa fa-eye"></i>
+    </a>
+    <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-warning icon-btn" title="Sửa">
+        <i class="fa fa-pencil"></i>
+    </a>
+    <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display:inline-block">
+        @csrf @method('DELETE')
+        <button type="submit" class="btn btn-sm btn-danger icon-btn" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+            <i class="fa fa-trash"></i>
+        </button>
+    </form>
+</td>
+
                 </tr>
             @endforeach
         </tbody>

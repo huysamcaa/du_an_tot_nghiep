@@ -7,9 +7,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('attribute_values', function (Blueprint $table) {
-            $table->string('hex')->nullable()->change();
-        });
+      Schema::create('attribute_values', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('hex')->nullable();
+    $table->timestamps();
+});
+
     }
 
     public function down(): void

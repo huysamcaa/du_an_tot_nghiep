@@ -17,13 +17,18 @@
             <td>{{ $attr->slug }}</td>
             <td>{{ $attr->is_variant ? '✔' : '' }}</td>
             <td>{{ $attr->is_active ? '✔' : '' }}</td>
-            <td>
-                <a href="{{ route('admin.attributes.edit', $attr) }}" class="btn btn-warning btn-sm">Sửa</a>
-                <form action="{{ route('admin.attributes.destroy', $attr) }}" method="POST" style="display:inline-block">
-                    @csrf @method('DELETE')
-                    <button onclick="return confirm('Xóa?')" class="btn btn-danger btn-sm">Xóa</button>
-                </form>
-            </td>
+           <td>
+    <a href="{{ route('admin.attributes.edit', $attr) }}" class="btn btn-warning btn-sm icon-btn" title="Sửa">
+        <i class="fa fa-pencil"></i>
+    </a>
+    <form action="{{ route('admin.attributes.destroy', $attr) }}" method="POST" style="display:inline-block">
+        @csrf @method('DELETE')
+        <button onclick="return confirm('Xóa?')" class="btn btn-danger btn-sm icon-btn" title="Xóa">
+            <i class="fa fa-trash"></i>
+        </button>
+    </form>
+</td>
+
         </tr>
         @endforeach
     </tbody>

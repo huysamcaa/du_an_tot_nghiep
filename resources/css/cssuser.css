@@ -1,0 +1,37 @@
+.header01,
+.headerInner01,
+.mainMenu {
+    overflow: visible !important;
+    z-index: 1000;
+}
+
+.mainMenu li.menu-item-has-children {
+    position: relative;
+}
+
+.mainMenu ul.sub-menu {
+    display: none;
+    position: absolute;
+    background: #fff;
+    padding: 10px;
+    min-width: 180px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 9999;
+    top: 100%;
+    left: 0;
+    pointer-events: auto;
+}
+
+.mainMenu li.menu-item-has-children:hover > .sub-menu {
+    display: block;
+}
+
+.mainMenu ul.sub-menu li.menu-item-has-children {
+    position: relative;
+}
+
+.mainMenu ul.sub-menu li.menu-item-has-children > .sub-menu {
+    top: 0;
+    left: 100%;
+}
+ 

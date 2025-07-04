@@ -22,13 +22,16 @@
     <link rel="stylesheet" href="{{ asset('assets/Client/css/preset.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/Client/css/responsive.css') }}">
      <link rel="stylesheet" href="{{ asset('assets/Client/css/cssuser.css') }}">
+     
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
 
     @include('client.layouts.header')
 
-    @yield('content')
+    <main class="container py-5">
+        @yield('content')
+    </main>
 
     @include('client.layouts.footer')
 

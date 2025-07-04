@@ -85,4 +85,15 @@ class CategoryController extends Controller
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được xóa thành công.');
     }
+  public function showProducts($id)
+{
+    $category = Category::with('products')->findOrFail($id);
+
+    // Thêm phân trang cho sản phẩm
+    $products = $category->products()->paginate(8); 
+
+    return view('client.categories.index', compact('category', 'products'));
+}
+
+
 }

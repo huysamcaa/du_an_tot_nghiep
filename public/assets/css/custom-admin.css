@@ -1,0 +1,30 @@
+/* Nút dạng icon tròn */
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 16px;
+}
+
+/* Tùy chỉnh màu nếu cần */
+.icon-btn.btn-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+.icon-btn.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.icon-btn.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Hover */
+.icon-btn:hover {
+    opacity: 0.8;
+}

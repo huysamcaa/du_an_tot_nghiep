@@ -34,3 +34,25 @@
     margin-top: 8px;
     padding-top: 8px;
 }
+/* nút trỏ color */
+.color-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+input.color-check:checked + .color-circle {
+    border: 3px solid #000;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000;
+}
+
+/* Hiệu ứng cho size được chọn */
+input.size-check:checked + .btn {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}

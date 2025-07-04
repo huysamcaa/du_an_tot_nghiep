@@ -29,11 +29,21 @@
                                 @foreach($items as $item)
                                 <tr>
                                     <td>
-                                        <img src="{{ asset($item->variant->thumbnail ?? $item->product->thumbnail) }}"
+                                        <img src="{{ asset('storage/' . $item->thumbnail) }}"
                                             width="50" alt="ảnh">
                                     </td>
                                     <td>{{ $item->product->name ?? '[Đã xoá]' }}</td>
-                                    <td>{{ $item->variant->sku ?? '-' }}</td>
+                                    <td>
+                                        @if($item->variant)
+                                            @if($item->variant->variant_name)
+                                                <p>{{$item->variant->variant_name}}</p>
+                                            @else
+                                            <p>Chưa cấu hình thuộc tính</p>
+                                            @endif
+                                        @else
+                                            <p>Default</p>
+                                        @endif
+                                    </td>
                                     
                                     <td class="item-total" data-id="{{$item->id}}">
                                         {{ number_format(($item->variant->price ?? $item->product->price) * $item->quantity) }}đ
@@ -58,7 +68,9 @@
                                             onsubmit="return confirm('Xoá sản phẩm này khỏi giỏ?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                                           <button type="submit" class="btn btn-sm btn-danger" title="Xoá">
+    <i class="fa fa-trash"></i>
+</button>
                                         </form>
                                     </td>
                                 </tr>

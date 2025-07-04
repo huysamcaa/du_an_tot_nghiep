@@ -51,51 +51,63 @@
                                     <th>Nổi bật</th>
                                     <th>Xu hướng</th>
                                     <th>Trạng thái</th>
+                                    <th>Danh mục</th>
                                     <th>Ngày tạo</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach($products as $product)
-                                <tr>
-                                    <td>{{ $product->id }}</td>
-                                    <td>
-                                        @if($product->thumbnail)
-                                        <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
-                                        @else
-                                        <span>Không có ảnh</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $product->name }}</td>
-                                    <td>{{ number_format($product->price, 0, ',', '.') }} đ</td>
-                                    <td>
-                                        @if($product->is_sale)
-                                        {{ number_format($product->sale_price, 0, ',', '.') }} đ
-                                        @else
-                                        -
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {!! $product->is_featured ? '<span class="badge badge-success">✔</span>' : '-' !!}
-                                    </td>
-                                    <td>
-                                        {!! $product->is_trending ? '<span class="badge badge-info">✔</span>' : '-' !!}
-                                    </td>
-                                    <td>
-                                        {{ $product->is_active ? 'Hiển thị' : 'Ẩn' }}
-                                    </td>
-                                    <td>{{ $product->created_at->format('d/m/Y') }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-info btn-sm">Chi tiết</a>
-                                        <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-warning">Sửa</a>
-                                        <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline-block">
-                                            @csrf @method('DELETE')
-                                            <button onclick="return confirm('Xóa sản phẩm này?')" class="btn btn-sm btn-danger">Xóa</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
+                           <tbody>
+    @foreach($products as $product)
+    <tr>
+        <td>{{ $product->id }}</td>
+        <td>
+            @if($product->thumbnail)
+            <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
+            @else
+            <span>Không có ảnh</span>
+            @endif
+        </td>
+        <td>{{ $product->name }}</td>
+        <td>{{ number_format($product->price, 0, ',', '.') }} đ</td>
+        <td>
+            @if($product->is_sale)
+            {{ number_format($product->sale_price, 0, ',', '.') }} đ
+            @else
+            -
+            @endif
+        </td>
+        <td>
+            {!! $product->is_featured ? '<span class="badge badge-success">✔</span>' : '-' !!}
+        </td>
+        <td>
+            {!! $product->is_trending ? '<span class="badge badge-info">✔</span>' : '-' !!}
+        </td>
+        <td>
+            {{ $product->is_active ? 'Hiển thị' : 'Ẩn' }}
+        </td>
+        <td>
+            @foreach($product->categories as $category)
+                <span class="badge badge-info">{{ $category->name }}</span>
+            @endforeach
+        </td>
+        <td>{{ $product->created_at->format('d/m/Y') }}</td>
+        <td class="d-flex" style="gap: 5px;">
+            <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-sm btn-info" title="Chi tiết">
+                <i class="fa fa-eye"></i>
+            </a>
+            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-warning" title="Sửa">
+                <i class="fa fa-pencil"></i>
+            </a>
+            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline;">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-danger" title="Xóa" onclick="return confirm('Xóa sản phẩm này?')">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </form>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
 
                         </table>
                     </div>
