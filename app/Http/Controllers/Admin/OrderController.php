@@ -20,12 +20,8 @@ class OrderController extends Controller
     // Xem chi tiết đơn hàng
     public function show($id)
     {
-        $order = Order::with(['items', 'currentStatus.orderStatus', 'orderOrderStatuses'])->findOrFail($id);
-
-        $usedStatusIds = $order->orderOrderStatuses->pluck('order_status_id')->toArray();
-        $statuses = OrderStatus::orderBy('id')->get();
-
-        return view('admin.orders.show', compact('order', 'usedStatusIds', 'statuses'));
+        $order = Order::with('items')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
     }
 
     // Xác nhận đã thanh toán COD
@@ -53,7 +49,7 @@ class OrderController extends Controller
         OrderOrderStatus::create([
             'order_id' => $orderId,
             'order_status_id' => $request->order_status_id,
-            'modified_by' => auth()->id() ?? 1,
+            'modified_by' => auth()->id(),
             // created_at sẽ tự động nếu có timestamps
         ]);
 
