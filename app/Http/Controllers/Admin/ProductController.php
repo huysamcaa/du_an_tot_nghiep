@@ -265,4 +265,14 @@ class ProductController extends Controller
 
         return $productSku . '-' . $colorCode . '-' . $sizeCode;
     }
+     public function adminListByCategory($id)
+{
+    $category = Category::findOrFail($id);
+    $products = Product::whereHas('categories', function($query) use ($id) {
+        $query->where('categories.id', $id);
+    })->with('variants')->get();
+
+    $categories = Category::all(); 
+    return view('admin.products.index', compact('category', 'products', 'categories'));
+}
 }

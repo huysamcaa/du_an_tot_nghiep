@@ -180,17 +180,7 @@
 
                                     </div>
                                 </div>
-                                <!-- <div class="col-lg-6">
-                                    <div class="descriptionContent featureCols">
-                                        <h3>Product Features</h3>
-                                        <ul>
-                                            <li>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium </li>
-                                            <li>Letotam rem aperiam, eaque ipsa quae ab illo inventore veritatis</li>
-                                            <li>Vitae dicta sunt explicabo. Nemo enim ipsam volupta aut odit aut fugit </li>
-                                            <li>Lesed quia consequuntur magni dolores eos qui ratione voluptate.</li>
-                                        </ul>
-                                    </div>
-                                </div> -->
+                                
                             </div>
                         </div>
                     </div>
