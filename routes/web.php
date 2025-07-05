@@ -29,6 +29,7 @@ use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\CommentController2;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+//  use App\Http\Controllers\Client\ProductController as ClientProductController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -57,7 +58,10 @@ Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::cl
 
 // Danh mục sản phẩm
 Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
-
+// kết nối danh mục với sản phẩm
+    // Route::get('/category/{id}/product', [ProductController::class, 'listByCategory'])->name('category.products');
+    // Route::get('/show-category', [CategoryClientController::class, 'showCategory'])->name('client.show.category');
+    // Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.detail');
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add')->middleware('auth');
