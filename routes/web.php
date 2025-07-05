@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
     | 3. Admin Routes (Yêu cầu role admin)
     |--------------------------------------------------------------------------
     */
+
 Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -148,6 +149,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Quản lý biến thể sản phẩm
     Route::prefix('products/{product}')->name('products.')->group(function () {
         Route::resource('variants', ProductVariantController::class)->except(['show']);
+
     });
 
     // Quản lý đơn hàng

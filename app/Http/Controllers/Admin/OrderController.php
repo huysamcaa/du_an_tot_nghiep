@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Shared\Order;
 use Illuminate\Http\Request;
+use App\Models\Admin\OrderOrderStatus;
+use App\Models\Admin\OrderStatus;
 
 class OrderController extends Controller
 {
@@ -37,5 +39,20 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->delete();
         return redirect()->route('admin.orders.index')->with('success', 'Đã xóa đơn hàng');
+    }
+    public function updateStatus(Request $request, $orderId)
+    {
+        $request->validate([
+            'order_status_id' => 'required|exists:order_statuses,id',
+        ]);
+
+        OrderOrderStatus::create([
+            'order_id' => $orderId,
+            'order_status_id' => $request->order_status_id,
+            'modified_by' => auth()->id(),
+            // created_at sẽ tự động nếu có timestamps
+        ]);
+
+        return back()->with('success', 'Cập nhật trạng thái thành công!');
     }
 }
