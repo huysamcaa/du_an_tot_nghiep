@@ -234,10 +234,19 @@
                                 <div class="col-lg-6">
                                     <h3>Đánh giá sản phẩm</h3>
 
-@if($reviews->count())
-    {{-- Trung bình sao --}}
-    <p>Điểm trung bình: {{ number_format($reviews->avg('rating'), 1) }}/5 ⭐</p>
+{{-- Hiển thị thông báo --}}
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
+@if($errors->any())
+    <div class="alert alert-danger">{{ $errors->first() }}</div>
+@endif
+
+<h3>Đánh giá sản phẩm</h3>
+
+@if($reviews->count())
+    <p>Điểm trung bình: {{ number_format($reviews->avg('rating'), 1) }}/5 ⭐</p>
     @foreach ($reviews as $review)
         <div class="border p-3 mb-3 rounded">
             <p>
@@ -245,7 +254,6 @@
                 – ⭐ {{ $review->rating }}/5
             </p>
             <p>{{ $review->review_text }}</p>
-
             @if($review->multimedia->count())
                 <div class="d-flex flex-wrap gap-2 mt-2">
                     @foreach ($review->multimedia as $media)
@@ -264,6 +272,43 @@
 @else
     <p>Chưa có đánh giá nào cho sản phẩm này.</p>
 @endif
+
+{{-- Form gửi đánh giá --}}
+@auth
+    <button class="ulinaBTN mt-3" data-bs-toggle="collapse" data-bs-target="#reviewForm"><span>Gửi đánh giá của bạn</span></button>
+
+    <div id="reviewForm" class="collapse mt-3">
+        <form method="POST" action="{{ route('client.reviews.store') }}" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+            <div class="mb-2">
+                <label for="rating">Số sao:</label>
+                <select name="rating" class="form-select" required>
+                    <option value="5">5 sao</option>
+                    <option value="4">4 sao</option>
+                    <option value="3">3 sao</option>
+                    <option value="2">2 sao</option>
+                    <option value="1">1 sao</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label for="review_text">Nội dung:</label>
+                <textarea name="review_text" class="form-control" required></textarea>
+            </div>
+
+            <div class="mb-2">
+                <label for="media">Ảnh/Video (tuỳ chọn):</label>
+                <input type="file" name="media[]" class="form-control" multiple>
+            </div>
+
+            <button type="submit" class="ulinaBTN mt-2"><span>Gửi đánh giá</span></button>
+        </form>
+    </div>
+@else
+    <p class="text-danger mt-4">Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để đánh giá.</p>
+@endauth<br>
 
                                     <h3>Bình Luận</h3>
                                     <div id="comment-list"></div>
