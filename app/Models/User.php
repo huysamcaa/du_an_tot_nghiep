@@ -57,7 +57,7 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
-    
+
 
     /**
      * Kiểm tra xem tài khoản người dùng có hoạt động không.
@@ -71,10 +71,12 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(UserAddress::class);
-    }public function coupons(): BelongsToMany
+    }
+ public function coupons()
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user')
-                ->withPivot('amount')
+                ->using(CouponUser::class)
+                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
                 ->withTimestamps();
 }
 }

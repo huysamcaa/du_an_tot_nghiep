@@ -20,85 +20,92 @@
     </ol>
 </nav>
 
-<!-- Tạo phần "Show entries" và tìm kiếm -->
+<!-- Bộ lọc và tìm kiếm -->
 <form method="GET" action="{{ route('admin.coupon.index') }}" class="d-flex justify-content-between mb-3">
     <div>
-        <label for="entries">Show</label>
+        <label for="entries">Hiển thị</label>
         <select name="perPage" class="form-control d-inline w-auto" onchange="this.form.submit()">
             <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
             <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
             <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
             <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-        </select>
-        entries
+        </select> mục
     </div>
 
     <div>
-        <!-- Tìm kiếm -->
-        <label for="search" class="mr-2">Search:</label>
-        <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Tìm kiếm">
-        <button type="submit" class="btn btn-primary ml-2">Tìm kiếm</button>
+        <label for="search">Tìm kiếm:</label>
+        <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Nhập mã, tiêu đề...">
+        <button type="submit" class="btn btn-primary ml-2">Lọc</button>
     </div>
 </form>
 
-<!-- Bảng Danh Sách Mã Giảm Giá -->
-<table class="table table-bordered table-striped">
-    <thead>
+<!-- Danh sách mã giảm giá -->
+<table class="table table-bordered table-striped table-hover">
+    <thead class="">
         <tr>
             <th>STT</th>
-            <th>Mã Giảm Giá</th>
-            <th>Tiêu Đề</th>
-            <th>Giảm Giá</th>
-            <th>Trạng Thái</th>
-            <th>Ngày Tạo</th>
-            <th>Ngày Sửa</th>
-            <th>Hành Động</th>
+            <th>Mã</th>
+            <th>Tiêu đề</th>
+            <th>Giảm</th>
+            <th>Nhóm</th>
+            <th>Sử dụng</th>
+            <th>Thời hạn</th>
+            <th>Kích hoạt</th>
+            <th>Thông báo</th>
+            <th>Bắt đầu</th>
+            <th>Kết thúc</th>
+            <th>Ngày tạo</th>
+            <th>Ngày sửa</th>
+            <th>Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @foreach ($coupons as $index => $coupon)
-            <tr>
-                <td>{{ $loop->iteration + ($coupons->currentPage() - 1) * $coupons->perPage() }}</td>
-                <td>{{ $coupon->code }}</td>
-                <td>{{ $coupon->title }}</td>
-                <td>{{ $coupon->discount_value }} {{ $coupon->discount_type == 'percent' ? '%' : 'VND' }}</td>
-                <td>
-                    <span class="badge badge-{{ $coupon->is_active ? 'success' : 'secondary' }}">
-                        {{ $coupon->is_active ? 'Kích Hoạt' : 'Tắt' }}
-                    </span>
-                </td>
-                <td>{{ $coupon->created_at->format('d/m/Y H:i') }}</td>
-                <td>
-                    @if ($coupon->updated_at != $coupon->created_at)
-                        {{ $coupon->updated_at->format('d/m/Y H:i') }}
-                    @else
-                        <span class="text-muted">--</span>
-                    @endif
-                </td>
-                <td>
-                    <a href="{{ route('admin.coupon.edit', $coupon->id) }}" class="btn btn-sm btn-warning">Sửa</a>
-                    <form action="{{ route('admin.coupon.destroy', $coupon->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa không?')">Xóa</button>
-                    </form>
-                </td>
-            </tr>
+        @foreach ($coupons as $coupon)
+        <tr>
+            <td>{{ $loop->iteration + ($coupons->currentPage() - 1) * $coupons->perPage() }}</td>
+            <td>{{ $coupon->code }}</td>
+            <td>{{ $coupon->title }}</td>
+            <td>{{ $coupon->discount_value }} {{ $coupon->discount_type == 'percent' ? '%' : 'VNĐ' }}</td>
+            <td>{{ $coupon->user_group ?? 'Tất cả' }}</td>
+            <td>{{ $coupon->usage_count }}/{{ $coupon->usage_limit ?? '∞' }}</td>
+            <td>
+                <span class="badge badge-{{ $coupon->is_expired ? 'warning' : 'secondary' }}">
+                    {{ $coupon->is_expired ? 'Có hạn' : 'Vô hạn' }}
+                </span>
+            </td>
+            <td>
+                <span class="badge badge-{{ $coupon->is_active ? 'success' : 'secondary' }}">
+                    {{ $coupon->is_active ? 'Bật' : 'Tắt' }}
+                </span>
+            </td>
+            <td>
+                <span class="badge badge-{{ $coupon->is_notified ? 'info' : 'light' }}">
+                    {{ $coupon->is_notified ? 'Đã gửi' : 'Chưa gửi' }}
+                </span>
+            </td>
+            <td>{{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->format('d/m/Y H:i') : '--' }}</td>
+            <td>{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->format('d/m/Y H:i') : '--' }}</td>
+            <td>{{ $coupon->created_at->format('d/m/Y H:i') }}</td>
+            <td>{{ $coupon->updated_at->format('d/m/Y H:i') }}</td>
+            <td>
+                <a href="{{ route('admin.coupon.edit', $coupon->id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                <form action="{{ route('admin.coupon.destroy', $coupon->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-danger" onclick="return confirm('Xác nhận xóa mã này?')">Xóa</button>
+                </form>
+            </td>
+        </tr>
         @endforeach
     </tbody>
 </table>
 
-<!-- Hiển thị thông tin "Showing X to Y of Z entries" -->
+<!-- Phân trang -->
 <div class="d-flex justify-content-between mt-3">
     <div>
-        <p>Showing {{ $coupons->firstItem() }} to {{ $coupons->lastItem() }} of {{ $coupons->total() }} entries</p>
+        <p>Hiển thị {{ $coupons->firstItem() }} đến {{ $coupons->lastItem() }} của {{ $coupons->total() }} mã giảm giá</p>
     </div>
-
-    <!-- Phân trang -->
-    <div class="d-flex justify-content-center">
-        <!-- Phân trang với nút Previous và Next -->
-        {{ $coupons->links('pagination::simple-bootstrap-4') }}
-    </div>
+    <div>{{ $coupons->links('pagination::bootstrap-4') }}</div>
 </div>
 
 @endsection
