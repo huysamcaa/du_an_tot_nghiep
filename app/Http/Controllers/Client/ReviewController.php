@@ -32,6 +32,7 @@ class ReviewController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'order_id' => 'required|exists:orders,id',
             'rating' => 'required|integer|min:1|max:5',
             'review_text' => 'required|string|max:1000',
             'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:5120'

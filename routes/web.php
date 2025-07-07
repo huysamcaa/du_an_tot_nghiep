@@ -157,7 +157,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
-
+    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     // Quản lý người dùng
     Route::resource('users', UserController::class)->except(['show']);
     Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
