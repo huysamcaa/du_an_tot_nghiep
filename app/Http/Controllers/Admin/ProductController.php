@@ -21,7 +21,6 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-
     public function create()
     {
         $categories = Category::all();
@@ -37,6 +36,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'short_description' => 'required|string',
             'description' => 'required|string',
+            'stock' => 'required|integer|min:0',
             'thumbnail' => 'required|image',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
@@ -82,6 +82,7 @@ class ProductController extends Controller
             foreach ($request->variants as $variantData) {
                 $variant = new ProductVariant([
                     'price' => $variantData['price'],
+                    'quantity' => $variantData['quantity'],
                     'sku' => $variantData['sku'] ?? null,
                 ]);
 
@@ -105,7 +106,6 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
-
     public function edit(Product $product)
     {
         $categories = Category::all();
@@ -265,4 +265,14 @@ class ProductController extends Controller
 
         return $productSku . '-' . $colorCode . '-' . $sizeCode;
     }
+     public function adminListByCategory($id)
+{
+    $category = Category::findOrFail($id);
+    $products = Product::whereHas('categories', function($query) use ($id) {
+        $query->where('categories.id', $id);
+    })->with('variants')->get();
+
+    $categories = Category::all(); 
+    return view('admin.products.index', compact('category', 'products', 'categories'));
+}
 }

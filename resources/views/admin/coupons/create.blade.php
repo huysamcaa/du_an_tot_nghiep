@@ -8,67 +8,120 @@
 
     <!-- Thông tin cơ bản -->
     <div class="form-group">
-        <label for="code">Mã Giảm Giá</label>
-        <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}" required>
-        @error('code')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Mã Giảm Giá</label>
+        <input type="text" name="code" class="form-control" value="{{ old('code') }}" required>
     </div>
 
     <div class="form-group">
-        <label for="title">Tiêu Đề</label>
-        <input type="text" class="form-control" id="title" name="title" value="{{ old('title') }}" required>
-        @error('title')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Tiêu Đề</label>
+        <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
     </div>
 
     <div class="form-group">
-        <label for="discount_value">Giảm Giá</label>
-        <input type="number" class="form-control" id="discount_value" name="discount_value" value="{{ old('discount_value') }}" required>
-        @error('discount_value')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
+        <label>Mô Tả</label>
+        <textarea name="description" class="form-control">{{ old('description') }}</textarea>
     </div>
 
     <div class="form-group">
-        <label for="discount_type">Kiểu Giảm Giá</label>
-        <select name="discount_type" id="discount_type" class="form-control">
+        <label>Giá Trị Giảm</label>
+        <input type="number" name="discount_value" class="form-control" value="{{ old('discount_value') }}" required>
+    </div>
+
+    <div class="form-group">
+        <label>Kiểu Giảm Giá</label>
+        <select name="discount_type" class="form-control">
             <option value="percent" {{ old('discount_type') == 'percent' ? 'selected' : '' }}>Phần trăm</option>
-            <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Số tiền cố định</option>
+            <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Số tiền</option>
         </select>
     </div>
 
-    <!-- Trạng thái kích hoạt -->
     <div class="form-group">
-        <label for="is_active">Kích Hoạt</label>
-        <input type="hidden" name="is_active" value="0">
-        <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}>
+        <label>Giới Hạn Sử Dụng</label>
+        <input type="number" name="usage_limit" class="form-control" value="{{ old('usage_limit') }}">
+    </div>
+
+    <div class="form-group">
+        <label>Nhóm Người Dùng</label>
+        <select name="user_group" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="guest" {{ old('user_group') == 'guest' ? 'selected' : '' }}>Guest</option>
+            <option value="member" {{ old('user_group') == 'member' ? 'selected' : '' }}>Member</option>
+            <option value="vip" {{ old('user_group') == 'vip' ? 'selected' : '' }}>VIP</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Ngày Bắt Đầu</label>
+        <input type="datetime-local" name="start_date" class="form-control" value="{{ old('start_date') }}">
+    </div>
+
+    <div class="form-group">
+        <label>Ngày Kết Thúc</label>
+        <input type="datetime-local" name="end_date" class="form-control" value="{{ old('end_date') }}">
+    </div>
+
+    <!-- Checkboxes -->
+    <div class="form-group">
+        <label><input type="checkbox" name="is_expired" value="1" {{ old('is_expired') ? 'checked' : '' }}> Có Thời Hạn</label>
+    </div>
+
+    <div class="form-group">
+        <label><input type="checkbox" name="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}> Kích Hoạt</label>
+    </div>
+
+    <div class="form-group">
+        <label><input type="checkbox" name="is_notified" value="1" {{ old('is_notified') ? 'checked' : '' }}> Đã Thông Báo</label>
     </div>
 
     <hr>
-    <h4>Ràng Buộc Mã Giảm Giá</h4>
+    <h4>Ràng Buộc</h4>
 
     <div class="form-group">
-        <label for="min_order_value">Giá Trị Đơn Hàng Tối Thiểu</label>
-        <input type="number" class="form-control" name="min_order_value" value="{{ old('min_order_value', 0) }}">
+        <label>Giá Trị Đơn Hàng Tối Thiểu</label>
+        <input type="number" step="0.01" name="min_order_value" class="form-control" value="{{ old('min_order_value', 0) }}">
     </div>
 
     <div class="form-group">
-        <label for="max_discount_value">Số Tiền Giảm Tối Đa</label>
-        <input type="number" class="form-control" name="max_discount_value" value="{{ old('max_discount_value', 0) }}">
+        <label>Số Tiền Giảm Tối Đa</label>
+        <input type="number" step="0.01" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', 0) }}">
     </div>
 
     <div class="form-group">
-        <label for="valid_categories">Danh Mục Áp Dụng (ID, cách nhau bởi dấu phẩy)</label>
-        <input type="text" class="form-control" name="valid_categories" value="{{ old('valid_categories') }}">
+        <label>Danh Mục Áp Dụng</label>
+        <select name="valid_categories[]" class="form-control select2" multiple>
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}" {{ collect(old('valid_categories'))->contains($category->id) ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
     <div class="form-group">
-        <label for="valid_products">Sản Phẩm Áp Dụng (ID, cách nhau bởi dấu phẩy)</label>
-        <input type="text" class="form-control" name="valid_products" value="{{ old('valid_products') }}">
+        <label>Sản Phẩm Áp Dụng</label>
+        <select name="valid_products[]" class="form-control select2" multiple>
+            @foreach($products as $product)
+                <option value="{{ $product->id }}" {{ collect(old('valid_products'))->contains($product->id) ? 'selected' : '' }}>
+                    {{ $product->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu</button>
 </form>
 @endsection
+
+@push('scripts')
+<!-- Thêm Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            placeholder: 'Chọn...',
+            allowClear: true
+        });
+    });
+</script>
+@endpush
