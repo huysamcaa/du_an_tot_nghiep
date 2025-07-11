@@ -12,7 +12,7 @@ class OrderController extends Controller
 {
     // Danh sách đơn hàng COD
     public function index()
-    {     
+    {
         $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(20);
         return view('admin.orders.index', compact('orders'));
     }
