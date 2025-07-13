@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Category extends Model
 {
     use HasFactory, SoftDeletes;
-
+     protected $table = 'categories';
     protected $fillable = [
         'parent_id',
         'icon',
@@ -28,5 +28,15 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+        public function products()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'category_product',
+            'category_id',
+            'product_id'
+        );
     }
 }

@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Admin\Category;
 use App\Models\Client\Comment;
 use App\Models\Admin\Review;
+use App\Models\Brand;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
-
+    protected $table = 'products';
     protected $fillable = [
         'brand_id',
         'category_id',
@@ -98,4 +99,20 @@ public function category()
     {
         return $this->hasMany(Review::class, 'product_id', 'id');
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(
+            Category::class,
+            'category_product',
+            'product_id',
+            'category_id'
+        );
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'id');
+    }
+
 }

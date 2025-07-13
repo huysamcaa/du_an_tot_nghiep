@@ -24,7 +24,7 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
-use App\Http\Controllers\Client\CategoryClientController;
+use App\Http\Controllers\Client\CategoryController as ClientCategoryController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Auth\LoginController;
@@ -56,7 +56,11 @@ Route::post('/product/{id}/add-reply', [ProductDetailController::class, 'addRepl
 Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::class, 'updateCommentOrReply'])->name('product.updateCommentOrReply');
 
 // Danh mục sản phẩm
-Route::get('/categories', [CategoryClientController::class, 'index'])->name('client.categories.index');
+Route::get('/categories', [ClientCategoryController::class, 'index'])
+     ->name('client.categories.index');
+// show theo slug
+Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
+     ->name('category.show');
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
