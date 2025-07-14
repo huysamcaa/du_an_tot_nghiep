@@ -16,11 +16,12 @@ class CartController extends Controller
         $userId = Auth::id();
 
         // Lấy danh sách sản phẩm trong giỏ hàng cùng với thông tin sản phẩm và biến thể
-        $cartItems = CartItem::with(['product', 'variant.attributeValues.attribute'])
+        $cartItems = CartItem::with(['product', 'variant'])
                             ->where('user_id', $userId)
                             ->get();
         return view('client.carts.index', compact('cartItems'));
     }
+
     public function add(Request $request)
     {
         // Nếu chưa đăng nhập, trả về JSON báo lỗi
@@ -34,14 +35,10 @@ class CartController extends Controller
 
         $userId = Auth::id();
         $productId = $request->input('product_id');
-
-        // Lấy các giá trị thuộc tính như màu và size
+        $quantity = (int) $request->input('quantity') ?: 1;
         $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
 
-        // Nếu không truyền số lượng thì mặc định là 1
-        $quantity = (int) $request->input('quantity') ?: 1;
-
-        // Tìm biến thể phù hợp với sản phẩm và các thuộc tính đã chọn
+        // Tìm biến thể phù hợp
         $variant = ProductVariant::where('product_id', $productId)
             ->whereHas('attributeValues', fn($q) =>
                 $q->whereIn('attribute_value_id', $attributeValueIds),
@@ -51,12 +48,28 @@ class CartController extends Controller
             ->having('attribute_values_count', '=', count($attributeValueIds))
             ->first();
 
-        // Nếu không tìm thấy biến thể thì trả về lỗi
         if (!$variant) {
-            return response()->json(['success' => false]);
+            return response()->json(['success' => false, 'message' => 'Biến thể sản phẩm không tồn tại.']);
         }
 
-        // Tạo mới hoặc cập nhật số lượng nếu đã có biến thể này trong giỏ hàng
+        // Kiểm tra số lượng hiện có trong giỏ
+        $existingItem = CartItem::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->where('product_variant_id', $variant->id)
+            ->first();
+
+        $currentQuantityInCart = $existingItem ? $existingItem->quantity : 0;
+        $totalAfterAdd = $currentQuantityInCart + $quantity;
+
+        // So sánh với tồn kho
+        if ($totalAfterAdd > $variant->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Chỉ còn ' . $variant->stock . ' sản phẩm'
+            ]);
+        }
+
+        // Thêm hoặc cập nhật
         $item = CartItem::updateOrCreate(
             [
                 'user_id' => $userId,
@@ -64,11 +77,10 @@ class CartController extends Controller
                 'product_variant_id' => $variant->id,
             ],
             [
-                'quantity' => DB::raw("quantity + $quantity") // Tăng số lượng
+                'quantity' => $totalAfterAdd
             ]
         );
 
-        // Nếu là AJAX request thì trả về tổng số lượng sản phẩm trong giỏ hàng
         if ($request->ajax()) {
             $totalProduct = CartItem::where('user_id', $userId)->sum('quantity');
             return response()->json(['success' => true, 'totalProduct' => $totalProduct]);
@@ -77,14 +89,15 @@ class CartController extends Controller
         return back()->with('success', 'Đã thêm vào giỏ hàng');
     }
 
+
     public function update(Request $request)
     {
         $userId = Auth::id();
         $cartItemId = $request->input('cart_item_id');
         $action = $request->input('quantity'); // 'increase' hoặc 'decrease'
 
-        // Tìm sản phẩm trong giỏ hàng kèm theo thông tin sản phẩm
-        $item = CartItem::with('product')
+        // Tìm sản phẩm trong giỏ hàng kèm theo thông tin sản phẩm và biến thể
+        $item = CartItem::with(['product', 'variant'])
             ->where('user_id', $userId)
             ->find($cartItemId);
 
@@ -93,28 +106,28 @@ class CartController extends Controller
         }
 
         if ($action === 'increase') {
-            $item->quantity++;
-        } elseif ($action === 'decrease' && $item->quantity > 1) {
-            $item->quantity--;
+            $stock = $item->variant->stock ?? 0;
+            if($item->quantity < $stock){
+                $item->quantity++;
+            }else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Chỉ còn' . $stock . ' sản phẩm'
+                ]);
+            }
+        } elseif ($action === 'decrease') {
+            $item->quantity = max(1, $item->quantity - 1); // Giảm nhưng không thấp hơn 1
         }
 
         $item->save();
 
-        // Tính lại tổng tiền giỏ hàng
-        $cartTotal = CartItem::with('product')
-            ->where('user_id', $userId)
-            ->get()
-            ->sum(fn($i) => ($i->product->sale_price ?? $i->product->price) * $i->quantity);
-
         // Tính lại giá của sản phẩm hiện tại
-        $itemPrice = $item->product->sale_price ?? $item->product->price;
+        $itemPrice = $item->variant->sale_price ?? $item->variant->price;
 
         return response()->json([
             'success' => true,
-            'item_total' => number_format($itemPrice * $item->quantity), // Tổng giá của sản phẩm đó
-            'cart_total' => number_format($cartTotal), // Tổng giá toàn bộ giỏ hàng
-            'new_quantity' => $item->quantity, // Số lượng mới
-            'grand_total' => number_format($cartTotal + 30000) // Tổng tiền sau phí ship 30.000đ
+            'item_total' => number_format($itemPrice * $item->quantity),
+            'new_quantity' => $item->quantity
         ]);
     }
 
@@ -148,4 +161,16 @@ class CartController extends Controller
         // Trả về true nếu tìm thấy, false nếu không
         return response()->json(['found' => (bool) $variant]);
     }
+    public function deleteSelected(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'Không có sản phẩm nào được chọn']);
+        }
+
+        CartItem::whereIn('id', $ids)->delete();
+
+        return response()->json(['success' => true]);
+    }
+
 }
