@@ -9,13 +9,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Admin\Category;
+use App\Models\Client\Comment;
+use App\Models\Admin\Review;
+use App\Models\Brand;
+
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
+
     protected $table = 'products';
-    
+ 
+
     protected $fillable = [
         'brand_id',
         'category_id',
@@ -102,6 +109,7 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+
     /**
      * Lấy các thuộc tính dùng cho biến thể
      */
@@ -175,3 +183,21 @@ class Product extends Model
         return $query->where('is_active', true);
     }
 }
+
+    public function categories()
+    {
+        return $this->belongsToMany(
+            Category::class,
+            'category_product',
+            'product_id',
+            'category_id'
+        );
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'id');
+    }
+
+}
+

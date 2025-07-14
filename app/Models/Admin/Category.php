@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class Category extends Model
 {
     use HasFactory, SoftDeletes;
-
+     protected $table = 'categories';
     protected $fillable = [
         'parent_id',
         'icon',
@@ -38,6 +38,7 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+
     public function directProducts(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
@@ -46,6 +47,17 @@ class Category extends Model
     public function relatedProducts(): BelongsToMany
 {
     return $this->belongsToMany(Product::class, 'category_product');
+
+        public function products()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'category_product',
+            'category_id',
+            'product_id'
+        );
+    }
+
 }
 
 
