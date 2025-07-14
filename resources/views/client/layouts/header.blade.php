@@ -175,10 +175,6 @@
 
 
                                 {{-- hết user --}}
-<<<<<<< HEAD
-
-=======
->>>>>>> 59c374f (Khôi phục thay đổi sau stash: cập nhật ProductController, header, route)
                                     <div class="anCart">
 
                                         <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
