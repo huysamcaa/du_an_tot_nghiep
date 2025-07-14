@@ -521,4 +521,17 @@ class CheckoutController extends Controller
         $order = Order::where('code', $code)->with('items')->firstOrFail();
         return view('client.orders.show', compact('order'));
     }
+    
+
+public function purchaseHistory()
+{
+    $userId = auth()->id();
+    \Log::info('User ID: ' . $userId);
+    $orders = Order::where('user_id', $userId)
+        ->with(['currentStatus.orderStatus'])
+        ->orderByDesc('created_at')
+        ->paginate(10);
+
+    return view('client.orders.purchase_history', compact('orders'));
+}
 }

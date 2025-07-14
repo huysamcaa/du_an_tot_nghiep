@@ -51,9 +51,8 @@
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Categories</a>
-                                        @include('client.categories.index')
+                                    <li class="menu-item">
+                                        <a href="{{ route('client.categories.index') }}">Danh mục</a>
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Blog</a>
@@ -119,7 +118,7 @@
                                 <div class="anItems">
 <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a></div>
 
-
+                                   
                                     <div class="anUser" id="userMenuWrapper">
                                         <a href="#" id="userMenuToggle">
                                             <i class="fa-solid fa-user"></i>
