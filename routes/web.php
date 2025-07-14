@@ -130,7 +130,10 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
     Route::resource('categories', CategoryController::class);
+    // Quản lý sản phẩm
     Route::resource('products', ProductController::class);
+    Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+
     Route::resource('attributes', AttributeController::class);
     Route::resource('carts', AdminCartController::class);
     Route::resource('comments', AdminCommentController::class);

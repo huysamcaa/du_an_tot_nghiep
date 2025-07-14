@@ -66,7 +66,7 @@
 @endphp
 
 <img class="user-avatar rounded-circle"
-     src="{{ $currentUser && $currentUser->avatar ? asset('storage/' . $currentUser->avatar) : asset('images/default-avatar.png') }}"
+     src="{{ $currentUser && $currentUser->avatar ? asset('storage/' . $currentUser->avatar) : asset('assets/images/default.png') }}"
      alt="User Avatar">
                 </a>
 

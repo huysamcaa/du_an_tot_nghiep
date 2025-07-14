@@ -13,8 +13,8 @@ use App\Models\Shared\Order;
 use App\Models\Shared\OrderItem;
 use App\Models\Coupon;
 use App\Models\CouponRestriction;
-
-
+use App\Models\Admin\OrderOrderStatus;
+use Illuminate\Support\Facades\Auth;
 class CheckoutController extends Controller
 {
     // Cấu hình MoMo
@@ -31,7 +31,7 @@ class CheckoutController extends Controller
         'vnp_Url' => 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
         'vnp_TmnCode' => 'PBDJFA7H',
         'vnp_HashSecret' => 'ANBVL0AXYOROIENQ5A945WKXIATVQ3KL',
-        'vnp_Returnurl' => 'http://localhost:8000/checkout/vnpay/return' 
+        'vnp_Returnurl' => 'http://localhost:8000/checkout/vnpay/return'
     ];
 
     public function index()
@@ -79,7 +79,7 @@ class CheckoutController extends Controller
         DB::beginTransaction();
         try {
             $order = $this->createOrder($request, 3, false);
-            
+
             $paymentData = $this->prepareMomoPaymentData($order);
             $result = $this->sendMomoRequest($paymentData);
             $jsonResult = json_decode($result, true);
@@ -155,7 +155,7 @@ class CheckoutController extends Controller
     {
         try {
             $order = Order::where('code', $order_code)->firstOrFail();
-            
+
             if ($request->resultCode == 0) {
                 DB::transaction(function () use ($order) {
                     if (!$order->is_paid) {
@@ -164,11 +164,11 @@ class CheckoutController extends Controller
                     }
                     $this->clearCart($order->user_id);
                 });
-                
+
                 return redirect()->route('client.orders.show', $order->code)
                     ->with('success', 'Thanh toán MoMo thành công!');
             }
-            
+
             return redirect()->route('client.orders.show', $order->code)
                 ->with('error', 'Thanh toán thất bại: ' . ($request->message ?? ''));
         } catch (\Exception $e) {
@@ -182,15 +182,15 @@ class CheckoutController extends Controller
         try {
             $input = $request->all();
             Log::info('Momo IPN received', $input);
-            
+
             if (!$this->verifyMomoSignature($input)) {
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
-            
+
             if ($input['resultCode'] == 0) {
                 $this->processSuccessfulPayment($input);
             }
-            
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             Log::error('Momo IPN error', ['error' => $e]);
@@ -228,10 +228,10 @@ class CheckoutController extends Controller
         DB::beginTransaction();
         try {
             $order = $this->createOrder($request, 4, false); // 4 là payment_id cho VNPay
-            
+
             $paymentData = $this->prepareVNPayPaymentData($order);
             $vnp_Url = $this->buildVNPayUrl($paymentData);
-            
+
             DB::commit();
             return redirect()->away($vnp_Url);
         } catch (\Exception $e) {
@@ -275,7 +275,7 @@ class CheckoutController extends Controller
 
         $vnpSecureHash = hash_hmac('sha512', $hashdata, $this->vnpayConfig['vnp_HashSecret']);
         $inputData['vnp_SecureHash'] = $vnpSecureHash;
-        
+
         return $this->vnpayConfig['vnp_Url'] . '?' . http_build_query($inputData);
     }
 
@@ -284,10 +284,10 @@ class CheckoutController extends Controller
         try {
             $inputData = $request->all();
             $vnp_SecureHash = $inputData['vnp_SecureHash'];
-            
+
             // Loại bỏ tham số hash khỏi dữ liệu
             unset($inputData['vnp_SecureHash']);
-            
+
             ksort($inputData);
             $hashData = '';
             $i = 0;
@@ -301,13 +301,13 @@ class CheckoutController extends Controller
             }
 
             $secureHash = hash_hmac('sha512', $hashData, $this->vnpayConfig['vnp_HashSecret']);
-            
+
             if ($secureHash != $vnp_SecureHash) {
                 return redirect()->route('client.home')->with('error', 'Chữ ký không hợp lệ');
             }
 
             $order = Order::where('code', $inputData['vnp_TxnRef'])->firstOrFail();
-            
+
             if ($inputData['vnp_ResponseCode'] == '00') {
                 DB::transaction(function () use ($order) {
                     if (!$order->is_paid) {
@@ -319,11 +319,11 @@ class CheckoutController extends Controller
                     }
                     $this->clearCart($order->user_id);
                 });
-                
+
                 return redirect()->route('client.orders.show', $order->code)
                     ->with('success', 'Thanh toán VNPay thành công!');
             }
-            
+
             return redirect()->route('client.orders.show', $order->code)
                 ->with('error', 'Thanh toán VNPay thất bại: ' . ($inputData['vnp_ResponseMessage'] ?? ''));
         } catch (\Exception $e) {
@@ -336,7 +336,7 @@ class CheckoutController extends Controller
     {
         $extraData = json_decode($input['extraData'], true);
         $orderId = $extraData['order_id'] ?? null;
-        
+
         if ($orderId) {
             $order = Order::find($orderId);
             if ($order && !$order->is_paid) {
@@ -358,7 +358,7 @@ class CheckoutController extends Controller
         try {
             $order = $this->createOrder($request, $request->paymentMethod, true);
             $this->clearCart(auth()->id() ?? 2);
-            
+
             DB::commit();
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Đặt hàng thành công!');
@@ -376,10 +376,10 @@ class CheckoutController extends Controller
 
         $fullname = $request->field1 . ' ' . $request->field2;
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? 0) * $item->quantity);
-        
+
         // Xử lý coupon
         $couponData = $this->processCoupon($request->coupon_code, $total);
-        
+
         $order = Order::create([
             'code' => 'DH' . strtoupper(Str::random(8)),
             'user_id' => $userId,
@@ -397,7 +397,11 @@ class CheckoutController extends Controller
             'coupon_discount_value' => $couponData['coupon']?->discount_value,
             'max_discount_value' => $couponData['max_discount'],
         ]);
-
+        OrderOrderStatus::create([
+            'order_id' => $order->id,
+            'order_status_id' => 1, // 1 = Chờ xác nhận
+            'modified_by' => auth()->id() ?? null,
+        ]);
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -419,7 +423,7 @@ class CheckoutController extends Controller
     protected function processCoupon($couponCode, $total)
     {
         if (!$couponCode) return ['discount' => 0, 'coupon' => null, 'max_discount' => null];
-        
+
         $coupon = Coupon::where('code', $couponCode)
             ->where('is_active', 1)
             ->where(function($q) {
@@ -427,9 +431,9 @@ class CheckoutController extends Controller
             })->first();
 
         if (!$coupon) return ['discount' => 0, 'coupon' => null, 'max_discount' => null];
-        
+
         $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
-        
+
         if ($restriction && $restriction->min_order_value > $total) {
             throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng mã giảm giá');
         }

@@ -11,12 +11,15 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $products = Product::latest()->take(8)->get(); 
+        $products = Product::where('is_active', 1)
+            ->latest()
+            ->take(8)
+            ->get();
 
-        $categories=Category::where('is_active', 1)
+        $categories = Category::where('is_active', 1)
             ->orderBy('ordinal')
             ->get();
 
-        return view('client.home', compact('products','categories'));
+        return view('client.home', compact('products', 'categories'));
     }
 }

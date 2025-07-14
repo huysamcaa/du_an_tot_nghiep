@@ -37,12 +37,12 @@ class RegisterController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        event(new Registered($user = $this->create($request->all())));
-
+        // event(new Registered($user = $this->create($request->all())));
+        $user = $this->create($request->all());
         Auth::login($user); // Đăng nhập người dùng ngay sau khi đăng ký
 
         return $this->registered($request, $user)
-                        ?: redirect($this->redirectPath());
+            ?: redirect($this->redirectPath());
     }
 
     /**
@@ -52,13 +52,37 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+
+            'email' => [
+                'required',
+                'string',
+                'email:rfc,dns',
+                'max:255',
+                'unique:users',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
+            ],
+
+            'password' => [
+                'required',
+                'string',
+                'min:8',                     // Ít nhất 8 ký tự
+                'confirmed',                 // So sánh với password_confirmation
+                'regex:/[A-Z]/',             // Ít nhất 1 chữ hoa
+                'regex:/[a-z]/',             // Ít nhất 1 chữ thường
+                'regex:/[0-9]/',             // Ít nhất 1 chữ số
+                'regex:/[@$!%*?&]/'          // Ít nhất 1 ký tự đặc biệt
+            ],
+
             'phone_number' => ['nullable', 'string', 'max:20'],
             'gender' => ['nullable', 'string', 'in:male,female,other'],
             'birthday' => ['nullable', 'date'],
+        ], [
+            // Custom message
+            'email.regex' => 'Email phải đúng định dạng, có đuôi tên miền như .com, .vn, v.v.',
+            'password.regex' => 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.',
         ]);
     }
+
 
     /**
      * Create a new user instance after a valid registration.

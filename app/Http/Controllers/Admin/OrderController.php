@@ -7,13 +7,14 @@ use App\Models\Shared\Order;
 use Illuminate\Http\Request;
 use App\Models\Admin\OrderOrderStatus;
 use App\Models\Admin\OrderStatus;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
     // Danh sách đơn hàng COD
     public function index()
     {
-        
+
         $orders = Order::where('payment_id', 2)->orderByDesc('created_at')->paginate(20);
         return view('admin.orders.index', compact('orders'));
     }
@@ -21,12 +22,17 @@ class OrderController extends Controller
     // Xem chi tiết đơn hàng
     public function show($id)
     {
+        $order = Order::with('items', 'orderOrderStatuses')->findOrFail($id);
         $usedStatusIds = $order->orderOrderStatuses->pluck('order_status_id')->toArray();
         $statuses = OrderStatus::orderBy('id')->get();
-        $order = Order::with('items')->findOrFail($id);
-        return view('admin.orders.show', compact('order'));
-    }
 
+        // Lấy trạng thái hiện tại (lớn nhất trong lịch sử)
+        $currentStatusId = $order->orderOrderStatuses->max('order_status_id') ?? 1;
+        // Trạng thái tiếp theo
+        $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null; // 5 là trạng thái cuối cùng hợp lệ
+
+        return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
+    }
     // Xác nhận đã thanh toán COD
     public function confirm($id)
     {
@@ -52,7 +58,7 @@ class OrderController extends Controller
         OrderOrderStatus::create([
             'order_id' => $orderId,
             'order_status_id' => $request->order_status_id,
-            'modified_by' => auth()->id(),
+            'modified_by' => Auth::id(),
             // created_at sẽ tự động nếu có timestamps
         ]);
 

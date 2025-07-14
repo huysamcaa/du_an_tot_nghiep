@@ -28,7 +28,7 @@
     </div>
     <div class="form-group">
         <label for="brand_id">Nhà sản xuất (Brand)</label>
-        <select name="brand_id" id="brand_id" class="form-control" required>
+        <select name="brand_id" id="brand_id" class="form-control" >
             <option value="">-- Chọn nhà sản xuất --</option>
             @foreach ($brands as $brand)
                 <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
@@ -54,7 +54,7 @@
     </div>
     <div class="form-group">
         <label for="stock">Số lượng</label>
-        <input type="number" class="form-control" id="stock" name="stock" value="{{ old('stock', 0) }}" min="0" required>
+        <input type="number" class="form-control" id="stock" name="stock" value="{{ old('stock', 0) }}" min="0" >
     </div>
     <div class="form-group">
         <label for="thumbnail">Ảnh đại diện (thumbnail) <span class="text-danger">*</span></label>
@@ -88,16 +88,6 @@
     <div class="form-check">
         <input type="checkbox" class="form-check-input" id="is_sale" name="is_sale" value="1" {{ old('is_sale') ? 'checked' : '' }}>
         <label class="form-check-label" for="is_sale">Đang sale</label>
-    </div>
-
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_featured">Sản phẩm nổi bật</label>
-    </div>
-
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_trending" name="is_trending" value="1" {{ old('is_trending') ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_trending">Sản phẩm xu hướng</label>
     </div>
 
     <div class="form-check">
@@ -179,8 +169,8 @@ combos.forEach((combo, i) => {
 
     });
     html += `${label}</td>
-        <td><input type="number" name="variants[${i}][price]" class="form-control" required></td>
-        <td><input type="number" name="variants[${i}][quantity]" class="form-control" min="0" value="0" required></td>
+        <td><input type="number" name="variants[${i}][price]" class="form-control" ></td>
+        <td><input type="number" name="variants[${i}][quantity]" class="form-control" min="0" value="0" ></td>
         <td><input type="text" name="variants[${i}][sku]" class="form-control"></td>
         <td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>
     </tr>`;

@@ -11,9 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'auth' => \App\Http\Middleware\Authenticate::class, // Laravel đã có sẵn
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'admin' => \App\Http\Middleware\AdminMiddleware::class, // THÊM DÒNG NÀY
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

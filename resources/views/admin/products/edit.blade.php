@@ -90,16 +90,6 @@
     </div>
 
     <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_featured" name="is_featured" value="1" {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_featured">Sản phẩm nổi bật</label>
-    </div>
-
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_trending" name="is_trending" value="1" {{ old('is_trending', $product->is_trending) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_trending">Sản phẩm xu hướng</label>
-    </div>
-
-    <div class="form-check">
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
         <label class="form-check-label" for="is_active">Hiển thị</label>
     </div>
