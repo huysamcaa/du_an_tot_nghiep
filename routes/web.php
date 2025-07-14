@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
-use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\OrderOrderStatusController;
@@ -26,12 +25,13 @@ use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
 use App\Http\Controllers\Client\CategoryController as ClientCategoryController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use CheckoutController as GlobalCheckoutController;
+use App\Http\Controllers\Client\CommentController2;
+use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+//  use App\Http\Controllers\Client\ProductController as ClientProductController;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Admin\CommentController;
-use App\Http\Controllers\Client\ReviewController as ClientReviewController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use CheckoutController as GlobalCheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,10 +42,9 @@ use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
 // Bình luận và trả lời bình luận
-Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
-Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
-
+Route::post('/comments', [CommentController2::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController2::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController2::class, 'list'])->name('comments.list');
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -68,12 +67,18 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add')->midd
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 Route::post('/check-variant', [CartController::class, 'checkVariant'])->name('check.variant');
+Route::post('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
 
 // Checkout
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
+    Route::post('/checkout/momo', [CheckoutController::class, 'momo_payment'])->name('checkout.momo_payment');
+    Route::post('/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('momo.ipn');
+    Route::get('/momo/return/{order_code}', [CheckoutController::class, 'momoReturn'])->name('momo.return');
+    Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
+    Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
      Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
 });
 
@@ -84,6 +89,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
+// Redirect admin/login và admin/register
 Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
 Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
@@ -119,6 +125,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
+
+    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
+
+    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
+    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
 
     Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
     Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
