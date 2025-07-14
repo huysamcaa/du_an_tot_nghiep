@@ -21,7 +21,6 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-
     public function create()
     {
         $categories = Category::all();
@@ -107,7 +106,6 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
-
     public function edit(Product $product)
     {
         $categories = Category::all();

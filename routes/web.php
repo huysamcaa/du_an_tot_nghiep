@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\OrderOrderStatusController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
 use App\Http\Controllers\Client\HomeController;
@@ -125,10 +124,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
-    // Đánh giá sản phẩm (client)
-    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
-    Route::get('/reviews/{id}/edit', [ClientReviewController::class, 'edit'])->name('client.reviews.edit');
-    Route::post('/reviews/{id}/update', [ClientReviewController::class, 'update'])->name('client.reviews.update');
+    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
+});
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
@@ -142,16 +140,16 @@ Route::middleware(['auth'])->group(function () {
     | 3. Admin Routes (Yêu cầu role admin)
     |--------------------------------------------------------------------------
     */
+
 Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        Route::resource('categories', CategoryController::class);
-        
-        Route::resource('products', ProductController::class);
-        Route::resource('attributes', AttributeController::class);
-        Route::resource('comments', AdminCommentController::class);
-        Route::resource('reviews', ReviewController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('products', ProductController::class);
+    Route::resource('attributes', AttributeController::class);
+    Route::resource('carts', AdminCartController::class);
+    Route::resource('comments', AdminCommentController::class);
 
 
     // Thêm route cho toggleVisibility
@@ -167,6 +165,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Quản lý biến thể sản phẩm
     Route::prefix('products/{product}')->name('products.')->group(function () {
         Route::resource('variants', ProductVariantController::class)->except(['show']);
+
     });
 
     // Quản lý đơn hàng
@@ -174,7 +173,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
-
+    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     // Quản lý người dùng
     Route::resource('users', UserController::class)->except(['show']);
     Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');

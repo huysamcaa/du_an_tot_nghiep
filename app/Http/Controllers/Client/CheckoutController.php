@@ -239,6 +239,155 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            $order = $this->createOrder($request, 3, false);
+            
+            $paymentData = $this->prepareMomoPaymentData($order);
+            $result = $this->sendMomoRequest($paymentData);
+            $jsonResult = json_decode($result, true);
+
+            if (isset($jsonResult['payUrl'])) {
+                DB::commit();
+                return redirect()->away($jsonResult['payUrl']);
+            }
+
+            DB::rollBack();
+            Log::error('Momo payment failed', ['response' => $jsonResult]);
+            return back()->with('error', 'Không thể khởi tạo thanh toán MoMo');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Momo payment exception', ['error' => $e]);
+            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+
+    protected function prepareMomoPaymentData($order)
+    {
+        return [
+            'partnerCode' => $this->momoConfig['partnerCode'],
+            'partnerName' => "Your Shop Name",
+            'storeId' => "MomoTestStore",
+            'requestId' => time() . "",
+            'amount' => $order->total_amount,
+            'orderId' => $order->code,
+            'orderInfo' => "Thanh toán đơn hàng #" . $order->code,
+            'redirectUrl' => route('momo.return', ['order_code' => $order->code]),
+            'ipnUrl' => route('momo.ipn'),
+            'lang' => 'vi',
+            'extraData' => json_encode(['order_id' => $order->id]),
+            'requestType' => $this->momoConfig['requestType'],
+            'signature' => $this->generateMomoSignature($order)
+        ];
+    }
+
+    protected function generateMomoSignature($order)
+    {
+        $rawHash = "accessKey=" . $this->momoConfig['accessKey'] .
+                   "&amount=" . $order->total_amount .
+                   "&extraData=" . json_encode(['order_id' => $order->id]) .
+                   "&ipnUrl=" . route('momo.ipn') .
+                   "&orderId=" . $order->code .
+                   "&orderInfo=Thanh toán đơn hàng #" . $order->code .
+                   "&partnerCode=" . $this->momoConfig['partnerCode'] .
+                   "&redirectUrl=" . route('momo.return', ['order_code' => $order->code]) .
+                   "&requestId=" . time() .
+                   "&requestType=" . $this->momoConfig['requestType'];
+
+        return hash_hmac("sha256", $rawHash, $this->momoConfig['secretKey']);
+    }
+
+    protected function sendMomoRequest($data)
+    {
+        $ch = curl_init($this->momoConfig['endpoint']);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen(json_encode($data))
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
+
+    public function momoReturn(Request $request, $order_code)
+    {
+        try {
+            $order = Order::where('code', $order_code)->firstOrFail();
+            
+            if ($request->resultCode == 0) {
+                DB::transaction(function () use ($order) {
+                    if (!$order->is_paid) {
+                        $order->update(['is_paid' => true]);
+                        $this->reduceStock($order);
+                    }
+                    $this->clearCart($order->user_id);
+                });
+                
+                return redirect()->route('client.orders.show', $order->code)
+                    ->with('success', 'Thanh toán MoMo thành công!');
+            }
+            
+            return redirect()->route('client.orders.show', $order->code)
+                ->with('error', 'Thanh toán thất bại: ' . ($request->message ?? ''));
+        } catch (\Exception $e) {
+            Log::error('Momo return error', ['error' => $e]);
+            return redirect()->route('client.home')->with('error', 'Có lỗi xảy ra');
+        }
+    }
+
+    public function momoIPN(Request $request)
+    {
+        try {
+            $input = $request->all();
+            Log::info('Momo IPN received', $input);
+            
+            if (!$this->verifyMomoSignature($input)) {
+                return response()->json(['error' => 'Invalid signature'], 403);
+            }
+            
+            if ($input['resultCode'] == 0) {
+                $this->processSuccessfulPayment($input);
+            }
+            
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::error('Momo IPN error', ['error' => $e]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    protected function verifyMomoSignature($input)
+    {
+        $rawHash = "accessKey=" . $input['accessKey'] .
+                   "&amount=" . $input['amount'] .
+                   "&extraData=" . $input['extraData'] .
+                   "&message=" . $input['message'] .
+                   "&orderId=" . $input['orderId'] .
+                   "&orderInfo=" . $input['orderInfo'] .
+                   "&orderType=" . $input['orderType'] .
+                   "&requestId=" . $input['requestId'] .
+                   "&responseTime=" . $input['responseTime'] .
+                   "&resultCode=" . $input['resultCode'] .
+                   "&transId=" . $input['transId'];
+
+        return hash_hmac("sha256", $rawHash, $this->momoConfig['secretKey']) === $input['signature'];
+    }
+
+    // Xử lý thanh toán VNPay
+    protected function processVNPayPayment(Request $request)
+    {
+        $userId = auth()->id() ?? 2;
+        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Giỏ hàng trống!');
+        }
+
+        DB::beginTransaction();
+        try {
             $order = $this->createOrder($request, 4, false); // 4 là payment_id cho VNPay
             
             $paymentData = $this->prepareVNPayPaymentData($order);

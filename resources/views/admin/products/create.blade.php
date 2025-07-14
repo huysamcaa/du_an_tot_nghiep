@@ -166,7 +166,7 @@ document.getElementById('generate-variants').onclick = function() {
     if (allValues.length < 1) return;
 
     // Sinh tổ hợp
-<<<<<<< HEAD
+
    let combos = allValues.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))));
 let html = '<table class="table"><tr><th>Biến thể</th><th>Giá</th><th>Số lượng</th><th>SKU</th><th>Ảnh</th></tr>';
 combos.forEach((combo, i) => {
@@ -176,23 +176,7 @@ combos.forEach((combo, i) => {
     combo.forEach(v => {
         html += `<input type="hidden" name="variants[${i}][attribute_id][]" value="${v.attribute_id}">`;
         html += `<input type="hidden" name="variants[${i}][attribute_value_id][]" value="${v.id}">`;
-=======
-    let combos = allValues.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))));
-    let html = '<table class="table"><tr><th>Biến thể</th><th>Giá</th><th>SKU</th><th>Ảnh</th></tr>';
-    combos.forEach((combo, i) => {
-        let label = combo.map(v => v.text).join(' - ');
-        html += `<tr>
-            <td>`;
-        combo.forEach(v => {
-            html += `<input type="hidden" name="variants[${i}][attribute_id][]" value="${v.attribute_id}">`;
-            html += `<input type="hidden" name="variants[${i}][attribute_value_id][]" value="${v.id}">`;
-        });
-        html += `${label}</td>
-            <td><input type="number" name="variants[${i}][price]" class="form-control" ></td>
-            <td><input type="text" name="variants[${i}][sku]" class="form-control"></td>
-            <td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>
-        </tr>`;
->>>>>>> b826d62 (cap nhap)
+
     });
     html += `${label}</td>
         <td><input type="number" name="variants[${i}][price]" class="form-control" required></td>
