@@ -51,9 +51,8 @@
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Categories</a>
-                                        @include('client.categories.index')
+                                    <li class="menu-item">
+                                        <a href="{{ route('client.categories.index') }}">Danh mục</a>
                                     </li>
                                     <li class="menu-item-has-children">
                                         <a href="javascript:void(0);">Blog</a>
