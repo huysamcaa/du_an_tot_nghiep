@@ -126,7 +126,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
     Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
-});
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
