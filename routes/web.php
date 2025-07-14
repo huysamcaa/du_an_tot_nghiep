@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
+     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
 });
 
 // Đăng ký & đăng nhập
@@ -129,44 +130,48 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('attributes', AttributeController::class);
-    Route::resource('carts', AdminCartController::class);
-    Route::resource('comments', AdminCommentController::class);
+    
+// Categories với chức năng thùng rác
+Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
+Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+Route::resource('categories', CategoryController::class);
+Route::resource('products', ProductController::class);
+Route::resource('attributes', AttributeController::class);
+Route::resource('carts', AdminCartController::class);
+Route::resource('comments', AdminCommentController::class);
 
+// Thêm route cho toggleVisibility
+Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
+Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
 
-    // Thêm route cho toggleVisibility
-    Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
-    Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
+Route::resource('brands', BrandController::class);
+Route::resource('coupon', CouponController::class);
 
-    Route::resource('brands', BrandController::class);
-    Route::resource('coupon', CouponController::class);
+// Quản lý trạng thái đơn hàng
+Route::resource('order_statuses', OrderStatusController::class);
 
-    // Quản lý trạng thái đơn hàng
-    Route::resource('order_statuses', OrderStatusController::class);
+// Quản lý biến thể sản phẩm
+Route::prefix('products/{product}')->name('products.')->group(function () {
+    Route::resource('variants', ProductVariantController::class)->except(['show']);
+});
 
-    // Quản lý biến thể sản phẩm
-    Route::prefix('products/{product}')->name('products.')->group(function () {
-        Route::resource('variants', ProductVariantController::class)->except(['show']);
+// Quản lý đơn hàng
+Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-    });
+// Quản lý người dùng
+Route::resource('users', UserController::class)->except(['show']);
+Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
+Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
+Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
-    // Quản lý đơn hàng
-    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
-    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
-    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    // Quản lý người dùng
-    Route::resource('users', UserController::class)->except(['show']);
-    Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
-    Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
-    Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
-
-    // Quản lí đánh giá
-      Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-    Route::patch('reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-    Route::patch('reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+// Quản lí đánh giá
+Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+Route::patch('reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+Route::patch('reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
 
 });
