@@ -26,15 +26,11 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($users as $user)
+                @foreach($users as $key => $user)
                 <tr>
-                    <td>{{ $user->id }}</td>
+                    <td>{{  $users->firstItem() + $key }}</td>
                     <td>
-                        @if($user->avatar)
-                            <img src="{{ asset('storage/' . $user->avatar) }}" width="40" class="rounded-circle">
-                        @else
-                            <span>--</span>
-                        @endif
+                        <img src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('assets/images/default.png') }}" width="40" class="rounded-circle">
                     </td>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
@@ -51,7 +47,6 @@
                     <td>{{ optional($user->birthday)->format('d/m/Y') }}</td>
                     <td>{{ $user->created_at->format('d/m/Y') }}</td>
                     <td>
-                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning">Sửa</a>
 
                         @if($user->status === 'active')
                             <form action="{{ route('admin.users.lock', $user->id) }}" method="POST">

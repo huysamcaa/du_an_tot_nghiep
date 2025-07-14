@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
-
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -31,6 +31,7 @@ use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Client\CommentController;
 use CheckoutController as GlobalCheckoutController;
 
 /*
@@ -42,9 +43,9 @@ use CheckoutController as GlobalCheckoutController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
 // Bình luận và trả lời bình luận
-Route::post('/comments', [CommentController2::class, 'store'])->name('comments.store');
-Route::post('/comments/reply', [CommentController2::class, 'reply'])->name('comments.reply');
-Route::get('/comments/list', [CommentController2::class, 'list'])->name('comments.list');
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -56,10 +57,10 @@ Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::cl
 
 // Danh mục sản phẩm
 Route::get('/categories', [ClientCategoryController::class, 'index'])
-     ->name('client.categories.index');
+    ->name('client.categories.index');
 // show theo slug
 Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
-     ->name('category.show');
+    ->name('category.show');
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -79,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/momo/return/{order_code}', [CheckoutController::class, 'momoReturn'])->name('momo.return');
     Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
     Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
-     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
+    Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
 });
 
 // Đăng ký & đăng nhập
@@ -146,48 +147,49 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    
-// Categories với chức năng thùng rác
-Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
-Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
-Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
-Route::resource('categories', CategoryController::class);
-Route::resource('products', ProductController::class);
-Route::resource('attributes', AttributeController::class);
-Route::resource('carts', AdminCartController::class);
-Route::resource('comments', AdminCommentController::class);
+    // Categories với chức năng thùng rác
+    Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
+    Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+    Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+    Route::resource('categories', CategoryController::class);
+    // Quản lý sản phẩm
+    Route::resource('products', ProductController::class);
+    Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
-// Thêm route cho toggleVisibility
-Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
-Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
+    Route::resource('attributes', AttributeController::class);
+    Route::resource('carts', CartController::class);
+    Route::resource('comments', AdminCommentController::class);
 
-Route::resource('brands', BrandController::class);
-Route::resource('coupon', CouponController::class);
+    // Thêm route cho toggleVisibility
+    Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
+    Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
 
-// Quản lý trạng thái đơn hàng
-Route::resource('order_statuses', OrderStatusController::class);
+    Route::resource('brands', BrandController::class);
+    Route::resource('coupon', CouponController::class);
 
-// Quản lý biến thể sản phẩm
-Route::prefix('products/{product}')->name('products.')->group(function () {
-    Route::resource('variants', ProductVariantController::class)->except(['show']);
-});
+    // Quản lý trạng thái đơn hàng
+    Route::resource('order_statuses', OrderStatusController::class);
 
-// Quản lý đơn hàng
-Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
-Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
-Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    // Quản lý biến thể sản phẩm
+    Route::prefix('products/{product}')->name('products.')->group(function () {
+        Route::resource('variants', ProductVariantController::class)->except(['show']);
+    });
 
-// Quản lý người dùng
-Route::resource('users', UserController::class)->except(['show']);
-Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
-Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
-Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
+    // Quản lý đơn hàng
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-// Quản lí đánh giá
-Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-Route::patch('reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-Route::patch('reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+    // Quản lý người dùng
+    Route::resource('users', UserController::class)->except(['show']);
+    Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
+    Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
+    Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
+    // Quản lí đánh giá
+    Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 });
