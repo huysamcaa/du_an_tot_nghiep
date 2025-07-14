@@ -54,6 +54,7 @@
                     </ul>
 
                 <li class="menu-item-has-children dropdown">
+<<<<<<< HEAD
                     <a href="admin.carts.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Giỏ Hàng
                     </a>
@@ -63,6 +64,8 @@
                     </ul>
 
                 <li class="menu-item-has-children dropdown">
+=======
+>>>>>>> ac970ea (fix bug)
                     <a href="admin.users.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Người dùng
                     </a>

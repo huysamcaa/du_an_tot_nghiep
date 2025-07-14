@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
-use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\OrderOrderStatusController;
@@ -68,6 +67,7 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add')->midd
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 Route::post('/check-variant', [CartController::class, 'checkVariant'])->name('check.variant');
+Route::post('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
 
 // Checkout
 Route::middleware(['auth'])->group(function () {

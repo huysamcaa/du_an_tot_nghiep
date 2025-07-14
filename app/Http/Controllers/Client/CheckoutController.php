@@ -34,13 +34,21 @@ class CheckoutController extends Controller
         'vnp_Returnurl' => 'http://localhost:8000/checkout/vnpay/return' 
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        $userId = auth()->id() ?? 2;
-        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+        $userId = auth()->id() ?? 2; // hoặc giả định 2 cho test
 
-        $total = $cartItems->sum(function ($item) {
-            return ($item->product->price ?? 0) * $item->quantity;
+        $selectedItems = $request->input('selected_items', []);
+        if (empty($selectedItems)) {
+            return redirect()->route('cart.index')->with('error', 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+        }
+        $cartItems = CartItem::where('user_id', $userId)->whereIn('id', $selectedItems)->with('product')->get();
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Sản phẩm bạn chọn không tồn tại trong giỏ hàng.');
+        }
+
+        $total = $cartItems->sum(function($item) {
+            return ($item->product ? $item->product->price : 0) * $item->quantity;
         });
 
         return view('client.checkout.checkout', compact('cartItems', 'total'));
@@ -70,7 +78,11 @@ class CheckoutController extends Controller
     protected function processMomoPayment(Request $request)
     {
         $userId = auth()->id() ?? 2;
-        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+        $selectedItems = $request->input('selected_items', []);
+        if (empty($selectedItems)) {
+            return redirect()->route('cart.index')->with('error', 'Vui lòng chọn ít nhất một sản phẩm để đặt hàng.');
+        }
+        $cartItems = CartItem::where('user_id', $userId)->whereIn('id', $selectedItems)->with('product')->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Giỏ hàng trống!');
@@ -232,6 +244,42 @@ class CheckoutController extends Controller
             $paymentData = $this->prepareVNPayPaymentData($order);
             $vnp_Url = $this->buildVNPayUrl($paymentData);
             
+            $fullname = $request->input('field1') . ' ' . $request->input('field2');
+            $total = $cartItems->sum(function($item) {
+                return ($item->product ? $item->product->price : 0) * $item->quantity;
+            });
+            $shipping_fee = 30000;
+            $grand_total = $total + $shipping_fee;
+
+            $order = Order::create([
+                'code' => 'DH' . strtoupper(Str::random(8)),
+                'user_id' => $userId,
+                'payment_id' => $request->input('paymentMethod'),
+                'phone_number' => $request->input('field5'),
+                'email' => $request->input('field4'),
+                'fullname' => $fullname,
+                'address' => $request->input('field7'),
+                'note' => $request->input('field14'),
+                'total_amount' => $grand_total,
+                'is_paid' => false,
+                'is_refund' => false,
+                'locked_status' => false,
+                'coupon_code' => $request->input('coupon_code'),
+            ]);
+
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id,
+                    'name' => $item->product->name ?? null,
+                    'price' => $item->product->price ?? 0,
+                    'quantity' => $item->quantity ?? 1,
+                ]);
+            }
+
+            CartItem::where('user_id', $userId)->whereIn('id', $selectedItems)->delete();
+
             DB::commit();
             return redirect()->away($vnp_Url);
         } catch (\Exception $e) {

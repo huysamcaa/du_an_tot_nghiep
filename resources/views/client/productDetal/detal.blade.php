@@ -562,7 +562,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.anCart span').innerText = data.totalProduct;
             Swal.fire({ icon: 'success', title: 'Thành công!', text: 'Đã thêm vào giỏ hàng.', timer: 1500, showConfirmButton: false });
         } else {
-            Swal.fire('Hết hàng', 'Thêm vào giỏ hàng thất bại', 'error');
+        Swal.fire({
+            icon: 'error',
+            title: 'Không thể thêm vào giỏ',
+            text: data.message || 'Đã xảy ra lỗi không xác định.',
+        });
         }
     });
 </script>
