@@ -43,22 +43,23 @@
                         <table id="bootstrap-data-table" class="table table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Stt</th>
                                     <th>Ảnh</th>
                                     <th>Tên</th>
+                                    <th>Danh mục</th>
+                                    <th>Thương hiệu</th>
+                                    <th>Số lượng</th>
+                                    <th>Lượt xem</th>
                                     <th>Giá gốc</th>
                                     <th>Giá sale</th>
-                                    <th>Nổi bật</th>
-                                    <th>Xu hướng</th>
                                     <th>Trạng thái</th>
-                                    <th>Ngày tạo</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($products as $product)
                                 <tr>
-                                    <td>{{ $product->id }}</td>
+                                    <td>{{ $products->count() - $loop->index }}</td>
                                     <td>
                                         @if($product->thumbnail)
                                         <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
@@ -67,6 +68,10 @@
                                         @endif
                                     </td>
                                     <td>{{ $product->name }}</td>
+                                    <td>{{ $product->category->name ?? '' }}</td>
+                                    <td>{{ $product->brand->name ?? '' }}</td>
+                                    <td>{{ $product->stock }}</td>
+                                    <td>{{ $product->views }}</td>
                                     <td>{{ number_format($product->price, 0, ',', '.') }} đ</td>
                                     <td>
                                         @if($product->is_sale)
@@ -76,22 +81,23 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {!! $product->is_featured ? '<span class="badge badge-success">✔</span>' : '-' !!}
-                                    </td>
-                                    <td>
-                                        {!! $product->is_trending ? '<span class="badge badge-info">✔</span>' : '-' !!}
-                                    </td>
-                                    <td>
                                         {{ $product->is_active ? 'Hiển thị' : 'Ẩn' }}
                                     </td>
-                                    <td>{{ $product->created_at->format('d/m/Y') }}</td>
                                     <td>
                                         <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-info btn-sm">Chi tiết</a>
                                         <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-warning">Sửa</a>
-                                        <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline-block">
-                                            @csrf @method('DELETE')
-                                            <button onclick="return confirm('Xóa sản phẩm này?')" class="btn btn-sm btn-danger">Xóa</button>
-                                        </form>
+                                        @if($product->is_active)
+                                            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline-block">
+                                                @csrf @method('DELETE')
+                                                <button onclick="return confirm('Xóa sản phẩm này?')" class="btn btn-sm btn-danger">Xóa</button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.products.restore', $product->id) }}" method="POST" style="display:inline-block">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-success btn-sm">Hiện lại</button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach

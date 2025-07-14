@@ -33,18 +33,16 @@ class ProductController extends Controller
         $data = $request->validate([
             'brand_id' => 'required|exists:brands,id',
             'stock' => 'required|integer|min:0',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products,name',
             'short_description' => 'required|string',
             'description' => 'required|string',
-            'stock' => 'required|integer|min:0',
-            'thumbnail' => 'required|image',
+            'stock' => 'required|integer|min:0|max:100',
+            'thumbnail' => 'required|image|max:2048',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'sale_price_start_at' => 'nullable|date',
             'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
             'is_sale' => 'boolean',
-            'is_featured' => 'boolean',
-            'is_trending' => 'boolean',
             'is_active' => 'boolean',
             'variants' => 'required_if:has_variants,true|array',
             'variants.*.attribute_id' => 'required|exists:attributes,id',
@@ -56,14 +54,21 @@ class ProductController extends Controller
 
         // Xử lý checkbox
         $data['is_sale'] = $request->has('is_sale');
-        $data['is_featured'] = $request->has('is_featured');
-        $data['is_trending'] = $request->has('is_trending');
         $data['is_active'] = $request->has('is_active');
-
+        // Kiểm tra kích thước ảnh chính (thumbnail)
+        if ($request->hasFile('thumbnail')) {
+            [$width, $height] = getimagesize($request->file('thumbnail'));
+            if ($width < 600 || $height < 600 || $width > 1200 || $height > 1200) {
+                return redirect()->back()->withInput()->withErrors([
+                    'thumbnail' => 'Ảnh phải có kích thước từ 600x600 đến 1200x1200 pixels.',
+                ]);
+            }
+        }
         // Upload ảnh chính
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
         }
+
         // Tạo sản phẩm
         $product = Product::create($data);
         // Xử lý hình ảnh chi tiết
@@ -126,19 +131,17 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'brand_id' => 'required|exists:brands,id',
-            'stock' => 'required|integer|min:0',
-            'name' => 'required|string|max:255',
+            // 'stock' => 'required|integer|min:0|max:100',
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
             'short_description' => 'required|string',
             'description' => 'required|string',
-            'thumbnail' => 'nullable|image',
+            'thumbnail' => 'nullable|image|max:2048',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'sale_price_start_at' => 'nullable|date',
             'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
             'is_sale' => 'boolean',
-            'is_featured' => 'boolean',
-            'is_trending' => 'boolean',
             'is_active' => 'boolean',
             'variants' => 'sometimes|array',
             'variants.*.price' => 'required_with:variants|numeric',
@@ -148,8 +151,6 @@ class ProductController extends Controller
 
         // Xử lý checkbox
         $data['is_sale'] = $request->has('is_sale');
-        $data['is_featured'] = $request->has('is_featured');
-        $data['is_trending'] = $request->has('is_trending');
         $data['is_active'] = $request->has('is_active');
 
         // Upload ảnh chính nếu có
@@ -160,7 +161,14 @@ class ProductController extends Controller
             }
             $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
         }
-
+        if ($request->hasFile('thumbnail')) {
+            [$width, $height] = getimagesize($request->file('thumbnail'));
+            if ($width < 600 || $height < 600 || $width > 1200 || $height > 1200) {
+                return redirect()->back()->withInput()->withErrors([
+                    'thumbnail' => 'Ảnh phải có kích thước từ 600x600 đến 1200x1200 pixels.',
+                ]);
+            }
+        }
         // Cập nhật sản phẩm
         $product->update($data);
 
@@ -234,23 +242,23 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         // Xóa ảnh chính
-        if ($product->thumbnail) {
-            Storage::disk('public')->delete($product->thumbnail);
-        }
+        // if ($product->thumbnail) {
+        //     Storage::disk('public')->delete($product->thumbnail);
+        // }
 
-        // Xóa các ảnh biến thể
-        foreach ($product->variants as $variant) {
-            if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
-                Storage::disk('public')->delete($variant->thumbnail);
-            }
-        }
+        // // Xóa các ảnh biến thể
+        // foreach ($product->variants as $variant) {
+        //     if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
+        //         Storage::disk('public')->delete($variant->thumbnail);
+        //     }
+        // }
 
-        $product->variants()->delete();
-        $product->forceDelete();
-
+        // $product->variants()->delete();
+        // $product->forceDelete();
+        $product->is_active = 0; // Ẩn sản phẩm
+        $product->save();
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
-
     /**
      * Tạo SKU tự động cho biến thể
      */
@@ -265,14 +273,21 @@ class ProductController extends Controller
 
         return $productSku . '-' . $colorCode . '-' . $sizeCode;
     }
-     public function adminListByCategory($id)
-{
-    $category = Category::findOrFail($id);
-    $products = Product::whereHas('categories', function($query) use ($id) {
-        $query->where('categories.id', $id);
-    })->with('variants')->get();
+    public function adminListByCategory($id)
+    {
+        $category = Category::findOrFail($id);
+        $products = Product::whereHas('categories', function ($query) use ($id) {
+            $query->where('categories.id', $id);
+        })->with('variants')->get();
 
-    $categories = Category::all(); 
-    return view('admin.products.index', compact('category', 'products', 'categories'));
-}
+        $categories = Category::all();
+        return view('admin.products.index', compact('category', 'products', 'categories'));
+    }
+    public function restore(Product $product)
+    {
+        $product->is_active = 1;
+        $product->save();
+
+        return redirect()->route('admin.products.index')->with('success', 'Sản phẩm đã được hiển thị lại!');
+    }
 }
