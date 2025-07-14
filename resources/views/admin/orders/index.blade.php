@@ -54,18 +54,20 @@
             <td>{{ $order->fullname }}</td>
             <td>{{ $order->created_at }}</td>
             <td>
-                @if($order->is_paid)
-                    <span class="badge bg-success">Đã thanh toán</span>
-                @else
-                    <span class="badge bg-warning">Chưa thanh toán</span>
-                @endif
+                <span class="badge bg-info">
+                    {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa có trạng thái' }}
+                </span>
+                <br>
+                <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @if(!$order->is_paid)
+                        <button type="submit" class="btn btn-success btn-sm mt-2">Xác nhận đã thanh toán COD</button>
+                    @endif
+                </form>
             </td>
             <td>
                 <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-info btn-sm">Xem</a>
-                <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" style="display:inline;">
-                    @csrf @method('DELETE')
-                    <button onclick="return confirm('Xóa đơn hàng?')" class="btn btn-danger btn-sm">Xóa</button>
-                </form>
+                
             </td>
         </tr>
         @empty

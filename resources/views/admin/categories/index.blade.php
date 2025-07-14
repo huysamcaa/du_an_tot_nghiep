@@ -5,13 +5,21 @@
 <div class="container">
     <h1>Quản lý Danh mục</h1>
     <br>
+   <br>
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <a href="{{ route('admin.categories.create') }}" class="btn btn-primary mb-3">Thêm danh mục</a>
+    <a href="{{ route('admin.categories.trashed') }}" class="btn btn-secondary mb-3">Danh mục đã xóa</a>
 
     <table id="bootstrap-data-table" class="table table-striped table-bordered">
        

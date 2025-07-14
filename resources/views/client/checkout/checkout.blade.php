@@ -97,6 +97,7 @@
                                 <tbody>
                                     @foreach($cartItems as $item)
                                     <tr>
+                                        <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
                                         <td>
                                             <a href="javascript:void(0);">{{ $item->product->name }}</a>
                                         </td>

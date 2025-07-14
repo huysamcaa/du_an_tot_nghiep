@@ -14,15 +14,15 @@ class OrderController extends Controller
     // Danh sách đơn hàng COD
     public function index()
     {
-
-        $orders = Order::where('payment_id', 2)->orderByDesc('created_at')->paginate(20);
+        $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(20);
         return view('admin.orders.index', compact('orders'));
     }
 
     // Xem chi tiết đơn hàng
     public function show($id)
     {
-        $order = Order::with('items', 'orderOrderStatuses')->findOrFail($id);
+        $order = Order::with(['items', 'currentStatus.orderStatus', 'orderOrderStatuses'])->findOrFail($id);
+
         $usedStatusIds = $order->orderOrderStatuses->pluck('order_status_id')->toArray();
         $statuses = OrderStatus::orderBy('id')->get();
 
@@ -33,6 +33,7 @@ class OrderController extends Controller
 
         return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
     }
+
     // Xác nhận đã thanh toán COD
     public function confirm($id)
     {

@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Client\UserAddress;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Coupon;
+use App\Models\Shared\Order;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -57,6 +59,10 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+    public function orders()
+{
+    return $this->hasMany(Order::class, 'user_id');
+}
 
 
     /**
