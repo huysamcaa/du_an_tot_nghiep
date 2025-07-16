@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
-
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -31,6 +31,7 @@ use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Client\CommentController;
 use CheckoutController as GlobalCheckoutController;
 
 /*
@@ -42,9 +43,9 @@ use CheckoutController as GlobalCheckoutController;
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
 // Bình luận và trả lời bình luận
-Route::post('/comments', [CommentController2::class, 'store'])->name('comments.store');
-Route::post('/comments/reply', [CommentController2::class, 'reply'])->name('comments.reply');
-Route::get('/comments/list', [CommentController2::class, 'list'])->name('comments.list');
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/reply', [CommentController::class, 'reply'])->name('comments.reply');
+Route::get('/comments/list', [CommentController::class, 'list'])->name('comments.list');
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
@@ -154,7 +155,7 @@ Route::delete('categories/{category}/force-delete', [CategoryController::class, 
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
 Route::resource('attributes', AttributeController::class);
-Route::resource('carts', AdminCartController::class);
+Route::resource('carts', CartController::class);
 Route::resource('comments', AdminCommentController::class);
 
 // Thêm route cho toggleVisibility
@@ -186,8 +187,8 @@ Route::get('/users/locked', [UserController::class, 'locked'])->name('users.lock
 Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
 // Quản lí đánh giá
-Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-Route::patch('reviews/{id}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-Route::patch('reviews/{id}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
+Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 
 });
