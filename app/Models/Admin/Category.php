@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class Category extends Model
 {
     use HasFactory, SoftDeletes;
-     protected $table = 'categories';
+    protected $table = 'categories';
     protected $fillable = [
         'parent_id',
         'icon',
@@ -45,10 +45,12 @@ class Category extends Model
     }
 
     public function relatedProducts(): BelongsToMany
-{
-    return $this->belongsToMany(Product::class, 'category_product');
-}
-        public function products()
+
+    {
+        return $this->belongsToMany(Product::class, 'category_product');
+    }
+    public function products()
+
     {
         return $this->belongsToMany(
             Product::class,
@@ -70,10 +72,10 @@ class Category extends Model
 
     public function hasProducts(): bool
     {
-        return $this->directProducts()->exists() || 
-               DB::table('category_product')
-                 ->where('category_id', $this->id)
-                 ->exists();
+        return $this->directProducts()->exists() ||
+            DB::table('category_product')
+            ->where('category_id', $this->id)
+            ->exists();
     }
 
     public function hasChildren(): bool
@@ -89,11 +91,11 @@ class Category extends Model
     public function updateStatus(bool $status): bool
     {
         $this->update(['is_active' => $status]);
-        
+
         if (!$status && $this->hasChildren()) {
             $this->children()->update(['is_active' => $status]);
         }
-        
+
         return true;
     }
 
@@ -102,7 +104,7 @@ class Category extends Model
         DB::transaction(function () use ($newCategoryId) {
             // Chuyển sản phẩm trực tiếp
             $this->directProducts()->update(['category_id' => $newCategoryId]);
-            
+
             // Chuyển quan hệ many-to-many
             DB::table('category_product')
                 ->where('category_id', $this->id)

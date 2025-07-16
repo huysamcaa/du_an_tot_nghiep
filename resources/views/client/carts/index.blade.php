@@ -116,6 +116,7 @@
         <div class="row cartAccessRow">
             <div class="col-md-6 col-lg-4"></div>
             <div class="md-6 col-lg-4"></div>
+            @if(count($cartItems) > 0)
             <div class="col-lg-4">
                 <div class="col-sm-12 cart_totals">
                     <table class="shop_table shop_table_responsive">
@@ -147,18 +148,14 @@
                         </tbody>
                     </table>
                     <div class="text-end mt-3">
-                        @if(count($cartItems) > 0)
                             <button type="submit" class="ulinaBTN" id="checkout-btn">
                                 <span>TIẾN HÀNH THANH TOÁN</span>
                             </button>
-                        @else
-                            <button type="button" class="ulinaBTN" disabled style="opacity: 0.6; cursor: not-allowed;">
-                                <span>TIẾN HÀNH THANH TOÁN</span>
-                            </button>
-                        @endif
+                        
                     </div>
                 </div>
             </div>
+            @endif
         </div>
         </form>
     </div>
@@ -176,7 +173,7 @@ $(document).ready(function () {
     const $selectItems = $('.select-item');
     const $checkoutBtn = $('#checkout-btn');
 
-    // Hàm cập nhật tổng tiền đơn hàng và trạng thái nút thanh toán
+    // Hàm cập nhật tổng tiền đơn hàng
     function updateCartTotal() {
         let total = 0;
         let selectedCount = 0;
@@ -195,12 +192,6 @@ $(document).ready(function () {
         // Cập nhật hiển thị tổng tiền và tổng đơn
         $('#cart-total ins').text(new Intl.NumberFormat('vi-VN').format(total) + 'đ');
         $('#grand-total ins').text(new Intl.NumberFormat('vi-VN').format(total + 30000) + 'đ');
-
-        // Nếu không có sản phẩm nào được chọn thì disable nút thanh toán
-        $checkoutBtn.prop('disabled', selectedCount === 0).css({
-            opacity: selectedCount === 0 ? 0.6 : 1,
-            cursor: selectedCount === 0 ? 'not-allowed' : 'pointer'
-        });
     }
 
     // Gọi hàm tính tổng khi mới tải trang

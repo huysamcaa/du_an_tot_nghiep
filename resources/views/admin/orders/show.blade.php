@@ -50,7 +50,7 @@
 </div>
 @php
     $currentStatusId = $order->currentStatus?->orderStatus?->id ?? null;
-    $finalStatusIds = [5, 6]; // 5: Đã giao hàng, 6: Đã hủy
+    $finalStatusIds = [6, 7, 8];
     $isFinal = in_array($currentStatusId, $finalStatusIds);
 @endphp
 
@@ -58,11 +58,15 @@
     @csrf
     <div class="input-group" style="max-width:300px;">
         <select name="order_status_id" class="form-control" required {{ $isFinal ? 'disabled' : '' }}>
-            <option value="">-- Chọn trạng thái --</option>
             @foreach($statuses as $status)
                 <option value="{{ $status->id }}"
                     {{ $currentStatusId == $status->id ? 'selected' : '' }}
-                    @if(in_array($status->id, $usedStatusIds)) disabled @endif
+                    @if(
+                        $status->id != $nextStatusId
+                        && $status->id != 6
+                        && $status->id != 7
+                        && $status->id != 8
+                    ) disabled @endif
                 >
                     {{ $status->name }}
                 </option>
