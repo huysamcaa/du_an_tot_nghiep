@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Admin\Category;
 use App\Models\Client\Comment;
 use App\Models\Admin\Review;
 use App\Models\Brand;
@@ -62,10 +61,10 @@ class Product extends Model
     /**
      * Quan hệ với danh mục
      */
-   public function categories()
-{
-    return $this->belongsToMany(Category::class, 'category_product');
-}
+//    public function categories()
+// {
+//     return $this->belongsToMany(Category::class, 'category_product');
+// }
 
     /**
      * Quan hệ với các biến thể sản phẩm
@@ -182,7 +181,7 @@ class Product extends Model
     {
         return $query->where('is_active', true);
     }
-}
+
 
     public function categories()
     {

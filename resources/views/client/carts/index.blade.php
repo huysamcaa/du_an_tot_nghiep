@@ -147,9 +147,15 @@
                         </tbody>
                     </table>
                     <div class="text-end mt-3">
-                        <button type="submit" class="ulinaBTN" >
-                            <span>TIẾN HÀNH THANH TOÁN</span>
-                        </button>
+                        @if(count($cartItems) > 0)
+                            <button type="submit" class="ulinaBTN" id="checkout-btn">
+                                <span>TIẾN HÀNH THANH TOÁN</span>
+                            </button>
+                        @else
+                            <button type="button" class="ulinaBTN" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                <span>TIẾN HÀNH THANH TOÁN</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -165,162 +171,149 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-$(document).ready(function(){
-    // Hàm tính lại tổng tiền dựa trên các sản phẩm được chọn
+$(document).ready(function () {
+    const $selectAll = $('#select-all');
+    const $selectItems = $('.select-item');
+    const $checkoutBtn = $('#checkout-btn');
+
+    // Hàm cập nhật tổng tiền đơn hàng và trạng thái nút thanh toán
     function updateCartTotal() {
         let total = 0;
-        $('.select-item:checked').each(function() {
-            let row = $(this).closest('tr');
-            let price = parseFloat(row.data('price'));
-            let quantity = parseInt(row.find('.quantity-num').text());
-            total += price * quantity;
+        let selectedCount = 0;
+
+        // Duyệt qua từng sản phẩm được chọn
+        $selectItems.each(function () {
+            if (this.checked) {
+                const row = $(this).closest('tr');
+                const price = parseFloat(row.data('price'));
+                const qty = parseInt(row.find('.quantity-num').text());
+                total += price * qty;
+                selectedCount++;
+            }
         });
+
+        // Cập nhật hiển thị tổng tiền và tổng đơn
         $('#cart-total ins').text(new Intl.NumberFormat('vi-VN').format(total) + 'đ');
         $('#grand-total ins').text(new Intl.NumberFormat('vi-VN').format(total + 30000) + 'đ');
+
+        // Nếu không có sản phẩm nào được chọn thì disable nút thanh toán
+        $checkoutBtn.prop('disabled', selectedCount === 0).css({
+            opacity: selectedCount === 0 ? 0.6 : 1,
+            cursor: selectedCount === 0 ? 'not-allowed' : 'pointer'
+        });
     }
 
-    // Gọi hàm tính tổng khi trang tải
+    // Gọi hàm tính tổng khi mới tải trang
     updateCartTotal();
 
-    // Xử lý checkbox "Chọn tất cả"
-    $('#select-all').click(function() {
-        $('.select-item').prop('checked', this.checked);
+    // Khi bấm "Chọn tất cả", thay đổi trạng thái của từng checkbox sản phẩm
+    $selectAll.on('click', function () {
+        $selectItems.prop('checked', this.checked);
         updateCartTotal();
     });
 
-    // Xử lý khi checkbox từng sản phẩm thay đổi
-    $('.select-item').change(function() {
-        if ($('.select-item:checked').length === $('.select-item').length) {
-            $('#select-all').prop('checked', true);
-        } else {
-            $('#select-all').prop('checked', false);
-        }
+    // Khi thay đổi checkbox của từng sản phẩm
+    $selectItems.on('change', function () {
+        // Nếu tất cả đều được chọn thì đánh dấu lại "Chọn tất cả"
+        $selectAll.prop('checked', $selectItems.length === $('.select-item:checked').length);
         updateCartTotal();
     });
 
-    // Xử lý tăng/giảm số lượng
-    $('.change-qty').click(function(e){
+    // Xử lý khi bấm nút tăng/giảm số lượng
+    $('.change-qty').on('click', function (e) {
         e.preventDefault();
 
-        let button = $(this);
-        let form = button.closest('form');
-        let action = button.data('action');
-        let row = button.closest('tr');
-        let quantitySpan = row.find('.quantity-num');
+        const $btn = $(this);
+        const $form = $btn.closest('form');
+        const action = $btn.data('action'); // "increase" hoặc "decrease"
+        const row = $btn.closest('tr');
+        const $quantitySpan = row.find('.quantity-num');
+        const cartItemId = $form.find('input[name="cart_item_id"]').val();
 
-        let cartItemId = form.find('input[name="cart_item_id"]').val();
+        // Gửi AJAX đến server để cập nhật số lượng
+        $.post('{{ route("cart.update") }}', {
+            _token: '{{ csrf_token() }}',
+            cart_item_id: cartItemId,
+            quantity: action
+        }).done(function (res) {
+            if (res.success) {
+                // Cập nhật lại số lượng và tổng tiền dòng đó
+                $quantitySpan.text(res.new_quantity);
+                row.find('.product-subtotal ins').text(res.item_total + 'đ');
+                row.data('quantity', res.new_quantity);
+                updateCartTotal();
+            } else {
+                // Hiện thông báo nếu có lỗi
+                Swal.fire('Thông báo', res.message || 'Không cập nhật được sản phẩm', 'warning');
+            }
+        }).fail(function () {
+            Swal.fire('Lỗi', 'Đã xảy ra lỗi khi cập nhật số lượng.', 'error');
+        });
+    });
 
-        $.ajax({
-            url: '{{ route("cart.update") }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                cart_item_id: cartItemId,
-                quantity: action
-            },
-            success: function(res){
-                if(res.success){
-                quantitySpan.text(res.new_quantity); //  cập nhật đúng số lượng
-                row.find('.product-subtotal ins').text(res.item_total + 'đ'); //  cập nhật tiền sản phẩm
-                row.data('quantity', res.new_quantity); //  cập nhật dữ liệu dòng
-                updateCartTotal(); //  cập nhật tổng giỏ
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Thông báo',
-                        text: res.message || 'Không cập nhật được sản phẩm',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            },
-            error: function(err){
-                alert('Đã xảy ra lỗi.');
-                console.log(err);
+    // Khi bấm nút "Tiến hành thanh toán"
+    $('#cart-form').on('submit', function (e) {
+        const selected = $('.select-item:checked');
+        if (selected.length === 0) {
+            e.preventDefault(); // Chặn submit nếu không chọn sản phẩm nào
+            Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.', 'warning');
+        }
+    });
+
+    // Khi bấm nút xoá 1 sản phẩm
+    $('.product-remove .remove').on('click', function (e) {
+        e.preventDefault();
+        const url = $(this).attr('href');
+
+        // Hiện hộp thoại xác nhận xoá
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xoá sản phẩm này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xoá',
+            cancelButtonText: 'Huỷ'
+        }).then(result => {
+            if (result.isConfirmed) {
+                window.location.href = url; // Nếu xác nhận thì chuyển sang route xoá
             }
         });
     });
 
-    // Kiểm tra trước khi gửi form thanh toán và gỡ lỗi
-    $('#cart-form').submit(function(e) {
-        let selectedItems = $('.select-item:checked').map(function() {
-            return $(this).val();
+    // Khi bấm nút "Xoá tất cả" các sản phẩm đã chọn
+    $('#delete-selected').on('click', function () {
+        const selectedIds = $('.select-item:checked').map(function () {
+            return this.value;
         }).get();
-        
-        if (selectedItems.length === 0) {
-            e.preventDefault();
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thông báo',
-                text: 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.',
-                confirmButtonText: 'OK'
-            });
-        } else {
-            console.log('Selected items:', selectedItems); // Gỡ lỗi
-        }
-    });
-    // Xác nhận khi bấm nút xoá từng sản phẩm
-$('.product-remove .remove').click(function(e) {
-    e.preventDefault();
-    let url = $(this).attr('href');
 
-    Swal.fire({
-        title: 'Bạn có chắc chắn muốn xoá sản phẩm này?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Xoá',
-        cancelButtonText: 'Huỷ'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = url;
+        if (selectedIds.length === 0) {
+            Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một sản phẩm để xoá.', 'warning');
+            return;
         }
-    });
-});
-// Xoá nhiều sản phẩm được chọn
-$('#delete-selected').click(function() {
-    let selectedIds = $('.select-item:checked').map(function() {
-        return $(this).val();
-    }).get();
 
-    if (selectedIds.length === 0) {
+        // Hiện xác nhận xoá nhiều
         Swal.fire({
+            title: 'Bạn có chắc chắn muốn xoá các sản phẩm đã chọn?',
             icon: 'warning',
-            title: 'Thông báo',
-            text: 'Vui lòng chọn ít nhất một sản phẩm để xoá.',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    Swal.fire({
-        title: 'Bạn có chắc chắn muốn xoá các sản phẩm đã chọn?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Xoá tất cả',
-        cancelButtonText: 'Huỷ'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: '{{ route("cart.deleteSelected") }}', // bạn sẽ tạo route này
-                method: 'POST',
-                data: {
+            showCancelButton: true,
+            confirmButtonText: 'Xoá tất cả',
+            cancelButtonText: 'Huỷ'
+        }).then(result => {
+            if (result.isConfirmed) {
+                // Gửi AJAX để xoá nhiều
+                $.post('{{ route("cart.deleteSelected") }}', {
                     _token: '{{ csrf_token() }}',
                     ids: selectedIds
-                },
-                success: function(res) {
+                }).done(res => {
                     if (res.success) {
-                        location.reload();
+                        location.reload(); // Reload lại trang nếu xoá thành công
                     } else {
                         Swal.fire('Lỗi', res.message || 'Không xoá được sản phẩm', 'error');
                     }
-                },
-                error: function(err) {
-                    console.log(err);
+                }).fail(() => {
                     Swal.fire('Lỗi', 'Đã xảy ra lỗi khi xoá sản phẩm.', 'error');
-                }
-            });
-        }
+                });
+            }
+        });
     });
-});
-
 });
 </script>

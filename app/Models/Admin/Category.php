@@ -47,7 +47,7 @@ class Category extends Model
     public function relatedProducts(): BelongsToMany
 {
     return $this->belongsToMany(Product::class, 'category_product');
-
+}
         public function products()
     {
         return $this->belongsToMany(
@@ -58,7 +58,7 @@ class Category extends Model
         );
     }
 
-}
+
 
 
     public function getAllProductsAttribute()
