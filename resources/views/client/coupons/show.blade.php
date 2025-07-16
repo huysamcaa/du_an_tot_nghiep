@@ -1,6 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
+<div class="checkoutPage">
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -54,5 +55,6 @@
             <a href="{{ route('client.coupons.active') }}" class="btn btn-outline-info btn-sm mt-3">Quay lại</a>
         </div>
     </div>
+</div>
 </div>
 @endsection

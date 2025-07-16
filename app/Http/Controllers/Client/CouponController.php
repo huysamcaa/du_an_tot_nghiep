@@ -18,51 +18,62 @@ class CouponController extends Controller
         return view('client.coupons.index', compact('coupons'));
     }
 
-    public function active()
-    {
-        $user = Auth::user();
+public function active()
+{
+    $user = Auth::user();
 
-        // Lấy các sản phẩm & danh mục mà user đã mua (nếu có hệ thống đơn hàng)
-        $userProductIds = collect();  // Bạn có thể lấy thực tế từ đơn hàng
-        $userCategoryIds = collect();
+    // 🔍 Lấy danh sách sản phẩm user đã mua
+    $userProductIds = $user->orders()
+        ->with('items') // đảm bảo Order có quan hệ items()
+        ->get()
+        ->pluck('items')
+        ->flatten()
+        ->pluck('product_id')
+        ->unique();
 
-        // Lấy các mã hợp lệ
-        $coupons = Coupon::with('restriction')
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->where(function ($query) use ($user) {
-                $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
-            })
-            ->where(function ($query) {
-                $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-            })
-            ->get()
-            ->filter(function ($coupon) use ($userProductIds, $userCategoryIds) {
-                $restriction = $coupon->restriction;
-                if (!$restriction) return true;
+    // 🔍 Lấy các category từ product
+    $userCategoryIds = \App\Models\Admin\Product::whereIn('id', $userProductIds)
+        ->pluck('category_id')
+        ->unique();
 
-                $validCategories = json_decode($restriction->valid_categories ?? '[]', true);
-                $validProducts = json_decode($restriction->valid_products ?? '[]', true);
+    $coupons = Coupon::with('restriction')
+        ->where('is_active', true)
+        ->where(function ($query) {
+            $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+        })
+        ->where(function ($query) {
+            $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })
+        ->where(function ($query) use ($user) {
+            $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
+        })
+        ->where(function ($query) {
+            $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+        })
+        ->get()
+        ->filter(function ($coupon) use ($userProductIds, $userCategoryIds) {
+            $restriction = $coupon->restriction;
+            if (!$restriction) return true;
 
-                if (!empty($validCategories) && !$userCategoryIds->intersect($validCategories)->count()) {
-                    return false;
-                }
+            $validCategories = collect($restriction->valid_categories ?? [])->map(fn($id) => (int) $id);
+            $validProducts = collect($restriction->valid_products ?? [])->map(fn($id) => (int) $id);
 
-                if (!empty($validProducts) && !$userProductIds->intersect($validProducts)->count()) {
-                    return false;
-                }
+            $userCategoryIds = $userCategoryIds->map(fn($id) => (int) $id);
+            $userProductIds = $userProductIds->map(fn($id) => (int) $id);
 
-                return true;
-            });
+            if ($validCategories->isNotEmpty() && $userCategoryIds->intersect($validCategories)->isEmpty()) {
+                return false;
+            }
 
-        return view('client.coupons.active', compact('coupons'));
-    }
+            if ($validProducts->isNotEmpty() && $userProductIds->intersect($validProducts)->isEmpty()) {
+                return false;
+            }
 
+            return true;
+        });
+
+    return view('client.coupons.active', compact('coupons'));
+}
     public function show($id)
     {
         $user = Auth::user();
@@ -87,60 +98,67 @@ class CouponController extends Controller
         return view('client.coupons.show', compact('coupon'));
     }
 
-    public function claim($id, Request $request)
-    {
-        $user = auth()->user();
+  public function claim($id, Request $request)
+{
+    $user = auth()->user();
 
-        $coupon = Coupon::with('restriction')
-            ->where('id', $id)
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->where(function ($query) use ($user) {
-                return $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
-            })
-            ->where(function ($query) {
-                $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-            })
-            ->first();
+    $coupon = Coupon::with('restriction')
+        ->where('id', $id)
+        ->where('is_active', true)
+        ->where(function ($query) {
+            $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+        })
+        ->where(function ($query) {
+            $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })
+        ->where(function ($query) use ($user) {
+            return $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
+        })
+        ->where(function ($query) {
+            $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+        })
+        ->first();
 
-        if (!$coupon) {
-            return redirect()->back()->with('warning', 'Mã không hợp lệ hoặc đã hết lượt.');
-        }
-
-        // Kiểm tra đã nhận chưa
-        if ($user->coupons()->where('coupon_id', $id)->exists()) {
-            return redirect()->back()->with('warning', 'Bạn đã nhận mã này.');
-        }
-
-        // Kiểm tra ràng buộc
-        $restriction = $coupon->restriction;
-        if ($restriction) {
-            $validCategories = json_decode($restriction->valid_categories ?? '[]', true);
-            $validProducts = json_decode($restriction->valid_products ?? '[]', true);
-
-            $userCategoryIds = collect(); //lấy danh mục từ lịch sử mua
-            $userProductIds = collect(); // lấy sản phẩm từ lịch sử mua
-
-            if (!empty($validCategories) && !$userCategoryIds->intersect($validCategories)->count()) {
-                return redirect()->back()->with('warning', 'Mã này không áp dụng cho danh mục của bạn.');
-            }
-
-            if (!empty($validProducts) && !$userProductIds->intersect($validProducts)->count()) {
-                return redirect()->back()->with('warning', 'Mã này không áp dụng cho sản phẩm của bạn.');
-            }
-        }
-
-        // Ghi nhận vào bảng coupon_user
-        $user->coupons()->attach($id, ['amount' => 1]);
-
-        // Tăng usage_count
-        $coupon->increment('usage_count');
-
-        return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
+    if (!$coupon) {
+        return redirect()->back()->with('warning', 'Mã không hợp lệ hoặc đã hết lượt.');
     }
+
+    if ($user->coupons()->where('coupon_id', $id)->exists()) {
+        return redirect()->back()->with('warning', 'Bạn đã nhận mã này.');
+    }
+
+    $restriction = $coupon->restriction;
+    if ($restriction) {
+        $validCategories = collect($restriction->valid_categories ?? [])->map(fn($id) => (int) $id);
+        $validProducts = collect($restriction->valid_products ?? [])->map(fn($id) => (int) $id);
+
+        $userProductIds = $user->orders()
+            ->with('items')
+            ->get()
+            ->pluck('items')
+            ->flatten()
+            ->pluck('product_id')
+            ->unique()
+            ->map(fn($id) => (int) $id);
+
+        $userCategoryIds = \App\Models\Admin\Product::whereIn('id', $userProductIds)
+            ->pluck('category_id')
+            ->unique()
+            ->map(fn($id) => (int) $id);
+
+        if ($validCategories->isNotEmpty() && $userCategoryIds->intersect($validCategories)->isEmpty()) {
+            return redirect()->back()->with('warning', 'Mã này không áp dụng cho danh mục của bạn.');
+        }
+
+        if ($validProducts->isNotEmpty() && $userProductIds->intersect($validProducts)->isEmpty()) {
+            return redirect()->back()->with('warning', 'Mã này không áp dụng cho sản phẩm của bạn.');
+        }
+    }
+
+    $user->coupons()->attach($id, ['amount' => 1]);
+    $coupon->increment('usage_count');
+
+    return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
+}
+
 }

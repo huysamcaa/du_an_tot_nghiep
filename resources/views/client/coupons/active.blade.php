@@ -1,6 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
+<div class="checkoutPage">
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -89,6 +90,7 @@
             @endforeach
         </div>
     @endif
+</div>
 </div>
 @endsection
 

@@ -33,4 +33,9 @@ class Review extends Model
     {
         return $this->hasMany(ReviewMultimedia::class);
     }
+    public function getReviewerNameAttribute()
+{
+    return optional($this->user)->name  ?? 'Người dùng đã xoá';
+}
+
 }

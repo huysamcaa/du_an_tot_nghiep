@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-use App\Models\Admin\Category;
-use App\Models\Admin\Product;
+use App\Models\Brand;
 use Illuminate\Http\Request;
+use App\Models\Admin\Product;
+use App\Models\Admin\Category;
+use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
 {
@@ -120,12 +121,12 @@ class CategoryController extends Controller
             ->filter(fn($av) => $av->attribute->slug === 'color')
             ->pluck('hex')->filter()->unique()->values()->toArray();
 
-        $availableBrands = Product::where('is_active', 1)
-            ->with('brand')
-            ->get()
-            ->pluck('brand.name', 'brand.id')
-            ->filter()->unique()->toArray();
-
+        $availableBrands = Brand::where('is_active', 1)
+    ->whereHas('products', fn($q) => $q->where('is_active', 1))
+    ->withCount(['products' => fn($q) => $q->where('is_active', 1)])
+    ->get()
+    ->pluck('name', 'id')
+    ->toArray();
         // 11. Return view
         return view('client.categories.index', compact(
             'categories',
