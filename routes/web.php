@@ -1,40 +1,44 @@
 <?php
 
-use App\Http\Controllers\Admin\ReviewController;
+
+
 use Illuminate\Support\Facades\Route;
 
+// Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\AttributeValueController;
+
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ManufacturerController;
-use App\Http\Controllers\Admin\PromotionController;
+
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AdminCartController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderStatusController;
-use App\Http\Controllers\Admin\OrderOrderStatusController;
+
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 
+// Client Controllers
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
-use App\Http\Controllers\Client\PromotionController as ClientPromotionController;
+
 use App\Http\Controllers\Client\CategoryClientController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
-use App\Http\Controllers\Client\ReviewController;
+use App\Http\Controllers\Client\CommentController;
 
+// Auth Controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+
 
 /*
 |--------------------------------------------------------------------------

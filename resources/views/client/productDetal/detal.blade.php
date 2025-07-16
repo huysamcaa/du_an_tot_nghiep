@@ -262,21 +262,39 @@
                                     }
 
                                     $('#comment-form').submit(function(e) {
-                                        e.preventDefault();
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: "{{ route('comments.store') }}",
-                                            data: $(this).serialize(),
-                                            success: function(res) {
-                                                $('#comment-form textarea').val('');
-                                                $('#comment-message').text(res.message);
-                                                loadComments();
-                                            },
-                                            error: function() {
-                                                alert('Lỗi khi gửi bình luận');
-                                            }
-                                        });
-                                    });
+    e.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: "{{ route('comments.store') }}",
+        data: $(this).serialize(),
+        success: function(res) {
+            $('#comment-form textarea').val('');
+            $('#comment-message')
+                .removeClass('text-danger')
+                .addClass('text-success')
+                .text(res.message);
+            loadComments();
+        },
+        error: function(xhr) {
+            let message = 'Đã xảy ra lỗi';
+
+            if (xhr.status === 422) {
+                // Laravel validation errors
+                const errors = xhr.responseJSON.errors;
+                message = Object.values(errors).map(e => e.join('<br>')).join('<br>');
+            } else if (xhr.status === 401) {
+                message = 'Bạn cần đăng nhập để gửi bình luận.';
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            }
+
+            $('#comment-message')
+                .removeClass('text-success')
+                .addClass('text-danger')
+                .html(message);
+        }
+    });
+});
 
                                     $(document).on('click', '.pagination a', function(e) {
                                         e.preventDefault();
