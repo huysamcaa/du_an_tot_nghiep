@@ -1,72 +1,81 @@
 <?php
+
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Models\Review;
 use Illuminate\Http\Request;
+use App\Models\Admin\Review;
+use App\Models\Admin\ReviewMultimedia;
+use App\Models\Admin\Product;
+use App\Models\Shared\Order;
 use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    // Hiển thị tất cả đánh giá của người dùng
     public function index()
     {
-        $reviews = Review::with(['product', 'order', 'multimedia'])
+        $reviews = Review::with('product', 'multimedia')
             ->where('user_id', Auth::id())
+            ->where('is_active', 1)
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('client.reviews.index', compact('reviews'));
     }
 
-    // Form chỉnh sửa đánh giá
-    public function edit($id)
+    public function create(Product $product)
     {
-        $review = Review::with(['product', 'order', 'multimedia'])
-            ->where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
-
-        return view('client.reviews.edit', compact('review'));
+        return view('client.reviews.create', compact('product'));
     }
 
-    // Lưu cập nhật đánh giá
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'review_text' => 'required|string|max:1000',
-        ]);
-
-        $review = Review::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
-
-        $review->update([
-            'rating' => $request->rating,
-            'review_text' => $request->review_text,
-            'is_active' => null, // Chờ admin duyệt lại sau khi sửa
-            'reason' => null,
-        ]);
-
-        return redirect()->route('client.reviews.index')->with('success', 'Đánh giá cập nhật thành công và chờ duyệt.');
-    }
-       public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'order_id' => 'required|exists:orders,id',
             'rating' => 'required|integer|min:1|max:5',
-            'content' => 'required|string|max:1000',
+            'review_text' => 'required|string|max:1000',
+            'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4|max:5120'
         ]);
 
-        Review::create([
-            'user_id' => auth()->id(),
-            'product_id' => $request->product_id,
+        $user = Auth::user();
+        $productId = $request->product_id;
+
+        // Kiểm tra người dùng đã từng mua sản phẩm đó chưa (không kiểm tra status)
+        $hasPurchased = Order::where('user_id', $user->id)
+            ->whereHas('items', function ($q) use ($productId) {
+                $q->where('product_id', $productId);
+            })
+            ->exists();
+
+        if (!$hasPurchased) {
+            return redirect()->back()->withErrors(['Bạn chỉ có thể đánh giá sản phẩm đã mua.']);
+        }
+
+        // Tạo đánh giá mới
+        $review = Review::create([
+            'product_id' => $productId,
+            'order_id' => null,
+            'user_id' => $user->id,
             'rating' => $request->rating,
-            'content' => $request->content,
-            'status' => 'pending', // Đánh giá chờ duyệt
+            'review_text' => $request->review_text,
+            'is_active' => 0, // Chờ duyệt
         ]);
 
-        return back()->with('success', 'Cảm ơn bạn đã đánh giá! Đánh giá sẽ được duyệt sớm.');
+        // Lưu file đính kèm nếu có
+        if ($request->hasFile('media')) {
+            foreach ($request->file('media') as $file) {
+                $path = $file->store('review_multimedia', 'public');
+                ReviewMultimedia::create([
+                    'review_id' => $review->id,
+                    'file' => $path,
+                    'file_type' => $file->getClientOriginalExtension(),
+                    'mime_type' => $file->getMimeType()
+                ]);
+            }
+        }
+
+        return redirect()->route('client.reviews.index')
+            ->with('success', 'Đánh giá của bạn đã được gửi và đang chờ duyệt.');
     }
 }

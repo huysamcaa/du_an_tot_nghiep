@@ -33,8 +33,13 @@
     <strong>Khách hàng:</strong> {{ $order->fullname }}<br>
     <strong>Địa chỉ:</strong> {{ $order->address }}<br>
     <strong>Số điện thoại:</strong> {{ $order->phone_number }}<br>
-    <strong>Trạng thái:</strong>
+    <strong>Trạng thái thanh toán:</strong>
     {!! $order->is_paid ? '<span class="badge bg-success">Đã thanh toán</span>' : '<span class="badge bg-warning">Chưa thanh toán</span>' !!}
+    <br>
+    <strong>Trạng thái đơn hàng:</strong>
+    <span class="badge bg-info">
+        {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa có trạng thái' }}
+    </span>
     <br>
     <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
         @csrf
@@ -43,7 +48,38 @@
         @endif
     </form>
 </div>
+@php
+    $currentStatusId = $order->currentStatus?->orderStatus?->id ?? null;
+    $finalStatusIds = [6, 7, 8];
+    $isFinal = in_array($currentStatusId, $finalStatusIds);
+@endphp
 
+<form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="mb-3">
+    @csrf
+    <div class="input-group" style="max-width:300px;">
+        <select name="order_status_id" class="form-control" required {{ $isFinal ? 'disabled' : '' }}>
+            @foreach($statuses as $status)
+                <option value="{{ $status->id }}"
+                    {{ $currentStatusId == $status->id ? 'selected' : '' }}
+                    @if(
+                        $status->id != $nextStatusId
+                        && $status->id != 6
+                        && $status->id != 7
+                        && $status->id != 8
+                    ) disabled @endif
+                >
+                    {{ $status->name }}
+                </option>
+            @endforeach
+        </select>
+        <button type="submit" class="btn btn-primary" {{ $isFinal ? 'disabled' : '' }}>Cập nhật</button>
+    </div>
+    @if($errors->has('order_status_id'))
+        <div class="alert alert-danger mt-2">
+            {{ $errors->first('order_status_id') }}
+        </div>
+    @endif
+</form>
 <table class="table table-bordered table-hover">
     <thead>
         <tr>
@@ -62,6 +98,22 @@
           @endforeach
     </tbody>
 </table>
+<h4>Lịch sử trạng thái đơn hàng</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Trạng thái</th>
+            <th>Thời gian</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(\App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)->orderBy('created_at')->get() as $history)
+        <tr>
+            <td>{{ $history->orderStatus->name ?? '' }}</td>
+            <td>{{ $history->created_at }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 @endsection
-       
-    
+

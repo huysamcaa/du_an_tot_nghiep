@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Client\UserAddress;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Coupon;
+use App\Models\Shared\Order;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -57,7 +59,11 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
-    
+    public function orders()
+{
+    return $this->hasMany(Order::class, 'user_id');
+}
+
 
     /**
      * Kiểm tra xem tài khoản người dùng có hoạt động không.
@@ -71,10 +77,12 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(UserAddress::class);
-    }public function coupons(): BelongsToMany
+    }
+ public function coupons()
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user')
-                ->withPivot('amount')
+                ->using(CouponUser::class)
+                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
                 ->withTimestamps();
 }
 }

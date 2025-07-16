@@ -6,9 +6,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2>Checkout</h2>
+                    <h2>Thanh Toán</h2>
                     <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">Home</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Checkout</span>
+                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Thanh toán</span>
                     </div>
                 </div>
             </div>
@@ -22,81 +22,82 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="loginLinks">
-                        <p>Already have an account? <a href="{{ route('login') }}">Click Here to Login</a></p>
+                        <p>Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập tại đây</a></p>
                     </div>
                     <div class="checkoutForm">
-                        <h3>Your Billing Address</h3>
+                        <h3>Địa chỉ thanh toán</h3>
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="text" name="field1" placeholder="First Name *" required>
+                                <input type="text" name="field1" placeholder="Họ *" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="field2" placeholder="Last Name *" required>
+                                <input type="text" name="field2" placeholder="Tên *" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="email" name="field4" placeholder="Email address *" required>
+                                <input type="email" name="field4" placeholder="Địa chỉ email *" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="field5" placeholder="Phone *" required>
+                                <input type="text" name="field5" placeholder="Số điện thoại *" required>
                             </div>
                             <div class="col-lg-12">
                                 <select name="field6" style="display: none;">
-                                    <option value="">Select a country</option>
-                                    <option value="VN" selected>Vietnam</option>
+                                    <option value="">Chọn quốc gia</option>
+                                    <option value="VN" selected>Việt Nam</option>
                                     {{-- ...other countries... --}}
                                 </select>
                             </div>
                             <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Address *" required>
+                                <input type="text" name="field7" placeholder="Địa chỉ *" required>
                             </div>
                             <div class="col-lg-12">
-                                <input type="text" name="field8" placeholder="City/Town *">
+                                <input type="text" name="field8" placeholder="Thành phố *">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="field9" placeholder="State *">
+                                <input type="text" name="field9" placeholder="Quận/Huyện *">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="field10" placeholder="Zip Code *">
+                                <input type="text" name="field10" placeholder="Mã bưu điện *">
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkoutRegister">
                                     <input type="checkbox" value="1" name="field11" id="is_register">
-                                    <label for="is_register">Create Account?</label>
+                                    <label for="is_register">Tạo tài khoản?</label>
                                 </div>
                                 <div class="checkoutPassword">
-                                    <input type="password" name="field12" placeholder="Account Password *">
+                                    <input type="password" name="field12" placeholder="Mật khẩu *">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="shippingAddress"></div>
                             </div>
                             <div class="col-lg-12">
-                                <textarea name="field14" placeholder="Order Note"></textarea>
+                                <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="shippingCoupons">
-                        <h3>Coupon Code</h3>
+                        <h3>Mã giảm giá</h3>
                         <div class="couponFormWrap clearfix">
-                            <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Write your Coupon Code">
-                            <button type="submit" class="ulinaBTN" name="apply_coupon" value="Apply Code"><span>Apply Code</span></button>
+                            <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Nhập mã giảm giá">
+                            <button type="submit" class="ulinaBTN" name="apply_coupon" value="Apply Code"><span>Áp dụng</span></button>
                         </div>
                     </div>
                     <div class="orderReviewWrap">
-                        <h3>Your Order</h3>
+                        <h3>Đơn hàng của bạn</h3>
                         <div class="orderReview">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>Sản phẩm</th>
-                                        <th>Giá tiền</th>
+                                        <th>Thành tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($cartItems as $item)
                                     <tr>
+                                        <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
                                         <td>
                                             <a href="javascript:void(0);">{{ $item->product->name }}</a>
                                         </td>
@@ -118,7 +119,7 @@
                                         </td>
                                     </tr>
                                     <tr class="shippingRow">
-                                        <th>Tiền phí vận chuyển</th>
+                                        <th>Phí vận chuyển</th>
                                         <td>
                                             <div class="pi01Price">
                                                 <ins>30,000đ</ins>
@@ -126,7 +127,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Tổng tiền thanh toán</th>
+                                        <th>Tổng thanh toán</th>
                                         <td>
                                             <div class="pi01Price">
                                                 <ins>{{ number_format($total + 30000)}}đ</ins>
@@ -138,34 +139,34 @@
                             <ul class="wc_payment_methods">
                                 <li>
                                     <input type="radio" value="1" name="paymentMethod" id="paymentMethod01">
-                                    <label for="paymentMethod01">Direct bank transfer</label>
+                                    <label for="paymentMethod01">Chuyển khoản ngân hàng</label>
                                     <div class="paymentDesc shows">
-                                        Arkono ridoy venge tumi met, consectetur adipisicing elit, sed do eiusmod tempor incidid gna aliqua.
+                                        Thanh toán trực tiếp vào tài khoản ngân hàng của chúng tôi.
                                     </div>
                                 </li>
-                                <li>
-                                    <input type="radio" value="4" name="paymentMethod" id="paymentMethod04">
-                                    <label for="paymentMethod04">Payment by cheque</label>
-                                    <div class="paymentDesc">
-                                        Arkono ridoy venge tumi met, consectetur adipisicing elit, sed do eiusmod tempor incidid gna aliqua.
-                                    </div>
-                                </li>
+                                    <li>
+                                        <input type="radio" value="4" name="paymentMethod" id="paymentMethod04" required>
+                                        <label for="paymentMethod04">VNPay</label>
+                                        <div class="paymentDesc">
+                                            Thanh toán qua cổng thanh toán VNPay (ATM/VISA/MasterCard).
+                                        </div>
+                                    </li>
                                 <li>
                                     <input type="radio" value="2" name="paymentMethod" id="paymentMethod02" checked>
-                                    <label for="paymentMethod02">Cash on delivery</label>
+                                    <label for="paymentMethod02">Thanh toán khi nhận hàng</label>
                                     <div class="paymentDesc">
-                                        Arkono ridoy venge tumi met, consectetur adipisicing elit, sed do eiusmod tempor incidid gna aliqua.
+                                        Thanh toán bằng tiền mặt khi giao hàng.
                                     </div>
                                 </li>
                                 <li>
-                                    <input type="radio" value="3" name="paymentMethod" id="paymentMethod03">
-                                    <label for="paymentMethod03">Paypal</label>
+                                    <input type="radio" value="3" name="paymentMethod" id="paymentMethod03" required>
+                                    <label for="paymentMethod03">MoMo</label>
                                     <div class="paymentDesc">
-                                        Arkono ridoy venge tumi met, consectetur adipisicing elit, sed do eiusmod tempor incidid gna aliqua.
+                                        Thanh toán qua tài khoản MoMo.
                                     </div>
                                 </li>
                             </ul>
-                            <button type="submit" class="placeOrderBTN ulinaBTN"><span>Place Order</span></button>
+                            <button type="submit" class="placeOrderBTN ulinaBTN"><span>Đặt hàng</span></button>
                         </div>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::latest()->get();
+        $users = User::latest()->paginate(10); // 10 là số user mỗi trang, bạn có thể đổi tuỳ ý
         return view('admin.users.index', compact('users'));
     }
     public function create()
@@ -48,34 +48,6 @@ public function store(Request $request)
         User::create($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Tạo tài khoản thành công');
-    }
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone_number' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|max:2048',
-            'gender' => 'nullable|in:male,female',
-            'birthday' => 'nullable|date',
-            'role' => 'required|in:user,admin',
-        ]);
-
-        if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        $user->update($data);
-
-        return redirect()->route('admin.users.index')->with('success', 'Cập nhật người dùng thành công');
     }
     public function locked()
     {

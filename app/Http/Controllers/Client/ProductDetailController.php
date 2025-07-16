@@ -11,23 +11,44 @@ use App\Models\Admin\AttributeValue;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Admin\Review;
 class ProductDetailController extends Controller
 {
 public function show($id)
 {
-    $product = Product::findOrFail($id);
+$product = Product::with('variants')->findOrFail($id);
+
     $category = $product->category;
     // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
     $colors = AttributeValue::where('attribute_id', 1)->where('is_active', 1)->get();
     $sizes = AttributeValue::where('attribute_id', 2)->where('is_active', 1)->get();
     $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
+    // Lấy tất cả variant và chỉ lấy những gì cần thiết
+$variants = $product->variants->map(function ($variant) {
+    $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
+    $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
+    
+    return [
+        'color_id' => $color?->id,
+        'size_id' => $size?->id,
+        'price' => $variant->price,
+        'sale_price' => $variant->sale_price,
+    ];
+});
+
+     $reviews = $product->reviews()
+        ->with(['user', 'multimedia'])
+        ->where('is_active', 1)
+        ->latest()
+        ->get();
     $relatedProducts = Product::with('variants')
+
    ->withCount('comments')   // đếm comments thay vì reviews
         ->where('category_id', $product->category_id)
         ->where('id', '<>', $product->id)
         ->take(8)
         ->get();
-    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts'));
+    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants'));
 
 }
 }

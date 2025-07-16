@@ -18,7 +18,7 @@
     @method('PUT')
     <div class="form-group">
     <label for="category_id">Danh mục</label>
-    <select class="form-control" id="category_id" name="category_id" required>
+    <select class="form-control" id="category_id" name="category_id" >
         <option value="">-- Chọn danh mục --</option>
         @foreach ($categories as $category)
             <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
@@ -27,24 +27,31 @@
         @endforeach
     </select>
 </div>
-    <div class="form-group">
-        <label for="brand_id">ID thương hiệu (brand_id)</label>
-        <input type="number" class="form-control" id="brand_id" name="brand_id" value="{{ old('brand_id', $product->brand_id) }}" required>
-    </div>
+<div class="form-group">
+    <label for="brand_id">Nhà sản xuất (Brand)</label>
+    <select name="brand_id" id="brand_id" class="form-control" >
+        <option value="">-- Chọn nhà sản xuất --</option>
+        @foreach ($brands as $brand)
+            <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
+                {{ $brand->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
     <div class="form-group">
         <label for="name">Tên sản phẩm</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $product->name) }}" required>
+        <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $product->name) }}" >
     </div>
 
     <div class="form-group">
         <label for="short_description">Mô tả ngắn</label>
-        <textarea class="form-control" id="short_description" name="short_description" rows="3" required>{{ old('short_description', $product->short_description) }}</textarea>
+        <textarea class="form-control" id="short_description" name="short_description" rows="3" >{{ old('short_description', $product->short_description) }}</textarea>
     </div>
 
     <div class="form-group">
         <label for="description">Mô tả dài</label>
-        <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description', $product->description) }}</textarea>
+        <textarea class="form-control" id="description" name="description" rows="5" >{{ old('description', $product->description) }}</textarea>
     </div>
 
     <div class="form-group">
@@ -59,7 +66,7 @@
 
     <div class="form-group">
         <label for="price">Giá gốc</label>
-        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price', $product->price) }}" required>
+        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price', $product->price) }}" >
     </div>
 
     <div class="form-group">
@@ -83,16 +90,6 @@
     </div>
 
     <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_featured" name="is_featured" value="1" {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_featured">Sản phẩm nổi bật</label>
-    </div>
-
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="is_trending" name="is_trending" value="1" {{ old('is_trending', $product->is_trending) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_trending">Sản phẩm xu hướng</label>
-    </div>
-
-    <div class="form-check">
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
         <label class="form-check-label" for="is_active">Hiển thị</label>
     </div>
@@ -113,7 +110,7 @@
                 @foreach($product->variants as $i => $variant)
                     <tr>
                         <td>
-                            <input type="number" name="variants[{{ $i }}][price]" class="form-control" value="{{ old("variants.$i.price", $variant->price) }}" required>
+                            <input type="number" name="variants[{{ $i }}][price]" class="form-control" value="{{ old("variants.$i.price", $variant->price) }}" >
                         </td>
                         <td>
                             <input type="text" name="variants[{{ $i }}][sku]" class="form-control" value="{{ old("variants.$i.sku", $variant->sku) }}">

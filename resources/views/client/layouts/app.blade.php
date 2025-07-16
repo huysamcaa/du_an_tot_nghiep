@@ -69,4 +69,5 @@
         <script src="{{ asset('assets/Client/js/theme.js') }}"></script>
     {{-- ... Thêm các file js cần thiết tương tự ... --}}
 </body>
+@stack('scripts')
 </html>

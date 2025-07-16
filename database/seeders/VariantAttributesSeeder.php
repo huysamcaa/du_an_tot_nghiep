@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Attribute;
+use App\Models\Admin\Attribute;
 use App\Models\Admin\AttributeValue;
 use Illuminate\Database\Seeder;
 

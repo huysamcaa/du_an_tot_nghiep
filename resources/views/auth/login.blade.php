@@ -38,6 +38,13 @@
         .text-center a:hover { text-decoration: underline; }
         .alert-success { color: green; background-color: #d4edda; border-color: #c3e6cb; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
         .alert-danger { color: red; background-color: #f8d7da; border-color: #f5c6cb; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-danger ul { list-style: none; padding: 0; margin: 0; color: red; }
+        .text-danger {
+            color: #dc3545;
+            margin-top: 6px;
+            font-size: 0.97em;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -52,13 +59,13 @@
         @endif
 
         {{-- Hiển thị thông báo lỗi (ví dụ: sau khi đăng nhập thất bại) --}}
-        @if (session('error'))
+        {{-- @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
             </div>
-        @endif
+        @endif --}}
 
-        @if ($errors->any())
+        {{-- @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -66,19 +73,25 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif --}}
 
         <form action="{{ route('login') }}" method="POST">
             @csrf {{-- CSRF token cho bảo mật --}}
 
             <div class="form-group">
                 <label for="email">Địa chỉ Email:</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                <input type="email" id="email" name="email" value="{{ old('email') }}"  autofocus>
+                @error('email')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="password">Mật khẩu:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" >
+                @error('password')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="remember-me">

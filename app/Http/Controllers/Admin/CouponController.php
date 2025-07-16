@@ -2,132 +2,128 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Coupon;
-use App\Models\CouponRestriction;
+use App\Models\Admin\Product;
+use App\Models\Admin\Category;
 use Illuminate\Http\Request;
+use App\Models\CouponRestriction;
+use App\Http\Controllers\Controller;
 
 class CouponController extends Controller
 {
-    // Hiển thị danh sách mã giảm giá
-    public function index()
+    public function index(Request $request)
     {
-        $coupons = Coupon::paginate(10);  // Dùng paginate để phân trang
-        return view('admin.coupons.index', compact('coupons'));
+        $search = $request->input('search');
+        $perPage = $request->input('perPage', 10);
+
+        $coupons = Coupon::when($search, function ($query, $search) {
+            $query->where('code', 'like', '%' . $search . '%')
+                  ->orWhere('title', 'like', '%' . $search . '%');
+        })->paginate($perPage);
+
+        return view('admin.coupons.index', compact('coupons', 'search', 'perPage'));
     }
 
-    // Hiển thị form tạo mã giảm giá mới
-    public function create()
-    {
-        return view('admin.coupons.create');
-    }
-
-    // Lưu mã giảm giá mới
-  public function store(Request $request)
+   public function create()
 {
-    // Kiểm tra dữ liệu được gửi lên
-    // dd($request->all()); // Debug xem dữ liệu có hợp lệ không
+    $categories = Category::all();
+    $products = Product::all();
 
-    // Xác thực dữ liệu đầu vào
-    $request->validate([
-        'code' => 'required|unique:coupons,code', // Mã giảm giá phải duy nhất
-        'title' => 'required', // Tiêu đề mã giảm giá là bắt buộc
-        'discount_value' => 'required|numeric', // Giá trị giảm giá phải là số
-        'discount_type' => 'required|in:percent,fixed', // Kiểu giảm giá phải là 'percent' hoặc 'fixed'
-        'is_active' => 'required|boolean', // Trạng thái kích hoạt (boolean)
-    ]);
+    return view('admin.coupons.create', compact('categories', 'products'));
+}
 
-    // Chuyển đổi giá trị 'is_active' thành boolean (true/false)
-    $is_active = $request->boolean('is_active');  // Sử dụng phương thức boolean
+    public function store(Request $request)
+    {
+        $this->validateForm($request);
 
-    // Lưu mã giảm giá vào bảng coupons
-    $coupon = Coupon::create([
-        'code' => $request->input('code'),
-        'title' => $request->input('title'),
-        'description' => $request->input('description', ''), // Gán mặc định là chuỗi trống nếu không có
-        'discount_value' => $request->input('discount_value'),
-        'discount_type' => $request->input('discount_type'),
-        'usage_limit' => $request->input('usage_limit', 0), // Mặc định là 0 nếu không có
-        'usage_count' => 0, // Mặc định là 0
-        'user_group' => $request->input('user_group', 'guest'), // Mặc định là 'guest' nếu không có
-        'is_expired' => $request->input('is_expired', 0), // Mặc định là 0 nếu không có
-        'is_active' => $is_active,  // Lưu giá trị boolean (true/false)
-        'is_notified' => 0, // Mặc định là 0 (chưa thông báo)
-        'start_date' => $request->input('start_date'),
-        'end_date' => $request->input('end_date'),
-    ]);
+        $coupon = Coupon::create($this->couponData($request));
 
-    // Nếu có ràng buộc, lưu vào bảng coupon_restrictions
-    if ($request->has('valid_categories') || $request->has('valid_products')) {
-        $restriction = new CouponRestriction([
-            'coupon_id' => $coupon->id,
-            'min_order_value' => $request->input('min_order_value', 0), // Mặc định là 0 nếu không có
-            'max_discount_value' => $request->input('max_discount_value', 0), // Mặc định là 0 nếu không có
-            'valid_categories' => json_encode($request->input('valid_categories', [])), // Mặc định là mảng rỗng
-            'valid_products' => json_encode($request->input('valid_products', [])), // Mặc định là mảng rỗng
-        ]);
-        $coupon->restriction()->save($restriction);
+        if ($this->hasRestrictionData($request)) {
+            $coupon->restriction()->create($this->restrictionData($request));
+        }
+
+        return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được tạo thành công!');
     }
 
-    return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được tạo thành công!');
-}
-    // Hiển thị form chỉnh sửa mã giảm giá
     public function edit($id)
     {
         $coupon = Coupon::findOrFail($id);
-        $restriction = $coupon->restriction;  // Lấy các ràng buộc của mã giảm giá
-        return view('admin.coupons.edit', compact('coupon', 'restriction'));
+        $restriction = $coupon->restriction;
+  // Lấy tất cả danh mục và sản phẩm để hiển thị trong form
+    $categories = Category::all();
+    $products = Product::all();
+
+    return view('admin.coupons.edit', compact('coupon', 'restriction', 'categories', 'products'));
+    
     }
 
-    // Cập nhật mã giảm giá
-  public function update(Request $request, $id)
-{
-    $coupon = Coupon::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $this->validateForm($request, $id);
 
-    // Kiểm tra dữ liệu được gửi lên
-    // dd($request->all());  // Debug xem dữ liệu có hợp lệ không
+        $coupon = Coupon::findOrFail($id);
+        $coupon->update($this->couponData($request));
 
-    // Xác thực dữ liệu đầu vào
-    $request->validate([
-        'code' => 'required|unique:coupons,code,' . $id, // Tránh trùng mã giảm giá
-        'title' => 'required',
-        'discount_value' => 'required|numeric',
-        'discount_type' => 'required|in:percent,fixed',
-        'is_active' => 'required|boolean',
-    ]);
+        if ($this->hasRestrictionData($request)) {
+            if ($coupon->restriction) {
+                $coupon->restriction->update($this->restrictionData($request));
+            } else {
+                $coupon->restriction()->create($this->restrictionData($request));
+            }
+        }
 
-    // Chuyển đổi giá trị 'is_active' thành boolean (true/false)
-    $is_active = $request->boolean('is_active');  // Sử dụng phương thức boolean
-
-    // Cập nhật mã giảm giá
-    $coupon->update([
-        'code' => $request->input('code'),
-        'title' => $request->input('title'),
-        'discount_value' => $request->input('discount_value'),
-        'discount_type' => $request->input('discount_type'),
-        'is_active' => $is_active,  // Lưu giá trị boolean (true/false)
-        'start_date' => $request->input('start_date'),
-        'end_date' => $request->input('end_date'),
-    ]);
-
-    // Cập nhật các ràng buộc nếu có
-    if ($coupon->restriction) {
-        $coupon->restriction->update([
-            'min_order_value' => $request->input('min_order_value', 0),
-            'max_discount_value' => $request->input('max_discount_value', 0),
-            'valid_categories' => json_encode($request->input('valid_categories', [])),
-            'valid_products' => json_encode($request->input('valid_products', [])),
-        ]);
+        return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được cập nhật thành công!');
     }
 
-    return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được cập nhật thành công!');
-}
-
-    // Xóa mã giảm giá
     public function destroy($id)
     {
         $coupon = Coupon::findOrFail($id);
-        $coupon->delete();  // Xóa mã giảm giá và các ràng buộc liên quan
+        $coupon->delete();
+
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được xóa thành công!');
+    }
+    protected function validateForm(Request $request, $id = null)
+    {
+        $request->validate([
+            'code' => 'required|unique:coupons,code,' . ($id ?? 'NULL'),
+            'title' => 'required',
+            'description' => 'nullable|string',
+            'discount_value' => 'required|numeric',
+            'discount_type' => 'required|in:percent,fixed',
+            'usage_limit' => 'nullable|integer',
+            'user_group' => 'nullable|in:guest,member,vip',
+            'is_expired' => 'boolean',
+            'is_active' => 'boolean',
+            'is_notified' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+    }
+
+    protected function couponData(Request $request)
+    {
+        return $request->only([
+            'code', 'title', 'description', 'discount_value', 'discount_type',
+            'usage_limit', 'user_group', 'is_expired', 'is_active', 'is_notified',
+            'start_date', 'end_date',
+        ]);
+    }
+
+    protected function restrictionData(Request $request)
+    {
+        return [
+            'min_order_value'    => $request->input('min_order_value'),
+            'max_discount_value' => $request->input('max_discount_value'),
+            'valid_categories'   => json_encode($request->input('valid_categories', [])),
+            'valid_products'     => json_encode($request->input('valid_products', [])),
+        ];
+    }
+
+    protected function hasRestrictionData(Request $request)
+    {
+        return $request->hasAny([
+            'min_order_value', 'max_discount_value',
+            'valid_categories', 'valid_products',
+        ]);
     }
 }
