@@ -61,10 +61,7 @@ class Product extends Model
     /**
      * Quan hệ với danh mục
      */
-//    public function categories()
-// {
-//     return $this->belongsToMany(Category::class, 'category_product');
-// }
+ 
 
     /**
      * Quan hệ với các biến thể sản phẩm
@@ -199,4 +196,3 @@ class Product extends Model
     }
 
 }
-
