@@ -147,6 +147,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
+
     // Categories với chức năng thùng rác
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
     Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
@@ -155,7 +156,6 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Quản lý sản phẩm
     Route::resource('products', ProductController::class);
     Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
-
     Route::resource('attributes', AttributeController::class);
     Route::resource('carts', CartController::class);
     Route::resource('comments', AdminCommentController::class);
@@ -164,9 +164,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
 
+
     Route::resource('brands', BrandController::class);
     Route::resource('coupon', CouponController::class);
-
     // Quản lý trạng thái đơn hàng
     Route::resource('order_statuses', OrderStatusController::class);
 
