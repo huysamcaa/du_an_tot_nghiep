@@ -24,15 +24,6 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        // Nếu chưa đăng nhập, trả về JSON báo lỗi
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'unauthenticated' => true,
-                'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.'
-            ], 401);
-        }
-
         $userId = Auth::id();
         $productId = $request->input('product_id');
         $quantity = (int) $request->input('quantity') ?: 1;

@@ -448,13 +448,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updatePriceAndStock = () => {
         const variant = getSelectedVariant();
-        if (variant && variant.stock > 0) {
+        console.log(variant);
+
+        if (variant) {
             saleEl.textContent = formatPrice(variant.sale_price);
             priceEl.textContent = formatPrice(variant.price);
-            addToCartBtn.disabled = false;
-            addToCartBtn.innerHTML = '<span>Add to Cart</span>';
+
+            if (variant.stock > 0) {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = '<span>Add to Cart</span>';
+            } else {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<span>SOLDOUT</span>';
+            }
         } else {
-            saleEl.textContent = priceEl.textContent = '';
+            saleEl.textContent = formatPrice({{ $product->sale_price }});
+            priceEl.textContent = formatPrice({{ $product->price }});
             addToCartBtn.disabled = true;
             addToCartBtn.innerHTML = '<span>SOLDOUT</span>';
         }
@@ -474,12 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
         input.addEventListener('change', updatePriceAndStock)
     );
-document.querySelector('.btnMinus').addEventListener('click', () => {
-  console.log('Đã bấm nút giảm');
-});
-document.querySelector('.btnPlus').addEventListener('click', () => {
-  console.log('Đã bấm nút tăng');
-});
+
     updatePriceAndStock();
 
     // Xử lý thêm vào giỏ hàng
@@ -530,6 +534,7 @@ document.querySelector('.btnPlus').addEventListener('click', () => {
             }
 
             Swal.fire('Lỗi', data.message || 'Sản phẩm đã hết hàng', 'error');
+            console.log(data);
         } catch (error) {
             console.error(error);
             Swal.fire('Lỗi hệ thống', 'Vui lòng thử lại sau.', 'error');
