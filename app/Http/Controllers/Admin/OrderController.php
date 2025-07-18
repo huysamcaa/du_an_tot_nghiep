@@ -56,13 +56,50 @@ class OrderController extends Controller
             'order_status_id' => 'required|exists:order_statuses,id',
         ]);
 
+        // Lấy trạng thái hiện tại
+        $currentStatus = OrderOrderStatus::where('order_id', $orderId)
+            ->where('is_current', 1)
+            ->first();
+
+        // Nếu trạng thái hiện tại là "Đã giao hàng" (5) và muốn chuyển sang "Đã hủy" (6)
+        if ($currentStatus && $currentStatus->order_status_id == 5 && $request->order_status_id == 6) {
+            return back()->with('error', 'Đơn hàng đã hoàn thành, không thể hủy!');
+        }
+
+        // Đặt tất cả trạng thái cũ về 0
+        OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
         OrderOrderStatus::create([
             'order_id' => $orderId,
             'order_status_id' => $request->order_status_id,
             'modified_by' => Auth::id(),
+            'is_current' => 1,
             // created_at sẽ tự động nếu có timestamps
         ]);
+        if ($request->order_status_id == 6) {
+            $order = Order::find($orderId);
+            if ($order) {
+                $userId = $order->user_id;
+                $today = now()->toDateString();
 
+                // Đếm số đơn đã hủy trong ngày của user này
+                $cancelCount = Order::where('user_id', $userId)
+                    ->whereHas('orderOrderStatuses', function($q) use ($today) {
+                        $q->where('order_status_id', 6)
+                          ->whereDate('created_at', $today)
+                          ->where('is_current', 1);
+                    })
+                    ->count();
+
+                if ($cancelCount >= 5) {
+                    $user = \App\Models\User::find($userId);
+                    if ($user && $user->status !== 'locked') {
+                        $user->status = 'locked';
+                        $user->reason_lock = 'Hủy 5 đơn trong 1 ngày';
+                        $user->save();
+                    }
+                }
+            }
+        }
         return back()->with('success', 'Cập nhật trạng thái thành công!');
     }
 }

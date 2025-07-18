@@ -3,7 +3,7 @@
 @section('content')
 <h1>Danh sách sản phẩm</h1>
 <a href="{{ route('admin.products.create') }}" class="btn btn-primary mb-3">Thêm sản phẩm</a>
-
+<a href="{{ route('admin.products.trashed') }}" class="btn btn-secondary mb-3">Sản phẩm đã xóa</a>
 
 <div class="breadcrumbs">
     <div class="breadcrumbs-inner">
