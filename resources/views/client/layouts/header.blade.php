@@ -145,9 +145,7 @@
                                                     <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                 </a>
 
-                                                <a href="{{ route('client.profile.edit') }}">
-                                                    <i class="fa-solid fa-user-pen"></i> Chỉnh sửa thông tin
-                                                </a>
+                                            
 
                                                 @if (Auth::user()->role !== 'admin')
                                                     <a href="{{ route('user.addresses.index') }}">
