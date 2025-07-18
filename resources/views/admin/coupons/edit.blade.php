@@ -9,11 +9,9 @@
     $startDate = $coupon->start_date ? Carbon::parse($coupon->start_date)->format('Y-m-d\TH:i') : '';
     $endDate = $coupon->end_date ? Carbon::parse($coupon->end_date)->format('Y-m-d\TH:i') : '';
 
-    $validCategories = json_decode($restriction->valid_categories ?? '[]', true);
-    if (!is_array($validCategories)) $validCategories = [];
-
-    $validProducts = json_decode($restriction->valid_products ?? '[]', true);
-    if (!is_array($validProducts)) $validProducts = [];
+    // Ép kiểu để đảm bảo dữ liệu là mảng số nguyên
+    $validCategories = collect($restriction->valid_categories ?? [])->map(fn($id) => (int) $id)->toArray();
+    $validProducts = collect($restriction->valid_products ?? [])->map(fn($id) => (int) $id)->toArray();
 @endphp
 
 <form action="{{ route('admin.coupon.update', $coupon->id) }}" method="POST">

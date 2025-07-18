@@ -1,64 +1,67 @@
 @extends('client.layouts.app')
 
 @section('content')
-<section class="pageBannerSection">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="pageBannerContent text-center">
-                            <h2>Thông tin cá nhân</h2>
-                            <div class="pageBannerPath">
-                                <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Mã giảm giá</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-</section>
+<div class="checkoutPage">
 <div class="container py-5">
-    <h2 class="mb-4 text-center">Thông tin cá nhân</h2>
+    <h4 class="mb-1 fw-bold">Hồ Sơ Của Tôi</h4>
+    <p class="text-muted mb-4">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-<div class="text-end mt-2">
-    <a href="{{ route('client.profile.edit') }}" class="btn btn-primary btn-sm  mb-3">
-        Chỉnh sửa thông tin
-    </a>
-</div>
 
+    <div class="card shadow-sm p-4">
+        <div class="row align-items-center">
+            <!-- Avatar -->
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                @if($user->avatar)
+                    <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow" style="width: 120px; height: 120px; object-fit: cover;">
+                @else
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                        <span class="text-muted">No Avatar</span>
+                    </div>
+                @endif
+            </div>
 
-    <div class="card p-4 shadow-sm">
-        <div class="mb-3">
-            <label for="name" class="form-label">Họ tên</label>
-            <input type="text" class="form-control" value="{{ $user->name }}" disabled>
+            <!-- Thông tin -->
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label fw-bold">Họ tên:</label>
+                        <div>{{ $user->name }}</div>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label fw-bold">Email:</label>
+                        <div>{{ $user->email }}</div>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label fw-bold">Số điện thoại:</label>
+                        <div>{{ $user->phone_number }}</div>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label fw-bold">Giới tính:</label>
+                        <div>
+                            @if($user->gender === 'male') Nam
+                            @elseif($user->gender === 'female') Nữ
+                            @else Không xác định
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <label class="form-label fw-bold">Ngày sinh:</label>
+                        <div>{{ $user->birthday ? $user->birthday->format('d/m/Y') : 'Chưa cập nhật' }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="phone_number" class="form-label">Số điện thoại</label>
-            <input type="text" class="form-control" value="{{ $user->phone_number }}" disabled>
+        <!-- Nút chỉnh sửa -->
+        <div class="text-end mt-4">
+            <a href="{{ route('client.profile.edit') }}" class="btn btn-outline-primary px-4">
+                <i class="fa-solid fa-pen me-2"></i> Chỉnh sửa thông tin
+            </a>
         </div>
-
-        <div class="mb-3">
-            <label for="gender" class="form-label">Giới tính</label>
-            <input type="text" class="form-control" value="{{ $user->gender }}" disabled>
-        </div>
-
-        <div class="mb-3">
-            <label for="birthday" class="form-label">Ngày sinh</label>
-            <input type="text" class="form-control" value="{{ $user->birthday ? $user->birthday->format('d/m/Y') : '' }}" disabled>
-        </div>
-
-        <div class="mb-3">
-            <label for="avatar" class="form-label">Ảnh đại diện</label><br>
-            @if($user->avatar)
-                <img src="{{ asset('storage/' . $user->avatar) }}" width="100" class="rounded">
-            @else
-                <span>Chưa có ảnh đại diện</span>
-            @endif
-        </div>
-
-
     </div>
+</div>
 </div>
 @endsection

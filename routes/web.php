@@ -1,4 +1,3 @@
-
 <?php
 
 
@@ -27,14 +26,13 @@ use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
 
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
-use App\Http\Controllers\Client\CommentController2;
+use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 
 
 // Auth Controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Client\CommentController;
 use CheckoutController as GlobalCheckoutController;
 
 
@@ -164,7 +162,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
     // Quản lí đánh giá
+
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+
+
 });
