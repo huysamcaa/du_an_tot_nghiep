@@ -245,22 +245,25 @@
                                                     @endif
                                                 </div>
                                                 {{-- hiển thị color variants --}}
-                                                @if(optional($product->variants)->count())
-                                                <div class="pi01Variations">
-                                                    @php
-                                                    // 1. Lấy tất cả attributeValues có slug = 'color'
-                                                    $colors = collect();
-                                                    foreach($product->variantsWithAttributes() as $variant) {
-                                                    foreach($variant->attributeValues as $attrVal) {
-                                                    if($attrVal->attribute->slug === 'color') {
-                                                    $colors->push($attrVal);
-                                                    }
-                                                    }
-                                                    }
-                                                    // 2. Loại trùng theo id
-                                                    $colors = $colors->unique('id');
-                                                    @endphp
+                                                @if(optional($product->variantsWithAttributes())->count())
+                                                @php
+                                                // Lấy danh sách màu
+                                                $colors = collect();
+                                                foreach($product->variantsWithAttributes() as $variant) {
+                                                foreach($variant->attributeValues as $attrVal) {
+                                                if($attrVal->attribute->slug === 'color') {
+                                                $colors->push($attrVal);
+                                                }
+                                                }
+                                                }
+                                                $colors = $colors->unique('id');
+                                                // Lấy danh sách size
+                                                $sizes = $product->variantsWithAttributes()
+                                                ->flatMap(fn($v) => $v->attributeValues->filter(fn($val) => $val->attribute->slug === 'size'))
+                                                ->unique('id');
+                                                @endphp
 
+                                                <div class="pi01Variations">
                                                     @if($colors->isNotEmpty())
                                                     <div class="pi01VColor">
                                                         @foreach($colors as $color)
@@ -272,36 +275,32 @@
                                                                 value="{{ $color->value }}" />
                                                             <label
                                                                 for="color_{{ $product->id }}_{{ $color->id }}"
-                                                                style="background-color: {{ Str::start($color->hex, '#') }};"></label>
+                                                                style="background-color: {{ Str::start($color->hex, '#') }};"
+                                                                title="{{ ucfirst($color->value) }}"></label>
                                                         </div>
                                                         @endforeach
                                                     </div>
                                                     @endif
 
-
-
-
-                                                    {{-- Size --}}
-                                                    @php
-                                                    $sizes = $product->variantsWithAttributes()->flatMap(function ($variant) {
-                                                    return $variant->attributeValues->filter(function ($val) {
-                                                    return $val->attribute->slug === 'size';
-                                                    });
-                                                    })->unique('id');
-                                                    @endphp
-
                                                     @if($sizes->count())
                                                     <div class="pi01VSize">
                                                         @foreach($sizes as $size)
                                                         <div class="pi01VSItem">
-                                                            <input type="radio" name="size_{{ $product->id }}" id="size_{{ $product->id }}_{{ $size->id }}" value="{{ $size->value }}">
-                                                            <label for="size_{{ $product->id }}_{{ $size->id }}">{{ strtoupper($size->value) }}</label>
+                                                            <input
+                                                                type="radio"
+                                                                name="size_{{ $product->id }}"
+                                                                id="size_{{ $product->id }}_{{ $size->id }}"
+                                                                value="{{ $size->value }}" />
+                                                            <label for="size_{{ $product->id }}_{{ $size->id }}">
+                                                                {{ strtoupper($size->value) }}
+                                                            </label>
                                                         </div>
                                                         @endforeach
                                                     </div>
                                                     @endif
                                                 </div>
                                                 @endif
+
                                             </div>
                                         </div>
                                     </div>
@@ -343,42 +342,85 @@
         </div>
     </div>
 </section>
+<style>
+    /* 1. Cho container wrap xuống hàng */
+    .pi01Variations {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        /* khoảng cách giữa color và size */
+    }
 
+    /* 2. Cho nhóm color & size tự wrap và cuộn khi quá cao */
+    .pi01VColor,
+    .pi01VSize {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        /* khoảng cách giữa từng item */
+        max-height: 4rem;
+        /* cao tối đa ~2 hàng */
+        overflow-y: auto;
+        /* cuộn dọc khi vượt */
+    }
+
+    /* 3. Giữ kích thước swatch/mỗi label ổn định */
+    .pi01VCItem label {
+        width: 24px;
+        height: 24px;
+        display: block;
+        border-radius: 50%;
+    }
+
+    .pi01VSItem label {
+        padding: 0.1rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+    }
+</style>
 
 @push('scripts')
 <script>
-  $(window).on('load', function() {
-  // Hủy slider mặc định
-  if ($("#sliderRange").hasClass("ui-slider")) {
-    $("#sliderRange").slider("destroy");
-  }
-    // Đọc giá từ Blade vào JS
-    var minPrice   = {{ $min }};
-    var maxPrice   = {{ $max }};
-    var globalMin  = 0;
-    var globalMax  = 5000000;
+    $(window).on('load', function() {
+        // Hủy slider mặc định
+        if ($("#sliderRange").hasClass("ui-slider")) {
+            $("#sliderRange").slider("destroy");
+        }
+        // Đọc giá từ Blade vào JS
+        var minPrice = {
+            {
+                $min
+            }
+        };
+        var maxPrice = {
+            {
+                $max
+            }
+        };
+        var globalMin = 0;
+        var globalMax = 5000000;
 
-    function formatVND(n) {
-      return n.toLocaleString('vi-VN') + ' đ';
-    }
+        function formatVND(n) {
+            return n.toLocaleString('vi-VN') + ' đ';
+        }
 
-    $("#sliderRange").slider({
-      range: true,
-      min: globalMin,
-      max: globalMax,
-      step: 10000,
-      values: [minPrice, maxPrice],
-      slide: function(event, ui) {
-        $("#amount").text(formatVND(ui.values[0]) + ' – ' + formatVND(ui.values[1]));
-        $("#price_min").val(ui.values[0]);
-        $("#price_max").val(ui.values[1]);
-      }
+        $("#sliderRange").slider({
+            range: true,
+            min: globalMin,
+            max: globalMax,
+            step: 10000,
+            values: [minPrice, maxPrice],
+            slide: function(event, ui) {
+                $("#amount").text(formatVND(ui.values[0]) + ' – ' + formatVND(ui.values[1]));
+                $("#price_min").val(ui.values[0]);
+                $("#price_max").val(ui.values[1]);
+            }
+        });
+
+        // Khởi tạo hiển thị ban đầu
+        var init = $("#sliderRange").slider("values");
+        $("#amount").text(formatVND(init[0]) + ' – ' + formatVND(init[1]));
     });
-
-    // Khởi tạo hiển thị ban đầu
-    var init = $("#sliderRange").slider("values");
-    $("#amount").text(formatVND(init[0]) + ' – ' + formatVND(init[1]));
-  });
 </script>
 @endpush
 
