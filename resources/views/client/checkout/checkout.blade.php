@@ -21,23 +21,21 @@
             @csrf
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="loginLinks">
-                        <p>Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập tại đây</a></p>
-                    </div>
+                    
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="text" name="field1" placeholder="Họ *" required>
+                                <input type="text" name="field1" placeholder="Họ *"  required>
                             </div>
                             <div class="col-md-6">
                                 <input type="text" name="field2" placeholder="Tên *" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="email" name="field4" placeholder="Địa chỉ email *" required>
+                                <input type="email" name="field4" placeholder="Địa chỉ email *" value="{{ auth()->user()->email ?? '' }}"  required>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="field5" placeholder="Số điện thoại *" required>
+                                <input type="text" name="field5" placeholder="Số điện thoại *" value="{{ auth()->user()->phone_number ?? '' }}"  required>
                             </div>
                             <div class="col-lg-12">
                                 <select name="field6" style="display: none;">
@@ -47,9 +45,10 @@
                                 </select>
                             </div>
                             <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Địa chỉ *" required>
+                                <input type="text" name="field7" placeholder="Địa chỉ *" 
+                                    value="{{ old('field7', $defaultAddress->address ?? '') }}" required>
                             </div>
-                            <div class="col-lg-12">
+                            {{-- <div class="col-lg-12">
                                 <input type="text" name="field8" placeholder="Thành phố *">
                             </div>
                             <div class="col-md-6">
@@ -57,16 +56,13 @@
                             </div>
                             <div class="col-md-6">
                                 <input type="text" name="field10" placeholder="Mã bưu điện *">
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="checkoutRegister">
-                                    <input type="checkbox" value="1" name="field11" id="is_register">
-                                    <label for="is_register">Tạo tài khoản?</label>
-                                </div>
+                            </div> --}}
+                            {{-- <div class="col-lg-12">
+                                
                                 <div class="checkoutPassword">
                                     <input type="password" name="field12" placeholder="Mật khẩu *">
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-lg-12">
                                 <div class="shippingAddress"></div>
                             </div>
@@ -137,13 +133,7 @@
                                 </tfoot>
                             </table>
                             <ul class="wc_payment_methods">
-                                <li>
-                                    <input type="radio" value="1" name="paymentMethod" id="paymentMethod01">
-                                    <label for="paymentMethod01">Chuyển khoản ngân hàng</label>
-                                    <div class="paymentDesc shows">
-                                        Thanh toán trực tiếp vào tài khoản ngân hàng của chúng tôi.
-                                    </div>
-                                </li>
+                               
                                     <li>
                                         <input type="radio" value="4" name="paymentMethod" id="paymentMethod04" required>
                                         <label for="paymentMethod04">VNPay</label>

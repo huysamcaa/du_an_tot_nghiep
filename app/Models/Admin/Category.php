@@ -59,10 +59,6 @@ class Category extends Model
             'product_id'
         );
     }
-
-
-
-
     public function getAllProductsAttribute()
     {
         $direct = $this->directProducts()->get();

@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index()
     {
         $categories = Category::all();
-        $products = Product::with(['variants'])->orderBy('created_at', 'desc')->get();
+        $products = Product::where('is_active', 1)->with(['variants'])->orderBy('created_at', 'desc')->get();
         return view('admin.products.index', compact('products', 'categories'));
     }
 
@@ -101,7 +101,11 @@ class ProductController extends Controller
                 // Lưu biến thể
                 $product->variants()->save($variant);
 
-                // Gán giá trị thuộc tính cho biến thể (sửa lại ở đây)
+                // Gán giá trị thuộc tính cho sản phẩm (nếu có)
+                        if ($request->has('attribute_value_id')) {
+                            $product->attributeValues()->sync($request->input('attribute_value_id'));
+                        }
+                
                 // $variantData['attribute_value_id'] là mảng các id
                 if (isset($variantData['attribute_value_id'])) {
                     $variant->attributeValues()->attach($variantData['attribute_value_id']);
@@ -255,9 +259,9 @@ class ProductController extends Controller
 
         // $product->variants()->delete();
         // $product->forceDelete();
-        $product->is_active = 0; // Ẩn sản phẩm
+        $product->is_active = 0;
         $product->save();
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('admin.products.index')->with('success', 'Sản phẩm đã được ẩn.');
     }
     /**
      * Tạo SKU tự động cho biến thể
@@ -283,11 +287,44 @@ class ProductController extends Controller
         $categories = Category::all();
         return view('admin.products.index', compact('category', 'products', 'categories'));
     }
+    // Hiển thị danh sách sản phẩm đã xóa mềm
+    public function trashed()
+    {
+        $products = Product::where('is_active', 0)->get();
+        return view('admin.products.trashed', compact('products'));
+    }
+
+    // Khôi phục sản phẩm
     public function restore(Product $product)
     {
         $product->is_active = 1;
         $product->save();
+        return redirect()->route('admin.products.trashed')->with('success', 'Sản phẩm đã được khôi phục!');
+    }
 
-        return redirect()->route('admin.products.index')->with('success', 'Sản phẩm đã được hiển thị lại!');
+    // Xóa cứng sản phẩm (chỉ khi chưa từng có trong giỏ hàng)
+    public function forceDelete($id)
+    {
+        $product = Product::findOrFail($id);
+
+        // Nếu sản phẩm đã từng có trong giỏ hàng, không cho xóa cứng
+        if ($product->cartItems()->exists()) {
+            return redirect()->back()->with('error', 'Không thể xóa cứng sản phẩm đã từng có trong giỏ hàng!');
+        }
+
+        // Xóa ảnh chính nếu có
+        if ($product->thumbnail) {
+            Storage::disk('public')->delete($product->thumbnail);
+        }
+        // Xóa các ảnh biến thể
+        foreach ($product->variants as $variant) {
+            if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
+                Storage::disk('public')->delete($product->thumbnail);
+            }
+        }
+        $product->variants()->delete();
+        $product->delete();
+
+        return redirect()->route('admin.products.trashed')->with('success', 'Đã xóa vĩnh viễn sản phẩm!');
     }
 }

@@ -1,6 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
+<div class="checkoutPage">
     <div class="container mt-4">
         <h2>Đánh giá của tôi</h2>
 
@@ -39,4 +40,5 @@
             <p>Bạn chưa có đánh giá nào.</p>
         @endif
     </div>
+ </div>
 @endsection

@@ -24,12 +24,18 @@ public function show($id)
     $attributeValueIds = DB::table('attribute_value_product')
     ->where('product_id', $product->id)
     ->pluck('attribute_value_id');
+//   $variantIds = $product->variants->pluck('id');
+
+// $attributeValueIds = DB::table('attribute_value_product_variant')
+//     ->whereIn('product_variant_id', $variantIds)
+//     ->pluck('attribute_value_id');
+
 
     $colors = AttributeValue::whereIn('id', $attributeValueIds)
         ->where('attribute_id', 1)
         ->where('is_active', 1)
         ->get();
-
+    
     $sizes = AttributeValue::whereIn('id', $attributeValueIds)
         ->where('attribute_id', 2)
         ->where('is_active', 1)
@@ -66,5 +72,9 @@ public function show($id)
         ->get();
     return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants'));
 
+}
+public function attributeValues()
+{
+    return $this->belongsToMany(AttributeValue::class, 'attribute_value_product');
 }
 }

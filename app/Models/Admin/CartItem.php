@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Models\Admin;
-
+use App\Models\Admin\Product;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User; 
+use App\Models\User;
 class CartItem extends Model
 {
     protected $table = 'cart_items';
@@ -15,7 +15,7 @@ class CartItem extends Model
     }
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
     public function variant()
     {

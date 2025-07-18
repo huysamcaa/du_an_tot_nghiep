@@ -1,6 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
+<div class="checkoutPage">
 <div class="container">
     <h2>Viết Đánh Giá</h2>
 
@@ -38,4 +39,5 @@
         <a href="{{ route('client.reviews.index') }}" class="btn btn-secondary">Hủy</a>
     </form>
 </div>
+ </div>
 @endsection

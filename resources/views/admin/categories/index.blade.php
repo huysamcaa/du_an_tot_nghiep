@@ -47,7 +47,7 @@
                
         <thead>
             <tr>
-                <th>ID</th>
+                
                 <th>Tên</th>
                 <th>Danh mục cha</th>
                 <th>Icon</th>
@@ -59,7 +59,7 @@
         <tbody>
             @foreach ($categories as $category)
                 <tr>
-                    <td>{{ $category->id }}</td>
+                    
                     <td>{{ $category->name }}</td>
                     <td>{{ $category->parent->name ?? '-' }}</td>
                     <td>{!! $category->icon !!}</td>
