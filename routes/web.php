@@ -154,6 +154,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Quản lý sản phẩm
     Route::resource('products', ProductController::class);
     Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+    Route::get('admin/products/trashed', [ProductController::class, 'trashed'])->name('products.trashed');
+    Route::delete('admin/products/force-delete/{id}', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+
     Route::resource('attributes', AttributeController::class);
     Route::resource('carts', CartController::class);
     Route::resource('comments', AdminCommentController::class);

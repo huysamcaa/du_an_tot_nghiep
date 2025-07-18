@@ -23,11 +23,8 @@ class User extends Authenticatable
         'avatar',
         'gender',
         'birthday',
-        'loyalty_points',
-        'role', // Thêm 'role' vào fillable
+        'role',
         'status',
-        'google_id',
-        'facebook_id',
         'code_verified_email',
         'bank_name',
         'user_bank_name',
