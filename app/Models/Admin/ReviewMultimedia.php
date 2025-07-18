@@ -15,4 +15,6 @@ class ReviewMultimedia extends Model
     {
         return $this->belongsTo(Review::class);
     }
+    public $timestamps = false;
+
 }

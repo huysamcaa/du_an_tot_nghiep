@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -144,7 +143,6 @@ Route::middleware(['auth'])->group(function () {
     */
 
 Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
-
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
 
@@ -165,8 +163,12 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
 
 
-    Route::resource('brands', BrandController::class);
+
     Route::resource('coupon', CouponController::class);
+    Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
+    Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
+Route::resource('brands', BrandController::class);
+
     // Quản lý trạng thái đơn hàng
     Route::resource('order_statuses', OrderStatusController::class);
 
@@ -189,7 +191,10 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
 
     // Quản lí đánh giá
+
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+
+
 });

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Coupon;
+use App\Models\Shared\Order;
+use App\Models\Client\UserAddress;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use App\Models\Client\UserAddress;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Coupon;
-use App\Models\Shared\Order;
 
 class User extends Authenticatable
 {

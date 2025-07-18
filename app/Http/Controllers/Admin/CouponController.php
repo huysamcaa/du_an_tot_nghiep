@@ -54,7 +54,7 @@ class CouponController extends Controller
     $products = Product::all();
 
     return view('admin.coupons.edit', compact('coupon', 'restriction', 'categories', 'products'));
-    
+
     }
 
     public function update(Request $request, $id)
@@ -109,15 +109,27 @@ class CouponController extends Controller
         ]);
     }
 
-    protected function restrictionData(Request $request)
-    {
-        return [
-            'min_order_value'    => $request->input('min_order_value'),
-            'max_discount_value' => $request->input('max_discount_value'),
-            'valid_categories'   => json_encode($request->input('valid_categories', [])),
-            'valid_products'     => json_encode($request->input('valid_products', [])),
-        ];
+protected function restrictionData(Request $request)
+{
+    $validCategories = $request->input('valid_categories', []);
+    $validProducts = $request->input('valid_products', []);
+
+    // Nếu là string JSON thì decode về array trước khi encode lại
+    if (!is_array($validCategories)) {
+        $validCategories = json_decode($validCategories, true) ?? [];
     }
+
+    if (!is_array($validProducts)) {
+        $validProducts = json_decode($validProducts, true) ?? [];
+    }
+
+    return [
+        'min_order_value'    => $request->input('min_order_value'),
+        'max_discount_value' => $request->input('max_discount_value'),
+        'valid_categories'   => json_encode(array_map('intval', $validCategories)),
+        'valid_products'     => json_encode(array_map('intval', $validProducts)),
+    ];
+}
 
     protected function hasRestrictionData(Request $request)
     {
