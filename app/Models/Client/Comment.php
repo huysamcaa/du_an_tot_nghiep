@@ -6,7 +6,8 @@ use App\Models\User;
 
 class Comment extends Model
 {
-    protected $fillable = ['product_id', 'user_id', 'content'];
+    protected $fillable = ['product_id', 'user_id', 'content', 'is_active'];
+
 
     public function replies()
     {
