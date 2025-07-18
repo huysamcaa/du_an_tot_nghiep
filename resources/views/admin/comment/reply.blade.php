@@ -41,7 +41,7 @@
                                     </td>
                                     <td>
                                         <!-- Sử dụng route toggleVisibility cho CommentReply -->
-                                        <a href="{{ route('admin.comments.toggle', $reply->id) }}" class="btn btn-sm btn-{{ $reply->is_active ? 'danger' : 'success' }}">
+                                        <a href="{{ route('admin.replies.toggle', $reply->id) }}" class="btn btn-sm btn-{{ $reply->is_active ? 'danger' : 'success' }}">
                                             {{ $reply->is_active ? 'Ẩn' : 'Hiển thị' }}
                                         </a>
                                     </td>

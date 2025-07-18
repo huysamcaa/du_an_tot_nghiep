@@ -93,9 +93,7 @@
                                 <div class="pcVariation">
                                     <span>Màu</span>
                                     <div class="pcvContainer">
-                                     
                                         @foreach ($colors as $color)
-                                       
                                             <div class="colorOptionWrapper">
                                                 <input type="radio" name="color" value="{{ $color->id }}"
                                                     id="color_{{ $color->id }}"
