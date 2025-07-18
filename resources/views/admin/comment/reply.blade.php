@@ -31,10 +31,10 @@
                                 @foreach($replies as $reply)
                                 <tr>
                                     <td>{{ $reply->id }}</td>
-                                    <td>{{ $reply->comment->product->name }}</td>
+                                    <td>{{ $reply->comment->product->name ?? 'Sản phẩm đã bị xóa' }}</td>
                                     <td>{{ $reply->comment->content ?? 'Không tìm thấy bình luận' }}</td>
-                                    <td>{{ $reply->user->name }}</td>
-                                    <td>{{ $reply->replyUser->name ?? 'Không xác định' }}</td>
+                                    <td>{{ $reply->user->name ?? 'Người dùng không tồn tại'}}</td>
+                                    <td>{{ $reply->replyUser->name ?? 'Người dùng không tồn tại' }}</td>
                                     <td>{{ $reply->content }}</td>
                                     <td>
                                         {{ $reply->is_active ? 'Hiển thị' : 'Ẩn' }}
