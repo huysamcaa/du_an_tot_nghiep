@@ -89,7 +89,9 @@
                                 <div class="pcVariation">
                                     <span>Màu</span>
                                     <div class="pcvContainer">
+                                     
                                         @foreach ($colors as $color)
+                                       
                                             <div class="colorOptionWrapper">
                                                 <input type="radio" name="color" value="{{ $color->id }}"
                                                     id="color_{{ $color->id }}"
@@ -643,8 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-@endsection
-=======
+
+
 
     </section>
     <!-- END: Shop Details Section -->
@@ -710,7 +712,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
 
                     });
-                };
+                });
+
 
                 form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
                     input.addEventListener('change', checkVariantAvailability)
@@ -754,4 +757,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 @endsection
-

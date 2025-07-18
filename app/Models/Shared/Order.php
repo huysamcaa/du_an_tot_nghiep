@@ -6,9 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+      protected $fillable = [
+        'code',
+        'user_id',
+        'payment_id',
+        'total_amount',
+        'phone_number',
+        'email',
+        'fullname',
+        'address',
+        'note',
+        'is_paid',
+        'coupon_id',
+        'coupon_code',
+        'coupon_discount_type',
+        'coupon_discount_value',
+        'max_discount_value',
+        'payment_info'
+    ];
     protected $table = 'orders';
     protected $guarded = [];
     public $timestamps = true;
+    
 
     public function items()
     {

@@ -101,7 +101,11 @@ class ProductController extends Controller
                 // Lưu biến thể
                 $product->variants()->save($variant);
 
-                // Gán giá trị thuộc tính cho biến thể (sửa lại ở đây)
+                // Gán giá trị thuộc tính cho sản phẩm (nếu có)
+                        if ($request->has('attribute_value_id')) {
+                            $product->attributeValues()->sync($request->input('attribute_value_id'));
+                        }
+                
                 // $variantData['attribute_value_id'] là mảng các id
                 if (isset($variantData['attribute_value_id'])) {
                     $variant->attributeValues()->attach($variantData['attribute_value_id']);
