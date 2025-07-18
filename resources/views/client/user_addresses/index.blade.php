@@ -88,6 +88,7 @@
                         @endforeach
                     </ul>
                 </div>
+                
                 @endif
 
                 <form action="{{ route('user.addresses.store') }}" method="POST">
@@ -104,6 +105,7 @@
                             @error('fullname')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
+                            
                         </div>
 
                         {{-- Số điện thoại --}}
