@@ -1,6 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
+
     
         <section class="pageBannerSection">
     <div class="container">
@@ -17,6 +18,7 @@
     </div>
 </section>
 <div class="container mt-4">
+
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -52,4 +54,5 @@
             <p>Bạn chưa có đánh giá nào.</p>
         @endif
     </div>
+ </div>
 @endsection
