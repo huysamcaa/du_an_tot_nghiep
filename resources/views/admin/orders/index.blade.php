@@ -1,11 +1,12 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<h1>Danh sách đơn hàng COD</h1>
+<h1>Danh sách đơn hàng COD</h1><br>
 
 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary mb-3">Về trang quản trị</a>
+<br>
 
-<div class="breadcrumbs">
+{{-- <div class="breadcrumbs">
     <div class="breadcrumbs-inner">
         <div class="row m-0">
             <div class="col-sm-4">
@@ -28,16 +29,18 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
-<form method="GET" action="{{ route('admin.orders.index') }}" class="mb-3">
-    <div class="input-group" style="max-width:400px;">
+
+
+<table  id="bootstrap-data-table" class="table table-striped table-bordered">
+    
+    <form method="GET" action="{{ route('admin.orders.index') }}" class="mb-3">
+    <div class="input-group" style="max-width:1500px;">
         <input type="text" name="search" class="form-control" placeholder="Tìm kiếm mã đơn, tên khách hàng..." value="{{ request('search') }}">
         <button class="btn btn-primary" type="submit">Tìm kiếm</button>
     </div>
 </form>
-
-<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>Mã đơn</th>

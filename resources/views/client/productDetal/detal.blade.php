@@ -89,7 +89,9 @@
                                 <div class="pcVariation">
                                     <span>Màu</span>
                                     <div class="pcvContainer">
+                                     
                                         @foreach ($colors as $color)
+                                       
                                             <div class="colorOptionWrapper">
                                                 <input type="radio" name="color" value="{{ $color->id }}"
                                                     id="color_{{ $color->id }}"
@@ -522,6 +524,129 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+<!-- END: Shop Details Section -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const variants = @json($variants);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('addToCartForm');
+    const qtyInput = form.querySelector('[name="quantity"]');
+    const addToCartBtn = form.querySelector('button[type="submit"]');
+    const saleEl = document.querySelector('.pi01Price ins');
+    const priceEl = document.querySelector('.pi01Price del');
+
+    const formatPrice = price =>
+        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+
+    const getSelectedVariant = () => {
+        const colorId = form.querySelector('[name="color"]:checked')?.value;
+        const sizeId = form.querySelector('[name="size"]:checked')?.value;
+        return variants.find(v => v.color_id == colorId && v.size_id == sizeId);
+    };
+
+    const updatePriceAndStock = () => {
+        const variant = getSelectedVariant();
+        console.log(variant);
+
+        if (variant) {
+            saleEl.textContent = formatPrice(variant.sale_price);
+            priceEl.textContent = formatPrice(variant.price);
+
+            if (variant.stock > 0) {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = '<span>Add to Cart</span>';
+            } else {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<span>SOLDOUT</span>';
+            }
+        } else {
+            saleEl.textContent = formatPrice({{ $product->sale_price }});
+            priceEl.textContent = formatPrice({{ $product->price }});
+            addToCartBtn.disabled = true;
+            addToCartBtn.innerHTML = '<span>SOLDOUT</span>';
+        }
+    };
+
+    // Xử lý tăng/giảm số lượng
+    form.querySelector('.btnMinus').onclick = () => {
+        const currentQty = parseInt(qtyInput.value) || 1;
+        qtyInput.value = Math.max(1, currentQty - 1);
+    };
+
+    form.querySelector('.btnPlus').onclick = () => {
+        const currentQty = parseInt(qtyInput.value) || 1;
+        qtyInput.value = currentQty + 1;
+    };
+
+    form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
+        input.addEventListener('change', updatePriceAndStock)
+    );
+
+    updatePriceAndStock();
+
+    // Xử lý thêm vào giỏ hàng
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const variant = getSelectedVariant();
+        const quantity = parseInt(qtyInput.value) || 1;
+
+        if (!variant || variant.stock === 0) {
+            return Swal.fire('Hết hàng', 'Sản phẩm đã hết hàng', 'error');
+        }
+
+        if (quantity > variant.stock) {
+            return Swal.fire('Thông báo', `Chỉ còn ${variant.stock} sản phẩm trong kho`, 'warning');
+        }
+
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new FormData(form)
+            });
+
+            const data = await res.json();
+
+            if (res.status === 401 || data.unauthenticated) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập.',
+                    showConfirmButton: true
+                }).then(() => location.href = '/login');
+            }
+
+            if (data.success) {
+                document.querySelector('.anCart span').innerText = data.totalProduct;
+                return Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Đã thêm vào giỏ hàng.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+
+            Swal.fire('Lỗi', data.message || 'Sản phẩm đã hết hàng', 'error');
+            console.log(data);
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi hệ thống', 'Vui lòng thử lại sau.', 'error');
+        }
+    });
+});
+</script>
+
+
+
 
     </section>
     <!-- END: Shop Details Section -->
@@ -587,7 +712,8 @@
                             });
 
                     });
-                };
+                });
+
 
                 form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
                     input.addEventListener('change', checkVariantAvailability)
@@ -631,4 +757,3 @@
 
 
 @endsection
-
