@@ -5,18 +5,14 @@
 
                 <li class="menu-title">UI elements</li>
                 <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                        <i class="menu-icon fa fa-tag"></i> Thương Hiệu
+                <li>
+                    <a href="{{ route('admin.brands.index') }}">
+                        <i class="menu-icon fa fa-tag"></i>
+                        Thương Hiệu
                     </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li>
-                            <i class="fa fa-trademark"></i>
-                            <a href="{{ route('admin.brands.index') }}">
-                                Quản lý thương hiệu
-                            </a>
-                        </li>
-                    </ul>
+                </li>
+
+
                 </li>
 
                 <!-- Các menu item khác -->
@@ -46,18 +42,13 @@
 
 
                 <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
+                <li>
+                    <a href="{{ route('admin.coupon.index') }}">
                         <i class="menu-icon fa fa-industry"></i>Khuyến mãi
                     </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li>
-                            <i class="fa fa-puzzle-piece"></i>
-                            <a href="{{ route('admin.coupon.index') }}">
-                                Quản lý khuyến mãi
-                            </a>
-                        </li>
-                    </ul>
+
+                </li>
+                </li>
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
@@ -71,7 +62,7 @@
                             </a>
                         </li>
                     </ul>
-                    </li>
+                </li>
 
                 <li class="menu-item-has-children dropdown">
                     <a href="admin.users.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
@@ -86,10 +77,11 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
-                
+
                 <li class="menu-item-has-children dropdown">
 
-                    <a href="{{ route('admin.order_statuses.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a href="{{ route('admin.order_statuses.index') }}" class="dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Trạng thái đơn hàng
                     </a>
                     <ul class="sub-menu children dropdown-menu">
@@ -102,16 +94,19 @@
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
-                    <a href="{{ route('admin.comments.index') }}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a href="{{ route('admin.comments.index') }}" class="dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-cogs"></i>Bình luận
                     </a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.comments.index') }}">Danh sách bình luận</a></li>
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.replies.index') }}">Danh sách phản hồi bình luận</a></li>
-                        </ul>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.comments.index') }}">Danh sách
+                                bình luận</a></li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.replies.index') }}">Danh sách
+                                phản hồi bình luận</a></li>
+                    </ul>
                 </li>
-                
-               <li class="menu-item-has-children dropdown">
+
+                <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
                         <i class="menu-icon fa fa-tag"></i> Thanh Toán
@@ -126,18 +121,12 @@
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
+                <li>
+                    <a href="{{ route('admin.reviews.index') }}">
                         <i class="menu-icon fa fa-comments"></i> Đánh Giá
                     </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li>
-                            <i class="fa fa-check-square-o"></i>
-                            <a href="{{ route('admin.reviews.index') }}">
-                                Kiểm soát đánh giá
-                            </a>
-                        </li>
-                    </ul>
+                </li>
+
                 </li>
 
         </div>
