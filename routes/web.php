@@ -146,7 +146,6 @@ Route::middleware(['auth'])->group(function () {
     */
 
 
-    });
 
     // Quản lý đơn hàng
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
@@ -168,4 +167,4 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 
 
-});
+
