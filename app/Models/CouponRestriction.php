@@ -21,4 +21,9 @@ class CouponRestriction extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
+    protected $casts = [
+    'valid_products' => 'array',
+    'valid_categories' => 'array',
+];
+
 }

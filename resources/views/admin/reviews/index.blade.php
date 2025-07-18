@@ -63,7 +63,7 @@
         @forelse($reviews as $index => $review)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $review->user->fullname ?? 'Ẩn danh' }}</td>
+               <td>{{ $review->reviewer_name }}</td>
                 <td>{{ $review->product->name ?? '---' }}</td>
                 <td>{{ $review->order_id }}</td>
                 <td>{{ $review->rating }} ⭐</td>
@@ -87,15 +87,21 @@
                 </td>
                 <td>
                     @if(is_null($review->is_active))
-                        <form action="{{ route('admin.reviews.approve', $review->id) }}" method="POST" class="d-inline-block mb-1">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
-                        </form>
-                        <form action="{{ route('admin.reviews.reject', $review->id) }}" method="POST" class="d-inline-block">
-                            @csrf
-                            <input type="text" name="reason" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required>
-                            <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
-                        </form>
+                        <!-- Form DUYỆT -->
+<form action="{{ route('admin.reviews.approve', $review->id) }}" method="POST" class="d-inline-block mb-1">
+    @csrf
+    @method('PATCH') <!-- ✅ Bắt buộc để Laravel hiểu đây là PATCH -->
+    <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+</form>
+
+<!-- Form TỪ CHỐI -->
+<form action="{{ route('admin.reviews.reject', $review->id) }}" method="POST" class="d-inline-block">
+    @csrf
+    @method('PATCH') <!-- ✅ Thêm vào đây nữa -->
+    <input type="text" name="reason" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required>
+    <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
+</form>
+
                     @else
                         <span class="text-muted">--</span>
                     @endif

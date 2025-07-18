@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Admin\Product;
+use App\Models\Admin\Category;
+use App\Models\CouponRestriction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Coupon extends Model
 {
@@ -48,5 +51,15 @@ class Coupon extends Model
     'is_expired' => 'boolean',
     'is_notified' => 'boolean',
 ];
+public function products()
+{
+    return $this->belongsToMany(Product::class, 'coupon_product');
+}
+
+public function categories()
+{
+    return $this->belongsToMany(Category::class, 'coupon_category');
+}
+
 }
 
