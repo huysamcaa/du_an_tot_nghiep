@@ -40,27 +40,27 @@
 
         public function index(Request $request)
     {
-        $userId = auth()->id(); 
+        $userId = auth()->id();
         $user = auth()->user();
         $selectedItems = $request->input('selected_items', []);
-        
+
         if (empty($selectedItems)) {
             return redirect()->route('cart.index')->with('error', 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
         }
-        
+
         $cartItems = CartItem::where('user_id', $userId)
-                    ->whereIn('id', $selectedItems)
-                    ->with('product')
-                    ->get();
-        
+            ->whereIn('id', $selectedItems)
+            ->with('product')
+            ->get();
+
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Sản phẩm bạn chọn không tồn tại trong giỏ hàng.');
         }
 
         $total = $cartItems->sum(function ($item) {
             return ($item->product ? $item->product->price : 0) * $item->quantity;
-        }); 
-        
+        });
+
         // Lấy địa chỉ mặc định của user
         $defaultAddress = DB::table('user_addresses')
             ->where('user_id', $userId)
@@ -73,7 +73,6 @@
                 ->where('user_id', $userId)
                 ->first();
         }
-
         return view('client.checkout.checkout', [
             'cartItems' => $cartItems,
             'total' => $total,
@@ -82,32 +81,36 @@
         ]);
     }
 
-        public function placeOrder(Request $request)
-        {
-            $request->validate([
-                'field1' => 'required|string|max:255',
-                'field2' => 'required|string|max:255',
-                'field4' => 'required|email|max:255',
-                'field5' => 'required|string|max:20',
-                'field7' => 'required|string|max:255',
-                'paymentMethod' => 'required|in:1,2,3,4', // 1: Bank, 2: COD, 3: MoMo, 4: VNPay
-            ]);
-
-            if ($request->paymentMethod == 3) {
-                return $this->processMomoPayment($request);
-            } elseif ($request->paymentMethod == 4) {
-                return $this->processVNPayPayment($request);
-            }
-
-            return $this->processRegularOrder($request);
+    public function placeOrder(Request $request)
+    {
+        $user = Auth::user();
+        if ($user && $user->status === 'locked') {
+            return back()->with('error', 'Tài khoản của bạn đã bị khóa, không thể đặt hàng!');
         }
+        $request->validate([
+            'field1' => 'required|string|max:255',
+            'field2' => 'required|string|max:255',
+            'field4' => 'required|email|max:255',
+            'field5' => 'required|string|max:20',
+            'field7' => 'required|string|max:255',
+            'paymentMethod' => 'required|in:1,2,3,4', // 1: Bank, 2: COD, 3: MoMo, 4: VNPay
+        ]);
+
+        if ($request->paymentMethod == 3) {
+            return $this->processMomoPayment($request);
+        } elseif ($request->paymentMethod == 4) {
+            return $this->processVNPayPayment($request);
+        }
+
+        return $this->processRegularOrder($request);
+    }
 
         // Xử lý thanh toán MoMo
         protected function processMomoPayment(Request $request)
 {
     $userId = auth()->id();
     $selectedItems = $request->input('selected_items', []);
-    
+
     if (empty($selectedItems)) {
         return redirect()->route('cart.index')->with('error', 'Vui lòng chọn sản phẩm');
     }
@@ -130,7 +133,7 @@
 
     try {
         $orderId = 'MOMO_'.time().'_'.Str::random(5);
-        
+
         $paymentData = [
             'partnerCode' => $this->momoConfig['partnerCode'],
             'partnerName' => "Your Shop",
@@ -170,7 +173,7 @@
                    "&redirectUrl=".$paymentData['redirectUrl'].
                    "&requestId=".$paymentData['requestId'].
                    "&requestType=".$this->momoConfig['requestType'];
-        
+
         $paymentData['signature'] = hash_hmac('sha256', $rawHash, $this->momoConfig['secretKey']);
 
         // Gửi request đến MoMo
@@ -192,7 +195,7 @@
     {
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? 0) * $item->quantity);
         $shippingFee = 30000;
-        
+
         return [
             'user_id' => auth()->id(),
             'payment_id' => 3, // MoMo
@@ -278,9 +281,9 @@
             }
 
             $extraData = json_decode($request->extraData, true);
-            
+
             DB::beginTransaction();
-            
+
             // Tạo đơn hàng thực sự
             $order = Order::create([
                 'code' => 'DH'.strtoupper(Str::random(8)),
@@ -303,7 +306,7 @@
                     'quantity' => $item['quantity'],
                     'price' => $item['price']
                 ]);
-                
+
                 // Trừ số lượng tồn kho
                 if ($item['variant_id']) {
                     ProductVariant::where('id', $item['variant_id'])
@@ -508,12 +511,12 @@ protected function computeMomoSignature($input)
         "&transId=".$input['transId'];
 
     $computedSignature = hash_hmac('sha256', $rawHash, $this->momoConfig['secretKey']);
-    
+
     Log::channel('momo')->info('Signature Verification', [
         'computed' => $computedSignature,
         'received' => $input['signature']
     ]);
-    
+
     return $computedSignature === $input['signature'];
 }
 
@@ -549,10 +552,10 @@ protected function computeMomoSignature($input)
 
             // Chuẩn bị dữ liệu thanh toán
             $paymentData = $this->prepareVNPayPaymentData($order);
-            
+
             // Debug log
             Log::info('VNPay Payment Data:', $paymentData);
-            
+
             // Xây dựng URL thanh toán
             $vnp_Url = $this->buildVNPayUrl($paymentData);
 
@@ -562,7 +565,7 @@ protected function computeMomoSignature($input)
                     ->delete();
 
             DB::commit();
-            
+
             // Chuyển hướng đến VNPay
             return redirect()->away($vnp_Url);
 
