@@ -9,84 +9,14 @@
                                 </a>
                             </div>
                             <div class="mainMenu">
-                                <ul>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Home</a>
-                                    </li>
-                                    <li><a href="about.html">About</a></li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Shop</a>
-                                        <div class="megaMenu">
-                                            <div class="row">
-                                                <div class="col-lg-4">
-                                                    <h3>List Pages</h3>
-                                                    <ul>
-                                                        <li><a href="shop_left_sidebar.html">Shop Left Sidebar</a></li>
-                                                        <li><a href="shop_full_width.html">Shop Full Width</a></li>
-                                                        <li><a href="shop_right_sidebar.html">Shop Right Sidebar</a></li>
-                                                        <li><a href="collections.html">Collections</a></li>
-                                                        <li><a href="collection_list.html">Collection List</a></li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-lg-4">
-                                                    <h3>Details & Utility</h3>
-                                                    <ul>
-                                                        <li><a href="shop_details1.html">Shop Details 01</a></li>
-                                                        <li><a href="shop_details2.html">Shop Details 02</a></li>
-                                                        <li><a href="cart.html">Shopping Cart</a></li>
-                                                        <li><a href="checkout.html">Checkout</a></li>
-<li><a href="wishlist.html">Wishlist</a></li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-lg-4 hideOnMobile">
-                                                    <div class="lookBook01 lb01M2">
-                                                        <div class="lbContent">
-                                                            <h3>Be Stylish</h3>
-                                                            <h2>Girl’s Latest Fashion</h2>
-                                                            <a href="shop_left_sidebar.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Shop Now</a>
-                                                        </div>
-                                                        <img src="images/home1/3.png" alt="Mans Latest Collection">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Categories</a>
-                                        @include('client.categories.index')
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Blog</a>
-                                        <ul>
-                                            <li class="menu-item-has-children">
-                                                <a href="javascript:void(0);">Blog Standard</a>
-                                                <ul>
-                                                    <li><a href="blog_standard_lsb.html">Left Sidebar</a></li>
-                                                    <li><a href="blog_standard_nsb.html">No Sidebar</a></li>
-                                                    <li><a href="blog_standard_rsb.html">Right Sidebar</a></li>
-                                                </ul>
-                                            </li>
-                                            <li class="menu-item-has-children">
-                                                <a href="javascript:void(0);">Blog Grid</a>
-                                                <ul>
-                                                    <li><a href="blog_grid_lsb.html">Left Sidebar</a></li>
-                                                    <li><a href="blog_grid_nsb.html">No Sidebar</a></li>
-                                                    <li><a href="blog_grid_rsb.html">Right Sidebar</a></li>
-                                                </ul>
-                                            </li>
-<li class="menu-item-has-children">
-                                                <a href="javascript:void(0);">Blog Details</a>
-                                                <ul>
-                                                    <li><a href="blog_details_lsb.html">Left Sidebar</a></li>
-                                                    <li><a href="blog_details_nsb.html">No Sidebar</a></li>
-                                                    <li><a href="blog_details_rsb.html">Right Sidebar</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
+    <ul>
+        <li><a href="{{ route('client.home') }}">Home</a></li>
+        <li><a href="{{ route('client.categories.index') }}">Category</a></li>
+        <li><a href="{{ route('client.coupons.index') }}">Promotion</a></li>
+    
+    </ul>
+</div>
 
-                                </ul>
-                            </div>
                             <div class="accessNav">
                                 <a href="javascript:void(0);" class="menuToggler"><i class="fa-solid fa-bars"></i> <span>Menu</span></a>
                                 <div class="anSocial">
@@ -173,17 +103,21 @@
                                         </div>
                                     </div>
 
+
                                 {{-- hết user --}}
-                                </div>
 
                                     <div class="anCart">
+                                        <a href="javascript:void(0);" class="anCartToggle">
+    <i class="fa-solid fa-shopping-cart"></i>
+    <span class="cart-count">{{ $totalProduct }}</span>
+</a>
 
-                                        <a href="javascript:void(0);"><i class="fa-solid fa-shopping-cart"></i><span>{{$totalProduct}}</span></a>
+                                        
                                         <div class="cartWidgetArea">
                                             @foreach($cartItems as $item)
                                             <div class="cartWidgetProduct">
-                                                <img src="{{ asset($item->product->thumbnail) }}" alt="Marine Design">
-                                                <a href="shop_details1.html">{{ $item->product->name }}</a>
+                                                <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" />
+                                                <a href="{{ route('product.detail',['id' => $item->product->id]) }}">{{ $item->product->name }}</a>
                                                 <div class="cartProductPrice clearfix">
                                                     <span class="price">{{ number_format($item->product->price) }}đ</span>
                                                 </div>
@@ -199,11 +133,6 @@
                                     </div>
                                 </div>
 
-                                </div>
-                                <div class="anSupport">
-                                    <i class="fa-solid fa-headset"></i>
-                                    <h3>Helpline</h3>
-                                    <h3>+123 - 456 - 7890</h3>
                                 </div>
                             </div>
                         </div>
