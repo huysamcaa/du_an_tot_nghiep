@@ -38,9 +38,12 @@ class CouponController extends Controller
 
         $coupon = Coupon::create($this->couponData($request));
 
-        if ($this->hasRestrictionData($request)) {
-            $coupon->restriction()->create($this->restrictionData($request));
-        }
+       if ($this->hasRestrictionData($request)) {
+    $data = $this->restrictionData($request);
+    $data['coupon_id'] = $coupon->id;
+    $coupon->restriction()->create($data);
+}
+
 
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được tạo thành công!');
     }
@@ -64,13 +67,15 @@ class CouponController extends Controller
         $coupon = Coupon::findOrFail($id);
         $coupon->update($this->couponData($request));
 
-        if ($this->hasRestrictionData($request)) {
-            if ($coupon->restriction) {
-                $coupon->restriction->update($this->restrictionData($request));
-            } else {
-                $coupon->restriction()->create($this->restrictionData($request));
-            }
-        }
+       $data = $this->restrictionData($request);
+$data['coupon_id'] = $coupon->id;
+
+if ($coupon->restriction) {
+    $coupon->restriction->update($data);
+} else {
+    $coupon->restriction()->create($data);
+}
+
 
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được cập nhật thành công!');
     }
@@ -114,22 +119,14 @@ protected function restrictionData(Request $request)
     $validCategories = $request->input('valid_categories', []);
     $validProducts = $request->input('valid_products', []);
 
-    // Nếu là string JSON thì decode về array trước khi encode lại
-    if (!is_array($validCategories)) {
-        $validCategories = json_decode($validCategories, true) ?? [];
-    }
-
-    if (!is_array($validProducts)) {
-        $validProducts = json_decode($validProducts, true) ?? [];
-    }
-
     return [
         'min_order_value'    => $request->input('min_order_value'),
         'max_discount_value' => $request->input('max_discount_value'),
-        'valid_categories'   => json_encode(array_map('intval', $validCategories)),
-        'valid_products'     => json_encode(array_map('intval', $validProducts)),
+        'valid_categories'   => array_map('intval', (array)$validCategories),
+        'valid_products'     => array_map('intval', (array)$validProducts),
     ];
 }
+
 
     protected function hasRestrictionData(Request $request)
     {

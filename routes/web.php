@@ -162,8 +162,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::resource('comments', AdminCommentController::class);
 
     // Thêm route cho toggleVisibility
-    Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleVisibility'])->name('comments.toggle');
+    Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleComment'])->name('comments.toggle');
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
+    Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
 
 
 
