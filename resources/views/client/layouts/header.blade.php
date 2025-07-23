@@ -111,8 +111,6 @@
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
 
-                                            
-
                                                 @if (Auth::user()->role !== 'admin')
                                                     <a href="{{ route('user.addresses.index') }}">
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
