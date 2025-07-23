@@ -269,10 +269,6 @@
                                     <div class="col-lg-6">
 
 
-                                        {{-- Hiển thị thông báo --}}
-                                        @if (session('success'))
-                                            <div class="alert alert-success">{{ session('success') }}</div>
-                                        @endif
 
                                         @if ($errors->any())
                                             <div class="alert alert-danger">

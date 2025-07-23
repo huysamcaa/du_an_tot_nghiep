@@ -490,12 +490,12 @@
     </div>
 
     <div class="pi01Details">
-        <div class="productRatings">
+        <!-- <div class="productRatings">
             <div class="productRatingWrap">
                 <div class="star-rating"><span></span></div>
             </div>
             <div class="ratingCounts">10 đánh giá</div>
-        </div>
+        </div> -->
 
         <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
             {{ $product->name }}
@@ -508,7 +508,7 @@
             @endif
         </div>
 
-        <div class="pi01Variations">
+        <!-- <div class="pi01Variations">
             <div class="pi01VColor">
                 <div class="pi01VCItem">
                     <input checked type="radio" name="color_{{ $product->id }}" value="Blue" id="color_{{ $product->id }}_blue" />
@@ -538,7 +538,7 @@
                     <label for="size_{{ $product->id }}_xl">XL</label>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -816,7 +816,7 @@
         <!-- END: Latest Arrival Section -->
 
         <!-- BEGIN: Lookbook Section -->
-        <section class="lookbookSection">
+        <!-- <section class="lookbookSection">
             <div class="container">
                 <div class="row masonryGrid" id="masonryGrid">
                     <div class="col-md-6 col-xl-4 shafItem">
@@ -882,11 +882,11 @@
                     <div class="col-lg-1 col-sm-1 shafSizer"></div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Lookbook Section -->
 
         <!-- BEGIN: Deal Product Section -->
-        <section class="dealProductSection">
+        <!-- <section class="dealProductSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -914,11 +914,13 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Deal Product Section -->
 
-        {{-- <!-- BEGIN: Popular Products Section -->
-        <section class="popularProductsSection">
+
+        <!-- BEGIN: Popular Products Section -->
+        <!-- <section class="popularProductsSection">
+
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2741,11 +2743,11 @@
                     </div>
                 </div>
             </div>
-        </section> --}}
+        </section> -->
         <!-- END: Popular Products Section -->
 
         <!-- BEGIN: Lookbook Section 2 -->
-        <section class="lookbookSection2">
+        <!-- <section class="lookbookSection2">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -2770,11 +2772,11 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Lookbook Section 2 -->
 
         <!-- BEGIN: Category Section -->
-        {{-- <section class="categorySection">
+        <!-- <section class="categorySection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2824,11 +2826,11 @@
                     </div>
                 </div>
             </div>
-        </section> --}}
+        </section> -->
         <!-- END: Category Section -->
 
         <!-- BEGIN: Testimonial Section -->
-        {{-- <section class="testimonialSection">
+        <!-- <section class="testimonialSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-xl-3">
@@ -2975,11 +2977,11 @@
                     </div>
                 </div>
             </div>
-        </section> --}}
+        </section> -->
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
-        {{-- <section class="blogSection">
+        <!-- <section class="blogSection">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -3047,11 +3049,11 @@
                     <div class="col-lg-1 col-sm-1 shafSizer"></div>
                 </div>
             </div>
-        </section> --}}
+        </section> -->
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->
-        <section class="instagramSection">
+        <!-- <section class="instagramSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
@@ -3080,11 +3082,11 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Instagram Section -->
 
         <!-- BEGIN: Brand Section -->
-        <section class="brandSection">
+        <!-- <section class="brandSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -3113,7 +3115,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Brand Section -->
 
         <!-- BEGIN: Footer Section -->
@@ -3121,7 +3123,7 @@
         <!-- END: Footer Section -->
 
         <!-- BEGIN: Site Info Section -->
-        <section class="siteInfoSection">
+        <!-- <section class="siteInfoSection">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -3140,15 +3142,15 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- END: Site Info Section -->
 
         <!-- BEGIN: Back To Top -->
-        <a href="javascript:void(0);" id="backtotop"><i class="fa-solid fa-angles-up"></i></a>
+        <!-- <a href="javascript:void(0);" id="backtotop"><i class="fa-solid fa-angles-up"></i></a> -->
         <!-- END: Back To Top -->
 
         <!-- BEGIN: Product QuickView  -->
-        <div class="modal fade productQuickView" id="productQuickView" tabindex="-1" data-aria-labelledby="exampleModalLabel" aria-modal="true" role="dialog">
+        <!-- <div class="modal fade productQuickView" id="productQuickView" tabindex="-1" data-aria-labelledby="exampleModalLabel" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <button type="button" class="quickViewCloser" data-bs-dismiss="modal" aria-label="Close"><span></span></button>
@@ -3290,7 +3292,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- END: Product QuickView -->
 
 
