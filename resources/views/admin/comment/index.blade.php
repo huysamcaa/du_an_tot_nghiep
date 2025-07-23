@@ -30,8 +30,8 @@
                                 @foreach($comments as $comment)
                                 <tr>
                                     <td>{{ $comment->id }}</td>
-                                    <td>{{ $comment->product->name }}</td>
-                                    <td>{{ $comment->user->name }}</td>
+                                    <td>{{ $comment->product->name ?? '[Sản phẩm đã bị xóa]' }}</td>
+                                    <td>{{ $comment->user->name ?? '[Người dùng không tồn tại]' }}</td>
                                     <td>{{ $comment->content }}</td>
                                     <td>
                                         {{ $comment->is_active ? 'Hiển thị' : 'Ẩn' }}

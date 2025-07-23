@@ -62,8 +62,12 @@
                         </div>
                         <h2>{{ $product->name }}</h2>
                         <div class="pi01Price">
-                            <ins>{{ $product->sale_price }}</ins>
-                            <del>{{ $product->price }}</del>
+                            @if ($product->sale_price > 0 && $product->sale_price < $product->price)
+                                <ins>{{ number_format($product->sale_price, 0, ',', '.') }} đ</ins>
+                                <del>{{ number_format($product->price, 0, ',', '.') }} đ</del>
+                            @else
+                                <ins>{{ number_format($product->price, 0, ',', '.') }} đ</ins>
+                            @endif
                         </div>
                         <div class="productRadingsStock clearfix">
                             <div class="productRatings float-start">
@@ -89,9 +93,7 @@
                                 <div class="pcVariation">
                                     <span>Màu</span>
                                     <div class="pcvContainer">
-                                     
                                         @foreach ($colors as $color)
-                                       
                                             <div class="colorOptionWrapper">
                                                 <input type="radio" name="color" value="{{ $color->id }}"
                                                     id="color_{{ $color->id }}"
@@ -549,9 +551,16 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(variant);
 
         if (variant) {
-            saleEl.textContent = formatPrice(variant.sale_price);
-            priceEl.textContent = formatPrice(variant.price);
-
+            // nếu không có giá sale lấy giá gốc
+            if (variant.sale_price > 0 && variant.sale_price < variant.price) {
+                saleEl.textContent = formatPrice(variant.sale_price);
+                saleEl.style.display = 'inline';
+                priceEl.textContent = formatPrice(variant.price);
+                priceEl.style.display = 'inline';
+            } else {
+                saleEl.textContent = formatPrice(variant.price);
+                priceEl.style.display = 'none';
+            }
             if (variant.stock > 0) {
                 addToCartBtn.disabled = false;
                 addToCartBtn.innerHTML = '<span>Add to Cart</span>';
@@ -631,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            Swal.fire('Lỗi', data.message || 'Sản phẩm đã hết hàng', 'error');
+            Swal.fire('Thông báo', data.message || 'Sản phẩm đã hết hàng', 'error');
             console.log(data);
         } catch (error) {
             console.error(error);
@@ -640,116 +649,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-
-
-
-    </section>
-    <!-- END: Shop Details Section -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-                    const qtyWrappers = document.querySelectorAll('.quantity');
-
-                    qtyWrappers.forEach(wrapper => {
-                        const minusBtn = wrapper.querySelector('.btnMinus');
-                        const plusBtn = wrapper.querySelector('.btnPlus');
-                        const qtyInput = wrapper.querySelector('.carqty');
-
-                        minusBtn.addEventListener('click', function() {
-                            let current = parseInt(qtyInput.value) || 1;
-                            if (current > 1) qtyInput.value = current - 1;
-                        });
-
-                        plusBtn.addEventListener('click', function() {
-                            let current = parseInt(qtyInput.value) || 1;
-                            qtyInput.value = current + 1;
-                        });
-                    });
-
-                    const form = document.getElementById('addToCartForm');
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const formData = new FormData(form);
-
-                        fetch(form.action, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Accept': 'application/json'
-                                },
-                                body: formData
-                            })
-                            .then(res => {
-                                if (!res.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return res.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    document.querySelector('.anCart span').innerText = data.totalProduct;
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thành công!',
-                                        text: 'Sản phẩm đã được thêm vào giỏ hàng.',
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                } else {
-                                    Swal.fire('Lỗi', 'Thêm vào giỏ hàng thất bại', 'error');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Lỗi:', error);
-                                Swal.fire('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.', 'error');
-                            });
-
-                    });
-                });
-
-
-                form.querySelectorAll('[name="color"], [name="size"]').forEach(input =>
-                    input.addEventListener('change', checkVariantAvailability)
-                ); checkVariantAvailability();
-
-                // Xử lý submit form
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const res = await fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: new FormData(form)
-                    });
-
-                    const data = await res.json();
-                    if (res.status === 401 || data.unauthenticated) {
-                        Swal.fire({
-                                icon: 'warning',
-                                title: 'Chưa đăng nhập',
-                                text: 'Vui lòng đăng nhập.',
-                                showConfirmButton: true
-                            })
-                            .then(() => location.href = '/login');
-                    } else if (data.success) {
-                        document.querySelector('.anCart span').innerText = data.totalProduct;
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công!',
-                            text: 'Đã thêm vào giỏ hàng.',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        Swal.fire('Hết hàng', 'Thêm vào giỏ hàng thất bại', 'error');
-                    }
-                });
-    </script>
-
-
 @endsection

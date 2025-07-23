@@ -1,137 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; margin: 0; }
-        .register-container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #555; font-weight: bold;}
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="tel"],
-        input[type="date"],
-        select {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover { background-color: #0056b3; }
-        .text-center { text-align: center; margin-top: 15px; }
-        .text-center a { color: #007bff; text-decoration: none; }
-        .text-center a:hover { text-decoration: underline; }
-        .alert-danger ul { list-style: none; padding: 0; margin: 0; color: red; }
-        .text-danger {
-            color: #dc3545;
-            margin-top: 6px;
-            font-size: 0.97em;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-    <div class="register-container">
-        <h2>Đăng ký tài khoản mới</h2>
+@extends('layouts.auth')
 
-        {{-- Hiển thị lỗi validation --}}
-        {{-- @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+@section('title', 'Đăng ký tài khoản')
+
+@section('content')
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow rounded-4 p-4">
+                    <h3 class="text-center mb-4">🧥 Đăng ký tài khoản</h3>
+
+                    <form action="{{ route('register') }}" method="POST">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="name">Tên của bạn:</label>
+                            <input type="text" id="name" name="name" class="form-control"
+                                value="{{ old('name') }}" autofocus>
+                            @error('name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email">Địa chỉ Email:</label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                value="{{ old('email') }}">
+                            @error('email')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" >
+                                <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                            </div>
+                            @error('password')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
+                            <div class="input-group">
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" >
+                                <span class="input-group-text" id="togglePasswordConfirm" style="cursor: pointer;">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number">Số điện thoại (tùy chọn):</label>
+                            <input type="tel" id="phone_number" name="phone_number" class="form-control"
+                                value="{{ old('phone_number') }}">
+                            @error('phone_number')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="gender">Giới tính (tùy chọn):</label>
+                            <select id="gender" name="gender" class="form-select">
+                                <option value="">Chọn giới tính</option>
+                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Nam</option>
+                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Nữ</option>
+                                <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Khác</option>
+                            </select>
+                            @error('gender')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="birthday">Ngày sinh (tùy chọn):</label>
+                            <input type="date" id="birthday" name="birthday" class="form-control"
+                                value="{{ old('birthday') }}">
+                            @error('birthday')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        Bạn đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập ngay</a>
+                    </div>
+                </div>
             </div>
-        @endif --}}
-
-        <form action="{{ route('register') }}" method="POST">
-            @csrf {{-- CSRF token cho bảo mật --}}
-
-            <div class="form-group">
-                <label for="name">Tên của bạn:</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}"  autofocus>
-                @error('name')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="email">Địa chỉ Email:</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" >
-                @error('email')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="password">Mật khẩu:</label>
-                <input type="password" id="password" name="password" >
-                @error('password')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="password_confirmation">Xác nhận mật khẩu:</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" >
-                @error('password_confirmation')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="phone_number">Số điện thoại (tùy chọn):</label>
-                <input type="tel" id="phone_number" name="phone_number" value="{{ old('phone_number') }}">
-                @error('phone_number')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="gender">Giới tính (tùy chọn):</label>
-                <select id="gender" name="gender">
-                    <option value="">Chọn giới tính</option>
-                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Nam</option>
-                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Nữ</option>
-                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Khác</option>
-                </select>
-                @error('gender')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="birthday">Ngày sinh (tùy chọn):</label>
-                <input type="date" id="birthday" name="birthday" value="{{ old('birthday') }}">
-                @error('birthday')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <button type="submit">Đăng ký</button>
-        </form>
-
-        <div class="text-center">
-            Bạn đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập ngay</a>
         </div>
     </div>
-</body>
-</html>
+@endsection
