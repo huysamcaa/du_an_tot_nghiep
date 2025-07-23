@@ -14,7 +14,30 @@
                         <strong class="card-title">Danh sách bình luận</strong>
                     </div>
                     <div class="card-body">
-                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                        <table id="bootstrap-data" class="table table-striped table-bordered">
+                            <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
+                        <div>
+                            <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                            <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
+                                
+                                    <option value="1" >10</option>
+                                    <option value="2" >25</option>
+                                    <option value="3" >50</option>
+                                    <option value="4" >100</option>
+                                
+                            </select>
+                            <span></span>
+                        </div>
+                        
+                    </form>
+               
+            
+                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
+                        <div class="input-group">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                        </div>
+                    </form>
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -30,8 +53,8 @@
                                 @foreach($comments as $comment)
                                 <tr>
                                     <td>{{ $comment->id }}</td>
-                                    <td>{{ $comment->product->name }}</td>
-                                    <td>{{ $comment->user->name }}</td>
+                                    <td>{{ $comment->product->name ?? '[Sản phẩm đã bị xóa]' }}</td>
+                                    <td>{{ $comment->user->name ?? '[Người dùng không tồn tại]' }}</td>
                                     <td>{{ $comment->content }}</td>
                                     <td>
                                         {{ $comment->is_active ? 'Hiển thị' : 'Ẩn' }}
@@ -39,7 +62,7 @@
                                     <td>{{ $comment->created_at->format('d/m/Y') }}</td>
                                     <td>
                                         <!-- Sử dụng route toggleVisibility -->
-                                        <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-{{ $comment->is_active ? 'danger' : 'success' }}">
+                                        <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-{{ $comment->is_active ? 'primary' : 'success' }}">
                                             {{ $comment->is_active ? 'Ẩn' : 'Hiển thị' }}
                                         </a>
                                     </td>

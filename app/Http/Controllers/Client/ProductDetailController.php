@@ -21,15 +21,14 @@ public function show($id)
     $category = $product->category;
     // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
     // Lấy tất cả ID attribute_value của các biến thể
-    $attributeValueIds = DB::table('attribute_value_product')
-    ->where('product_id', $product->id)
-    ->pluck('attribute_value_id');
-//   $variantIds = $product->variants->pluck('id');
+    // $attributeValueIds = DB::table('attribute_value_product')
+    // ->where('product_id', $product->id)
+    // ->pluck('attribute_value_id');
+    $variantIds = $product->variants->pluck('id');
 
-// $attributeValueIds = DB::table('attribute_value_product_variant')
-//     ->whereIn('product_variant_id', $variantIds)
-//     ->pluck('attribute_value_id');
-
+    $attributeValueIds = DB::table('attribute_value_product_variant')
+        ->whereIn('product_variant_id', $variantIds)
+        ->pluck('attribute_value_id');
 
     $colors = AttributeValue::whereIn('id', $attributeValueIds)
         ->where('attribute_id', 1)

@@ -81,17 +81,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                {{-- Lỗi chung --}}
-                @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                
-                @endif
+             
 
                 <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
                     @csrf

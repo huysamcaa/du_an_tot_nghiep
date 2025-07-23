@@ -31,6 +31,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'stock' => 'required|integer|min:0',
             'name' => 'required|string|max:255|unique:products,name',
@@ -87,7 +88,7 @@ class ProductController extends Controller
             foreach ($request->variants as $variantData) {
                 $variant = new ProductVariant([
                     'price' => $variantData['price'],
-                    'quantity' => $variantData['quantity'],
+                    'stock' => $variantData['stock'],
                     'sku' => $variantData['sku'] ?? null,
                 ]);
 
