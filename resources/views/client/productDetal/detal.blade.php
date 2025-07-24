@@ -108,10 +108,9 @@
                                 </div>
                                 <div class="ratingCounts">{{ $product->views }}</div>
                             </div>
-                            <div class="productStock float-end">
-                                <span>Available :</span>
-
-                                <!-- 12 chưa có thông tin /////////////////////////////////// -->
+                           <div class="productStock float-end">
+                                <span>Số Lượng: </span>
+                                <span id="variant-stock">--</span>
                             </div>
                         </div>
                         <div class="pcExcerpt">
@@ -393,63 +392,79 @@
                                 </div>
 
                                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                                <script>
-                                    $(document).ready(function() {
-                                        function loadComments(page = 1) {
-                                            $.get(`{{ url('comments/list') }}?product_id={{ $product->id }}&page=${page}`, function(data) {
-                                                $('#comment-list').html(data);
-                                            });
-                                        }
+                               <script>
+    $(document).ready(function () {
+        function loadComments(page = 1) {
+            $.get(`{{ url('comments/list') }}?product_id={{ $product->id }}&page=${page}`, function (data) {
+                $('#comment-list').html(data);
+            });
+        }
 
-                                        $('#comment-form').submit(function(e) {
-                                            e.preventDefault();
-                                            $.ajax({
-                                                type: 'POST',
-                                                url: "{{ route('comments.store') }}",
-                                                data: $(this).serialize(),
-                                                success: function(res) {
-                                                    $('#comment-form textarea').val('');
-                                                    $('#comment-message').text(res.message);
-                                                    loadComments();
-                                                },
-                                                error: function() {
-                                                    alert('Lỗi khi gửi bình luận');
-                                                }
-                                            });
-                                        });
+        $('#comment-form').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('comments.store') }}",
+                data: $(this).serialize(),
+                success: function (res) {
+                    $('#comment-form textarea').val('');
+                    $('#comment-message')
+                        .removeClass('text-danger')
+                        .addClass('text-success')
+                        .text(res.message);
+                    loadComments();
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON?.errors;
+                    let message = 'Đã xảy ra lỗi.';
 
-                                        $(document).on('click', '.pagination a', function(e) {
-                                            e.preventDefault();
-                                            const page = $(this).attr('href').split('page=')[1];
-                                            loadComments(page);
-                                        });
+                    if (errors && errors.content) {
+                        message = errors.content[0]; // lấy lỗi đầu tiên của 'content'
+                    } else if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
 
-                                        // Xử lý gửi trả lời bằng AJAX
-                                        $(document).on('submit', '.reply-form', function(e) {
-                                            e.preventDefault();
-                                            const form = $(this);
-                                            $.ajax({
-                                                type: 'POST',
-                                                url: "{{ route('comments.reply') }}",
-                                                data: form.serialize(),
-                                                success: function(res) {
-                                                    loadComments();
-                                                },
-                                                error: function() {
-                                                    alert('Lỗi khi gửi trả lời');
-                                                }
-                                            });
-                                        });
+                    $('#comment-message')
+                        .removeClass('text-success')
+                        .addClass('text-danger')
+                        .text(message);
+                }
+            });
+        });
 
-                                        loadComments();
+        $(document).on('click', '.pagination a', function (e) {
+            e.preventDefault();
+            const page = $(this).attr('href').split('page=')[1];
+            loadComments(page);
+        });
 
-                                    });
-                                    $(document).on('click', '.toggle-reply', function() {
-                                        let id = $(this).data('id');
-                                        $('.reply-form').addClass('d-none');
-                                        $('#reply-form-' + id).toggleClass('d-none');
-                                    });
-                                </script>
+        // Gửi trả lời
+        $(document).on('submit', '.reply-form', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('comments.reply') }}",
+                data: form.serialize(),
+                success: function (res) {
+                    loadComments();
+                },
+                error: function () {
+                    alert('Lỗi khi gửi trả lời');
+                }
+            });
+        });
+
+        loadComments();
+    });
+
+    // Toggle form trả lời
+    $(document).on('click', '.toggle-reply', function () {
+        let id = $(this).data('id');
+        $('.reply-form').addClass('d-none');
+        $('#reply-form-' + id).toggleClass('d-none');
+    });
+</script>
 
                             </div>
                         </div>
@@ -586,6 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const variant = getSelectedVariant();
     const saleEl = document.getElementById('sale-price');
     const priceEl = document.getElementById('original-price');
+    const stockEl = document.getElementById('variant-stock');
     const addToCartBtn = document.getElementById('add-to-cart');
 
     if (!saleEl || !priceEl || !addToCartBtn) {
@@ -603,6 +619,8 @@ document.addEventListener('DOMContentLoaded', () => {
             saleEl.textContent = formatPrice(variant.price);
             priceEl.style.display = 'none';
         }
+         // Hiển thị số lượng tồn kho
+         stockEl.textContent = variant.stock;
 
         if (variant.stock > 0) {
             addToCartBtn.disabled = false;
@@ -614,6 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         saleEl.textContent = formatPrice({{ $product->sale_price }});
         priceEl.textContent = formatPrice({{ $product->price }});
+        stockEl.textContent = '--';
         addToCartBtn.disabled = true;
         addToCartBtn.innerHTML = '<span>SOLDOUT</span>';
     }

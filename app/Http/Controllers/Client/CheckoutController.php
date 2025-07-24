@@ -231,7 +231,7 @@ class CheckoutController extends Controller
     try {
         // 1. Kiểm tra kết quả thanh toán từ MoMo
         if ($request->resultCode != 0) {
-            return redirect()->route('orders.index')
+            return redirect()->route('cart.index')
                 ->with('error', 'Thanh toán thất bại: ' . ($request->message ?? ''));
         }
 

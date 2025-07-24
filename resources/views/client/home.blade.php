@@ -919,7 +919,7 @@
 
 
         <!-- BEGIN: Popular Products Section -->
-        <!-- <section class="popularProductsSection">
+         {{-- <section class="popularProductsSection">
 
             <div class="container">
                 <div class="row">
@@ -2743,11 +2743,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  --}}
         <!-- END: Popular Products Section -->
 
         <!-- BEGIN: Lookbook Section 2 -->
-        <!-- <section class="lookbookSection2">
+         {{-- <section class="lookbookSection2">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -2772,11 +2772,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  --}}
         <!-- END: Lookbook Section 2 -->
 
         <!-- BEGIN: Category Section -->
-        <!-- <section class="categorySection">
+        <<section class="categorySection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2826,11 +2826,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  
         <!-- END: Category Section -->
 
         <!-- BEGIN: Testimonial Section -->
-        <!-- <section class="testimonialSection">
+        <section class="testimonialSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-xl-3">
@@ -2977,11 +2977,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section> 
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
-        <!-- <section class="blogSection">
+         <section class="blogSection">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -3049,7 +3049,7 @@
                     <div class="col-lg-1 col-sm-1 shafSizer"></div>
                 </div>
             </div>
-        </section> -->
+        </section> 
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->

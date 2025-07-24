@@ -74,9 +74,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
-    Route::post('/checkout/momo', [CheckoutController::class, 'processMomoPayment'])->name('momo.payment');
-    Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('checkout.momo.ipn');
+    Route::post('/checkout/momo', [CheckoutController::class, 'processMomoPayment'])->name('checkout.momo');
     Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('checkout.momo.return');
+    Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('checkout.momo.ipn');
     Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
     Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
