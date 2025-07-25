@@ -333,6 +333,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Sản phẩm liên quan -->
@@ -423,10 +424,15 @@
                                     </div>
                                 </div>
                             @endforeach
+
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
 </section>
