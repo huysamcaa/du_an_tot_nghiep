@@ -115,7 +115,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','10','10','0']"
 
-                                 >SUMMER SALE IS ON</div>
+                                 >Giảm Giá Hôm Nay</div>
                             <div class="tp-caption jost textLayer theTitles"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['-5','-5','0','0']"
@@ -143,7 +143,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 >Discover Men’s Latest Fashion</div>
+                                 >Quần Áo Nam Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['0','0','0','0']"
@@ -228,7 +228,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','10','10','0']"
 
-                                 >SUMMER SALE IS ON</div>
+                                 >Giảm Giá Hôm Nay</div>
                             <div class="tp-caption jost textLayer theTitles"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['-5','-5','0','0']"
@@ -256,7 +256,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 >Discover Women Latest Fashion</div>
+                                 >Quần Áo Nam Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['0','0','0','0']"
@@ -341,7 +341,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','10','10','0']"
 
-                                 >SUMMER SALE IS ON</div>
+                                 >Giảm Giá Hôm Nay</div>
                             <div class="tp-caption jost textLayer theTitles"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['-5','-5','0','0']"
@@ -369,7 +369,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 >Discover Summer Latest Fashion</div>
+                                 >Quần Áo Nam Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['0','0','0','0']"
@@ -413,36 +413,36 @@
                     <div class="col-md-6 col-xl-3">
                         <div class="iconBox01">
                             <i class="ulina-fast-delivery"></i>
-                            <h3>Free Shipping</h3>
+                            <h3>Miễn Phí Ship</h3>
                             <p>
-                                Ut enim ad minim veniam liquip ami tomader
+                               Chúng tôi giao hàng miễn phí trên toàn quốc cho mọi đơn hàng.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="iconBox01">
                             <i class="ulina-credit-card tm5"></i>
-                            <h3>Secure Payments</h3>
+                            <h3>Thanh toán an toàn</h3>
                             <p>
-                                Eonim ad minim veniam liquip tomader
+                                   Hệ thống thanh toán bảo mật giúp bạn yên tâm khi mua sắm.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="iconBox01">
                             <i class="ulina-refund tm1"></i>
-                            <h3>Easy Returns</h3>
+                            <h3>Đổi trả dễ dàng</h3>
                             <p>
-                                Be enim ad minim veniam liquipa ami tomader
+                                Nếu không ưng ý, bạn có thể đổi trả nhanh chóng và đơn giản.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="iconBox01">
                             <i class="ulina-hours-support t1"></i>
-                            <h3>24/7 Support</h3>
+                            <h3>Hỗ trợ 24/7</h3>
                             <p>
-                                Ut enim ad minim veniam liquip ami tomader
+                                Đội ngũ CSKH luôn sẵn sàng hỗ trợ bạn mọi lúc mọi nơi.
                             </p>
                         </div>
                     </div>
@@ -456,8 +456,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h2 class="secTitle">Latest Arrival</h2>
-                        <p class="secDesc">Showing our latest arrival on this summer</p>
+                        <h2 class="secTitle">Sản Phẩm Của Chúng Tôi</h2>
+                        <p class="secDesc">Chúng tôi cam kết chất lượng cao, giá cạnh tranh và dịch vụ giao hàng nhanh chóng.</p>
                     </div>
                 </div>
                 <div class="row">
@@ -891,18 +891,18 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="dealProductContent">
-                            <h5>Featured Product</h5>
-                            <h2>Ulima Fashionable Jeans</h2>
-                            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequa uis aute irure dolor </p>
+                            <h5>Sản Phẩm</h5>
+                            <h2>Sản Phẩm Tạo Nên Cá Tính</h2>
+                            <p>FreshFit – Áo Nam Thời Thượng FreshFit chuyên cung cấp áo nam đa phong cách: từ áo thun đơn giản, áo khoác cá tính đến blazer lịch lãm. Thiết kế trẻ trung, chất liệu thoáng mát, phù hợp với mọi dịp – đi làm, đi chơi hay tập gym. Chúng tôi cam kết chất lượng cao, giá cạnh tranh và dịch vụ giao hàng nhanh chóng.</p>
                             <div class="dpcPriceWrap">
                                 <div class="pi01Price">
-                                    <ins>$199</ins>
-                                    <del>$399</del>
+                                    <ins>300.000 đ</ins>
+                                    <del>1000.000 đ</del>
                                 </div>
-                                <a href="shop_details1.html" class="ulinaBTN"><span>Buy Now</span></a>
+                                <a href="{{ route('client.categories.index') }}" class="ulinaBTN"><span>Mua Ngay</span></a>
                             </div>
                             <div class="countDownWrap">
-                                <h6>Ends in</h6>
+                                <h6></h6>
                                 <div class="ulinaCountDown" data-day="26" data-month="07" data-year="2022"></div>
                             </div>
                         </div>
@@ -917,8 +917,10 @@
         </section> -->
         <!-- END: Deal Product Section -->
 
+
         <!-- BEGIN: Popular Products Section -->
-        <!-- <section class="popularProductsSection">
+         {{-- <section class="popularProductsSection">
+
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2741,11 +2743,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  --}}
         <!-- END: Popular Products Section -->
 
         <!-- BEGIN: Lookbook Section 2 -->
-        <!-- <section class="lookbookSection2">
+         {{-- <section class="lookbookSection2">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -2770,11 +2772,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  --}}
         <!-- END: Lookbook Section 2 -->
 
         <!-- BEGIN: Category Section -->
-        <!-- <section class="categorySection">
+        <<section class="categorySection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2824,11 +2826,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>  
         <!-- END: Category Section -->
 
         <!-- BEGIN: Testimonial Section -->
-        <!-- <section class="testimonialSection">
+        <section class="testimonialSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-xl-3">
@@ -2975,11 +2977,11 @@
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section> 
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
-        <!-- <section class="blogSection">
+         <section class="blogSection">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -3047,7 +3049,7 @@
                     <div class="col-lg-1 col-sm-1 shafSizer"></div>
                 </div>
             </div>
-        </section> -->
+        </section> 
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->
@@ -3055,7 +3057,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
-                        <h2 class="secTitle">Follow Us in Instagram @Ulina</h2>
+                        <h2 class="secTitle">Khách Hàng Thân Thiết</h2>
                     </div>
                 </div>
                 <div class="row">

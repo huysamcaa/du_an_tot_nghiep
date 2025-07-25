@@ -170,7 +170,7 @@ combos.forEach((combo, i) => {
     });
     html += `${label}</td>
         <td><input type="number" name="variants[${i}][price]" class="form-control" ></td>
-        <td><input type="number" name="variants[${i}][quantity]" class="form-control" min="0" value="0" ></td>
+        <td><input type="number" name="variants[${i}][stock]" class="form-control" min="0" value="0" ></td>
         <td><input type="text" name="variants[${i}][sku]" class="form-control"></td>
         <td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>
     </tr>`;

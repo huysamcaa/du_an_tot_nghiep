@@ -82,6 +82,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+
                 <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
                     @csrf
                     <div class="row g-3">
@@ -94,6 +95,7 @@
                             @error('fullname')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
+                            
                         </div>
 
                         {{-- Số điện thoại --}}

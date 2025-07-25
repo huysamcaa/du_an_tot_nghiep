@@ -75,7 +75,7 @@
                     </td>
                     <td>{{ $variant->sku ?? '-' }}</td>
                     <td>{{ number_format($variant->price, 0, ',', '.') }} đ</td>
-                    <td>{{ $variant->quantity }}</td>
+                    <td>{{ $variant->stock }}</td>
                     <td>
                         @foreach($variant->attributeValues as $value)
                             <span class="badge bg-primary">{{ $value->attribute->name }}: {{ $value->value }}</span>
