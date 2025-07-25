@@ -47,17 +47,25 @@ class CheckoutController extends Controller
         }
 
         $cartItems = CartItem::where('user_id', $userId)
-            ->whereIn('id', $selectedItems)
-            ->with('product')
-            ->get();
+        ->whereIn('id', $selectedItems)
+        ->with(['product', 'variant']) // Load cả product và variant
+        ->get();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Sản phẩm bạn chọn không tồn tại trong giỏ hàng.');
-        }
+if ($cartItems->isEmpty()) {
+    return redirect()->route('cart.index')->with('error', 'Sản phẩm bạn chọn không tồn tại trong giỏ hàng.');
+}
 
-        $total = $cartItems->sum(function ($item) {
-            return ($item->product ? $item->product->price : 0) * $item->quantity;
-        });
+$total = $cartItems->sum(function ($item) {
+    // Nếu có variant thì ưu tiên lấy giá từ variant (sale_price nếu có, không thì price)
+    if ($item->variant) {
+        $price = $item->variant->sale_price ?? $item->variant->price;
+    } else {
+        // Nếu không có variant thì lấy giá từ product
+        $price = $item->product ? $item->product->price : 0;
+    }
+    
+    return $price * $item->quantity;
+});
 
         // Lấy địa chỉ mặc định của user
         $defaultAddress = DB::table('user_addresses')
@@ -115,22 +123,19 @@ class CheckoutController extends Controller
         return redirect()->route('cart.index')->with('error', 'Vui lòng chọn sản phẩm để thanh toán');
     }
 
-    $cartItems = CartItem::where('user_id', $userId)
+        $cartItems = CartItem::where('user_id', $userId)
         ->whereIn('id', $selectedItems)
-        ->with('product')
+        ->with(['product', 'variant']) // Load cả product và variant
         ->get();
 
     if ($cartItems->isEmpty()) {
         return redirect()->back()->with('error', 'Giỏ hàng trống');
     }
 
-    // Tính toán tổng tiền
-    $total = $cartItems->sum(function ($item) {
-        return ($item->product->price ?? 0) * $item->quantity;
-    });
+    $total = $cartItems->sum(fn($item) => $item->variant ? $item->variant->price * $item->quantity : 0);
+
     $shippingFee = 30000;
     $totalAmount = $total + $shippingFee;
-
     try {
         $orderId = time() . ""; // Sử dụng timestamp làm orderId
 
@@ -497,9 +502,9 @@ class CheckoutController extends Controller
         return redirect()->route('cart.index')->with('error', 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
     }
 
-    $cartItems = CartItem::where('user_id', $userId)
+     $cartItems = CartItem::where('user_id', $userId)
         ->whereIn('id', $selectedItems)
-        ->with('product')
+        ->with(['product', 'variant']) // Load cả product và variant
         ->get();
 
     if ($cartItems->isEmpty()) {
@@ -695,13 +700,17 @@ class CheckoutController extends Controller
     $userId = auth()->id();
     $selectedItems = $request->input('selected_items', []);
     
-    $cartItems = CartItem::where('user_id', $userId)
+     $cartItems = CartItem::where('user_id', $userId)
         ->whereIn('id', $selectedItems)
-        ->with('product')
+        ->with(['product', 'variant']) // Load cả product và variant
         ->get();
 
     $fullname = $request->field1 . ' ' . $request->field2;
-    $total = $cartItems->sum(fn($item) => ($item->product->price ?? 0) * $item->quantity);
+   $total = $cartItems->sum(fn($item) => 
+    ($item->product_variant_id && $item->variant 
+        ? $item->variant->price 
+        : $item->product->price ?? 0) * $item->quantity
+);
 
     // Xử lý coupon
     $couponData = $this->processCoupon($request->coupon_code, $total);
