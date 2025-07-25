@@ -43,12 +43,12 @@
                             <p class="text-muted">{{ $coupon->title }}</p>
 
                             <p>
-                                <span class="badge bg-success">
-                                    {{ $coupon->discount_type === 'percent'
-                                        ? $coupon->discount_value . '%'
-                                        : number_format($coupon->discount_value) . ' VND' }}
-                                </span>
-                            </p>
+    <span class="badge bg-success px-3 py-2 fs-6">
+        {{ $coupon->discount_type === 'percent'
+            ? rtrim(rtrim(number_format($coupon->discount_value, 2, '.', ''), '0'), '.') . '%'
+            : number_format($coupon->discount_value, 0, ',', '.') . ' VNĐ' }}
+    </span>
+</p>
 
                             @if($coupon->user_group)
                                 <p><strong>Nhóm áp dụng:</strong> {{ ucfirst($coupon->user_group) }}</p>

@@ -95,7 +95,7 @@ protected function validateForm(Request $request, $id = null)
         'code' => 'required|unique:coupons,code,' . ($id ?? 'NULL'),
         'title' => 'required',
         'description' => 'nullable|string',
-        'discount_value' => 'required|numeric',
+        'discount_value' => 'required',
         'discount_type' => 'required|in:percent,fixed',
         'usage_limit' => 'nullable|integer',
         'user_group' => 'nullable|in:guest,member,vip',
@@ -111,7 +111,6 @@ protected function validateForm(Request $request, $id = null)
         'code.unique' => 'Mã giảm giá đã tồn tại.',
         'title.required' => 'Vui lòng nhập tiêu đề.',
         'discount_value.required' => 'Vui lòng nhập giá trị giảm.',
-        'discount_value.numeric' => 'Giá trị giảm phải là số.',
         'discount_type.required' => 'Vui lòng chọn kiểu giảm giá.',
         'discount_type.in' => 'Kiểu giảm giá không hợp lệ.',
         'usage_limit.integer' => 'Giới hạn sử dụng phải là số nguyên.',
@@ -123,8 +122,14 @@ protected function validateForm(Request $request, $id = null)
     $validator = Validator::make($request->all(), $rules, $messages);
 
     $validator->after(function ($validator) use ($request) {
-        $value = (int) $request->input('discount_value');
+        $raw = $request->input('discount_value');
+        $value = (float) str_replace(',', '.', str_replace('.', '', $raw));
         $type = $request->input('discount_type');
+
+        if (!is_numeric($value)) {
+            $validator->errors()->add('discount_value', 'Giá trị giảm không hợp lệ.');
+            return;
+        }
 
         if ($type === 'percent' && ($value < 0 || $value > 100)) {
             $validator->errors()->add('discount_value', 'Giá trị phần trăm phải nằm trong khoảng từ 0 đến 100.');
@@ -135,21 +140,27 @@ protected function validateForm(Request $request, $id = null)
         }
     });
 
-    $validator->validate(); // sẽ tự động redirect nếu có lỗi
+    $validator->validate();
 }
 
-    protected function couponData(Request $request)
-    {
-        $data = $request->only([
-            'code', 'title', 'description', 'discount_type',
-            'usage_limit', 'user_group', 'is_expired', 'is_active',
-            'is_notified', 'start_date', 'end_date',
-        ]);
 
-        $data['discount_value'] = (int) $request->input('discount_value');
+  protected function couponData(Request $request)
+{
+    $raw = $request->input('discount_value');
 
-        return $data;
-    }
+    // Chuyển "30.000,50" thành "30000.50"
+    $normalized = str_replace(',', '.', str_replace('.', '', $raw));
+
+    $data = $request->only([
+        'code', 'title', 'description', 'discount_type',
+        'usage_limit', 'user_group', 'is_expired', 'is_active',
+        'is_notified', 'start_date', 'end_date',
+    ]);
+
+    $data['discount_value'] = (float) $normalized;
+
+    return $data;
+}
 
 protected function restrictionData(Request $request)
 {
