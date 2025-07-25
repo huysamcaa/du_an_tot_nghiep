@@ -52,30 +52,30 @@ class UserProfileController extends Controller
         'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ],
     [
-        // 👤 Tên
+        
         'name.required' => 'Vui lòng nhập họ tên.',
         'name.string' => 'Họ tên phải là chuỗi ký tự.',
         'name.max' => 'Họ tên không được vượt quá 50 ký tự.',
 
-        // 📧 Email
+
         'email.required' => 'Email không được để trống.',
         'email.email' => 'Email không đúng định dạng (ví dụ: ten@gmail.com).',
         'email.regex' => 'Email phải là địa chỉ Gmail hợp lệ (ví dụ: ten@gmail.com).',
         'email.max' => 'Email không được vượt quá 255 ký tự.',
         'email.unique' => 'Email đã được sử dụng.',
 
-        // 📱 Số điện thoại
+
         'phone_number.regex' => 'Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 9-10 chữ số.',
         'phone_number.max' => 'Số điện thoại không được vượt quá 15 ký tự.',
         'phone_number.unique' => 'Số điện thoại đã tồn tại.',
 
-        // ⚥ Giới tính
+
         'gender.in' => 'Giới tính không hợp lệ. Chỉ chấp nhận male hoặc female.',
 
-        // 🎂 Ngày sinh
+
         'birthday.date' => 'Ngày sinh không đúng định dạng ngày tháng.',
 
-        // 🖼️ Avatar
+
         'avatar.image' => 'Ảnh đại diện phải là hình ảnh.',
         'avatar.mimes' => 'Ảnh chỉ được dùng định dạng JPG, JPEG hoặc PNG.',
         'avatar.max' => 'Ảnh không được vượt quá 2MB.',

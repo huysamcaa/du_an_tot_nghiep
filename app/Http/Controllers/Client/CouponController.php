@@ -31,7 +31,7 @@ public function active()
         ->pluck('product_id')
         ->unique();
 
-    // 🔍 Lấy các category từ product
+    //  Lấy các category từ product
     $userCategoryIds = \App\Models\Admin\Product::whereIn('id', $userProductIds)
         ->pluck('category_id')
         ->unique();
