@@ -1,40 +1,37 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 
-// Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AttributeController;
-
+use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\CategoryController;
-
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderStatusController;
-
+use App\Http\Controllers\Admin\OrderOrderStatusController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
-
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\UserAddressController;
 use App\Http\Controllers\Client\UserProfileController;
 use App\Http\Controllers\Client\ProductDetailController;
-
+use App\Http\Controllers\Client\CategoryController as ClientCategoryController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
+use App\Http\Controllers\Client\ReviewController as AdminReviewController;
+//  use App\Http\Controllers\Client\ProductController as ClientProductController;
 
-
-// Auth Controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -77,9 +74,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
-   Route::post('/checkout/momo', [CheckoutController::class, 'processMomoPayment'])->name('momo.payment');
-Route::get('/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
-Route::post('/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('momo.ipn');
+    Route::post('/checkout/momo', [CheckoutController::class, 'processMomoPayment'])->name('checkout.momo');
+    Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('checkout.momo.return');
+    Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('checkout.momo.ipn');
     Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
     Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
@@ -135,8 +132,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
 
-    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
 });
 
 /*
@@ -145,7 +140,44 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
+Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
+
+    // Categories với chức năng thùng rác
+    Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
+    Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+    Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+    Route::resource('categories', CategoryController::class);
+    // Quản lý sản phẩm
+    Route::resource('products', ProductController::class);
+    Route::patch('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+    Route::get('admin/products/trashed', [ProductController::class, 'trashed'])->name('products.trashed');
+    Route::delete('admin/products/force-delete/{id}', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+
+    Route::resource('attributes', AttributeController::class);
+    Route::resource('carts', CartController::class);
+    Route::resource('comments', AdminCommentController::class);
+
+    // Thêm route cho toggleVisibility
+    Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleComment'])->name('comments.toggle');
+    Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
+    Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
+
+
+
+    Route::resource('coupon', CouponController::class);
+    Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
+    Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
+    Route::resource('brands', BrandController::class);
+
+    // Quản lý trạng thái đơn hàng
+    Route::resource('order_statuses', OrderStatusController::class);
+
+    // Quản lý biến thể sản phẩm
+    Route::prefix('products/{product}')->name('products.')->group(function () {
+        Route::resource('variants', ProductVariantController::class)->except(['show']);
+    });
 
     // Quản lý đơn hàng
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
@@ -167,4 +199,4 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 
 
-
+});
