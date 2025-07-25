@@ -40,10 +40,33 @@
                         <strong class="card-title">Danh sách sản phẩm</strong>
                     </div>
                     <div class="card-body">
-                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                        <table id="bootstrap-data" class="table table-striped table-bordered">
+                             <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
+                        <div>
+                            <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                            <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
+                                
+                                    <option value="1" >10</option>
+                                    <option value="2" >25</option>
+                                    <option value="3" >50</option>
+                                    <option value="4" >100</option>
+                                
+                            </select>
+                            <span></span>
+                        </div>
+                        
+                    </form>
+               
+            
+                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
+                        <div class="input-group">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                        </div>
+                    </form>
                             <thead>
                                 <tr>
-                                    <th>Stt</th>
+                                    {{-- <th>Stt</th> --}}
                                     <th>Ảnh</th>
                                     <th>Tên</th>
                                     <th>Danh mục</th>
@@ -59,7 +82,7 @@
                             <tbody>
                                 @foreach($products as $product)
                                 <tr>
-                                    <td>{{ $products->count() - $loop->index }}</td>
+                                    {{-- <td>{{ $products->count() - $loop->index }}</td> --}}
                                     <td>
                                         @if($product->thumbnail)
                                         <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">

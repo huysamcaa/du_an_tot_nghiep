@@ -26,7 +26,59 @@
         <div class="row">
             <div class="col-lg-4 col-xl-3">
                 <div class="shopSidebar">
-                    <!-- Lọc theo danh mục -->
+
+                    @php
+                    use App\Models\Admin\AttributeValue;
+
+                    $activeFilters = [];
+
+                    if ($selectedCategory) {
+                    $activeFilters['category_id'] = $categories->firstWhere('id', $selectedCategory)?->name;
+                    }
+
+                    if ($selectedBrand) {
+                    $activeFilters['brand'] = $availableBrands[$selectedBrand] ?? $selectedBrand;
+                    }
+
+                    if ($selectedSize) {
+                    $activeFilters['size'] = $selectedSize;
+                    }
+
+                    if ($selectedColor) {
+                    $colorValue = AttributeValue::where('hex', $selectedColor)
+                    ->whereHas('attribute', fn($q) => $q->where('slug', 'color'))
+                    ->value('value');
+                    $activeFilters['color'] = $colorValue ?? $selectedColor;
+                    }
+
+                    if (request('price_min') || request('price_max')) {
+                    $activeFilters['price'] = number_format(request('price_min', $min), 0, ',', '.') . '₫ - ' . number_format(request('price_max', $max), 0, ',', '.') . '₫';
+                    }
+                    @endphp
+
+                    @if(count($activeFilters))
+                    <aside class="widget">
+                        <h3 class="widgetTitle">Đang lọc</h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($activeFilters as $key => $value)
+                            @php
+                            $query = request()->except([$key, 'page']);
+                            @endphp
+                            <a href="{{ url()->current() . '?' . http_build_query($query) }}"
+                                class="btn btn-outline-secondary btn-sm">
+                                {{ $value }} &times;
+                            </a>
+                            @endforeach
+
+                            <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">
+                                Xóa tất cả
+                            </a>
+                        </div>
+                    </aside>
+                    @endif
+
+
+                    <!-- Danh mục -->
                     <aside class="widget">
                         <h3 class="widgetTitle">Danh mục</h3>
                         <ul class="categoryFilterList">
@@ -38,14 +90,9 @@
                             </li>
                             @foreach($categories as $cat)
                             <li>
-                                <a
-                                    href="{{ url()->current() . '?' . http_build_query(array_merge(
-                                     request()->except(['category_id','page']),
-                                     ['category_id' => $cat->id]
-                                    )) }}"
+                                <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id','page']), ['category_id' => $cat->id])) }}"
                                     class="{{ (string)$selectedCategory === (string)$cat->id ? 'active' : '' }}">
                                     {{ $cat->name }}
-                                    {{-- Optional: hiển thị số sản phẩm --}}
                                     @if(isset($cat->products_count)) ({{ $cat->products_count }}) @endif
                                 </a>
                             </li>
@@ -53,7 +100,7 @@
                         </ul>
                     </aside>
 
-                    <!-- Lọc theo giá, kích cỡ, màu sắc, thương hiệu -->
+                    <!-- Giá -->
                     <aside class="widget priceFilter">
                         <h3 class="widgetTitle">Lọc theo giá</h3>
                         <div class="shopWidgetWraper">
@@ -65,19 +112,19 @@
                                 <div id="sliderRange"></div>
 
                                 <div class="pfsWrap d-flex align-items-center mt-2">
-                                    <label class="me-2">Giá: </label>
-                                    <span id="amount">{{ number_format($min,0,',','.') }}₫ - {{ number_format($max,0,',','.') }}₫</span>
+                                    <label class="me-2">Giá:</label>
+                                    <span id="amount">{{ number_format($min, 0, ',', '.') }}₫ - {{ number_format($max, 0, ',', '.') }}₫</span>
                                 </div>
 
                                 <input type="hidden" name="price_min" id="price_min" value="{{ $min }}">
                                 <input type="hidden" name="price_max" id="price_max" value="{{ $max }}">
 
-                                <button type="submit" class="btn btn-sm btn-outline-secondary">Áp dụng</button>
-
+                                <button type="submit" class="btn btn-sm btn-outline-secondary mt-2">Áp dụng</button>
                             </form>
                         </div>
                     </aside>
 
+                    <!-- Kích cỡ -->
                     <aside class="widget sizeFilter">
                         <h3 class="widgetTitle">Kích cỡ</h3>
                         <form action="{{ url()->current() }}" method="get" id="sizeFilterForm">
@@ -89,11 +136,7 @@
                                 @foreach($availableSizes as $size)
                                 @php $id = "size_{$size}"; @endphp
                                 <div class="pswItem">
-                                    <input
-                                        type="radio"
-                                        name="size"
-                                        id="{{ $id }}"
-                                        value="{{ $size }}"
+                                    <input type="radio" name="size" id="{{ $id }}" value="{{ $size }}"
                                         {{ $selectedSize === $size ? 'checked' : '' }}
                                         onchange="document.getElementById('sizeFilterForm').submit();" />
                                     <label for="{{ $id }}">{{ $size }}</label>
@@ -103,6 +146,7 @@
                         </form>
                     </aside>
 
+                    <!-- Màu sắc -->
                     <aside class="widget colorFilter">
                         <h3 class="widgetTitle">Màu sắc</h3>
                         <form action="{{ url()->current() }}" method="get">
@@ -110,23 +154,14 @@
                             <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                             @endforeach
 
-                            <div class="productColorWrap">
+                            <div class="productColorWrap d-flex flex-wrap gap-2 mt-2">
                                 @foreach($availableColors as $hex)
-                                @php
-                                $pcwi = 'pcwi' . ($loop->iteration);
-                                $id = 'color_' . md5($hex);
-                                @endphp
-
-                                <div class="pcwItem {{ $pcwi }}">
-                                    <input
-                                        type="radio"
-                                        name="color"
-                                        id="{{ $id }}"
-                                        value="{{ $hex }}"
+                                @php $id = 'color_' . md5($hex); @endphp
+                                <div class="colorOptionWrapper text-center">
+                                    <input type="radio" name="color" id="{{ $id }}" value="{{ $hex }}"
                                         {{ $selectedColor === $hex ? 'checked' : '' }}
-                                        onchange="this.form.submit();" />
-                                    <label
-                                        for="{{ $id }}"
+                                        onchange="this.form.submit();" hidden>
+                                    <label for="{{ $id }}" class="customColorCircle"
                                         style="background-color: {{ Str::start($hex, '#') }};"></label>
                                 </div>
                                 @endforeach
@@ -134,13 +169,13 @@
                         </form>
                     </aside>
 
+                    <!-- Thương hiệu -->
                     <aside class="widget">
                         <h3 class="widgetTitle">Thương hiệu</h3>
                         <ul class="brandFilterList">
                             @foreach($availableBrands as $brandId => $brandName)
                             <li>
-                                <a
-                                    href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['brand','page']),['brand' => $brandId])) }}"
+                                <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['brand','page']),['brand' => $brandId])) }}"
                                     class="{{ (string)$selectedBrand === (string)$brandId ? 'active' : '' }}">
                                     {{ $brandName }}
                                 </a>
@@ -149,20 +184,9 @@
                         </ul>
                     </aside>
 
-                    <!-- <aside class="widget">
-                        <h3 class="widgetTitle">Featured Items</h3>
-                        <div class="productWidgets">
-                            <div class="pwItems">
-                                <img src="images/widgets/1.jpg" alt="Ulina Product" />
-                                <h3><a href="shop_details1.html">Luxurius trendy dress for women</a></h3>
-                                <div class="pi01Price">
-                                    <ins>$99</ins>
-                                </div>
-                            </div>
-                        </div>
-                    </aside> -->
                 </div>
             </div>
+
 
             <div class="col-lg-8 col-xl-9">
                 <div class="row shopAccessRow">
@@ -257,6 +281,7 @@
                                                 }
                                                 }
                                                 $colors = $colors->unique('id');
+
                                                 // Lấy danh sách size
                                                 $sizes = $product->variantsWithAttributes()
                                                 ->flatMap(fn($v) => $v->attributeValues->filter(fn($val) => $val->attribute->slug === 'size'))
@@ -267,14 +292,16 @@
                                                     @if($colors->isNotEmpty())
                                                     <div class="pi01VColor">
                                                         @foreach($colors as $color)
-                                                        <div class="pi01VCItem">
+                                                        <div class="colorOptionWrapper">
                                                             <input
                                                                 type="radio"
                                                                 name="color_{{ $product->id }}"
                                                                 id="color_{{ $product->id }}_{{ $color->id }}"
-                                                                value="{{ $color->value }}" />
+                                                                value="{{ $color->value }}"
+                                                                hidden>
                                                             <label
                                                                 for="color_{{ $product->id }}_{{ $color->id }}"
+                                                                class="customColorCircle"
                                                                 style="background-color: {{ Str::start($color->hex, '#') }};"
                                                                 title="{{ ucfirst($color->value) }}"></label>
                                                         </div>
@@ -290,7 +317,7 @@
                                                                 type="radio"
                                                                 name="size_{{ $product->id }}"
                                                                 id="size_{{ $product->id }}_{{ $size->id }}"
-                                                                value="{{ $size->value }}" />
+                                                                value="{{ $size->value }}">
                                                             <label for="size_{{ $product->id }}_{{ $size->id }}">
                                                                 {{ strtoupper($size->value) }}
                                                             </label>

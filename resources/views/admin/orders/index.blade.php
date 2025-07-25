@@ -58,15 +58,15 @@
             <td>{{ $order->created_at }}</td>
             <td>
                 <span class="badge bg-info">
-                    {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa có trạng thái' }}
+                    {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa Thanh Toán' }}
                 </span>
                 <br>
-                <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
+                {{-- <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
                     @csrf
                     @if(!$order->is_paid)
                         <button type="submit" class="btn btn-success btn-sm mt-2">Xác nhận đã thanh toán COD</button>
                     @endif
-                </form>
+                </form> --}}
             </td>
             <td>
                 <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-info btn-sm">Xem</a>

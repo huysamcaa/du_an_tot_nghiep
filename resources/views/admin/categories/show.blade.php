@@ -62,9 +62,13 @@
                 <table class="table table-hover align-middle">
                     <thead class="thead-light">
                         <tr>
-                            <th>ID</th>
+                            
+                            <th>Hình ảnh</th>
                             <th>Tên sản phẩm</th>
-                            <th>Giá</th>
+                            <th>Thương hiệu</th>
+                            <th>Giá gốc</th>
+                            <th>Giá sale</th>
+                            <th>Tồn kho</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
                         </tr>
@@ -72,17 +76,67 @@
                     <tbody>
                         @foreach($products as $product)
                             <tr>
-                                <td>{{ $product->id }}</td>
-                                <td>{{ $product->name }}</td>
+                                
+                                <td>
+                                        @if($product->thumbnail)
+                                        <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
+                                        @else
+                                        <span>Không có ảnh</span>
+                                        @endif
+                                    </td>
+                
+                                <td>
+                                    {{ $product->name }}
+                                    <div class="small text-muted">
+                                        @if($product->is_featured)
+                                            <span class="badge badge-primary mr-1">Nổi bật</span>
+                                        @endif
+                                        @if($product->is_trending)
+                                            <span class="badge badge-warning mr-1">Xu hướng</span>
+                                        @endif
+                                        @if($product->is_sale)
+                                            <span class="badge badge-danger">Đang sale</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>
+                                    @php
+                                        $brandName = '';
+                                        switch($product->brand_id) {
+                                            case 1: $brandName = 'Nike'; break;
+                                            case 2: $brandName = 'Adidas'; break;
+                                            // Thêm các case khác tương ứng
+                                            default: $brandName = 'Khác';
+                                        }
+                                    @endphp
+                                    {{ $brandName }}
+                                </td>
                                 <td class="text-right">{{ number_format($product->price, 0, ',', '.') }} đ</td>
+                                <td class="text-right">
+                                    @if($product->sale_price)
+                                        {{ number_format($product->sale_price, 0, ',', '.') }} đ
+                                        @if($product->sale_price_start_at && $product->sale_price_end_at)
+                                            <div class="small text-muted">
+                                                {{ date('d/m/Y', strtotime($product->sale_price_start_at)) }} - 
+                                                {{ date('d/m/Y', strtotime($product->sale_price_end_at)) }}
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">{{ $product->stock }}</td>
                                 <td>
                                     @if($product->is_active)
                                         <span class="badge badge-success">Hiển thị</span>
                                     @else
                                         <span class="badge badge-secondary">Ẩn</span>
                                     @endif
+                                    @if($product->deleted_at)
+                                        <span class="badge badge-danger">Đã xóa</span>
+                                    @endif
                                 </td>
-                                <td>{{ $product->created_at->format('d/m/Y H:i') }}</td>
+                                <td>{{ date('d/m/Y H:i', strtotime($product->created_at)) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

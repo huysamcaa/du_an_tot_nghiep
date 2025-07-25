@@ -2,6 +2,7 @@
 
 namespace App\Models\Shared;
 
+use App\Models\Admin\ProductVariant;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
@@ -43,4 +44,8 @@ class Order extends Model
     {
         return $this->hasOne(\App\Models\Admin\OrderOrderStatus::class, 'order_id')->orderByDesc('created_at');
     }
+     public function variant()
+{
+    return $this->belongsTo(ProductVariant::class);
+}
 }
