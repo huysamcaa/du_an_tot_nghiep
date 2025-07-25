@@ -5,6 +5,14 @@
 <h1 class="mb-4">Danh Sách Mã Giảm Giá</h1>
 
 <a href="{{ route('admin.coupon.create') }}" class="btn btn-primary mb-4">Thêm Mới</a>
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Đóng">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
 
 <!-- Thanh Breadcrumb -->
 <nav aria-label="breadcrumb">
@@ -39,6 +47,15 @@
     </div>
 </form>
 
+@php
+    $groupLabel = [
+        'guest' => 'Khách',
+        'member' => 'Thành viên',
+        'vip' => 'VIP',
+        null => 'Tất cả'
+    ];
+@endphp
+
 <!-- Danh sách mã giảm giá -->
 <table class="table table-bordered table-striped table-hover">
     <thead class="">
@@ -65,9 +82,15 @@
             <td>{{ $loop->iteration + ($coupons->currentPage() - 1) * $coupons->perPage() }}</td>
             <td>{{ $coupon->code }}</td>
             <td>{{ $coupon->title }}</td>
-            <td>{{ $coupon->discount_value }} {{ $coupon->discount_type == 'percent' ? '%' : 'VNĐ' }}</td>
-            <td>{{ $coupon->user_group ?? 'Tất cả' }}</td>
-            <td>{{ $coupon->usage_count }}/{{ $coupon->usage_limit ?? '∞' }}</td>
+            <td>
+                @if ($coupon->discount_type === 'percent')
+                    {{ (int) $coupon->discount_value }}%
+                @else
+                    {{ number_format((int) $coupon->discount_value) }} VNĐ
+                @endif
+            </td>
+            <td>{{ $groupLabel[$coupon->user_group] ?? 'Tất cả' }}</td>
+            <td>{{ $coupon->usage_count ?? 0 }}/{{ $coupon->usage_limit ?? '∞' }}</td>
             <td>
                 <span class="badge badge-{{ $coupon->is_expired ? 'warning' : 'secondary' }}">
                     {{ $coupon->is_expired ? 'Có hạn' : 'Vô hạn' }}
