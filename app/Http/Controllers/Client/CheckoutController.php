@@ -161,8 +161,7 @@ class CheckoutController extends Controller
 
         // Chuẩn bị dữ liệu thanh toán
         $requestId = time() . "";
-        $requestType = "payWithATM";
-        $orderInfo = "Thanh toán qua MoMo";
+        $orderInfo = "Thanh toán đơn hàng #" . $orderId;
         $extraData = json_encode([
             'order_id' => $order->id,
             'user_id' => $userId,
@@ -171,7 +170,7 @@ class CheckoutController extends Controller
         $redirectUrl = route('checkout.momo.return');
         $ipnUrl = route('checkout.momo.ipn');
 
-        // Tạo chữ ký
+        // Tạo chữ ký theo đúng định dạng MoMo yêu cầu
         $rawHash = "accessKey=" . $this->momoConfig['accessKey'] . 
                   "&amount=" . $totalAmount . 
                   "&extraData=" . $extraData . 
@@ -181,15 +180,15 @@ class CheckoutController extends Controller
                   "&partnerCode=" . $this->momoConfig['partnerCode'] . 
                   "&redirectUrl=" . $redirectUrl . 
                   "&requestId=" . $requestId . 
-                  "&requestType=" . $requestType;
+                  "&requestType=" . $this->momoConfig['requestType'];
 
         $signature = hash_hmac("sha256", $rawHash, $this->momoConfig['secretKey']);
 
         // Tạo data gửi đi
         $data = [
             'partnerCode' => $this->momoConfig['partnerCode'],
-            'partnerName' => "Your Shop",
-            'storeId' => "MomoTestStore",
+            'partnerName' => "Test Merchant",
+            'storeId' => "store001",
             'requestId' => $requestId,
             'amount' => $totalAmount,
             'orderId' => $orderId,
@@ -198,9 +197,11 @@ class CheckoutController extends Controller
             'ipnUrl' => $ipnUrl,
             'lang' => 'vi',
             'extraData' => $extraData,
-            'requestType' => $requestType,
+            'requestType' => $this->momoConfig['requestType'],
             'signature' => $signature
         ];
+
+        Log::info('MoMo Request Data:', $data);
 
         // Gửi request đến MoMo
         $response = Http::withHeaders([
@@ -210,6 +211,7 @@ class CheckoutController extends Controller
         $result = $response->json();
 
         if (!isset($result['payUrl'])) {
+            Log::error('MoMo Payment Error Response:', $result);
             throw new \Exception($result['message'] ?? 'Không thể khởi tạo thanh toán MoMo');
         }
 
@@ -425,48 +427,49 @@ class CheckoutController extends Controller
 }
 
     protected function verifyMomoSignature($params)
-    {
-        $requiredFields = [
-            'partnerCode', 'orderId', 'requestId', 'amount',
-            'orderInfo', 'orderType', 'transId', 'resultCode',
-            'message', 'payType', 'responseTime', 'extraData',
-            'signature'
-        ];
+{
+    $requiredFields = [
+        'partnerCode', 'orderId', 'requestId', 'amount',
+        'orderInfo', 'orderType', 'transId', 'resultCode',
+        'message', 'payType', 'responseTime', 'extraData',
+        'signature'
+    ];
 
-        // Kiểm tra các trường bắt buộc
-        foreach ($requiredFields as $field) {
-            if (!isset($params[$field])) {
-                Log::channel('momo')->error("Missing required field: {$field}");
-                return false;
-            }
+    // Kiểm tra các trường bắt buộc
+    foreach ($requiredFields as $field) {
+        if (!isset($params[$field])) {
+            Log::channel('momo')->error("Missing required field: {$field}");
+            return false;
         }
-
-        // Tạo chuỗi raw hash
-        $rawHash = "accessKey=" . $this->momoConfig['accessKey'] .
-            "&amount=" . $params['amount'] .
-            "&extraData=" . $params['extraData'] .
-            "&message=" . ($params['message'] ?? '') .
-            "&orderId=" . $params['orderId'] .
-            "&orderInfo=" . $params['orderInfo'] .
-            "&orderType=" . $params['orderType'] .
-            "&partnerCode=" . $params['partnerCode'] .
-            "&payType=" . ($params['payType'] ?? '') .
-            "&requestId=" . ($params['requestId'] ?? '') .
-            "&responseTime=" . $params['responseTime'] .
-            "&resultCode=" . $params['resultCode'] .
-            "&transId=" . $params['transId'];
-
-        // Tính toán chữ ký
-        $computedSignature = hash_hmac('sha256', $rawHash, $this->momoConfig['secretKey']);
-
-        Log::channel('momo')->info('Signature verification', [
-            'rawHash' => $rawHash,
-            'computed' => $computedSignature,
-            'received' => $params['signature']
-        ]);
-
-        return hash_equals($computedSignature, $params['signature']);
     }
+
+    // Tạo chuỗi raw hash theo đúng thứ tự MoMo yêu cầu
+    $rawHash = "accessKey=" . $this->momoConfig['accessKey'] .
+        "&amount=" . $params['amount'] .
+        "&extraData=" . $params['extraData'] .
+        "&message=" . $params['message'] .
+        "&orderId=" . $params['orderId'] .
+        "&orderInfo=" . $params['orderInfo'] .
+        "&orderType=" . $params['orderType'] .
+        "&partnerCode=" . $params['partnerCode'] .
+        "&payType=" . $params['payType'] .
+        "&requestId=" . $params['requestId'] .
+        "&responseTime=" . $params['responseTime'] .
+        "&resultCode=" . $params['resultCode'] .
+        "&transId=" . $params['transId'];
+
+    Log::info('Raw hash for signature verification: ' . $rawHash);
+
+    // Tính toán chữ ký
+    $computedSignature = hash_hmac('sha256', $rawHash, $this->momoConfig['secretKey']);
+
+    Log::info('Signature verification', [
+        'computed' => $computedSignature,
+        'received' => $params['signature']
+    ]);
+
+    return hash_equals($computedSignature, $params['signature']);
+}
 
     protected function computeMomoSignature($input)
     {
