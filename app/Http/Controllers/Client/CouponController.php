@@ -22,7 +22,7 @@ public function active()
 {
     $user = Auth::user();
 
-    // 🔍 Lấy danh sách sản phẩm user đã mua
+    // Lấy danh sách sản phẩm user đã mua
     $userProductIds = $user->orders()
         ->with('items') // đảm bảo Order có quan hệ items()
         ->get()
@@ -74,6 +74,7 @@ public function active()
 
     return view('client.coupons.active', compact('coupons'));
 }
+
     public function show($id)
     {
         $user = Auth::user();
@@ -123,6 +124,7 @@ public function active()
         return redirect()->back()->with('warning', 'Mã không hợp lệ hoặc đã hết lượt.');
     }
 
+
     if ($user->coupons()->where('coupon_id', $id)->exists()) {
         return redirect()->back()->with('warning', 'Bạn đã nhận mã này.');
     }
@@ -160,5 +162,6 @@ public function active()
 
     return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
 }
+
 
 }
