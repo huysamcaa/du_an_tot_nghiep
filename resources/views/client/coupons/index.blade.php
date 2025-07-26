@@ -40,7 +40,9 @@
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title text-primary"><strong>{{ $coupon->code }}</strong></h5>
+                                <h5 class="card-title text-primary">
+                                    <strong>{{ $coupon->code }}</strong>
+                                </h5>
                                 <p class="text-muted">{{ $coupon->title }}</p>
 
                                 <p>
@@ -51,9 +53,12 @@
                                     </span>
                                 </p>
 
-                                @if ($coupon->user_group)
-                                    <p><strong>Nhóm áp dụng:</strong> {{ ucfirst($coupon->user_group) }}</p>
-                                @endif
+                                {{-- Nhóm người dùng áp dụng --}}
+                                <p>
+                                    <strong>Nhóm áp dụng:</strong>
+                                    {{ $coupon->user_group ? ucfirst($coupon->user_group) : 'Tất cả người dùng' }}
+                                    <i class="fas fa-info-circle text-muted" title="Chỉ người thuộc nhóm này mới thấy và nhận được mã."></i>
+                                </p>
 
                                 <ul class="list-unstyled small mb-3">
                                     @if ($coupon->start_date)
@@ -64,6 +69,7 @@
                                     @endif
                                 </ul>
 
+                                {{-- Điều kiện hạn chế nếu có --}}
                                 @if ($coupon->restriction)
                                     <small class="text-muted d-block">Đơn tối thiểu: {{ number_format($coupon->restriction->min_order_value) }} VND</small>
                                     <small class="text-muted d-block">Giảm tối đa: {{ number_format($coupon->restriction->max_discount_value) }} VND</small>
@@ -71,7 +77,7 @@
 
                                 <a href="{{ route('client.coupons.show', $coupon->id) }}" class="btn btn-outline-info mt-3">Xem chi tiết</a>
 
-                                {{-- Xử lý trạng thái nút --}}
+                                {{-- Nút nhận mã --}}
                                 @auth
                                     @php
                                         $claimed = auth()->user()->coupons->contains($coupon->id);

@@ -11,21 +11,28 @@ use App\Models\CouponUser;
 class CouponController extends Controller
 {
        //  Tất cả mã giảm giá công khai
-    public function index()
-    {
-        $coupons = Coupon::with('restriction')
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->orderByDesc('created_at')
-            ->get();
+   public function index()
+{
+    $user = Auth::user(); // Lấy người dùng hiện tại
 
-        return view('client.coupons.index', compact('coupons'));
-    }
+    $coupons = Coupon::with('restriction')
+        ->where('is_active', true)
+        ->where(function ($query) {
+            $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+        })
+        ->where(function ($query) {
+            $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })
+        ->where(function ($query) use ($user) {
+            // Chỉ hiển thị mã không giới hạn nhóm hoặc đúng với nhóm người dùng
+            $query->whereNull('user_group')
+                  ->orWhere('user_group', $user->user_group ?? 'guest');
+        })
+        ->orderByDesc('created_at')
+        ->get();
+
+    return view('client.coupons.index', compact('coupons'));
+}
     public function received()
 {
     $user = Auth::user();
@@ -47,7 +54,8 @@ class CouponController extends Controller
                 $query->whereNull('end_date')->orWhere('end_date', '>=', now());
             })
             ->where(function ($query) use ($user) {
-                $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
+    $query->whereNull('user_group')->orWhere('user_group', $user->user_group ?? 'guest');
+
             })
             ->where(function ($query) {
                 $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
@@ -71,7 +79,8 @@ class CouponController extends Controller
             $query->whereNull('end_date')->orWhere('end_date', '>=', now());
         })
         ->where(function ($query) use ($user) {
-            return $query->whereNull('user_group')->orWhere('user_group', $user->group ?? 'guest');
+            return $query->whereNull('user_group')->orWhere('user_group', $user->user_group ?? 'guest');
+
         })
         ->where(function ($query) {
             $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');

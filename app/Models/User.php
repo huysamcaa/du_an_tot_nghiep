@@ -25,6 +25,7 @@ class User extends Authenticatable
         'birthday',
         'role',
         'status',
+        'user_group',
         'code_verified_email',
         'bank_name',
         'user_bank_name',

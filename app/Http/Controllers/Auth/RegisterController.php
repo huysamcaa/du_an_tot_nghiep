@@ -98,6 +98,7 @@ class RegisterController extends Controller
             'gender' => $data['gender'] ?? null,
             'birthday' => $data['birthday'] ?? null,
             'status' => 'active', // Mặc định là 'active'
+            'user_group' => 'member',
         ]);
     }
 
