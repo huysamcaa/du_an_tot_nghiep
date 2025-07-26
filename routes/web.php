@@ -121,8 +121,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
 
     // Coupon
-    Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
-    Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
+     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
+    Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
@@ -131,7 +131,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-
 });
 
 /*
@@ -197,6 +196,4 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
-
-
 });
