@@ -51,6 +51,13 @@ return [
     */
 
     'channels' => [
+        
+        'momo' => [
+        'driver' => 'daily',
+        'path' => storage_path('logs/momo.log'),
+        'level' => 'info',
+        'days' => 14,
+    ],
 
         'stack' => [
             'driver' => 'stack',

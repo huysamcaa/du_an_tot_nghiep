@@ -14,6 +14,14 @@
 
 
                 </li>
+                <li class="menu-item-has-children dropdown">
+                <li>
+                    <a href="http://127.0.0.1:8000/admin">
+                        <i class="menu-icon fa fa-comments"></i> Thống Kê
+                    </a>
+                </li>
+
+                </li>
 
                 <!-- Các menu item khác -->
                 <li class="menu-item-has-children dropdown">
@@ -27,6 +35,7 @@
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
+               
 
                 <li class="menu-title"></li><!-- /.menu-title -->
                 <li class="menu-item-has-children dropdown">

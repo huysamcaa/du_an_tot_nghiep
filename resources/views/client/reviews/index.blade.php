@@ -1,9 +1,23 @@
 @extends('client.layouts.app')
 
 @section('content')
-<div class="checkoutPage">
-    <div class="container mt-4">
-        <h2>Đánh giá của tôi</h2>
+
+    
+        <section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Đánh Giá Của Tôi</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{ route('client.home') }}">Trang chủ</a>  >  <span>Đánh Giá Của Tôi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="container mt-4">
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

@@ -22,7 +22,7 @@
     </ol>
 </nav>
 
-<!-- Tạo phần "Show entries" và tìm kiếm -->
+{{-- <!-- Tạo phần "Show entries" và tìm kiếm -->
 <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex justify-content-between mb-3">
     <!-- Phân trang -->
     <div class="d-flex align-items-center">
@@ -42,11 +42,34 @@
         <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Tìm kiếm ">
         <button type="submit" class="btn btn-primary ml-2">Tìm kiếm</button>
     </div>
-</form>
+</form> --}}
 
 <!-- Bảng Danh Sách Đánh Giá -->
 <table class="table table-bordered table-striped">
-    <thead class="table-warning">
+    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
+                        <div>
+                            <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                            <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
+                                
+                                    <option value="1" >10</option>
+                                    <option value="2" >25</option>
+                                    <option value="3" >50</option>
+                                    <option value="4" >100</option>
+                                
+                            </select>
+                            <span></span>
+                        </div>
+                        
+                    </form>
+               
+            
+                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
+                        <div class="input-group">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                        </div>
+                    </form>
+    <thead class="">
         <tr>
             <th>STT</th>
             <th>Người Dùng</th>
