@@ -19,6 +19,7 @@
                     <th>SĐT</th>
                     <th>Giới tính</th>
                     <th>Vai trò</th>
+                    <th>Nhóm</th>
                     <th>Trạng thái</th>
                     <th>Ngày sinh</th>
                     <th>Ngày tạo</th>
@@ -37,6 +38,8 @@
                     <td>{{ $user->phone_number }}</td>
                     <td>{{ ucfirst($user->gender) }}</td>
                     <td><span class="badge badge-info">{{ $user->role }}</span></td>
+                    <td><span class="badge badge-secondary">{{ ucfirst($user->user_group ?? 'Không xác định') }}</span></td>
+
                     <td>
                         @if($user->status === 'active')
                             <span class="badge badge-success">Hoạt động</span>

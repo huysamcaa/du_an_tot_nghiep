@@ -32,7 +32,7 @@ use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-
+use App\Http\Controllers\Client\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -121,8 +121,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
 
     // Coupon
-    Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
-    Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
+     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
+    Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
@@ -131,7 +131,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-
+ // Route hiển thị thông báo cho người dùng
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
+    // Route đánh dấu thông báo đã đọc
+    Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
+    Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
 });
 
 /*
@@ -197,6 +201,4 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
-
-
 });

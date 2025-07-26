@@ -52,7 +52,8 @@
                 <p><strong>Giảm tối đa:</strong> {{ number_format($coupon->restriction->max_discount_value) }} VND</p>
             @endif
 
-            <a href="{{ route('client.coupons.active') }}" class="btn btn-outline-info btn-sm mt-3">Quay lại</a>
+          <a href="{{ route('client.coupons.index') }}" class="btn btn-outline-info btn-sm mt-3">Quay lại</a>
+
         </div>
     </div>
 </div>

@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+
 class UserController extends Controller
 {
     public function index()
@@ -18,7 +20,7 @@ class UserController extends Controller
     }
 
 
-public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -29,16 +31,23 @@ public function store(Request $request)
             'gender' => 'nullable|in:male,female',
             'birthday' => 'nullable|date',
             'role' => 'required|in:user,admin',
+            'user_group' => 'nullable|in:guest,member,vip',
         ]);
 
         $data = $request->only([
-            'name', 'email', 'phone_number', 'gender', 'birthday', 'role'
+            'name',
+            'email',
+            'phone_number',
+            'gender',
+            'birthday',
+            'role',
+            'user_group'
         ]);
         $data['password'] = Hash::make($request->password);
         $data['status'] = 'active';
         $data['loyalty_points'] = 0;
         $data['is_change_password'] = false;
-
+       
         // Xử lý upload avatar nếu có
         if ($request->hasFile('avatar')) {
             $avatarPath = $request->file('avatar')->store('avatars', 'public');

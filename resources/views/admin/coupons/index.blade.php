@@ -86,7 +86,8 @@
                 @if ($coupon->discount_type === 'percent')
                     {{ (int) $coupon->discount_value }}%
                 @else
-                    {{ number_format((int) $coupon->discount_value) }} VNĐ
+                    {{ number_format($coupon->discount_value, 0, ',', '.') }} VNĐ
+
                 @endif
             </td>
             <td>{{ $groupLabel[$coupon->user_group] ?? 'Tất cả' }}</td>
