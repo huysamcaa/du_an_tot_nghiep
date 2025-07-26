@@ -110,7 +110,7 @@
                                 <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
                                 <input type="number" class="carqty input-text qty text" name="quantity" value="1" min="1">
                                 <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
-                            </div> 
+                            </div>
                             <br>
                             <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
                             <a href="wishlist.html" class="pcWishlist"><i class="fa-solid fa-heart"></i></a>
@@ -337,94 +337,124 @@
         </div>
 
         <!-- Sản phẩm liên quan -->
-        <div class="row relatedProductRow">
+      <div class="row relatedProductRow">
+    <div class="col-lg-12">
+        <h2 class="secTitle">Sản phẩm liên quan</h2>
+        <div class="row">
             <div class="col-lg-12">
-                <h2 class="secTitle">Sản phẩm liên quan</h2>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="productCarousel owl-carousel">
-                            @foreach ($relatedProducts as $prod)
-                                <div class="productItem01 {{ $prod->comments_count ? '' : 'pi01NoRating' }}">
-                                    <div class="pi01Thumb">
-                                        <img src="{{ asset('storage/' . $prod->thumbnail) }}"
-                                            alt="{{ $prod->name }}" />
-                                        @if ($firstVar = $prod->variants->first())
-                                            <img src="{{ asset('storage/' . $firstVar->thumbnail) }}"
-                                                alt="{{ $prod->name }} - Biến thể" />
-                                        @else
-                                            <img src="{{ asset('storage/' . $prod->thumbnail) }}"
-                                                alt="{{ $prod->name }}" />
-                                        @endif
+                <div class="productCarousel owl-carousel">
+                    @foreach ($relatedProducts as $prod)
+                        <div class="productItem01 {{ $prod->comments_count ? '' : 'pi01NoRating' }}">
+                            <div class="pi01Thumb">
+                                {{-- Ảnh chính + ảnh biến thể --}}
+                                <a href="{{ route('product.detail', $prod->id) }}">
+                                    <img src="{{ asset('storage/' . $prod->thumbnail) }}" alt="{{ $prod->name }}" />
+                                    @if ($firstVar = $prod->variants->first())
+                                        <img src="{{ asset('storage/' . $firstVar->thumbnail) }}" alt="{{ $prod->name }} - Biến thể" />
+                                    @endif
+                                </a>
 
-                                        <div class="pi01Actions">
-                                            <a href="javascript:void(0);" class="pi01Cart"><i
-                                                    class="fa-solid fa-shopping-cart"></i></a>
-                                            <a href="javascript:void(0);" class="pi01QuickView"><i
-                                                    class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                            <a href="javascript:void(0);" class="pi01Wishlist"><i
-                                                    class="fa-solid fa-heart"></i></a>
-                                        </div>
-
-                                        <div class="productLabels clearfix">
-                                            @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                                <span
-                                                    class="plDis">-{{ round((100 * ($prod->price - $prod->sale_price)) / $prod->price) }}%</span>
-                                                <span class="plSale">Sale</span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="pi01Details">
-                                        @if ($prod->comments_count)
-                                            <div class="productRatings">
-                                                <div class="productRatingWrap">
-                                                    <div class="star-rating"><span></span></div>
-                                                </div>
-                                                <div class="ratingCounts">{{ $prod->comments_count }} Reviews</div>
-                                            </div>
-                                        @endif
-
-                                        <h3><a
-                                                href="{{ route('product.detail', $prod->id) }}">{{ Str::limit($prod->name, 40) }}</a>
-                                        </h3>
-
-                                        <div class="pi01Price">
-                                            @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                                <ins>{{ number_format($prod->sale_price) }}</ins>
-                                                <del>{{ number_format($prod->price) }}</del>
-                                            @else
-                                                <ins>{{ number_format($prod->price) }}</ins>
-                                            @endif
-                                        </div>
-
-                                        <div class="pi01Variations">
-                                            <div class="pi01VColor">
-                                                @foreach ($prod->variants->pluck('sku')->take(3) as $i => $sku)
-                                                    <div class="pi01VCItem">
-                                                        <input {{ $i === 0 ? 'checked' : '' }} type="radio"
-                                                            name="color{{ $prod->id }}"
-                                                            id="color{{ $prod->id }}_{{ $i }}" />
-                                                        <label
-                                                            for="color{{ $prod->id }}_{{ $i }}"></label>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                            <div class="pi01VSize">
-                                                @foreach (['S', 'M', 'L'] as $j => $size)
-                                                    <div class="pi01VSItem">
-                                                        <input {{ $j === 0 ? 'checked' : '' }} type="radio"
-                                                            name="size{{ $prod->id }}"
-                                                            id="size{{ $prod->id }}_{{ $size }}" />
-                                                        <label
-                                                            for="size{{ $prod->id }}_{{ $size }}">{{ $size }}</label>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
+                                {{-- Actions --}}
+                                <div class="pi01Actions">
+                                    <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
+                                    <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
+                                    <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
+                                     <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                 </div>
-                            @endforeach
 
+                                {{-- Sale label --}}
+                                <div class="productLabels clearfix">
+                                    @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                        <span class="plDis">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
+                                        <span class="plSale">Sale</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="pi01Details">
+                                {{-- Star rating + Reviews --}}
+                                @if ($prod->comments_count)
+                                    <div class="productRatings">
+                                        <div class="productRatingWrap">
+                                            <div class="star-rating"><span></span></div>
+                                        </div>
+                                        <div class="ratingCounts">{{ $prod->comments_count }} Reviews</div>
+                                    </div>
+                                @endif
+
+                                {{-- Tên sản phẩm --}}
+                                <h3>
+                                    <a href="{{ route('product.detail', $prod->id) }}">
+                                        {{ Str::limit($prod->name, 40) }}
+                                    </a>
+                                </h3>
+
+                                {{-- Giá --}}
+                                <div class="pi01Price">
+                                    @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                        <ins>{{ number_format($prod->sale_price, 0, ',', '.') }}₫</ins>
+                                        <del>{{ number_format($prod->price, 0, ',', '.') }}₫</del>
+                                    @else
+                                        <ins>{{ number_format($prod->price, 0, ',', '.') }}₫</ins>
+                                    @endif
+                                </div>
+
+                                {{-- Màu & Size từ attributeValues --}}
+                                @if(optional($prod->variantsWithAttributes())->count())
+                                    @php
+                                        // Lấy danh sách màu
+                                        $colors = collect();
+                                        foreach($prod->variantsWithAttributes() as $variant) {
+                                            foreach($variant->attributeValues as $attrVal) {
+                                                if($attrVal->attribute->slug === 'color') {
+                                                    $colors->push($attrVal);
+                                                }
+                                            }
+                                        }
+                                        $colors = $colors->unique('id');
+
+                                        // Lấy danh sách size
+                                        $sizes = $prod->variantsWithAttributes()
+                                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($val) => $val->attribute->slug === 'size'))
+                                            ->unique('id');
+                                    @endphp
+
+                                    <div class="pi01Variations">
+                                        @if($colors->isNotEmpty())
+                                            <div class="pi01VColor">
+                                                @foreach($colors as $color)
+                                                    <div class="colorOptionWrapper">
+                                                        <input type="radio"
+                                                            name="color_{{ $prod->id }}"
+                                                            id="color_{{ $prod->id }}_{{ $color->id }}"
+                                                            hidden>
+                                                        <label for="color_{{ $prod->id }}_{{ $color->id }}"
+                                                            class="customColorCircle"
+                                                            style="background-color: {{ Str::start($color->hex, '#') }};"
+                                                            title="{{ ucfirst($color->value) }}"></label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        @if($sizes->count())
+                                            <div class="pi01VSize">
+                                                @foreach($sizes as $size)
+                                                    <div class="pi01VSItem">
+                                                        <input type="radio"
+                                                            name="size_{{ $prod->id }}"
+                                                            id="size_{{ $prod->id }}_{{ $size->id }}">
+                                                        <label for="size_{{ $prod->id }}_{{ $size->id }}">
+                                                            {{ strtoupper($size->value) }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                            </div>
                         </div>
                     
                 </div>
@@ -445,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Lấy dữ liệu variants từ backend
     const variants = @json($variants);
     const product = @json($product);
-    
+
     // Các phần tử DOM quan trọng
     const form = document.getElementById('addToCartForm');
     const qtyInput = form.querySelector('[name="quantity"]');
@@ -453,35 +483,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const saleEl = document.getElementById('sale-price');
     const priceEl = document.getElementById('original-price');
     const stockEl = document.getElementById('stock-quantity');
-    
+
     // Hàm định dạng giá tiền
     const formatPrice = price => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
-    
+
     // Hàm tìm biến thể được chọn
     const getSelectedVariant = () => {
         const colorId = form.querySelector('[name="color"]:checked')?.value;
         const sizeId = form.querySelector('[name="size"]:checked')?.value;
-        
+
         // Debug: Log giá trị đang chọn
         console.log('Selected color:', colorId, 'size:', sizeId);
-        
+
         // Tìm biến thể phù hợp
-        const variant = variants.find(v => 
-            v.color_id == colorId && 
+        const variant = variants.find(v =>
+            v.color_id == colorId &&
             v.size_id == sizeId
         );
-        
+
         console.log('Found variant:', variant);
         return variant;
     };
-    
+
     // Hàm cập nhật giá và số lượng
     const updatePriceAndStock = () => {
         try {
             const variant = getSelectedVariant();
-            
+
             // Debug: Kiểm tra các phần tử DOM
             console.log('DOM Elements:', {
                 saleEl: saleEl,
@@ -489,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 stockEl: stockEl,
                 addToCartBtn: addToCartBtn
             });
-            
+
             if (variant) {
                 // Cập nhật giá
                 if (variant.sale_price > 0 && variant.sale_price < variant.price) {
@@ -503,25 +533,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     saleEl.textContent = formatPrice(variant.price);
                     if (priceEl) priceEl.style.display = 'none';
                 }
-                
+
                 // Cập nhật số lượng tồn kho
                 if (stockEl) {
                     stockEl.textContent = variant.stock || 0;
                 }
-                
+
                 // Cập nhật trạng thái nút thêm vào giỏ
                 if (addToCartBtn) {
                     addToCartBtn.disabled = variant.stock <= 0;
-                    addToCartBtn.innerHTML = variant.stock > 0 
-                        ? '<span>Thêm vào giỏ</span>' 
+                    addToCartBtn.innerHTML = variant.stock > 0
+                        ? '<span>Thêm vào giỏ</span>'
                         : '<span>Hết hàng</span>';
                 }
             } else {
                 // Nếu không tìm thấy biến thể, hiển thị giá mặc định của sản phẩm
-                const defaultPrice = product.sale_price > 0 && product.sale_price < product.price 
-                    ? product.sale_price 
+                const defaultPrice = product.sale_price > 0 && product.sale_price < product.price
+                    ? product.sale_price
                     : product.price;
-                
+
                 saleEl.textContent = formatPrice(defaultPrice);
                 if (priceEl) {
                     priceEl.textContent = formatPrice(product.price);
@@ -537,41 +567,41 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error in updatePriceAndStock:', error);
         }
     };
-    
+
     // Xử lý tăng/giảm số lượng
     form.querySelector('.btnMinus').addEventListener('click', () => {
         const currentQty = parseInt(qtyInput.value) || 1;
         qtyInput.value = Math.max(1, currentQty - 1);
     });
-    
+
     form.querySelector('.btnPlus').addEventListener('click', () => {
         const currentQty = parseInt(qtyInput.value) || 1;
         qtyInput.value = currentQty + 1;
     });
-    
+
     // Gán sự kiện khi chọn màu/size
     document.querySelectorAll('[name="color"], [name="size"]').forEach(input => {
         input.addEventListener('change', updatePriceAndStock);
     });
-    
+
     // Khởi tạo lần đầu
     updatePriceAndStock();
-    
+
     // Xử lý thêm vào giỏ hàng
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const variant = getSelectedVariant();
         const quantity = parseInt(qtyInput.value) || 1;
-        
+
         if (!variant || variant.stock <= 0) {
             return Swal.fire('Hết hàng', 'Sản phẩm đã hết hàng', 'error');
         }
-        
+
         if (quantity > variant.stock) {
             return Swal.fire('Thông báo', `Chỉ còn ${variant.stock} sản phẩm trong kho`, 'warning');
         }
-        
+
         try {
             const res = await fetch(form.action, {
                 method: 'POST',
@@ -581,9 +611,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: new FormData(form)
             });
-            
+
             const data = await res.json();
-            
+
             if (res.status === 401 || data.unauthenticated) {
                 return Swal.fire({
                     icon: 'warning',
@@ -592,14 +622,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     showConfirmButton: true
                 }).then(() => location.href = '/login');
             }
-            
+
             if (data.success) {
                 // Cập nhật số lượng trong giỏ hàng
                 const cartCountEl = document.querySelector('.anCart span');
                 if (cartCountEl) {
                     cartCountEl.innerText = data.totalProduct;
                 }
-                
+
                 return Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
@@ -608,14 +638,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     showConfirmButton: false
                 });
             }
-            
+
             Swal.fire('Thông báo', data.message || 'Có lỗi xảy ra', 'error');
         } catch (error) {
             console.error(error);
             Swal.fire('Lỗi hệ thống', 'Vui lòng thử lại sau.', 'error');
         }
     });
-    
+
     // Xử lý bình luận
     $(document).ready(function () {
         function loadComments(page = 1) {
@@ -623,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 $('#comment-list').html(data);
             });
         }
-        
+
         $('#comment-form').submit(function (e) {
             e.preventDefault();
             $.ajax({
@@ -641,13 +671,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 error: function (xhr) {
                     let errors = xhr.responseJSON?.errors;
                     let message = 'Đã xảy ra lỗi.';
-                    
+
                     if (errors && errors.content) {
                         message = errors.content[0];
                     } else if (xhr.responseJSON?.message) {
                         message = xhr.responseJSON.message;
                     }
-                    
+
                     $('#comment-message')
                         .removeClass('text-success')
                         .addClass('text-danger')
@@ -655,13 +685,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
-        
+
         $(document).on('click', '.pagination a', function (e) {
             e.preventDefault();
             const page = $(this).attr('href').split('page=')[1];
             loadComments(page);
         });
-        
+
         // Gửi trả lời
         $(document).on('submit', '.reply-form', function (e) {
             e.preventDefault();
@@ -678,14 +708,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
-        
+
         // Toggle form trả lời
         $(document).on('click', '.toggle-reply', function () {
             let id = $(this).data('id');
             $('.reply-form').addClass('d-none');
             $('#reply-form-' + id).toggleClass('d-none');
         });
-        
+
         loadComments();
     });
 });
