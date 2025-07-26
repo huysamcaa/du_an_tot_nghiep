@@ -2,6 +2,20 @@
 
 @section('content')
 <div class="checkoutPage">
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2 class="display-4 ">Chỉnh sửa thông tin cá nhân</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}" class="text-decoration-none text-dark">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span class="text-muted">Chỉnh sửa thông tin cá nhân</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 <div class="container py-5">
     <h4 class="mb-1 fw-bold">Chỉnh sửa thông tin cá nhân</h4>
     <p class="text-muted mb-4">Cập nhật thông tin để bảo vệ tài khoản và nhận ưu đãi phù hợp</p>

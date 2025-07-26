@@ -32,7 +32,7 @@ use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-
+use App\Http\Controllers\Client\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -131,6 +131,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+ // Route hiển thị thông báo cho người dùng
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
+    // Route đánh dấu thông báo đã đọc
+    Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
+    Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
 });
 
 /*

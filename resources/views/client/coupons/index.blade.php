@@ -7,9 +7,9 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="pageBannerContent text-center">
-                        <h2>Mã giảm giá</h2>
+                        <h2 class="display-4 ">Mã giảm giá</h2>
                         <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Mã giảm giá</span>
+                            <a href="{{ route('client.home') }}" class="text-decoration-none text-dark">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span class="text-muted">Mã giảm giá</span>
                         </div>
                     </div>
                 </div>
@@ -17,11 +17,11 @@
         </div>
     </section>
 
-    <div class="container py-4">
-        <h4 class="mb-3">Danh sách mã giảm giá đang hoạt động</h4>
+    <div class="container py-5">
+        <h4 class="mb-4 text-center">Danh sách mã giảm giá đang hoạt động</h4>
 
         @if (Auth::check())
-            <a href="{{ route('client.coupons.received') }}" class="btn btn-outline-secondary mb-3">Mã đã nhận</a>
+            <a href="{{ route('client.coupons.received') }}" class="btn btn-outline-secondary mb-4">Mã đã nhận</a>
         @endif
 
         @if (session('success'))
@@ -38,11 +38,9 @@
             <div class="row">
                 @foreach ($coupons as $coupon)
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0">
+                        <div class="card shadow-sm border-0 h-100">
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title text-primary">
-                                    <strong>{{ $coupon->code }}</strong>
-                                </h5>
+                                <h5 class="card-title text-primary font-weight-bold">{{ $coupon->code }}</h5>
                                 <p class="text-muted">{{ $coupon->title }}</p>
 
                                 <p>
@@ -53,7 +51,7 @@
                                     </span>
                                 </p>
 
-                                {{-- Nhóm người dùng áp dụng --}}
+                                <!-- Nhóm người dùng áp dụng -->
                                 <p>
                                     <strong>Nhóm áp dụng:</strong>
                                     {{ $coupon->user_group ? ucfirst($coupon->user_group) : 'Tất cả người dùng' }}
@@ -69,7 +67,7 @@
                                     @endif
                                 </ul>
 
-                                {{-- Điều kiện hạn chế nếu có --}}
+                                <!-- Điều kiện hạn chế nếu có -->
                                 @if ($coupon->restriction)
                                     <small class="text-muted d-block">Đơn tối thiểu: {{ number_format($coupon->restriction->min_order_value) }} VND</small>
                                     <small class="text-muted d-block">Giảm tối đa: {{ number_format($coupon->restriction->max_discount_value) }} VND</small>
@@ -77,7 +75,7 @@
 
                                 <a href="{{ route('client.coupons.show', $coupon->id) }}" class="btn btn-outline-info mt-3">Xem chi tiết</a>
 
-                                {{-- Nút nhận mã --}}
+                                <!-- Nút nhận mã -->
                                 @auth
                                     @php
                                         $claimed = auth()->user()->coupons->contains($coupon->id);

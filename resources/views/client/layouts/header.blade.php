@@ -55,6 +55,12 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
+                             <li class="menu-item">
+                                <a href="{{ route('client.coupons.index') }}">Khuyến mãi</a>
+                            </li>
+                             <li class="menu-item">
+                                <a href="{{ route('client.notifications.index') }}">Thông báo</a>
+                            </li>
                             <li class="menu-item-has-children">
                                 <a href="javascript:void(0);">Blog</a>
                                 <ul>
@@ -88,8 +94,10 @@
                         </ul>
                     </div>
                     <div class="accessNav">
+
                         <a href="javascript:void(0);" class="menuToggler"><i class="fa-solid fa-bars"></i>
                             <span>Menu</span></a>
+
                         <div class="anSocial">
                             <div class="ansWrap">
                                 <a class="fac" href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
@@ -100,6 +108,7 @@
                             </div>
                             <a class="tog" href="javascript:void(0);"><i class="fa-solid fa-share-alt"></i></a>
                         </div>
+
                         <div class="anSelects">
                             <div class="anSelect">
                                 <select name="languages">
