@@ -27,6 +27,8 @@ use App\Http\Controllers\Client\CouponController as ClientCouponController;
 use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
+use App\Http\Controllers\Client\WishlistController;
+
 //  use App\Http\Controllers\Client\ProductController as ClientProductController;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -131,6 +133,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+
+    // Sản phẩm yêu thích
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/add', [WishlistController::class,'store'])->name('wishlist.add');
+    Route::get('/wishlist/destroy/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
 });
 

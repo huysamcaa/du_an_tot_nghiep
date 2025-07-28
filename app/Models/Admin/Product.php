@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Client\Comment;
 use App\Models\Admin\Review;
 use App\Models\Brand;
+use App\Models\Client\Wishlist;
 
 class Product extends Model
 {
@@ -114,6 +115,11 @@ class Product extends Model
         return $this->hasMany(\App\Models\Admin\CartItem::class, 'product_id');
     }
 
+    // Quan hệ với wishlist
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
     // Helper: Lấy các thuộc tính dùng cho biến thể
     public function variantAttributes()
     {

@@ -106,14 +106,15 @@
                         </div>
                         <!-- //////// -->
                         <div class="pcBtns">
-                            <div class="quantity clearfix">
-                                <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
+                            <div class="quantity-product">
+                                <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
                                 <input type="number" class="carqty input-text qty text" name="quantity" value="1" min="1">
                                 <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
                             </div>
                             <br>
                             <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
-                            <a href="wishlist.html" class="pcWishlist"><i class="fa-solid fa-heart"></i></a>
+                            <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
+                                <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
                             <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                         </div>
                     </form>
@@ -456,7 +457,7 @@
 
                             </div>
                         </div>
-                    
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -717,6 +718,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         loadComments();
+    });
+    // Thêm sản phẩm yêu thích
+    const wishlistBtn = document.querySelector('.pcWishlist');
+    wishlistBtn.addEventListener('click', async () => {
+        const productId = wishlistBtn.dataset.productId;
+        const heartIcon = wishlistBtn.querySelector('i.fa-heart');
+
+        try {
+            const response = await fetch("{{ route('wishlist.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ product_id: productId })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập để thêm vào danh sách yêu thích.',
+                    showConfirmButton: true
+                }).then(() => window.location.href = '/login');
+                return;
+            }
+
+            if (data.success) {
+                if (data.action === 'added') {
+                    heartIcon.classList.add('text-danger');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    heartIcon.classList.remove('text-danger');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message,
+                    showConfirmButton: true
+                });
+            }
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Đã xảy ra lỗi khi thêm vào danh sách yêu thích.',
+                showConfirmButton: true
+            });
+        }
     });
 });
 </script>

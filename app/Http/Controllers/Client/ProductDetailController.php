@@ -12,6 +12,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\Review;
+use App\Models\Client\Wishlist;
+
 class ProductDetailController extends Controller
 {
 public function show($id)
@@ -34,7 +36,7 @@ public function show($id)
         ->where('attribute_id', 1)
         ->where('is_active', 1)
         ->get();
-    
+
     $sizes = AttributeValue::whereIn('id', $attributeValueIds)
         ->where('attribute_id', 2)
         ->where('is_active', 1)
@@ -46,7 +48,7 @@ public function show($id)
         // Lấy ra tất cả ID các attribute_value liên quan đến biến thể của sản phẩm
         $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
         $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
-        
+
         return [
             'id' => $variant->id,
             'color_id' => $color?->id, // $color ? $color->id : null
@@ -69,7 +71,11 @@ public function show($id)
         ->where('id', '<>', $product->id)
         ->take(8)
         ->get();
-    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants'));
+
+    $isFavorite = Wishlist::where('user_id', Auth::id())
+                ->where('product_id', $product->id)
+                ->exists();
+    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants','isFavorite'));
 
 }
 public function attributeValues()
