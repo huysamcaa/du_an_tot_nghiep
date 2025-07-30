@@ -84,67 +84,69 @@
                         <h3>Đơn hàng của bạn</h3>
                         <div class="orderReview">
                            <table>
-    <thead>
-        <tr>
-            <th>Sản phẩm</th>
-            <th>Thành tiền</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($cartItems as $item)
-        <tr>
-            <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
-            <td>
-                <a href="javascript:void(0);">
-                    {{ $item->product->name }}
-                    @if($item->variant)
-                        - {{ $item->variant->sku }}
-                    @endif
-                </a>
-            </td>
-            <td>
-                <div class="pi01Price">
-                    @php
-                        $price = $item->variant ?  
-                                ($item->variant->sale_price ?? $item->variant->price) :  
-                                $item->product->price;
-                        $itemTotal = $price * $item->quantity;
-                    @endphp
-                    <ins>{{ number_format($itemTotal) }}đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        @endforeach
-        
-        <tr>
-            <th>Tổng tiền hàng</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>{{ number_format($total) }}đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        <tr class="shippingRow">
-            <th>Phí vận chuyển</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>30,000đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        <tr>
-            <th>Tổng thanh toán</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>{{ number_format($total + 30000)}}đ</ins>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($cartItems as $item)
+                                <tr>
+                                    <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
+                                    <td>
+                                        <a href="javascript:void(0);">
+                                           
+
+                                            {{ $item->product->name }}
+                                            @if($item->variant)
+                                                 {{ $item->variant->sku }}
+                                            @endif
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="pi01Price">
+                                            @php
+                                                $price = $item->variant ?  
+                                                        ($item->variant->sale_price ?? $item->variant->price) :  
+                                                        $item->product->price;
+                                                $itemTotal = $price * $item->quantity;
+                                            @endphp
+                                            <ins>{{ number_format($itemTotal) }}đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                @endforeach
+                                
+                                <tr>
+                                    <th>Tổng tiền hàng</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins>{{ number_format($total) }}đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="shippingRow">
+                                    <th>Phí vận chuyển</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins>30,000đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <th>Tổng thanh toán</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins>{{ number_format($total + 30000)}}đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                             <ul class="wc_payment_methods">
                                
                                     <li>
