@@ -6,33 +6,6 @@
 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary mb-3">Về trang quản trị</a>
 <br>
 
-{{-- <div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Admin</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="#">Trang chủ</a></li>
-                            <li><a href="#">Đơn hàng</a></li>
-                            <li class="active">Danh sách đơn hàng COD</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
-
-
-
 <table  id="bootstrap-data-table" class="table table-striped table-bordered">
     
     <form method="GET" action="{{ route('admin.orders.index') }}" class="mb-3">

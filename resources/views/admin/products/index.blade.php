@@ -41,6 +41,7 @@
                     </div>
                     <div class="card-body">
                         <table id="bootstrap-data" class="table table-striped table-bordered">
+                            <div></div>
                              <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
                         <div>
                             <label for="per_page" style="font-weight:600;">Hiển thị:</label>
@@ -60,10 +61,11 @@
             
                     <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
                         <div class="input-group">
-                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên sản phẩm..." value="{{ request('keyword') }}">
                             <button class="btn btn-primary" type="submit">Tìm kiếm</button>
                         </div>
                     </form>
+                   
                             <thead>
                                 <tr>
                                     {{-- <th>Stt</th> --}}
