@@ -11,10 +11,16 @@
                     <div class="mainMenu">
                         <ul>
                             <li class="menu-item">
-                                <a href="{{ route('client.home') }}">Home</a>
+                                <a href="{{ route('client.home') }}">Trang Chủ</a>
                             </li>
-                            <li><a href="about.html">About</a></li>
-                            <li class="menu-item-has-children">
+                            <li class="menu-item">
+                                <a href="{{ route('client.categories.index') }}">Danh mục</a>
+                            </li>
+                            {{-- <li class="menu-item">
+                                <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>
+                            </li> --}}
+                            
+                            {{-- <li class="menu-item-has-children">
                                 <a href="javascript:void(0);">Shop</a>
                                 <div class="megaMenu">
                                     <div class="row">
@@ -51,7 +57,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </li>
+                            </li> --}}
                             <li class="menu-item">
                                 <a href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
@@ -181,7 +187,6 @@
                                 </div>
                             </div>
 
-
                             {{-- hết user --}}
                             <div class="anCart">
 
@@ -202,7 +207,7 @@
                                                 class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
                                         </div>
                                     @endforeach
-                                    <div class="totalPrice" id="cart-total">Subtotal: <span
+                                    <div class="totalPrice" id="cart-total">Tổng Tiền: <span
                                             class="price">{{ number_format($total) }}đ</span></div>
                                     <div class="cartWidgetBTN clearfix">
                                         <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
