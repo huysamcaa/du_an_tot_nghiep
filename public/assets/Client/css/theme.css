@@ -7136,3 +7136,23 @@ form.contactForm button.ulinaBTN{
     align-items: center;
     justify-content: center;
 }
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 15px 0;
+}
+
+.blog-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    overflow-x: auto;
+}
+
+.blog-content table td,
+.blog-content table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+

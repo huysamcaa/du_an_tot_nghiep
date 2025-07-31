@@ -137,6 +137,19 @@
                 </li>
 
                 </li>
+                <li class="menu-item-has-children dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="menu-icon fa fa-book"></i> Bài Viết
+    </a>
+    <ul class="sub-menu children dropdown-menu">
+        <li><i class="fa fa-list"></i>
+            <a href="{{ route('admin.blogs.index') }}">Danh sách bài viết</a>
+        </li>
+        <li><i class="fa fa-plus"></i>
+            <a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a>
+        </li>
+    </ul>
+</li>
 
         </div>
     </nav>
