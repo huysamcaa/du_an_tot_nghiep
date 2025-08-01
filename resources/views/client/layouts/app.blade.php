@@ -29,7 +29,9 @@
 
     @include('client.layouts.header')
 
-    @yield('content')
+    <main style="padding-top: 120px;"> {{-- Thêm dòng này --}}
+        @yield('content')
+    </main>
 
     @include('client.layouts.footer')
 
