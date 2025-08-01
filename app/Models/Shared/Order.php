@@ -5,6 +5,7 @@ namespace App\Models\Shared;
 use App\Models\Admin\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
@@ -29,6 +30,7 @@ class Order extends Model
     protected $table = 'orders';
     protected $guarded = [];
     public $timestamps = true;
+    use SoftDeletes;
     
 
     public function items()

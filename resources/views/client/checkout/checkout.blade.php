@@ -15,6 +15,13 @@
         </div>
     </div>
 </section>
+@if(auth()->user()->account_type === 'limited')
+<div class="alert alert-warning">
+    Tài khoản của bạn chỉ được phép:
+    - Thanh toán COD
+    - Tối đa 10 đơn/ngày
+</div>
+@endif
 <section class="checkoutPage">
     <div class="container">
         <form action="{{ route('checkout.placeOrder') }}" method="POST">
