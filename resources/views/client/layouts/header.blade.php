@@ -120,8 +120,12 @@
                         </div>
                         <div class="anItems">
                             <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a>
-                            </div>
 
+                            </div>
+                            <div class="wishlist">
+                            <a href="{{route('wishlist.index')}}" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
+
+                            </div>
 
                             <div class="anUser" id="userMenuWrapper">
                                 <a href="#" id="userMenuToggle">
