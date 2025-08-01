@@ -205,6 +205,8 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
 
     //Blogs
     Route::resource('blogs', BlogController::class);
+
+
    
 
 

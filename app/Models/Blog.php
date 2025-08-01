@@ -20,4 +20,13 @@ class Blog extends Model
 
         return null;
     }
+    public function getFirstImageFromContentAttribute()
+{
+    if (!$this->content) return null;
+
+    preg_match('/<img[^>]+src="([^">]+)"/i', $this->content, $matches);
+
+    return $matches[1] ?? null;
+}
+
 }
