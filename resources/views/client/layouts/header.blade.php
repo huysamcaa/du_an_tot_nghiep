@@ -19,7 +19,7 @@
                             {{-- <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>
                             </li> --}}
-                            
+
                             {{-- <li class="menu-item-has-children">
                                 <a href="javascript:void(0);">Shop</a>
                                 <div class="megaMenu">
@@ -61,7 +61,7 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
-<<<<<<< HEAD
+
                              <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến mãi</a>
                             </li>
@@ -97,10 +97,10 @@
                                     </li>
                                 </ul>
                             </li>
-=======
+
                             <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
-                            
->>>>>>> 40ad929eb33e1617020bc950e8adc7bf45a17002
+
+
 
                         </ul>
                     </div>
@@ -173,7 +173,7 @@
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
                                                 @endif
-                                                
+
                                             </div>
 
                                             <div class="userDropdownFooter">
