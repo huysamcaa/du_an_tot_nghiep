@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Log;
 use App\Models\Coupon;
+use Illuminate\Http\Request;
 use App\Models\Admin\Product;
 use App\Models\Admin\Category;
-use Illuminate\Http\Request;
 use App\Models\CouponRestriction;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-
+use Illuminate\Validation\Rule;
+use App\Mail\CouponPromotionMail;
+use Illuminate\Support\Facades\Mail;
 class CouponController extends Controller
 {
     public function index(Request $request)
@@ -38,6 +41,7 @@ class CouponController extends Controller
 
     public function store(Request $request)
     {
+
         $this->validateForm($request);
 
         $coupon = Coupon::create($this->couponData($request));
@@ -54,7 +58,10 @@ class CouponController extends Controller
             $this->sendCouponNotification($coupon);
         }
 
+
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được tạo thành công!');
+
+
     }
 
     public function edit($id)
@@ -101,34 +108,32 @@ class CouponController extends Controller
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được xóa thành công!');
     }
 
-    // Thêm phương thức gửi thông báo
-    protected function sendCouponNotification($coupon)
-    {
-        // Lấy tất cả người dùng có thể nhận thông báo
-        $users = \App\Models\User::all();  // Bạn có thể lọc theo nhóm người dùng nếu cần (ví dụ: chỉ người dùng có nhóm 'member')
 
-        foreach ($users as $user) {
-            // Lưu thông báo vào bảng notifications
-            DB::table('notifications')->insert([
-                'user_id' => $user->id,
-                'coupon_id' => $coupon->id,
-                'message' => ' Mã giảm giá mới đã có sẵn! Sử dụng mã ' . $coupon->code . ' để giảm ' . $coupon->discount_value . '% cho đơn hàng tiếp theo của bạn!',
-                'type' => 1,  // Loại thông báo (1 = Mã giảm giá mới)
-                'read' => 0,  // Mặc định là chưa đọc
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+ // Thêm phương thức gửi thông báo
+protected function sendCouponNotification($coupon)
+{
+    $users = \App\Models\User::all();
+
+    foreach ($users as $user) {
+        // Ghi vào DB notification
+        DB::table('notifications')->insert([
+            'user_id'    => $user->id,
+            'coupon_id'  => $coupon->id,
+            'message'    => 'Mã giảm giá mới đã có sẵn! Sử dụng mã ' . $coupon->code . ' để giảm ' . $coupon->discount_value . '% cho đơn hàng tiếp theo của bạn!',
+            'type'       => 1,
+            'read'       => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
-
-    // Các phương thức khác không thay đổi...
+}
 
     protected function validateForm(Request $request, $id = null)
     {
         $rules = [
-            'code' => 'required|unique:coupons,code,' . ($id ?? 'NULL'),
-            'title' => 'required',
-            'description' => 'nullable|string',
+            'code' => ['required', Rule::unique('coupons', 'code')->ignore($id)],
+            'title' => 'required|string|max:50',
+            'description' => 'nullable|string|max:255',
             'discount_value' => 'required',
             'discount_type' => 'required|in:percent,fixed',
             'usage_limit' => 'nullable|integer',
@@ -144,6 +149,8 @@ class CouponController extends Controller
             'code.required' => 'Vui lòng nhập mã giảm giá.',
             'code.unique' => 'Mã giảm giá đã tồn tại.',
             'title.required' => 'Vui lòng nhập tiêu đề.',
+            'title.max' => 'Tiêu đề không được vượt quá 50 ký tự.',
+            'description.max' => 'Mô tả không được vượt quá 255 ký tự.',
             'discount_value.required' => 'Vui lòng nhập giá trị giảm.',
             'discount_type.required' => 'Vui lòng chọn kiểu giảm giá.',
             'discount_type.in' => 'Kiểu giảm giá không hợp lệ.',
@@ -155,45 +162,69 @@ class CouponController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
-        $validator->after(function ($validator) use ($request) {
-            $raw = $request->input('discount_value');
-            $value = (float) str_replace(',', '.', str_replace('.', '', $raw));
-            $type = $request->input('discount_type');
+       $validator->after(function ($validator) use ($request) {
+    $rawDiscount = $request->input('discount_value');
+    $discountValue = (float) str_replace(',', '.', str_replace('.', '', $rawDiscount));
+    $type = $request->input('discount_type');
 
-            if (!is_numeric($value)) {
-                $validator->errors()->add('discount_value', 'Giá trị giảm không hợp lệ.');
-                return;
-            }
+    // Kiểm tra discount_value
+    if (!is_numeric($discountValue)) {
+        $validator->errors()->add('discount_value', 'Giá trị giảm không hợp lệ.');
+    } else {
+        if ($discountValue < 0) {
+            $validator->errors()->add('discount_value', 'Giá trị giảm không được nhỏ hơn 0.');
+        }
 
-            if ($type === 'percent' && ($value < 0 || $value > 100)) {
-                $validator->errors()->add('discount_value', 'Giá trị phần trăm phải nằm trong khoảng từ 0 đến 100.');
-            }
+        if ($type === 'percent' && $discountValue > 100) {
+            $validator->errors()->add('discount_value', 'Giá trị phần trăm không được vượt quá 100%.');
+        }
 
-            if ($type === 'fixed' && $value < 1) {
-                $validator->errors()->add('discount_value', 'Số tiền giảm phải lớn hơn 0.');
-            }
-        });
+        if ($type === 'fixed' && $discountValue < 1) {
+            $validator->errors()->add('discount_value', 'Số tiền giảm phải lớn hơn 0.');
+        }
+    }
+
+    // Kiểm tra min_order_value và max_discount_value không âm
+    $minOrderValue = $request->input('min_order_value');
+    $maxDiscountValue = $request->input('max_discount_value');
+
+    if (!is_null($minOrderValue) && $minOrderValue < 0) {
+        $validator->errors()->add('min_order_value', 'Giá trị đơn hàng tối thiểu không được nhỏ hơn 0.');
+    }
+
+    if (!is_null($maxDiscountValue)) {
+        if ($maxDiscountValue < 0) {
+            $validator->errors()->add('max_discount_value', 'Giá trị giảm tối đa không được nhỏ hơn 0.');
+        } elseif ($discountValue > 0 && $maxDiscountValue > $discountValue) {
+            $validator->errors()->add('max_discount_value', 'Giá trị giảm tối đa không được lớn hơn giá trị giảm.');
+        }
+    }
+});
+
 
         $validator->validate();
     }
 
-    protected function couponData(Request $request)
-    {
-        $raw = $request->input('discount_value');
+   protected function couponData(Request $request)
+{
+    $raw = $request->input('discount_value');
+    $normalized = str_replace(',', '.', str_replace('.', '', $raw));
 
-        // Chuyển "30.000,50" thành "30000.50"
-        $normalized = str_replace(',', '.', str_replace('.', '', $raw));
+    $data = $request->only([
+        'code', 'title', 'description', 'discount_type',
+        'usage_limit', 'user_group', 'start_date', 'end_date',
+    ]);
 
-        $data = $request->only([
-            'code', 'title', 'description', 'discount_type',
-            'usage_limit', 'user_group', 'is_expired', 'is_active',
-            'is_notified', 'start_date', 'end_date',
-        ]);
+    // Xử lý riêng checkbox: nếu không có thì gán false
+    $data['is_expired'] = $request->has('is_expired');
+    $data['is_active'] = $request->has('is_active');
+    $data['is_notified'] = $request->has('is_notified');
 
-        $data['discount_value'] = (float) $normalized;
+    $data['discount_value'] = (float) $normalized;
 
-        return $data;
-    }
+    return $data;
+}
+
 
     protected function restrictionData(Request $request)
     {
@@ -215,4 +246,27 @@ class CouponController extends Controller
             'valid_categories', 'valid_products',
         ]);
     }
+    public function trashed(Request $request)
+{
+    $search = $request->input('search');
+    $perPage = $request->input('perPage', 10);
+
+    $coupons = Coupon::onlyTrashed()
+        ->when($search, function ($query, $search) {
+            $query->where('code', 'like', '%' . $search . '%')
+                  ->orWhere('title', 'like', '%' . $search . '%');
+        })
+        ->orderByDesc('deleted_at')
+        ->paginate($perPage);
+
+    return view('admin.coupons.trashed', compact('coupons', 'search', 'perPage'));
+}
+public function restore($id)
+{
+    $coupon = Coupon::onlyTrashed()->findOrFail($id);
+    $coupon->restore();
+
+    return redirect()->route('admin.coupon.trashed')->with('success', 'Mã giảm giá đã được khôi phục thành công!');
+}
+
 }

@@ -19,6 +19,12 @@
 <div class="container py-5">
     <h4 class="mb-1 fw-bold">Chỉnh sửa thông tin cá nhân</h4>
     <p class="text-muted mb-4">Cập nhật thông tin để bảo vệ tài khoản và nhận ưu đãi phù hợp</p>
+<div class="mb-4">
+    <a href="{{ route('client.profile.show') }}"
+       class="btn btn-warning px-4 rounded-pill">
+        <i class="fa-solid fa-arrow-left me-2"></i> Quay lại
+    </a>
+</div>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -83,14 +89,13 @@
             </div>
         </div>
 
-        <div class="text-end mt-4">
-            <a href="{{ route('client.profile.show') }}" class="btn btn-outline-secondary px-4 me-2">
-                Quay lại
-            </a>
-            <button type="submit" class="btn btn-primary px-4">
-                <i class="fa-solid fa-save me-1"></i> Lưu thay đổi
-            </button>
-        </div>
+       <div class="text-end mt-4">
+    <button type="submit" class=" ulinaBTN d-flex align-items-center px-2 py-2 btn-sm">
+        <i class="fa-solid fa-save me-2"></i>
+        <span>Lưu thay đổi</span>
+    </button>
+</div>
+
     </form>
 </div>
 </div>

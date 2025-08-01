@@ -85,7 +85,12 @@ class User extends Authenticatable
 }
  public function notifications()
     {
+
         // Mối quan hệ giữa User và Notification (1 User có nhiều thông báo)
         return $this->hasMany(Notification::class, 'user_id');
     }
+
+
+    
+
 }

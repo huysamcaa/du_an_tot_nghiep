@@ -5,6 +5,7 @@
 <h1 class="mb-4">Danh Sách Mã Giảm Giá</h1>
 
 <a href="{{ route('admin.coupon.create') }}" class="btn btn-primary mb-4">Thêm Mới</a>
+<a href="{{ route('admin.coupon.trashed') }}" class="btn btn-danger mb-4">Mã Đã Xóa</a>
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -125,11 +126,28 @@
 </table>
 
 <!-- Phân trang -->
-<div class="d-flex justify-content-between mt-3">
-    <div>
-        <p>Hiển thị {{ $coupons->firstItem() }} đến {{ $coupons->lastItem() }} của {{ $coupons->total() }} mã giảm giá</p>
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+        Hiển thị từ {{ $coupons->firstItem() ?? 0 }} đến {{ $coupons->lastItem() ?? 0 }} trên tổng số {{ $coupons->total() }} mã
     </div>
-    <div>{{ $coupons->links('pagination::bootstrap-4') }}</div>
+
+    <div>
+        @if ($coupons->hasPages())
+            {!! $coupons->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
+        @else
+            {{-- Giữ bố cục nhất quán dù không có nhiều trang --}}
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item active"><span class="page-link">1</span></li>
+                </ul>
+            </nav>
+        @endif
+    </div>
 </div>
 
 @endsection
+<style>
+    .pagination {
+        display: flex !important;
+    }
+</style>

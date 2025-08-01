@@ -69,14 +69,14 @@
                 </div>
             </div>
         </div>
+<div class="d-flex justify-content-end mt-3">
+    <a href="{{ route('client.profile.edit') }}"
+       class="ulinaBTN d-flex align-items-center px-2 py-2 btn-sm">
 
-        <!-- Nút chỉnh sửa -->
-        <div class="text-end mt-4">
-            <a href="{{ route('client.profile.edit') }}" class="btn btn-outline-primary px-4">
-                <i class="fa-solid fa-pen me-2"></i> Chỉnh sửa thông tin
-            </a>
-        </div>
-    </div>
+        <span class="mx-auto">Chỉnh sửa</span>
+    </a>
+</div>
+
 </div>
 </div>
 @endsection

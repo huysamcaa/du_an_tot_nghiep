@@ -22,27 +22,6 @@
     </ol>
 </nav>
 
-{{-- <!-- Tạo phần "Show entries" và tìm kiếm -->
-<form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex justify-content-between mb-3">
-    <!-- Phân trang -->
-    <div class="d-flex align-items-center">
-        <label for="entries" class="mr-2">Show</label>
-        <select name="perPage" class="form-control d-inline w-auto" onchange="this.form.submit()">
-            <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
-            <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-            <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-            <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-        </select>
-        entries
-    </div>
-
-    <!-- Tìm kiếm -->
-    <div class="d-flex align-items-center">
-        <label for="search" class="mr-2">Search:</label>
-        <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Tìm kiếm ">
-        <button type="submit" class="btn btn-primary ml-2">Tìm kiếm</button>
-    </div>
-</form> --}}
 
 <!-- Bảng Danh Sách Đánh Giá -->
 <table class="table table-bordered table-striped">
@@ -50,25 +29,25 @@
                         <div>
                             <label for="per_page" style="font-weight:600;">Hiển thị:</label>
                             <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
-                                
+
                                     <option value="1" >10</option>
                                     <option value="2" >25</option>
                                     <option value="3" >50</option>
                                     <option value="4" >100</option>
-                                
+
                             </select>
                             <span></span>
                         </div>
-                        
-                    </form>
-               
-            
-                    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
+
+                    </form><br>
+
+
+                    {{-- <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-3" style="max-width:350px;">
                         <div class="input-group">
-                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm" value="{{ request('keyword') }}">
                             <button class="btn btn-primary" type="submit">Tìm kiếm</button>
                         </div>
-                    </form>
+                    </form> --}}
     <thead class="">
         <tr>
             <th>STT</th>
@@ -91,36 +70,56 @@
                 <td>{{ $review->order_id }}</td>
                 <td>{{ $review->rating }} ⭐</td>
                 <td>{{ $review->review_text }}</td>
+   <td>
+    <div class="d-flex flex-wrap gap-2" style="max-width: 250px;">
+        @forelse($review->multimedia as $media)
+            @if($media->file_type === 'image')
+                <a href="{{ asset('storage/' . $media->file) }}" target="_blank"
+                   style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ccc; display: block;">
+                    <img src="{{ asset('storage/' . $media->file) }}"
+                         alt="Ảnh"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </a>
+            @elseif($media->file_type === 'video')
+                <a href="{{ asset('storage/' . $media->file) }}" target="_blank"
+                   style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ccc; display: block;">
+                    <video style="width: 100%; height: 100%; object-fit: cover;" muted>
+                        <source src="{{ asset('storage/' . $media->file) }}" type="{{ $media->mime_type }}">
+                    </video>
+                </a>
+            @endif
+        @empty
+            <span class="text-muted">--</span>
+        @endforelse
+    </div>
+</td>
+
                 <td>
-                    @forelse($review->multimedia as $media)
-                        <a href="{{ $media->file }}" target="_blank" class="badge badge-info">{{ strtoupper($media->file_type) }}</a><br>
-                    @empty
-                        <span class="text-muted">--</span>
-                    @endforelse
-                </td>
-                <td>
-                    @if(is_null($review->is_active))
-                        <span class="badge badge-warning">Chờ duyệt</span>
-                    @elseif($review->is_active)
-                        <span class="badge badge-success">Đã duyệt</span>
-                    @else
-                        <span class="badge badge-danger">Từ chối</span><br>
-                        <small>Lý do: {{ $review->reason }}</small>
-                    @endif
-                </td>
+    @if($review->is_active === 1)
+        <span class="badge badge-success">Đã duyệt</span>
+    @elseif($review->is_active === 0 && $review->reason)
+        <span class="badge badge-danger">Từ chối</span><br>
+        <small>Lý do: {{ $review->reason }}</small>
+    @elseif($review->is_active === 0 && !$review->reason)
+        <span class="badge badge-warning">Chờ duyệt</span>
+    @else
+        <span class="badge badge-secondary">Không xác định</span>
+    @endif
+</td>
+
                 <td>
                     @if(is_null($review->is_active))
                         <!-- Form DUYỆT -->
 <form action="{{ route('admin.reviews.approve', $review->id) }}" method="POST" class="d-inline-block mb-1">
     @csrf
-    @method('PATCH') <!-- ✅ Bắt buộc để Laravel hiểu đây là PATCH -->
+    @method('PATCH') <!-- Bắt buộc để Laravel hiểu đây là PATCH -->
     <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
 </form>
 
 <!-- Form TỪ CHỐI -->
 <form action="{{ route('admin.reviews.reject', $review->id) }}" method="POST" class="d-inline-block">
     @csrf
-    @method('PATCH') <!-- ✅ Thêm vào đây nữa -->
+    @method('PATCH')
     <input type="text" name="reason" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required>
     <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
 </form>
@@ -139,8 +138,23 @@
 </table>
 
 <!-- Phân trang -->
-<div class="d-flex justify-content-center">
-    {{ $reviews->links('pagination::simple-bootstrap-4') }}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+        Hiển thị từ {{ $reviews->firstItem() ?? 0 }} đến {{ $reviews->lastItem() ?? 0 }} trong tổng số {{ $reviews->total() }} đánh giá
+    </div>
+
+    <div>
+        @if ($reviews->hasPages())
+            {{ $reviews->appends(request()->query())->links('pagination::bootstrap-4') }}
+        @else
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item active"><span class="page-link">1</span></li>
+                </ul>
+            </nav>
+        @endif
+    </div>
 </div>
+
 
 @endsection

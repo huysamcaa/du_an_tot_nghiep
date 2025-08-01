@@ -1,40 +1,41 @@
 <?php
 namespace App\Http\Controllers\Client;
 
-use App\Models\Notification;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    // Hiển thị tất cả thông báo của người dùng
-public function index()
-{
-    // Lấy tất cả thông báo của người dùng
-    $notifications = auth()->user()->notifications;
+    public function index()
+    {
+        $notifications = DB::table('notifications')
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
 
-    // Đếm số lượng thông báo chưa đọc
-    $unreadNotificationsCount = $notifications->where('read', 0)->count();
+        return view('client.notifications.index', compact('notifications'));
+    }
 
-    // Truyền vào view
-    return view('client.notifications.index', compact('notifications', 'unreadNotificationsCount'));
-}
-
-
-    // Đánh dấu thông báo là đã đọc
     public function markAsRead($id)
     {
-        $notification = Notification::findOrFail($id);
-        $notification->read = 1; // Đánh dấu là đã đọc
-        $notification->save();
+        DB::table('notifications')
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->update(['read' => 1]);
 
-        return redirect()->route('client.notifications.index')->with('success', 'Thông báo đã được đánh dấu là đã đọc');
+        return redirect()->back()->with('success', 'Thông báo đã được đánh dấu là đã đọc.');
     }
-     public function show($id)
-    {
-        $notification = Notification::findOrFail($id);
 
-        // Trả về view chi tiết thông báo
+    public function show($id)
+    {
+        $notification = DB::table('notifications')
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        abort_if(!$notification, 404);
+
         return view('client.notifications.show', compact('notification'));
     }
 }

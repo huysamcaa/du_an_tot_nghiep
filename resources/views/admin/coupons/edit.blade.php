@@ -121,7 +121,7 @@
             @endforeach
         </select>
     </div>
-
+<a href="{{ route('admin.coupon.index') }}" class="btn btn-warning">Quay lại </a>
     <button type="submit" class="btn btn-primary">Cập Nhật</button>
 </form>
 @endsection

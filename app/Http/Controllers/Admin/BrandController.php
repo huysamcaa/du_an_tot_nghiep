@@ -13,7 +13,7 @@ class BrandController extends Controller
    public function index(Request $request)
 {
     $query = Brand::withCount('products') // đếm số sản phẩm
-        ->withTrashed() // lấy cả brand bị xóa mềm
+        
         ->when($request->has('search'), function ($q) use ($request) {
             $search = $request->get('search');
             $q->where(function (Builder $query) use ($search) {
@@ -62,13 +62,15 @@ class BrandController extends Controller
         return redirect()->route('admin.brands.index')->with('success', 'Thêm thương hiệu thành công.');
     }
 
-    public function edit(Brand $brand)
-    {
-        return view('admin.brands.edit', compact('brand'));
-    }
-
-    public function update(Request $request, Brand $brand)
+ public function edit($id)
 {
+    $brand = Brand::withTrashed()->findOrFail($id);
+    return view('admin.brands.edit', compact('brand'));
+}
+
+    public function update(Request $request,$id)
+{
+      $brand = Brand::withTrashed()->findOrFail($id);
     $request->validate([
         'name' => 'required|unique:brands,name,' . $brand->id,
         'slug' => 'nullable|unique:brands,slug,' . $brand->id,
@@ -101,8 +103,9 @@ class BrandController extends Controller
 }
 
 
-    public function destroy(Brand $brand)
+    public function destroy($id)
 {
+     $brand = Brand::withTrashed()->findOrFail($id);
     if ($brand->products()->exists()) {
         return back()->with('error', 'Không thể xóa thương hiệu vì vẫn còn sản phẩm liên quan.');
     }
@@ -118,13 +121,13 @@ class BrandController extends Controller
     return back()->with('success', 'Đã xóa thương hiệu.');
 }
 
-    public function show(Brand $brand)
-    {
-        // Đếm số sản phẩm liên quan
-        $brand->loadCount('products');
+   public function show($id)
+{
+    $brand = Brand::withTrashed()->withCount('products')->findOrFail($id);
 
-        return view('admin.brands.show', compact('brand'));
-    }
+    return view('admin.brands.show', compact('brand'));
+}
+
     public function trash()
 {
     $brands = Brand::onlyTrashed()->withCount('products')->paginate(10);

@@ -126,16 +126,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
-    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
 
-    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
-    Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+    // Đánh giá của người dùng
+Route::get('/reviews/pending', [ClientReviewController::class, 'pending'])->name('client.reviews.pending');
+Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
+Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+
+
  // Route hiển thị thông báo cho người dùng
     Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
     // Route đánh dấu thông báo đã đọc
     Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
     Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
+
+
+
 });
 
 /*
@@ -170,7 +175,10 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
 
 
 
-    Route::resource('coupon', CouponController::class);
+    Route::resource('coupon', CouponController::class)->except(['show']);
+
+    Route::get('coupon/trashed', [CouponController::class, 'trashed'])->name('coupon.trashed');
+    Route::post('coupon/{id}/restore', [CouponController::class, 'restore'])->name('coupon.restore');
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);

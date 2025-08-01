@@ -32,7 +32,7 @@ class CouponClaimedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database']; // Gửi qua mail và lưu vào database
+        return [ 'database']; //  lưu vào database
     }
 
     /**
@@ -65,4 +65,6 @@ class CouponClaimedNotification extends Notification
             'message' => '🎉 Bạn đã nhận mã giảm giá ' . $this->coupon->code . ' thành công! Giảm ngay ' . $this->coupon->discount_value . '% cho đơn hàng tiếp theo.',
         ];
     }
+
+
 }
