@@ -89,7 +89,7 @@ class AdminController extends Controller
         $userCount = User::count();
         $orderStatusStats = OrderOrderStatus::where('is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-            ->select('order_statuses.name', DB::raw('COUNT(order_order_status.id) as total'))
+            ->select('order_statuses.name', DB::raw('COUNT(*) as total')) // Sửa lại thành COUNT(*)
             ->groupBy('order_statuses.name')
             ->get();
         $topCustomers = Order::whereIn('id', $completedOrderIds)

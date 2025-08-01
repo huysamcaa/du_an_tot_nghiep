@@ -101,6 +101,7 @@ Route::get('/admin/register', fn() => redirect()->route('register'))->name('admi
 
 Route::get('email/verify-otp', [RegisterController::class, 'showOtpForm'])->name('verification.otp.form');
 Route::post('email/verify-otp', [RegisterController::class, 'verifyOtp'])->name('verification.otp.verify');
+Route::post('/resend-otp', [RegisterController::class, 'resendOtp'])->name('otp.resend');
 /*
 |--------------------------------------------------------------------------
 | 2. Protected Routes (Yêu cầu đăng nhập)
@@ -210,7 +211,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::resource('blogs', BlogController::class);
 
 
-   
+
 
 
 
