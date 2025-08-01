@@ -761,44 +761,7 @@
                 loadComments();
             });
         });
-<<<<<<< HEAD
+
     </script>
 @endsection
-=======
 
-        $(document).on('click', '.pagination a', function (e) {
-            e.preventDefault();
-            const page = $(this).attr('href').split('page=')[1];
-            loadComments(page);
-        });
-
-        // Gửi trả lời
-        $(document).on('submit', '.reply-form', function (e) {
-            e.preventDefault();
-            const form = $(this);
-            $.ajax({
-                type: 'POST',
-                url: "{{ route('comments.reply') }}",
-                data: form.serialize(),
-                success: function (res) {
-                    loadComments();
-                },
-                error: function () {
-                    alert('Lỗi khi gửi trả lời');
-                }
-            });
-        });
-
-        // Toggle form trả lời
-        $(document).on('click', '.toggle-reply', function () {
-            let id = $(this).data('id');
-            $('.reply-form').addClass('d-none');
-            $('#reply-form-' + id).toggleClass('d-none');
-        });
-
-        loadComments();
-    });
-});
-</script>
-@endsection
->>>>>>> 40ad929eb33e1617020bc950e8adc7bf45a17002
