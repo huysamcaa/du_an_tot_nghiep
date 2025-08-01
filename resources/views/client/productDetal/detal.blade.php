@@ -631,6 +631,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     cartCountEl.innerText = data.totalProduct;
                 }
 
+                const cartWidgetArea = document.querySelector('.cartWidgetArea');
+                if(cartWidgetArea && data.cartIcon){
+                    cartWidgetArea.innerHTML = data.cartIcon;
+                }
                 return Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
