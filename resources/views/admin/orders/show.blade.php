@@ -67,7 +67,7 @@
         <p><strong>Số điện thoại:</strong> {{ $order->phone_number }}</p>
         <p><strong>Ngày đặt:</strong> {{ $order->created_at }}</p>
         <p><strong>Ghi chú:</strong> {{ $order->notes ?? 'Không có' }}</p>
-        <p><strong>Phương thức thanh toán:</strong> 
+        <p><strong>Phương thức thanh toán:</strong>
             <span class="badge bg-info">
                 @switch($order->payment_id)
                     @case(2) COD @break
@@ -77,7 +77,7 @@
                 @endswitch
             </span>
         </p>
-        <p><strong>Trạng thái đơn hàng:</strong> 
+        <p><strong>Trạng thái đơn hàng:</strong>
             <span class="badge bg-success">{{ $order->currentStatus?->orderStatus?->name ?? 'Chờ Thanh Toán' }}</span>
         </p>
     </div>
@@ -95,7 +95,14 @@
                 @foreach($statuses as $status)
                     <option value="{{ $status->id }}"
                         {{ $currentStatusId == $status->id ? 'selected' : '' }}
-                        @if(!in_array($status->id, [$nextStatusId, 6, 7, 8])) disabled @endif
+                        @if(
+                            // Disable nếu không phải trạng thái tiếp theo, hoặc là trạng thái kết thúc
+                            !in_array($status->id, [$nextStatusId, 6, 7, 8])
+                            // Disable "Hoàn trả" nếu trạng thái hiện tại KHÁC 5
+                            || ($status->id == 7 && $currentStatusId != 5)
+                            // Disable "Đã hủy" hoặc "Thất bại" nếu trạng thái hiện tại là 5
+                            || (in_array($status->id, [6,8]) && $currentStatusId == 5)
+                        ) disabled @endif
                     >
                         {{ $status->name }}
                     </option>
@@ -162,7 +169,7 @@
         </tfoot>
     </table>
 </div>
-    
+
 
     <h4>Lịch sử trạng thái đơn hàng</h4>
     <div class="table-responsive">
