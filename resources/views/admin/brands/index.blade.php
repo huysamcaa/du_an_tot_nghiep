@@ -1,10 +1,11 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
     <h1 class="mb-4">Danh Sách Thương Hiệu</h1>
 
     <a href="{{ route('admin.brands.create') }}" class="btn btn-primary mb-4">Thêm Thương Hiệu</a>
-    <a href="{{ route('admin.brands.trash') }}" class="btn btn-danger mb-4">Thương Hiệu Đã Xóa</a>
+    <a href="{{ route('admin.brands.trash') }}" class="btn btn-secondary mb-4">Thương Hiệu Đã Xóa</a>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -29,25 +30,32 @@
     </nav>
 
     <!-- Tạo phần "Show entries" và tìm kiếm -->
-    <form method="GET" action="{{ route('admin.brands.index') }}" class="d-flex justify-content-between mb-3">
-        <div>
-            <label for="entries">Show</label>
-            <select name="perPage" class="form-control d-inline w-auto" onchange="this.form.submit()">
-                <option value="10" {{ request('perPage', 10) == '10' ? 'selected' : '' }}>10</option>
-                <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-                <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-                <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-            </select>
+   <form method="GET" action="{{ route('admin.brands.index') }}" class="row g-2 align-items-center mb-4">
+    {{-- Số lượng hiển thị --}}
+    <div class="col-auto">
+        <label for="entries" class="form-label mb-0">Hiển thị</label>
+        <select name="perPage" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="10" {{ request('perPage', 10) == '10' ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
+        </select>
+    </div>
 
-            entries
-        </div>
-        <div>
-            <label for="search" class="mr-2">Search:</label>
-            <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}"
-                placeholder="Tìm kiếm">
-            <button type="submit" class="btn btn-primary ml-2">Tìm kiếm</button>
-        </div>
-    </form>
+
+</form>
+<form method="GET" action="{{ route('admin.brands.index') }}" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ request('search') }}">
+        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+        @if(request('search'))
+            <a href="{{ route('admin.brands.index') }}" class="btn btn-outline-secondary">
+                <i class="fa fa-times me-1"></i> Xóa
+            </a>
+        @endif
+    </div>
+</form>
+
 
     <!-- Bảng Danh Sách Thương Hiệu -->
     <table class="table table-bordered table-striped">
@@ -77,9 +85,11 @@
                         @endif
                     </td>
                     <td>
-                        <span class="badge badge-{{ $brand->is_active ? 'success' : 'secondary' }}">
-                            {{ $brand->is_active ? 'Hiển Thị' : 'Ẩn' }}
-                        </span>
+                        <span class="badge {{ $brand->is_active ? 'bg-success' : 'bg-secondary' }}">
+    <i class="fa-solid {{ $brand->is_active ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+    {{ $brand->is_active ? 'Hiển thị' : 'Ẩn' }}
+</span>
+
                     </td>
                     <td>{{ $brand->created_at->format('d/m/Y H:i') }}</td>
                     <td>
@@ -126,5 +136,8 @@
     </div>
 </div>
 
+<div class="text-muted small mt-2">
+    Trang {{ $brands->currentPage() }} / {{ $brands->lastPage() }} | Tổng: {{ $brands->total() }} mục
+</div>
 
 @endsection

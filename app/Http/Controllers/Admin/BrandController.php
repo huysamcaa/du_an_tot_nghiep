@@ -9,23 +9,22 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 class BrandController extends Controller
+{public function index(Request $request)
 {
-   public function index(Request $request)
-{
-    $query = Brand::withCount('products') // đếm số sản phẩm
-        
-        ->when($request->has('search'), function ($q) use ($request) {
-            $search = $request->get('search');
-            $q->where(function (Builder $query) use ($search) {
-                $query->where('name', 'like', "%$search%")
-                    ->orWhere('slug', 'like', "%$search%");
-            });
-        });
+    $search = $request->input('search');
+    $perPage = $request->input('perPage', 10);
 
-    $brands = $query->paginate($request->get('perPage', 10));
+    $brands = Brand::when($search, function ($query, $search) {
+        $query->where('name', 'like', '%' . $search . '%')
+              ->orWhere('slug', 'like', '%' . $search . '%');
+    })
+    ->orderBy('created_at', 'desc')
+    ->paginate($perPage);
 
-    return view('admin.brands.index', compact('brands'));
+    return view('admin.brands.index', compact('brands', 'search', 'perPage'));
 }
+
+
     public function create()
     {
         return view('admin.brands.create');
@@ -128,11 +127,23 @@ class BrandController extends Controller
     return view('admin.brands.show', compact('brand'));
 }
 
-    public function trash()
+public function trash(Request $request)
 {
-    $brands = Brand::onlyTrashed()->withCount('products')->paginate(10);
+    $perPage = $request->get('perPage', 10);
+    $query = Brand::onlyTrashed()->withCount('products');
+
+    if ($request->filled('search')) {
+        $search = $request->get('search');
+        $query->where(function (Builder $q) use ($search) {
+            $q->where('name', 'like', "%$search%")
+              ->orWhere('slug', 'like', "%$search%");
+        });
+    }
+
+    $brands = $query->paginate($perPage)->appends($request->all());
     return view('admin.brands.trash', compact('brands'));
 }
+
 public function restore($id)
 {
     $brand = Brand::onlyTrashed()->findOrFail($id);

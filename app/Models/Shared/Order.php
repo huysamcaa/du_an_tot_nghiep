@@ -3,6 +3,7 @@
 namespace App\Models\Shared;
 
 use App\Models\Admin\ProductVariant;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
@@ -48,4 +49,11 @@ class Order extends Model
 {
     return $this->belongsTo(ProductVariant::class);
 }
+    public function customer()
+{
+   
+    return $this->belongsTo(User::class, 'user_id');
+}
+
+
 }

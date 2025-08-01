@@ -241,6 +241,9 @@
                 {{ $i }} <i class="fa-solid fa-star text-warning"></i>
             </a>
         @endfor
+
+
+
     </div>
 
     {{-- Bộ lọc sắp xếp --}}
@@ -296,7 +299,7 @@
 
         <p class="mb-2">{{ $review->review_text }}</p>
 
-        {{-- Hình ảnh hoặc video --}}
+
        {{-- Hình ảnh hoặc video --}}
 @if ($review->multimedia->count())
     <div class="d-flex flex-wrap gap-3 mt-3">

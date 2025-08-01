@@ -1,7 +1,10 @@
 <header id="header" class="header">
     <div class="top-left">
         <div class="navbar-header">
-            <a class="navbar-brand" href="./"><img src="http://127.0.0.1:5502/images/logo.png" alt="Logo"></a>
+           <a class="navbar-brand" href="./">
+  <img src="https://dynamic.design.com/preview/logodraft/e2c5b120-aaee-4084-b33a-28eeb1d356f7/image/large.png" alt="Logo" width="60" style="border-radius: 50%;">
+</a>
+
             <a class="navbar-brand hidden" href="./"><img src="{{ asset('images/logo2.png') }}" alt="Logo"></a>
             <a id="menuToggle" class="menutoggle"><i class="fa fa-bars"></i></a>
         </div>

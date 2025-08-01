@@ -35,7 +35,7 @@
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex flex-wrap">
-                            {{-- Ảnh sản phẩm --}}
+
                             <div class="me-3 mb-3">
                                 <a href="{{ route('product.detail', $review->product->id) }}">
                                     <img src="{{ asset('storage/' . $review->product->thumbnail) }}" width="100" height="100"
@@ -43,7 +43,7 @@
                                 </a>
                             </div>
 
-                            {{-- Nội dung đánh giá --}}
+
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between flex-wrap mb-1">
                                     <a href="{{ route('product.detail', $review->product->id) }}"
@@ -55,7 +55,7 @@
                                     </small>
                                 </div>
 
-                                {{-- Sao đánh giá --}}
+
                                 <div class="mb-2">
                                     @for ($i = 1; $i <= 5; $i++)
                                         <i class="fa{{ $i <= $review->rating ? 's' : 'r' }} fa-star text-warning"></i>
@@ -63,10 +63,10 @@
                                     <span class="ms-2 text-muted">({{ $review->rating }}/5)</span>
                                 </div>
 
-                                {{-- Nội dung --}}
+
                                 <p class="mb-2">{{ $review->review_text }}</p>
 
-                                {{-- Media --}}
+
                                 @if ($review->multimedia->count())
                                     <div class="d-flex flex-wrap gap-2 mb-2">
                                         @foreach ($review->multimedia as $media)
@@ -84,7 +84,7 @@
                                     </div>
                                 @endif
 
-                                {{-- Trạng thái --}}
+
                                 <div>
                                     @if ($review->is_active === null)
                                         <span class="badge bg-secondary">Đang chờ duyệt</span>
@@ -106,7 +106,7 @@
             @endif
         @endforeach
 
-        {{-- Phân trang --}}
+       
         <div class="d-flex justify-content-center mt-4">
             {{ $reviews->links() }}
         </div>

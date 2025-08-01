@@ -2780,8 +2780,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h2 class="secTitle">Shop By Category</h2>
-                        <p class="secDesc">Showing our latest arrival on this summer</p>
+                        <h2 class="secTitle">Danh Mục Của Của Hàng</h2>
+                        <p class="secDesc">Tận Hưởng Những Thứ Mới Mẻ Nhất</p>
                     </div>
                 </div>
                 <div class="row">
@@ -2835,7 +2835,7 @@
                 <div class="row">
                     <div class="col-lg-4 col-xl-3">
                         <div class="testimoniLeft">
-                            <h2 class="secTitle">What Customers Say About Us</h2>
+                            <h2 class="secTitle">Khách hàng nói gì về chúng tôi</h2>
                             <p class="secDesc">Bobore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitat ion ullamco laboris</p>
                             <div class="testimonalNav">
                                 <button class="tprev"><i class="fa-solid fa-angle-left"></i></button>
@@ -2858,8 +2858,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
-                                        aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
+                                       FreshFit gây ấn tượng với thiết kế áo năng động, hiện đại và rất dễ phối đồ. Vải co giãn nhẹ nhưng vẫn giữ form cực tốt sau nhiều lần giặt. Nhân viên tư vấn tận tình và không gian cửa hàng gọn gàng, dễ chọn sản phẩm. Giá cả cũng khá hợp lý cho chất lượng nhận được.
                                     </div>
                                     <div class="ti01Author">
                                         <img src="{{ asset('assets/Client/images/author/1.jpg') }}" alt="Sanjida Ema"/>
@@ -2879,8 +2878,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
-                                        aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
+                                        Mua áo tại FreshFit khiến mình khá hài lòng – từ kiểu dáng trẻ trung đến chất liệu thoáng mát, thích hợp cả đi làm lẫn đi chơi. Cửa hàng bày trí tinh tế và dịch vụ chăm sóc khách hàng rất chuyên nghiệp. Chắc chắn sẽ quay lại lần sau!
                                     </div>
                                     <div class="ti01Author">
                                         <img src="{{ asset('assets/Client/images/author/2.jpg') }}" alt="Mike Anderson"/>
