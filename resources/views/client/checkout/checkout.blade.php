@@ -45,9 +45,20 @@
                                 </select>
                             </div>
                             <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Địa chỉ *" 
-                                    value="{{ old('field7', $defaultAddress->address ?? '') }}" required>
+                                <select name="field7" class="form-control" required>
+                                    <option value="">-- Chọn địa chỉ --</option>
+                                    @foreach($addresses as $address)
+                                        <option value="{{ $address->address }}" 
+                                            {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}>
+                                            {{ $address->address }} 
+                                            @if($address->fullname) ({{ $address->fullname }}) @endif
+                                            @if($address->id_default) [Mặc định] @endif
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
+                            {{-- <div class="col-lg-12">
+                                <input type="text" name="field7" placeholder="Địa chỉ *">
                             {{-- <div class="col-lg-12">
                                 <input type="text" name="field8" placeholder="Thành phố *">
                             </div>
@@ -73,12 +84,38 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="shippingCoupons">
+                    {{-- <div class="shippingCoupons">
                         <h3>Mã giảm giá</h3>
                         <div class="couponFormWrap clearfix">
                             <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Nhập mã giảm giá">
                             <button type="submit" class="ulinaBTN" name="apply_coupon" value="Apply Code"><span>Áp dụng</span></button>
                         </div>
+                    </div> --}}
+                    <div class="shippingCoupons">
+                        <h3>Mã giảm giá</h3>
+                        <select id="coupon_code" name="coupon_code" class="form-control">
+                            <option value="">-- Chọn mã giảm giá --</option>
+                            @foreach($coupons as $coupon)
+                                <option 
+                                    value="{{ $coupon->code }}" 
+                                    data-discount-type="{{ $coupon->discount_type }}"
+                                    data-discount-value="{{ $coupon->discount_value }}"
+                                    data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}"
+                                >
+                                    {{ $coupon->code }} - 
+                                    @if($coupon->discount_type == 'percent')
+                                        Giảm {{ $coupon->discount_value }}%
+                                    @else
+                                        Giảm {{ number_format($coupon->discount_value) }}₫
+                                    @endif
+                                    @isset($coupon->end_date)
+                                        (HSD: {{ $coupon->end_date->format('d/m/Y') }})
+                                    @else
+                                        (HSD: Không xác định)
+                                    @endisset
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="orderReviewWrap">
                         <h3>Đơn hàng của bạn</h3>

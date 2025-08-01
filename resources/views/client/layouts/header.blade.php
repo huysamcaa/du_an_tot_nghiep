@@ -150,6 +150,9 @@
                                                 <a href="{{ route('client.profile.show') }}">
                                                     <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                 </a>
+                                                <a href="{{ route('client.orders.purchase.history') }}">
+                                                    <i class="fa-solid fa-user-circle"></i> Đơn Hàng
+                                                </a>
 
                                                 @if (Auth::user()->role !== 'admin')
                                                     <a href="{{ route('user.addresses.index') }}">
