@@ -180,7 +180,7 @@
                         <table class="table table-sm table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Trạng thái</th>
+                                    
                                     <th class="text-end">Số đơn</th>
                                     <th class="text-end">Số lượng</th>
                                     <th class="text-end">Doanh thu</th>
@@ -189,62 +189,7 @@
                             <tbody>
     @forelse($orderStats as $stat)
     <tr>
-        <td>
-            @switch($stat['status'])
-                @case(1) {{-- Chờ xác nhận --}}
-                    <span class="badge bg-warning text-dark">
-                        <i class="bi bi-hourglass me-1"></i>Chờ xác nhận
-                    </span>
-                    @break
-                
-                @case(2) {{-- Đã xác nhận --}}
-                    <span class="badge bg-info text-dark">
-                        <i class="bi bi-check-circle me-1"></i>Đã xác nhận
-                    </span>
-                    @break
-                
-                @case(3) {{-- Đang chuẩn bị --}}
-                    <span class="badge bg-primary text-white">
-                        <i class="bi bi-box-seam me-1"></i>Đang chuẩn bị
-                    </span>
-                    @break
-                
-                @case(4) {{-- Đang giao hàng --}}
-                    <span class="badge bg-primary text-white">
-                        <i class="bi bi-truck me-1"></i>Đang giao hàng
-                    </span>
-                    @break
-                
-                @case(5) {{-- Giao thành công --}}
-                    <span class="badge bg-success text-white">
-                        <i class="bi bi-check2-all me-1"></i>Giao thành công
-                    </span>
-                    @break
-                
-                @case(6) {{-- Đã hủy --}}
-                    <span class="badge bg-danger text-white">
-                        <i class="bi bi-x-circle me-1"></i>Đã hủy
-                    </span>
-                    @break
-                
-                @case(7) {{-- Hoàn trả --}}
-                    <span class="badge bg-secondary text-white">
-                        <i class="bi bi-arrow-return-left me-1"></i>Hoàn trả
-                    </span>
-                    @break
-                
-                @case(8) {{-- Giao thất bại --}}
-                    <span class="badge bg-danger text-white">
-                        <i class="bi bi-exclamation-triangle me-1"></i>Giao thất bại
-                    </span>
-                    @break
-                
-                @default
-                    <span class="badge bg-secondary">
-                        <i class="bi bi-question-circle me-1"></i>Không xác định
-                    </span>
-            @endswitch
-        </td>
+        
         <td class="text-end">{{ $stat['order_count'] ?? 0 }}</td>
         <td class="text-end">{{ $stat['total_quantity'] ?? 0 }}</td>
         <td class="text-end fw-semibold">{{ number_format($stat['total_revenue'] ?? 0, 0, ',', '.') }} đ</td>

@@ -23,6 +23,7 @@
         </div>
     </section>
 
+<<<<<<< HEAD
     <div class="orderHistorySection py-5">
         <div class="container">
             <div class="row justify-content-center">
@@ -31,6 +32,156 @@
                         <div class="empty-state">
                             <div class="empty-state-icon">
                                 <i class="fas fa-shopping-bag"></i>
+=======
+<div class="orderHistorySection py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                @if($orders->isEmpty())
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
+                        <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
+                        <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
+                        </a>
+                    </div>
+                @else
+                    <!-- Filter Tabs -->
+                    <div class="order-filters mb-4">
+                        <ul class="nav nav-pills justify-content-center" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="pill" href="#all-orders">
+                                    <i class="fas fa-list me-2"></i>Tất cả
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#pending-orders">
+                                    <i class="fas fa-clock me-2"></i>Chờ xác nhận
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#processing-orders">
+                                    <i class="fas fa-box me-2"></i>Đang xử lý
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="pill" href="#completed-orders">
+                                    <i class="fas fa-check-circle me-2"></i>Hoàn thành
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Orders List -->
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="all-orders">
+                            @foreach($orders as $order)
+                            <div class="order-card">
+                                <!-- Order Header -->
+                                <div class="order-header">
+                                    <div class="order-info">
+                                        <div class="order-code">
+                                            <i class="fas fa-receipt me-2"></i>
+                                            <span class="fw-bold">#{{ $order->code }}</span>
+                                        </div>
+                                        <div class="order-date">
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            {{ $order->created_at->format('d/m/Y H:i') }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="order-status-badges">
+                                        <!-- Payment Status -->
+                                        @if($order->is_paid)
+                                            <span class="status-badge paid">
+                                                <i class="fas fa-check-circle me-1"></i>Đã thanh toán
+                                            </span>
+                                        @else
+                                            <span class="status-badge unpaid">
+                                                <i class="fas fa-clock me-1"></i>Chưa thanh toán
+                                            </span>
+                                        @endif
+                                        
+                                        <!-- Order Status -->
+                                        @if($order->currentStatus)
+                                            <span class="status-badge order-status">
+                                                {{ $order->currentStatus->orderStatus->name }}
+                                            </span>
+                                        @else
+                                            <span class="status-badge no-status">Chưa có trạng thái</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                <!-- Order Items -->
+                                <div class="order-body">
+                                    @foreach($order->items as $item)
+                                    <div class="order-item">
+                                        <div class="item-image">
+                                            @if($item->product && $item->product->thumbnail)
+                                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}" 
+                                                 alt="{{ $item->product->name }}" 
+                                                 class="product-thumbnail">
+                                            @else
+                                            <div class="product-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="item-details">
+                                            <h6 class="product-name">{{ $item->product->name ?? 'Sản phẩm không tồn tại' }}</h6>
+                                            <p class="product-variant">
+                                                <i class="fas fa-tag me-1"></i>
+                                                {{ $item->variant->name ?? 'Không phân loại' }}
+                                            </p>
+                                            <div class="quantity-badge">
+                                                <i class="fas fa-times me-1"></i>{{ $item->quantity }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="item-price">
+                                            <span class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                        </div>
+                                        
+                                        <div class="item-actions">
+                                            <button class="btn btn-outline-primary btn-sm action-btn">
+                                                <i class="fas fa-redo-alt me-1"></i>Mua lại
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm action-btn">
+                                                <i class="fas fa-comments me-1"></i>Chat
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @if(!$loop->last)
+                                        <hr class="item-separator">
+                                    @endif
+                                    @endforeach
+                                </div>
+                                
+                                <!-- Order Footer -->
+                                <div class="order-footer">
+                                    <div class="shop-info">
+                                        <i class="fas fa-store me-2"></i>
+                                        <span class="shop-name"></span>
+                                    </div>
+                                    
+                                    <div class="order-actions">
+                                        <a href="{{ route('client.orders.show', $order->code) }}" 
+                                           class="btn btn-outline-info btn-sm me-2">
+                                            <i class="fas fa-eye me-1"></i>Chi tiết
+                                        </a>
+                                        
+                                        <div class="total-amount">
+                                            <span class="total-label">Tổng tiền:</span>
+                                            <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+>>>>>>> 40ad929eb33e1617020bc950e8adc7bf45a17002
                             </div>
                             <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
                             <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>

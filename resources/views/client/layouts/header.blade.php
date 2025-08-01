@@ -61,6 +61,7 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
+<<<<<<< HEAD
                              <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến mãi</a>
                             </li>
@@ -96,6 +97,10 @@
                                     </li>
                                 </ul>
                             </li>
+=======
+                            <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
+                            
+>>>>>>> 40ad929eb33e1617020bc950e8adc7bf45a17002
 
                         </ul>
                     </div>

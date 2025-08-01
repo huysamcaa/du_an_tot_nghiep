@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -28,7 +29,7 @@ use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 //  use App\Http\Controllers\Client\ProductController as ClientProductController;
-
+use App\Http\Controllers\Client\BlogController as ClientBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
@@ -40,6 +41,10 @@ use App\Http\Controllers\Client\NotificationController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+//blogsclient
+Route::get('/blogs', [ClientBlogController::class, 'index'])->name('client.blogs.index');
+Route::get('/blogs/{slug}', [ClientBlogController::class, 'show'])->name('client.blogs.show');
 
 // Bình luận và trả lời bình luận
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
@@ -207,4 +212,16 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+
+
+
+
+    //Blogs
+    Route::resource('blogs', BlogController::class);
+
+
+
+
+
+
 });
