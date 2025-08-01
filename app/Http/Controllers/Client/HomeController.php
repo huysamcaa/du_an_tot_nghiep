@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\Product;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Category;
+use App\Models\Blog;
 
 class HomeController extends Controller
 {
@@ -20,6 +21,9 @@ class HomeController extends Controller
             ->orderBy('ordinal')
             ->get();
 
-        return view('client.home', compact('products', 'categories'));
+         $blogs = Blog::latest()->take(3)->get();
+
+
+        return view('client.home', compact('products', 'categories','blogs'));
     }
 }

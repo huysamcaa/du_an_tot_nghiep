@@ -61,35 +61,8 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
-                            <li class="menu-item-has-children">
-                                <a href="javascript:void(0);">Blog</a>
-                                <ul>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Blog Standard</a>
-                                        <ul>
-                                            <li><a href="blog_standard_lsb.html">Left Sidebar</a></li>
-                                            <li><a href="blog_standard_nsb.html">No Sidebar</a></li>
-                                            <li><a href="blog_standard_rsb.html">Right Sidebar</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Blog Grid</a>
-                                        <ul>
-                                            <li><a href="blog_grid_lsb.html">Left Sidebar</a></li>
-                                            <li><a href="blog_grid_nsb.html">No Sidebar</a></li>
-                                            <li><a href="blog_grid_rsb.html">Right Sidebar</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="javascript:void(0);">Blog Details</a>
-                                        <ul>
-                                            <li><a href="blog_details_lsb.html">Left Sidebar</a></li>
-                                            <li><a href="blog_details_nsb.html">No Sidebar</a></li>
-                                            <li><a href="blog_details_rsb.html">Right Sidebar</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
+                            <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
+                            
 
                         </ul>
                     </div>
