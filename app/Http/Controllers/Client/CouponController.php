@@ -35,12 +35,25 @@ class CouponController extends Controller
         return view('client.coupons.index', compact('coupons'));
     }
 
-    public function received()
-    {
-        $user = Auth::user();
-        $coupons = $user->coupons()->with('restriction')->get();
-        return view('client.coupons.received', compact('coupons'));
-    }
+  public function received()
+{
+    $user = Auth::user();
+
+    $coupons = $user->coupons()
+        ->with('restriction')
+        ->where(function ($query) {
+            $query->whereNull('start_date')
+                  ->orWhere('start_date', '<=', now()); // chính xác đến giây
+        })
+        ->where(function ($query) {
+            $query->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now()); // so sánh đúng ngày + giờ + phút
+        })
+        ->get();
+
+    return view('client.coupons.received', compact('coupons'));
+}
+
 
     public function show($id)
     {
