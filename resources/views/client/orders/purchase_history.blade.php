@@ -156,7 +156,7 @@
                                 <div class="order-footer">
                                     <div class="shop-info">
                                         <i class="fas fa-store me-2"></i>
-                                        <span class="shop-name">{{ $order->shop->name ?? 'MailKits.vn' }}</span>
+                                        <span class="shop-name"></span>
                                     </div>
                                     
                                     <div class="order-actions">
