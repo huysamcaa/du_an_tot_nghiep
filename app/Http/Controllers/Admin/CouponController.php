@@ -268,5 +268,14 @@ public function restore($id)
 
     return redirect()->route('admin.coupon.trashed')->with('success', 'Mã giảm giá đã được khôi phục thành công!');
 }
+public function show($id)
+{
+    $coupon = Coupon::with('restriction')->findOrFail($id);
+
+    $categories = Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
+    $products = Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
+
+    return view('admin.coupons.show', compact('coupon', 'categories', 'products'));
+}
 
 }

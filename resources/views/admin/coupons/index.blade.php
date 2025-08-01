@@ -123,6 +123,7 @@
             <td>{{ $coupon->created_at->format('d/m/Y H:i') }}</td>
             <td>{{ $coupon->updated_at->format('d/m/Y H:i') }}</td>
             <td>
+                 <a href="{{ route('admin.coupon.show', $coupon->id) }}" class="btn btn-sm btn-info">Xem chi tiết</a>
                 <a href="{{ route('admin.coupon.edit', $coupon->id) }}" class="btn btn-sm btn-warning">Sửa</a>
                 <form action="{{ route('admin.coupon.destroy', $coupon->id) }}" method="POST" style="display:inline;">
                     @csrf
