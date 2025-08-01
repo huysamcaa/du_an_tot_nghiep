@@ -168,4 +168,49 @@ class Product extends Model
     {
         return $query->where('is_active', true);
     }
+    // Thêm vào model Product
+// Thêm vào model Product
+public function getOrderStatusStats()
+{
+    return $this->orderItems()
+        ->selectRaw('
+            order_statuses.name as status_name,
+            COUNT(DISTINCT order_items.order_id) as order_count,
+            SUM(order_items.quantity) as total_quantity,
+            SUM(order_items.price * order_items.quantity) as total_amount
+        ')
+        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+        ->join('order_order_status', function($join) {
+            $join->on('orders.id', '=', 'order_order_status.order_id')
+                 ->where('order_order_status.is_current', true);
+        })
+        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+        ->groupBy('order_statuses.name')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [
+                $item->status_name => [
+                    'order_count' => $item->order_count,
+                    'total_quantity' => $item->total_quantity,
+                    'total_amount' => $item->total_amount,
+                    'status_label' => $this->getStatusLabel($item->status_name)
+                ]
+            ];
+        });
+}
+
+protected function getStatusLabel($status)
+{
+    $labels = [
+        'pending' => 'Chờ xử lý',
+        'processing' => 'Đang xử lý',
+        'shipped' => 'Đã giao hàng',
+        'completed' => 'Hoàn thành',
+        'cancelled' => 'Đã hủy',
+        'returned' => 'Trả hàng'
+    ];
+    
+    return $labels[strtolower($status)] ?? $status;
+}
+
 }
