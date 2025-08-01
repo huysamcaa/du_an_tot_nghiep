@@ -155,7 +155,7 @@
             <small class="text-danger">{{ $message }}</small>
         @enderror
     </div>
-
+<a href="{{ route('admin.coupon.index') }}" class="btn btn-warning">Quay lại </a>
     <button type="submit" class="btn btn-primary">Lưu</button>
 </form>
 @endsection

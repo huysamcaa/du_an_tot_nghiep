@@ -34,7 +34,7 @@ public function show($id)
         ->where('attribute_id', 1)
         ->where('is_active', 1)
         ->get();
-    
+
     $sizes = AttributeValue::whereIn('id', $attributeValueIds)
         ->where('attribute_id', 2)
         ->where('is_active', 1)
@@ -46,7 +46,7 @@ public function show($id)
         // Lấy ra tất cả ID các attribute_value liên quan đến biến thể của sản phẩm
         $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
         $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
-        
+
         return [
             'id' => $variant->id,
             'color_id' => $color?->id, // $color ? $color->id : null
@@ -57,11 +57,21 @@ public function show($id)
         ];
     });
 
-     $reviews = $product->reviews()
-        ->with(['user', 'multimedia'])
-        ->where('is_active', 1)
-        ->latest()
-        ->get();
+$ratingFilter = request()->input('rating');
+$sortOption = request()->input('sort');
+$allReviews = $product->reviews()
+    ->where('is_active', 1)
+    ->get();
+
+$reviews = $product->reviews()
+    ->with(['user', 'multimedia'])
+    ->where('is_active', 1)
+    ->when(in_array($ratingFilter, [1, 2, 3, 4, 5]), fn($q) => $q->where('rating', $ratingFilter))
+    ->when($sortOption === 'latest', fn($q) => $q->orderByDesc('created_at'))
+    ->when($sortOption === 'highest', fn($q) => $q->orderByDesc('rating'))
+    ->when($sortOption === 'lowest', fn($q) => $q->orderBy('rating'))
+    ->paginate(5) // Có thể đổi số 5 tuỳ ý
+    ->withQueryString();
     $relatedProducts = Product::with('variants')
 
    ->withCount('comments')   // đếm comments thay vì reviews
@@ -69,7 +79,7 @@ public function show($id)
         ->where('id', '<>', $product->id)
         ->take(8)
         ->get();
-    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants'));
+    return view('client.productDetal.detal', compact('product','category' , 'comments', 'colors', 'sizes' , 'relatedProducts','reviews','variants', 'allReviews'));
 
 }
 public function attributeValues()

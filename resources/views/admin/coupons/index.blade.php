@@ -4,7 +4,8 @@
 
 <h1 class="mb-4">Danh Sách Mã Giảm Giá</h1>
 
-<a href="{{ route('admin.coupon.create') }}" class="btn btn-primary mb-4">Thêm Mới</a>
+<a href="{{ route('admin.coupon.create') }}" class="btn btn-primary mb-4">Thêm Mới Mã Giảm Giá</a>
+<a href="{{ route('admin.coupon.trashed') }}" class="btn btn-secondary mb-4">Mã Đã Xóa</a>
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -28,24 +29,34 @@
     </ol>
 </nav>
 
-<!-- Bộ lọc và tìm kiếm -->
-<form method="GET" action="{{ route('admin.coupon.index') }}" class="d-flex justify-content-between mb-3">
-    <div>
-        <label for="entries">Hiển thị</label>
-        <select name="perPage" class="form-control d-inline w-auto" onchange="this.form.submit()">
-            <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
+<!-- Bộ lọc hiển thị + tìm kiếm giống Brand -->
+<form method="GET" action="{{ route('admin.coupon.index') }}" class="row g-2 align-items-center mb-4">
+    {{-- Số lượng hiển thị --}}
+    <div class="col-auto">
+        <label for="entries" class="form-label mb-0">Hiển thị</label>
+        <select name="perPage" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="10" {{ request('perPage', 10) == '10' ? 'selected' : '' }}>10</option>
             <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
             <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
             <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-        </select> mục
-    </div>
-
-    <div>
-        <label for="search">Tìm kiếm:</label>
-        <input type="text" name="search" class="form-control d-inline w-auto" value="{{ request('search') }}" placeholder="Nhập mã, tiêu đề...">
-        <button type="submit" class="btn btn-primary ml-2">Lọc</button>
+        </select>
     </div>
 </form>
+
+{{-- Form tìm kiếm --}}
+<form method="GET" action="{{ route('admin.coupon.index') }}" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ request('search') }}">
+        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+        @if(request('search'))
+            <a href="{{ route('admin.coupon.index') }}" class="btn btn-outline-secondary">
+                <i class="fa fa-times me-1"></i> Xóa
+            </a>
+        @endif
+    </div>
+</form>
+
+
 
 @php
     $groupLabel = [
@@ -86,7 +97,8 @@
                 @if ($coupon->discount_type === 'percent')
                     {{ (int) $coupon->discount_value }}%
                 @else
-                    {{ number_format((int) $coupon->discount_value) }} VNĐ
+                    {{ number_format($coupon->discount_value, 0, ',', '.') }} VNĐ
+
                 @endif
             </td>
             <td>{{ $groupLabel[$coupon->user_group] ?? 'Tất cả' }}</td>
@@ -111,6 +123,7 @@
             <td>{{ $coupon->created_at->format('d/m/Y H:i') }}</td>
             <td>{{ $coupon->updated_at->format('d/m/Y H:i') }}</td>
             <td>
+                 <a href="{{ route('admin.coupon.show', $coupon->id) }}" class="btn btn-sm btn-info">Xem chi tiết</a>
                 <a href="{{ route('admin.coupon.edit', $coupon->id) }}" class="btn btn-sm btn-warning">Sửa</a>
                 <form action="{{ route('admin.coupon.destroy', $coupon->id) }}" method="POST" style="display:inline;">
                     @csrf
@@ -124,11 +137,28 @@
 </table>
 
 <!-- Phân trang -->
-<div class="d-flex justify-content-between mt-3">
-    <div>
-        <p>Hiển thị {{ $coupons->firstItem() }} đến {{ $coupons->lastItem() }} của {{ $coupons->total() }} mã giảm giá</p>
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+        Hiển thị từ {{ $coupons->firstItem() ?? 0 }} đến {{ $coupons->lastItem() ?? 0 }} trên tổng số {{ $coupons->total() }} mã
     </div>
-    <div>{{ $coupons->links('pagination::bootstrap-4') }}</div>
+
+    <div>
+        @if ($coupons->hasPages())
+            {!! $coupons->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
+        @else
+            {{-- Giữ bố cục nhất quán dù không có nhiều trang --}}
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item active"><span class="page-link">1</span></li>
+                </ul>
+            </nav>
+        @endif
+    </div>
 </div>
 
 @endsection
+<style>
+    .pagination {
+        display: flex !important;
+    }
+</style>
