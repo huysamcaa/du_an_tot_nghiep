@@ -162,6 +162,33 @@
                                                     </div>
 
                                                     <div class="item-actions">
+                                                    @php
+                                                        $pending = $order->refunds->firstWhere('status', 'pending');
+                                                    @endphp
+
+                                                    @if ($pending)
+                                                        {{-- Tạo form ẩn, duy nhất, dùng id để button trỏ tới --}}
+                                                        <form id="refund-cancel-{{ $pending->id }}"
+                                                            action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
+                                                            method="POST"
+                                                            style="display:none">
+                                                            @csrf
+                                                        </form>
+
+                                                        {{-- Button bên ngoài, sử dụng form attribute --}}
+                                                        <button type="submit"
+                                                                form="refund-cancel-{{ $pending->id }}"
+                                                                class="btn btn-outline-danger btn-sm js-refund-cancel"
+                                                                onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                                            <i class="fas fa-times me-1"></i>Hủy hoàn
+                                                        </button>
+                                                    @elseif  ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành')
+                                                        {{-- Nút Tạo yêu cầu hoàn đơn --}}
+                                                        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+                                                            class="btn btn-outline-warning btn-sm action-btn">
+                                                            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+                                                        </a>
+                                                    @endif
                                                         <button class="btn btn-outline-primary btn-sm action-btn">
                                                             <i class="fas fa-redo-alt me-1"></i>Mua lại
                                                         </button>
@@ -264,7 +291,6 @@
             </div>
         </div>
     </div>
-
     <style>
         /* Banner Section */
         .banner-title {
@@ -731,3 +757,4 @@ document.querySelectorAll('.open-review-form').forEach(button => {
 
     </script>
 @endsection
+

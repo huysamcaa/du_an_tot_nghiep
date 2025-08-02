@@ -582,6 +582,5 @@ class CheckoutController extends Controller
     }
 
     return view('client.orders.purchase_history', compact('orders', 'reviewedMap'));
-}
 
 }
