@@ -135,9 +135,15 @@
                                 @endforeach
                             </tbody>
                             <tfoot class="table-light">
+                                
                                 <tr>
+                                    
+                                    
                                     <td colspan="3" class="text-end fw-bold ps-4">Tổng tiền hàng</td>
                                     <td class="text-end fw-bold text-danger pe-4">{{ number_format($order->total_amount) }}đ</td>
+                                </tr>
+                                <tr>
+                                    <td>Phí Ship : 30.000 đ </td>
                                 </tr>
                             </tfoot>
                         </table>

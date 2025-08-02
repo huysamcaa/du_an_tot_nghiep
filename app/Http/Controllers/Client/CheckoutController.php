@@ -554,17 +554,36 @@ class CheckoutController extends Controller
         return view('client.orders.show', compact('order'));
     }
 
-    public function purchaseHistory()
-    {
-        $orders = Order::where('user_id', auth()->id())
-            ->with([
-                'currentStatus.orderStatus',
-                'items.product',
-                'items.variant'
-            ])
-            ->orderByDesc('created_at')
-            ->paginate(10);
+   public function purchaseHistory()
+{
+    $userId = auth()->id();
 
-        return view('client.orders.purchase_history', compact('orders'));
+    $orders = Order::where('user_id', $userId)
+        ->with([
+            'currentStatus.orderStatus',
+            'items.product',
+            'items.variant'
+        ])
+        ->orderByDesc('created_at')
+        ->paginate(10);
+
+    // Tạo map xác định sản phẩm nào đã đánh giá
+    $reviewedMap = [];
+    foreach ($orders as $order) {
+        foreach ($order->items as $item) {
+            if (!$item->product) continue;
+
+            $key = $order->id . '-' . $item->product->id;
+
+            $reviewedMap[$key] = \App\Models\Admin\Review::where('product_id', $item->product->id)
+                ->where('order_id', $order->id)
+               
+                ->where('user_id', auth()->id())
+                ->exists();
+        }
     }
+
+    return view('client.orders.purchase_history', compact('orders', 'reviewedMap'));
+
+}
 }

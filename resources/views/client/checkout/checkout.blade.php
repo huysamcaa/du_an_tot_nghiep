@@ -15,13 +15,13 @@
         </div>
     </div>
 </section>
-@if(auth()->user()->account_type === 'limited')
+{{-- @if(auth()->user()->account_type === 'limited')
 <div class="alert alert-warning">
     Tài khoản của bạn chỉ được phép:
     - Thanh toán COD
     - Tối đa 10 đơn/ngày
 </div>
-@endif
+@endif --}}
 <section class="checkoutPage">
     <div class="container">
         <form action="{{ route('checkout.placeOrder') }}" method="POST">
@@ -51,10 +51,26 @@
                                     {{-- ...other countries... --}}
                                 </select>
                             </div>
-                            <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Địa chỉ *"
-                                    value="{{ old('field7', $defaultAddress->address ?? '') }}" required>
-                            </div>
+                           <div class="col-lg-12">
+                    <select name="field7" class="form-control address-select" required>
+                        <option value="">Chọn địa chỉ *</option>
+                        @foreach($userAddresses as $address)
+                            <option value="{{ $address->address }}"  
+                                {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
+                                data-phone="{{ $address->phone_number }}"
+                                data-fullname="{{ $address->fullname }}">
+                                {{ $address->address }} ({{ $address->fullname }} - {{ $address->phone_number }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+<!-- Nếu muốn thêm nút "Thêm địa chỉ mới" -->
+<div class="mt-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#addAddressModal">
+        + Thêm địa chỉ mới
+    </button>
+</div>
                             {{-- <div class="col-lg-12">
                                 <input type="text" name="field7" placeholder="Địa chỉ *">
                             {{-- <div class="col-lg-12">

@@ -3,6 +3,7 @@
 namespace App\Models\Shared;
 
 use App\Models\Admin\ProductVariant;
+use App\Models\Client\UserAddress;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -72,5 +73,9 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function addresses()
+{
+    return $this->hasMany(UserAddress::class);
+}
 
 }
