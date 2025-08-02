@@ -53,7 +53,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $orderId)
     {
         $request->validate([
-            'order_status_id' => 'required|exists:order_statuses,id',
+            'order_status_id' => 'nullable|exists:order_statuses,id',
         ]);
 
         // Lấy trạng thái hiện tại
