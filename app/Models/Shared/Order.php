@@ -36,6 +36,9 @@ class Order extends Model
     protected $guarded = [];
     public $timestamps = true;
 
+
+
+
     use SoftDeletes;
 
 
@@ -60,6 +63,9 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\Refund::class);
     }
+
+
+
 
 
 

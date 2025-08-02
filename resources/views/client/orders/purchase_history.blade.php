@@ -139,12 +139,12 @@
                                                     </div>
 
                                                     <div class="item-actions">
-                                                    @php
+                                                   @php
                                                         $pending = $order->refunds->firstWhere('status', 'pending');
                                                     @endphp
 
                                                     @if ($pending)
-                                                        {{-- Tạo form ẩn, duy nhất, dùng id để button trỏ tới --}}
+                                                        {{-- Form hủy yêu cầu hoàn đơn --}}
                                                         <form id="refund-cancel-{{ $pending->id }}"
                                                             action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
                                                             method="POST"
@@ -152,17 +152,17 @@
                                                             @csrf
                                                         </form>
 
-                                                        {{-- Button bên ngoài, sử dụng form attribute --}}
                                                         <button type="submit"
                                                                 form="refund-cancel-{{ $pending->id }}"
-                                                                class="btn btn-outline-danger btn-sm js-refund-cancel"
+                                                                class="btn btn-outline-warning btn-sm action-btn"
                                                                 onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
                                                             <i class="fas fa-times me-1"></i>Hủy hoàn
                                                         </button>
-                                                    @elseif  ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành')
-                                                        {{-- Nút Tạo yêu cầu hoàn đơn --}}
+                                                    @elseif ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' &&
+                                                            $order->refunds->isEmpty())
+                                                        {{-- Nút tạo yêu cầu hoàn đơn (chỉ khi chưa có refund nào) --}}
                                                         <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn">
+                                                        class="btn btn-outline-warning btn-sm action-btn">
                                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                                         </a>
                                                     @endif
