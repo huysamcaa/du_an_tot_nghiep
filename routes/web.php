@@ -31,7 +31,13 @@ use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 use App\Http\Controllers\Client\WishlistController;
 
 //  use App\Http\Controllers\Client\ProductController as ClientProductController;
+
+
+use App\Http\Controllers\Client\RefundController as ClientRefundController;
+use App\Http\Controllers\Admin\RefundController as AdminRefundController;
+
 use App\Http\Controllers\Client\BlogController as ClientBlogController;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
@@ -149,11 +155,32 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist/destroy/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
 
+
+    // Gửi yêu cầu hoàn tiền
+    Route::get('/refunds/{order_id}/select-items', [ClientRefundController::class, 'selectItems'])
+     ->name('refunds.select_items');
+
+// Xử lý form chọn sản phẩm, chuyển sang trang create
+Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 'confirmItems'])
+     ->name('refunds.confirm_items');
+
+    Route::get('/refunds/create/{order_id}/{items}', [ClientRefundController::class, 'create'])->name('refunds.create');
+    Route::post('/refunds/store', [ClientRefundController::class, 'store'])->name('refunds.store');
+    Route::post('/refunds/{id}/cancel', [ClientRefundController::class, 'cancel'])->name('refunds.cancel');
+    // Xem danh sách yêu cầu của user
+    Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
+
+    // Xem chi tiết yêu cầu
+    Route::get('/refunds/{id}', [ClientRefundController::class, 'show'])->name('refunds.show');
+          Route::get('/refunds', [ClientRefundController::class, 'index'])
+              ->name('refunds.index');
+    Route::get('/products', [ProductController::class, 'index'])->name('client.products.index');
     // Route hiển thị thông báo cho người dùng
     Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
     // Route đánh dấu thông báo đã đọc
     Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
     Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
+
 });
 
 /*
@@ -224,6 +251,14 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 
+
+
+     // Quản lý hoàn tiền
+    Route::get('refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
+    Route::get('refunds/{refund}', [AdminRefundController::class, 'show'])->name('refunds.show');
+    // routes/web.php
+    Route::patch('refunds/{refund}', [AdminRefundController::class, 'update'])
+     ->name('refunds.update');
 
 
 

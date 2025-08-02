@@ -41,7 +41,7 @@ class CheckoutController extends Controller
     public function index(Request $request)
     {
         Log::info('CheckoutController@index - Starting checkout process', ['user_id' => auth()->id()]);
-        
+
         $userId = auth()->id();
         $selectedItems = $request->input('selected_items', []);
 
@@ -50,7 +50,9 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
         }
 
+
         $cartItems = CartItem::with(['product', 'variant'])
+
             ->where('user_id', $userId)
             ->whereIn('id', $selectedItems)
             ->get();
@@ -137,6 +139,7 @@ class CheckoutController extends Controller
             'address' => $request->field7,
             'note' => $request->field14,
             'total_amount' => $totalAmount,
+
             'is_paid' => $request->paymentMethod == 2 ? false : false,
             'coupon_id' => $couponData['coupon']?->id,
             'coupon_code' => $couponData['coupon']?->code,
@@ -148,7 +151,7 @@ class CheckoutController extends Controller
                     'product_id' => $item->product_id,
                     'product_variant_id' => $item->product_variant_id,
                     'name' => $item->product->name ?? null,
-                    'price' => $item->variant 
+                    'price' => $item->variant
                         ? ($item->variant->sale_price ?? $item->variant->price)
                         : ($item->product->price ?? 0),
                     'quantity' => $item->quantity ?? 1,
@@ -166,7 +169,7 @@ class CheckoutController extends Controller
             $totalAmount = $orderData['total_amount'];
             $requestId = time() . "";
             $orderCode = 'DH' . strtoupper(Str::random(8));
-            
+
             Session::put('momo_order_code', $orderCode);
 
             $extraData = json_encode([
@@ -174,15 +177,15 @@ class CheckoutController extends Controller
                 'user_id' => auth()->id(),
             ]);
 
-            $rawHash = "accessKey=" . $this->momoConfig['accessKey'] . 
-                      "&amount=" . $totalAmount . 
-                      "&extraData=" . $extraData . 
-                      "&ipnUrl=" . route('checkout.momo.ipn') . 
-                      "&orderId=" . $orderCode . 
-                      "&orderInfo=" . "Thanh toán đơn hàng #" . $orderCode . 
-                      "&partnerCode=" . $this->momoConfig['partnerCode'] . 
-                      "&redirectUrl=" . route('checkout.momo.return') . 
-                      "&requestId=" . $requestId . 
+            $rawHash = "accessKey=" . $this->momoConfig['accessKey'] .
+                      "&amount=" . $totalAmount .
+                      "&extraData=" . $extraData .
+                      "&ipnUrl=" . route('checkout.momo.ipn') .
+                      "&orderId=" . $orderCode .
+                      "&orderInfo=" . "Thanh toán đơn hàng #" . $orderCode .
+                      "&partnerCode=" . $this->momoConfig['partnerCode'] .
+                      "&redirectUrl=" . route('checkout.momo.return') .
+                      "&requestId=" . $requestId .
                       "&requestType=" . $this->momoConfig['requestType'];
 
             $signature = hash_hmac("sha256", $rawHash, $this->momoConfig['secretKey']);
@@ -222,7 +225,7 @@ class CheckoutController extends Controller
         try {
             $orderData = Session::get('pending_order');
             $orderCode = 'DH' . strtoupper(Str::random(8));
-            
+
             // Lưu cả dữ liệu đơn hàng và mã đơn vào session
             Session::put('vnpay_order_data', $orderData);
             Session::put('vnpay_order_code', $orderCode);
@@ -267,7 +270,7 @@ class CheckoutController extends Controller
 
             DB::commit();
             Session::forget('pending_order');
-            
+
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Đặt hàng thành công!');
         } catch (\Exception $e) {
@@ -288,18 +291,19 @@ class CheckoutController extends Controller
                 throw new \Exception('Chữ ký không hợp lệ');
             }
 
+
             $extraData = json_decode($request->extraData, true);
             $orderCode = $extraData['order_code'] ?? null;
-            
+
             if ($orderCode !== Session::get('momo_order_code')) {
                 throw new \Exception('Mã đơn hàng không khớp');
             }
 
             DB::beginTransaction();
-            
+
             $orderData = Session::get('pending_order');
             $order = $this->saveOrderToDatabase($orderData);
-            
+
             $order->update(['is_paid' => 1]);
             $this->reduceStock($order);
 
@@ -315,9 +319,9 @@ class CheckoutController extends Controller
             ]);
 
             DB::commit();
-            
+
             Session::forget(['pending_order', 'momo_order_code']);
-            
+
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Thanh toán thành công!');
 
@@ -344,18 +348,18 @@ class CheckoutController extends Controller
             }
 
             $orderCode = $inputData['vnp_TxnRef'];
-            
+
             if ($orderCode !== Session::get('vnpay_order_code')) {
                 throw new \Exception('Mã đơn hàng không khớp');
             }
 
             if ($inputData['vnp_ResponseCode'] == '00') {
                 DB::beginTransaction();
-                
+
                 // Lấy dữ liệu đơn hàng từ session thay vì database
                 $orderData = Session::get('vnpay_order_data');
                 $order = $this->saveOrderToDatabase($orderData);
-                
+
                 $order->update(['is_paid' => 1, 'payment_id' => 4]);
                 $this->reduceStock($order);
 
@@ -371,9 +375,9 @@ class CheckoutController extends Controller
                 ]);
 
                 DB::commit();
-                
+
                 Session::forget(['pending_order', 'vnpay_order_data', 'vnpay_order_code']);
-                
+
                 return redirect()->route('client.orders.show', $order->code)
                     ->with('success', 'Thanh toán VNPay thành công!');
             }
@@ -470,7 +474,7 @@ class CheckoutController extends Controller
             ->whereIn('id', $selectedItems)
             ->get()
             ->sum(function ($item) {
-                $price = $item->variant 
+                $price = $item->variant
                     ? ($item->variant->sale_price ?? $item->variant->price)
                     : ($item->product->price ?? 0);
                 return $price * $item->quantity;
