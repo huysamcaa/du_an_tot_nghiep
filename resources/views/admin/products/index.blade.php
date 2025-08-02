@@ -34,6 +34,7 @@
         <div class="animated fadeIn">
             <div class="row">
 
+
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
@@ -60,6 +61,7 @@
                                     <button class="btn btn-primary" type="submit">Tìm kiếm</button>
                                 </div>
                             </form>
+
 
                             <table id="bootstrap-data" class="table table-striped table-bordered">
                                 <thead>

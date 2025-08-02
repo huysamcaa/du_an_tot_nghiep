@@ -97,8 +97,10 @@ class RegisterController extends Controller
             'gender' => $data['gender'] ?? null,
             'birthday' => $data['birthday'] ?? null,
             'status' => 'active', // Mặc định là 'active'
+
             'code_verified_email' => rand(100000, 999999), // OTP 6 số
             'code_verified_at' => now(),
+
         ]);
     }
 
