@@ -33,7 +33,7 @@ use App\Http\Controllers\Client\BlogController as ClientBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-
+use App\Http\Controllers\Client\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -131,16 +131,22 @@ Route::middleware(['auth'])->group(function () {
 
     // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
-    Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
+    Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
-    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
 
-    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
+    // Đánh giá của người dùng
+    Route::get('/reviews/pending', [ClientReviewController::class, 'pending'])->name('client.reviews.pending');
+    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
 
+
+    // Route hiển thị thông báo cho người dùng
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
+    // Route đánh dấu thông báo đã đọc
+    Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
+    Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
 });
 
 /*
@@ -174,11 +180,15 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
 
 
+ Route::resource('coupon', CouponController::class)->except(['show']);
 
-    Route::resource('coupon', CouponController::class);
+    Route::get('coupon/trashed', [CouponController::class, 'trashed'])->name('coupon.trashed');
+    Route::post('coupon/{id}/restore', [CouponController::class, 'restore'])->name('coupon.restore');
+    Route::get('coupon/{id}/show', [CouponController::class, 'show'])->name('coupon.show');
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);
+
 
     // Quản lý trạng thái đơn hàng
     Route::resource('order_statuses', OrderStatusController::class);
@@ -206,6 +216,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+
+
+
 
     //Blogs
     Route::resource('blogs', BlogController::class);
