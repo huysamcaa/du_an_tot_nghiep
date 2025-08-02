@@ -56,11 +56,11 @@ class LoginController extends Controller
         //         'email' => ['Bạn cần xác thực email trước khi đăng nhập. Vui lòng kiểm tra email!'],
         //     ]);
         // }
-        // if (!Hash::check($request->password, $user->password)) {
-        //     throw ValidationException::withMessages([
-        //         'password' => [trans('auth.password')],
-        //     ]);
-        // }
+        if (!Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => [trans('auth.password')],
+            ]);
+        }
         // 4. Thử đăng nhập
         $credentials = $request->only('email', 'password');
         $remember = $request->filled('remember');

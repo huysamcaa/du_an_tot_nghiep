@@ -30,6 +30,7 @@
             <td>{{ $order->fullname }}</td>
             <td>{{ $order->created_at }}</td>
             <td>
+               
                 <span class="badge bg-info">
                     {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa Thanh Toán' }}
                 </span>
