@@ -27,7 +27,7 @@ class OrderController extends Controller
         $statuses = OrderStatus::orderBy('id')->get();
 
         // Lấy trạng thái hiện tại (lớn nhất trong lịch sử)
-        $currentStatusId = $order->orderOrderStatuses->max('order_status_id') ?? 1;
+        $currentStatusId = $order->currentStatus?->order_status_id ?? 1;
         // Trạng thái tiếp theo
         $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null; // 5 là trạng thái cuối cùng hợp lệ
 

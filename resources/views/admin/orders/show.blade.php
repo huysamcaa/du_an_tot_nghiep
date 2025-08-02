@@ -107,7 +107,7 @@
                         {{ $currentStatusId == $status->id ? 'selected' : '' }}
                         @if(
                             // Disable nếu không phải trạng thái tiếp theo, hoặc là trạng thái kết thúc
-                            !in_array($status->id, [$nextStatusId, 6, 7, 8])
+                            !in_array($status->id, [$nextStatusId, 6, 7])
                             // Disable "Hoàn trả" nếu trạng thái hiện tại KHÁC 5
                             || ($status->id == 7 && $currentStatusId != 5)
                             // Disable "Đã hủy" hoặc "Thất bại" nếu trạng thái hiện tại là 5
