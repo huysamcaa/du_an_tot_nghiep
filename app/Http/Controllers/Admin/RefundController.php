@@ -37,23 +37,35 @@ class RefundController extends Controller
     public function update(Request $request, Refund $refund)
     {
         $request->validate([
-            'status'               => 'required|in:pending,receiving,completed,rejected,failed,cancel',
+            'status'               => 'nullable|in:pending,receiving,completed,rejected,failed,cancel',
             'bank_account_status'  => 'nullable|in:unverified,sent,verified',
             'admin_reason'         => 'nullable|string|max:1000',
             'is_send_money'        => 'nullable|boolean'
         ]);
 
+        $isUnchanged =
+            ($request->input('status', $refund->status) === $refund->status) &&
+            ($request->input('bank_account_status', $refund->bank_account_status) === $refund->bank_account_status) &&
+            (trim($request->input('admin_reason', $refund->admin_reason)) === trim($refund->admin_reason)) &&
+            ($request->boolean('is_send_money') === $refund->is_send_money);
+
+        if ($isUnchanged) {
+            return redirect()->back()->withErrors(['error' => 'Vui lòng thay đổi ít nhất một thông tin trước khi gửi.']);
+        }
+
         DB::beginTransaction();
         try {
-            // Cập nhật trạng thái
-            $refund->status = $request->status;
+            // Nếu có thay đổi trạng thái hoàn đơn
+            if ($request->filled('status')) {
+                $refund->status = $request->status;
+            }
 
-            // Cập nhật trạng thái tài khoản ngân hàng nếu được gửi lên
+            // Nếu có trạng thái ngân hàng
             if ($request->filled('bank_account_status')) {
                 $refund->bank_account_status = $request->bank_account_status;
             }
 
-            // Ghi lý do của admin
+            // Nếu có lý do từ admin
             $refund->admin_reason = $request->admin_reason;
 
             // Nếu admin đánh dấu đã chuyển khoản hoàn tiền
@@ -69,7 +81,7 @@ class RefundController extends Controller
             $refund->user->notify(new RefundStatusChanged($refund));
 
             DB::commit();
-            return redirect()->back()->with('success', 'Cập nhật trạng thái hoàn tiền thành công.');
+            return redirect()->back()->with('success', 'Cập nhật hoàn tiền thành công.');
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()

@@ -37,6 +37,8 @@ class Order extends Model
     public $timestamps = true;
 
 
+
+
     use SoftDeletes;
 
 
@@ -61,7 +63,11 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\Refund::class);
     }
- 
+
+
+
+
+
 
     public function variant()
     {
