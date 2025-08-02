@@ -2979,75 +2979,50 @@
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
-         <section class="blogSection">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h2 class="secTitle">Latest News</h2>
-                        <p class="secDesc">Showing our latest arrival on this summer</p>
-                    </div>
-                    <div class="col-md-6 text-end pdt34">
-                        <a href="blog_grid_nsb.html" class="ulinaBTN2"><span>View All</span></a>
-                    </div>
-                </div>
-                <div class="row masonryGrid" id="masonryGrid2">
-                    <div class="col-lg-8 col-xl-6 shafItem">
-                        <div class="blogItem01">
-                            <img src="{{ asset('assets/Client/images/news/1.jpg') }}" alt="Ulina News"/>
-                            <div class="bi01Content">
-                                <div class="bi01Meta clearfix">
-                                    <span><i class="fa-solid fa-folder-open"></i><a href="blog_details_lsb.html">Shopping</a></span>
-                                    <span><i class="fa-solid fa-clock"></i><a href="blog_grid_lsb.html">May 31, 2022</a></span>
-                                    <span><i class="fa-solid fa-user"></i><a href="blog_standard_nsb.html">Jewel Khan</a></span>
-                                </div>
-                                <h3><a href="blog_details_rsb.html">When the musics over turn off the light</a></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 col-xl-3 shafItem">
-                        <div class="blogItem02">
-                            <div class="bi01Meta clearfix">
-                                <span><i class="fa-solid fa-folder-open"></i><a href="blog_details_nsb.html">Shopping</a></span>
-                                <span><i class="fa-solid fa-clock"></i><a href="blog_details_nsb.html">May 31, 2022</a></span>
-                            </div>
-                            <h3><a href="blog_details_rsb.html">When the musics over turn off the light</a></h3>
-                            <a href="blog_details_nsb.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Read More</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 col-xl-3 shafItem">
-                        <div class="blogItem02">
-                            <div class="bi01Meta clearfix">
-                                <span><i class="fa-solid fa-folder-open"></i><a href="blog_details_rsb.html">Shopping</a></span>
-                                <span><i class="fa-solid fa-clock"></i><a href="blog_details_rsb.html">May 31, 2022</a></span>
-                            </div>
-                            <h3><a href="blog_details_rsb.html">When the musics over turn off the light</a></h3>
-                            <a href="blog_details_rsb.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Read More</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 col-xl-3 shafItem">
-                        <div class="blogItem02">
-                            <div class="bi01Meta clearfix">
-                                <span><i class="fa-solid fa-folder-open"></i><a href="blog_details_nsb.html">Shopping</a></span>
-                                <span><i class="fa-solid fa-clock"></i><a href="blog_grid_lsb.html">May 31, 2022</a></span>
-                            </div>
-                            <h3><a href="blog_details_rsb.html">When the musics over turn off the light</a></h3>
-                            <a href="blog_details_nsb.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Read More</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 col-xl-3 shafItem">
-                        <div class="blogItem02">
-                            <div class="bi01Meta clearfix">
-                                <span><i class="fa-solid fa-folder-open"></i><a href="blog_details_rsb.html">Shopping</a></span>
-                                <span><i class="fa-solid fa-clock"></i><a href="blog_grid_rsb.html">May 31, 2022</a></span>
-                            </div>
-                            <h3><a href="blog_details_rsb.html">When the musics over turn off the light</a></h3>
-                            <a href="blog_details_lsb.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Read More</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-1 col-sm-1 shafSizer"></div>
-                </div>
+         <section class="blogSection py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2 class="secTitle">Bài viết mới</h2>
+                <p class="secDesc">Tin tức và chia sẻ gần đây</p>
             </div>
-        </section> 
+            <div class="col-md-6 text-end pdt34">
+                <a href="{{ route('client.blogs.index') }}" class="ulinaBTN2"><span>Xem tất cả</span></a>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach($blogs as $blog)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="blogItem02 h-100 shadow-sm border rounded overflow-hidden bg-white">
+                        <a href="{{ route('client.blogs.show', $blog->slug) }}">
+                            <img src="{{ $blog->first_image_from_content ?? asset('images/default-thumbnail.jpg') }}"
+                                 alt="{{ $blog->title }}"
+                                 class="w-100"
+                                 style="height: 220px; object-fit: cover; border-radius: .5rem .5rem 0 0;">
+                        </a>
+                        <div class="p-3">
+                            <div class="bi01Meta mb-2 text-muted" style="font-size: 0.9rem;">
+                                <i class="fa-solid fa-clock me-1"></i> {{ $blog->created_at->format('d/m/Y') }}
+                            </div>
+                            <h3 class="mb-2" style="font-size: 1rem; line-height: 1.4em; height: 2.8em; overflow: hidden;">
+                                <a href="{{ route('client.blogs.show', $blog->slug) }}" class="text-dark text-decoration-none">
+                                    {{ $blog->title }}
+                                </a>
+                            </h3>
+                            <a href="{{ route('client.blogs.show', $blog->slug) }}" class="ulinaLink text-primary fw-semibold">
+                                <i class="fa-solid fa-angle-right me-1"></i> Xem thêm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+
+ 
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->

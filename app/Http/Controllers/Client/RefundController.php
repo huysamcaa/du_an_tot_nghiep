@@ -37,7 +37,7 @@ class RefundController extends Controller
     {
         $order = Order::with(['items.product', 'items.variant'])
             ->where('user_id', auth()->id())
-            ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'completed'))
+            ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'đã hoàn thành'))
             ->findOrFail($orderId);
 
         return view('client.refunds.select_items', compact('order'));

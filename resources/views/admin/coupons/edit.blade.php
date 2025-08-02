@@ -36,7 +36,9 @@
 
     <div class="form-group">
         <label>Giá Trị Giảm</label>
-        <input type="number" name="discount_value" class="form-control" value="{{ old('discount_value', $coupon->discount_value) }}" required>
+      <input type="text" name="discount_value" class="form-control"
+       value="{{ old('discount_value', number_format($coupon->discount_value, 0, ',', '.')) }}" required>
+
     </div>
 
     <div class="form-group">
@@ -119,7 +121,7 @@
             @endforeach
         </select>
     </div>
-
+<a href="{{ route('admin.coupon.index') }}" class="btn btn-warning">Quay lại </a>
     <button type="submit" class="btn btn-primary">Cập Nhật</button>
 </form>
 @endsection

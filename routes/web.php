@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\CheckoutController;
@@ -29,13 +30,16 @@ use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 //  use App\Http\Controllers\Client\ProductController as ClientProductController;
 
+
 use App\Http\Controllers\Client\RefundController as ClientRefundController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
+
+use App\Http\Controllers\Client\BlogController as ClientBlogController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use CheckoutController as GlobalCheckoutController;
-
+use App\Http\Controllers\Client\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -43,6 +47,10 @@ use CheckoutController as GlobalCheckoutController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+//blogsclient
+Route::get('/blogs', [ClientBlogController::class, 'index'])->name('client.blogs.index');
+Route::get('/blogs/{slug}', [ClientBlogController::class, 'show'])->name('client.blogs.show');
 
 // Bình luận và trả lời bình luận
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
@@ -125,15 +133,16 @@ Route::middleware(['auth'])->group(function () {
 
     // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
-    Route::get('/coupons/active', [ClientCouponController::class, 'active'])->name('client.coupons.active');
+    Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
 
-    Route::post('/review', [ClientReviewController::class, 'store'])->name('client.reviews.store');
-    Route::get('/my-reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
 
-    Route::get('/reviews/create/{order_id}/{product_id}', [ClientReviewController::class, 'create'])->name('client.reviews.create');
+    // Đánh giá của người dùng
+    Route::get('/reviews/pending', [ClientReviewController::class, 'pending'])->name('client.reviews.pending');
+    Route::get('/reviews', [ClientReviewController::class, 'index'])->name('client.reviews.index');
     Route::post('/reviews', [ClientReviewController::class, 'store'])->name('client.reviews.store');
+
 
 
     // Gửi yêu cầu hoàn tiền
@@ -154,6 +163,13 @@ Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 
     Route::get('/refunds/{id}', [ClientRefundController::class, 'show'])->name('refunds.show');
           Route::get('/refunds', [ClientRefundController::class, 'index'])
               ->name('refunds.index');
+    Route::get('/products', [ProductController::class, 'index'])->name('client.products.index');
+    // Route hiển thị thông báo cho người dùng
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
+    // Route đánh dấu thông báo đã đọc
+    Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
+    Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
+
 });
 
 /*
@@ -187,11 +203,15 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
 
 
+ Route::resource('coupon', CouponController::class)->except(['show']);
 
-    Route::resource('coupon', CouponController::class);
+    Route::get('coupon/trashed', [CouponController::class, 'trashed'])->name('coupon.trashed');
+    Route::post('coupon/{id}/restore', [CouponController::class, 'restore'])->name('coupon.restore');
+    Route::get('coupon/{id}/show', [CouponController::class, 'show'])->name('coupon.show');
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);
+
 
     // Quản lý trạng thái đơn hàng
     Route::resource('order_statuses', OrderStatusController::class);
@@ -221,11 +241,22 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
 
 
+
      // Quản lý hoàn tiền
     Route::get('refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
     Route::get('refunds/{refund}', [AdminRefundController::class, 'show'])->name('refunds.show');
     // routes/web.php
     Route::patch('refunds/{refund}', [AdminRefundController::class, 'update'])
      ->name('refunds.update');
+
+
+
+    //Blogs
+    Route::resource('blogs', BlogController::class);
+
+
+
+
+
 
 });

@@ -49,7 +49,22 @@
     </tbody>
 </table>
 
-<div class="d-flex justify-content-center mt-3">
-    {{ $brands->links('pagination::bootstrap-4') }}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+        Hiển thị từ {{ $brands->firstItem() }} đến {{ $brands->lastItem() }} trong tổng số {{ $brands->total() }} thương hiệu
+    </div>
+
+    <div>
+        @if ($brands->hasPages())
+            {{ $brands->links('pagination::bootstrap-4') }}
+        @else
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item active"><span class="page-link">1</span></li>
+                </ul>
+            </nav>
+        @endif
+    </div>
 </div>
+
 @endsection

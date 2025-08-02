@@ -19,7 +19,7 @@
                             {{-- <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>
                             </li> --}}
-                            
+
                             {{-- <li class="menu-item-has-children">
                                 <a href="javascript:void(0);">Shop</a>
                                 <div class="megaMenu">
@@ -58,10 +58,15 @@
                                     </div>
                                 </div>
                             </li> --}}
-                            <li class="menu-item">
-                                <a href="{{ route('client.categories.index') }}">Danh mục</a>
+                           
+
+                             <li class="menu-item">
+                                <a href="{{ route('client.coupons.index') }}">Khuyến mãi</a>
                             </li>
-                            <li class="menu-item-has-children">
+                             <li class="menu-item">
+                                <a href="{{ route('client.notifications.index') }}">Thông báo</a>
+                            </li>
+                            {{-- <li class="menu-item-has-children">
                                 <a href="javascript:void(0);">Blog</a>
                                 <ul>
                                     <li class="menu-item-has-children">
@@ -89,13 +94,19 @@
                                         </ul>
                                     </li>
                                 </ul>
-                            </li>
+                            </li> --}}
+
+                            <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
+
+
 
                         </ul>
                     </div>
                     <div class="accessNav">
+
                         <a href="javascript:void(0);" class="menuToggler"><i class="fa-solid fa-bars"></i>
                             <span>Menu</span></a>
+
                         <div class="anSocial">
                             <div class="ansWrap">
                                 <a class="fac" href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
@@ -106,6 +117,7 @@
                             </div>
                             <a class="tog" href="javascript:void(0);"><i class="fa-solid fa-share-alt"></i></a>
                         </div>
+
                         <div class="anSelects">
                             <div class="anSelect">
                                 <select name="languages">
@@ -150,12 +162,16 @@
                                                 <a href="{{ route('client.profile.show') }}">
                                                     <i class="fa-solid fa-user-circle"></i> Tài khoản của tôi
                                                 </a>
+                                                <a href="{{ route('client.orders.purchase.history') }}">
+                                                    <i class="fa-solid fa-user-circle"></i> Đơn Hàng
+                                                </a>
 
                                                 @if (Auth::user()->role !== 'admin')
                                                     <a href="{{ route('user.addresses.index') }}">
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
                                                 @endif
+
                                             </div>
 
                                             <div class="userDropdownFooter">

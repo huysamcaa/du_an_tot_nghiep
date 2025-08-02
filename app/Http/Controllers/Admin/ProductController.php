@@ -238,11 +238,55 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
-    public function show(Product $product)
-    {
-        $product->load(['variants.attributeValues.attribute', 'galleries']);
-        return view('admin.products.show', compact('product'));
-    }
+   public function show(Product $product)
+{
+    // Load các quan hệ cần thiết
+    $product->load([
+        'variants.attributeValues.attribute',
+        'galleries',
+        // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
+    ]);
+
+    // Lấy tất cả order items của sản phẩm
+    $orderItems = $product->orderItems;
+
+    $orderStats = $product->getOrderStatusStats();
+
+    // Nhóm thống kê theo trạng thái đơn hàng
+    $orderStats = $orderItems->groupBy('order.status')
+        ->map(function ($items, $status) {
+            return [
+                'status' => $status,
+                'order_count' => $items->unique('order_id')->count(),
+                'total_quantity' => $items->sum('quantity'),
+                'total_revenue' => $items->sum(function ($item) {
+                    return $item->price * $item->quantity;
+                })
+            ];
+        })->values();
+
+    // Tính tổng các thống kê
+    $totalOrders = $orderStats->sum('order_count');
+    $totalSold = $orderStats->sum('total_quantity');
+    $totalRevenue = $orderStats->sum('total_revenue');
+
+    // Lấy danh sách đơn hàng gần nhất (10 đơn)
+    $recentOrders = $orderItems->sortByDesc('created_at')
+        ->take(10)
+        ->groupBy('order_id')
+        ->map(function ($items) {
+            return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
+        });
+
+    return view('admin.products.show', compact(
+        'product',
+        'orderStats',
+        'totalOrders',
+        'totalSold',
+        'totalRevenue',
+        'recentOrders'
+    ));
+}
 
     public function destroy(Product $product)
     {
