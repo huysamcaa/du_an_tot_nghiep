@@ -29,6 +29,8 @@ use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 //  use App\Http\Controllers\Client\ProductController as ClientProductController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Client\ContactController as ClientContactController;
 use App\Http\Controllers\Client\BlogController as ClientBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -53,6 +55,19 @@ Route::get('/comments/list', [CommentController::class, 'list'])->name('comments
 
 // Chi tiết sản phẩm
 Route::get('/product/{id}', [ProductDetailController::class, 'show'])->name('product.detail');
+
+// liên hệ
+Route::get('/contact', [ClientContactController::class, 'index'])
+    ->name('client.contact.index');
+
+    Route::post('/contact', [ClientContactController::class, 'submit'])
+    ->name('client.contact.submit');
+
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::get('/contact', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contact.index');
+    Route::get('/contact/{id}', [ContactController::class, 'show'])->name('contact.show'); 
+    Route::patch('/contact/{id}/mark-contacted', [ContactController::class, 'markContacted'])->name('contact.markContacted');
+});
 
 // Thêm và cập nhật bình luận
 Route::post('/product/{id}/add-comment', [ProductDetailController::class, 'addComment'])->name('product.addComment');

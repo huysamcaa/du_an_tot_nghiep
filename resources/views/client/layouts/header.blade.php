@@ -97,10 +97,12 @@
                             </li> --}}
 
                             <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
-
-
-
+                            
+                            <li class="menu-item">
+                                <a href="{{ route('client.contact.index') }}">Liên hệ</a>
+                            </li>
                         </ul>
+                          
                     </div>
                     <div class="accessNav">
 
