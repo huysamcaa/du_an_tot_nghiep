@@ -264,7 +264,7 @@
 </div>
 
 {{-- Trung bình đánh giá --}}
-{{-- @if ($allReviews->count())
+@if ($allReviews->count())
     <div class="p-3 mb-4 border rounded bg-light shadow-sm">
         <h5 class="mb-2">Đánh giá trung bình</h5>
         <div class="d-flex align-items-center">
@@ -277,7 +277,7 @@
             </span>
         </div>
     </div>
-@endif --}}
+@endif
 
 <hr class="my-4">
 
