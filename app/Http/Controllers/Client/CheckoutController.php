@@ -44,6 +44,7 @@ class CheckoutController extends Controller
 
         $userId = auth()->id();
         $selectedItems = $request->input('selected_items', []);
+        $userAddresses = Auth::user()->addresses;
 
         if (empty($selectedItems)) {
             Log::warning('CheckoutController@index - No items selected for checkout', ['user_id' => $userId]);
@@ -75,6 +76,7 @@ class CheckoutController extends Controller
             'addresses' => UserAddress::where('user_id', $userId)->orderBy('id_default', 'DESC')->get(),
             'defaultAddress' => UserAddress::where('user_id', $userId)->where('id_default', 1)->first(),
             'coupons' => $coupons,
+            'userAddresses' => $userAddresses,
         ]);
     }
 
