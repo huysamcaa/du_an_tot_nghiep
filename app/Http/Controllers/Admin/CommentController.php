@@ -25,7 +25,7 @@ class CommentController extends Controller
                     });
                 })
                 ->orderBy('created_at', 'desc')
-                ->paginate(2);
+                ->paginate(10);
 
         return view('admin.comment.index',compact('comments'));
     }
@@ -61,7 +61,7 @@ public function toggleReply($id)
                     });
                 })
                 ->orderBy('created_at', 'desc')
-                ->paginate(2);;
+                ->paginate(10);;
         return view('admin.comment.reply', compact('replies'));
     }
 }
