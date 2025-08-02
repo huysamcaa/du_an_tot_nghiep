@@ -134,6 +134,6 @@
         // ... (phần script dài ở cuối file HTML)
     </script>
     @yield('scripts')
-
+ @stack('scripts')
 </body>
 </html>

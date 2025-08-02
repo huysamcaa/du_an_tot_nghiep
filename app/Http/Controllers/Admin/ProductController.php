@@ -17,7 +17,10 @@ class ProductController extends Controller
     public function index()
     {
         $categories = Category::all();
-        $products = Product::where('is_active', 1)->with(['variants'])->orderBy('created_at', 'desc')->get();
+        $products = Product::where('is_active', 1)
+        ->with(['variants', 'categories', 'brand'])
+        ->orderBy('created_at', 'desc')
+        ->get();
         return view('admin.products.index', compact('products', 'categories'));
     }
 
@@ -106,7 +109,7 @@ class ProductController extends Controller
                         if ($request->has('attribute_value_id')) {
                             $product->attributeValues()->sync($request->input('attribute_value_id'));
                         }
-                
+
                 // $variantData['attribute_value_id'] là mảng các id
                 if (isset($variantData['attribute_value_id'])) {
                     $variant->attributeValues()->attach($variantData['attribute_value_id']);
