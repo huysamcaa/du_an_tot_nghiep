@@ -331,9 +331,9 @@
 @empty
     <div class="alert alert-info">Chưa có đánh giá nào.</div>
 @endforelse
-<div class="mt-3 d-flex justify-content-end">
-    {{ $reviews->links() }}
-</div>
+  <div class="pagination-wrapper">
+        {{ $reviews->links() }}
+    </div>
                                     </div><br>
 
                                     <h3>Bình Luận</h3>
@@ -715,7 +715,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        $(document).on('click', '.pagination a', function (e) {
+    $('#comment-list').on('click', '.pagination a', function (e) {
+
             e.preventDefault();
             const page = $(this).attr('href').split('page=')[1];
             loadComments(page);
