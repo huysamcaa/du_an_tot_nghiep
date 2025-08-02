@@ -18,6 +18,8 @@ class Order extends Model
         'address',
         'note',
         'is_paid',
+        'is_refund',
+        'is_refund_cancel',
         'coupon_id',
         'coupon_code',
         'coupon_discount_type',
@@ -28,7 +30,7 @@ class Order extends Model
     protected $table = 'orders';
     protected $guarded = [];
     public $timestamps = true;
-    
+
 
     public function items()
     {
@@ -48,4 +50,8 @@ class Order extends Model
 {
     return $this->belongsTo(ProductVariant::class);
 }
+    public function refunds()
+    {
+        return $this->hasMany(\App\Models\Refund::class);
+    }
 }

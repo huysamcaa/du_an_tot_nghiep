@@ -63,7 +63,7 @@ $total = $cartItems->sum(function ($item) {
         // Nếu không có variant thì lấy giá từ product
         $price = $item->product ? $item->product->price : 0;
     }
-    
+
     return $price * $item->quantity;
 });
 
@@ -176,15 +176,15 @@ $total = $cartItems->sum(function ($item) {
         $ipnUrl = route('checkout.momo.ipn');
 
         // Tạo chữ ký theo đúng định dạng MoMo yêu cầu
-        $rawHash = "accessKey=" . $this->momoConfig['accessKey'] . 
-                  "&amount=" . $totalAmount . 
-                  "&extraData=" . $extraData . 
-                  "&ipnUrl=" . $ipnUrl . 
-                  "&orderId=" . $orderId . 
-                  "&orderInfo=" . $orderInfo . 
-                  "&partnerCode=" . $this->momoConfig['partnerCode'] . 
-                  "&redirectUrl=" . $redirectUrl . 
-                  "&requestId=" . $requestId . 
+        $rawHash = "accessKey=" . $this->momoConfig['accessKey'] .
+                  "&amount=" . $totalAmount .
+                  "&extraData=" . $extraData .
+                  "&ipnUrl=" . $ipnUrl .
+                  "&orderId=" . $orderId .
+                  "&orderInfo=" . $orderInfo .
+                  "&partnerCode=" . $this->momoConfig['partnerCode'] .
+                  "&redirectUrl=" . $redirectUrl .
+                  "&requestId=" . $requestId .
                   "&requestType=" . $this->momoConfig['requestType'];
 
         $signature = hash_hmac("sha256", $rawHash, $this->momoConfig['secretKey']);
@@ -352,7 +352,6 @@ $total = $cartItems->sum(function ($item) {
 
         // 5. Lấy thông tin đơn hàng
         $order = Order::findOrFail($extraData['order_id']);
-        
         // 6. Kiểm tra tránh xử lý trùng lặp
         if ($order->is_paid) {
             Log::channel('momo')->info('Order already processed', [
@@ -376,7 +375,6 @@ $total = $cartItems->sum(function ($item) {
         $variant = ProductVariant::where('id', $item->product_variant_id)->first();
         if ($variant) {
             $variant->decrement('stock', $item->quantity);
-            
             // Giảm stock của sản phẩm chính tương ứng
             Product::where('id', $variant->product_id)
                 ->decrement('stock', $item->quantity);
@@ -390,8 +388,8 @@ $total = $cartItems->sum(function ($item) {
 
         // 9. Xóa giỏ hàng nếu có thông tin cart_items
         if (isset($extraData['cart_items']) && !empty($extraData['cart_items'])) {
-            $cartItemsToDelete = is_array($extraData['cart_items']) 
-                ? $extraData['cart_items'] 
+            $cartItemsToDelete = is_array($extraData['cart_items'])
+                ? $extraData['cart_items']
                 : json_decode($extraData['cart_items'], true);
 
             CartItem::where('user_id', $extraData['user_id'])
@@ -699,16 +697,15 @@ $total = $cartItems->sum(function ($item) {
 {
     $userId = auth()->id();
     $selectedItems = $request->input('selected_items', []);
-    
      $cartItems = CartItem::where('user_id', $userId)
         ->whereIn('id', $selectedItems)
         ->with(['product', 'variant']) // Load cả product và variant
         ->get();
 
     $fullname = $request->field1 . ' ' . $request->field2;
-   $total = $cartItems->sum(fn($item) => 
-    ($item->product_variant_id && $item->variant 
-        ? $item->variant->price 
+   $total = $cartItems->sum(fn($item) =>
+    ($item->product_variant_id && $item->variant
+        ? $item->variant->price
         : $item->product->price ?? 0) * $item->quantity
 );
 
@@ -826,7 +823,9 @@ $total = $cartItems->sum(function ($item) {
         $userId = auth()->id();
         \Log::info('User ID: ' . $userId);
         $orders = Order::where('user_id', $userId)
-            ->with(['currentStatus.orderStatus'])
+            ->with(['currentStatus.orderStatus'
+            , 'items.product', 'items.variant'
+            ])
             ->orderByDesc('created_at')
             ->paginate(10);
 

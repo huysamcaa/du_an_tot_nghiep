@@ -39,10 +39,31 @@
                             <span class="badge bg-info">
                                 {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa có trạng thái' }}
                             </span>
-                
             </td>
                         <td>
                             <a href="{{ route('client.orders.show', $order->code) }}" class="btn btn-info btn-sm">Xem</a>
+                             @php
+                        $pending = $order->refunds->firstWhere('status','pending');
+                        @endphp
+
+                        @if($pending)
+                        {{-- Chỉ hiển thị nút Hủy --}}
+                        <form action="{{ route('refunds.cancel', $pending->id) }}"
+                            method="POST" style="display:inline-block"
+                            onsubmit="return confirm('Bạn chắc chắn muốn hủy?')">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                Hủy hoàn
+                            </button>
+                        </form>
+                        @else
+                        {{-- Nút Hoàn đơn nếu đủ điều kiện --}}
+                        @if(in_array($order->currentStatus?->orderStatus?->name, ['delivered','completed'])
+                        && !$pending)
+                        <a href="{{ route('refunds.select_items', $order->id) }}"
+                            class="btn btn-warning btn-sm">Hoàn đơn</a>
+                        @endif
+                        @endif
                         </td>
                     </tr>
                 @empty
