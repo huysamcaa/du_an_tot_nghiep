@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\Review;
+use App\Models\Client\Wishlist;
 
 class ProductDetailController extends Controller
 {
@@ -80,6 +81,10 @@ class ProductDetailController extends Controller
             ->where('id', '<>', $product->id)
             ->take(8)
             ->get();
+
+        $isFavorite = Wishlist::where('user_id', Auth::id())
+                ->where('product_id', $product->id)
+                ->exists();
         $hasReviewed = false;
         $myReview = null;
 
@@ -92,7 +97,7 @@ class ProductDetailController extends Controller
             $hasReviewed = $myReview !== null;
         }
 
-        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview'));
+        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview','isFavorite'));
     }
     public function attributeValues()
     {

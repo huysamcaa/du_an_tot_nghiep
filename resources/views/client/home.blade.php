@@ -469,12 +469,10 @@
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
 
-        
+
         <div class="pi01Actions" data-product-id="{{ $product->id }}">
 
-            <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
             <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-            <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
             <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
 
         </div>
@@ -2826,7 +2824,7 @@
                     </div>
                 </div>
             </div>
-        </section>  
+        </section>
         <!-- END: Category Section -->
 
         <!-- BEGIN: Testimonial Section -->
@@ -2975,7 +2973,7 @@
                     </div>
                 </div>
             </div>
-        </section> 
+        </section>
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
@@ -3022,7 +3020,7 @@
 </section>
 
 
- 
+
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->
