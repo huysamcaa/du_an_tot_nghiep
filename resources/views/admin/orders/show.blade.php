@@ -145,9 +145,11 @@
                 </td>
                 <td>{{ $product->sku ?? 'N/A' }}</td>
                 <td>{{ $product ? number_format($product->price, 0, ',', '.') . ' đ' : 'N/A' }}</td>
-                <td>{{ number_format($item->price, 0, ',', '.') }} đ</td>
+                <td>{{ number_format($item->variant->price, 0, ',', '.') }} đ</td>
                 <td>{{ $item->quantity }}</td>
-                <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }} đ</td>
+                <td>
+                    {{ number_format(($item->variant ? $item->variant->price : $item->product->price) * $item->quantity, 0, ',', '.') }} đ
+                </td>
             </tr>
             @endforeach
         </tbody>

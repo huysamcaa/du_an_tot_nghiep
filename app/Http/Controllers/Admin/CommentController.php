@@ -9,9 +9,24 @@ use App\Models\Admin\CommentReply;
 
 class CommentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $comments = Comment::all();
+        $keyword = $request->input('keyword');
+        $comments = Comment::with('user', 'product')
+                ->when($keyword, function($query, $keyword){
+                    $query->where(function($q) use ($keyword){
+                        $q->whereHas('product', function($q2) use ($keyword){
+                            $q2->where('name', 'like' ,"%$keyword%");
+                        })
+                        ->orWhereHas('user', function($q3) use ($keyword){
+                            $q3->where('name', 'like',"%$keyword%");
+                        })
+                        ->orWhere('content','like',"%$keyword%");
+                    });
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(2);
+
         return view('admin.comment.index',compact('comments'));
     }
 public function toggleComment($id)
@@ -30,9 +45,23 @@ public function toggleReply($id)
     return redirect()->route('admin.replies.index')->with('success', 'Trạng thái phản hồi đã thay đổi');
 }
 
-    public function indexReplies()
+    public function indexReplies(Request $request)
     {
-        $replies = CommentReply::with('comment.product', 'user', 'replyUser')->get();
+        $keyword = $request->input('keyword');
+        $replies = CommentReply::with('comment.product', 'user', 'replyUser')
+                ->when($keyword, function($query, $keyword){
+                    $query->where(function($q) use ($keyword){
+                        $q->whereHas('comment.product', function($q2) use ($keyword){
+                            $q2->where('name', 'like' ,"%$keyword%");
+                        })
+                        ->orWhereHas('user', function($q3) use ($keyword){
+                            $q3->where('name', 'like',"%$keyword%");
+                        })
+                        ->orWhere('content','like',"%$keyword%");
+                    });
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(2);;
         return view('admin.comment.reply', compact('replies'));
     }
 }

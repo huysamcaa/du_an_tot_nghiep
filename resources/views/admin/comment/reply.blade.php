@@ -14,7 +14,26 @@
                         <strong class="card-title">Danh sách phản hồi bình luận</strong>
                     </div>
                     <div class="card-body">
-                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                        <table id="bootstrap-data" class="table table-striped table-bordered">
+                            <form method="GET" action="{{ route('admin.comments.index') }}" class="mb-3 d-flex" style="gap: 12px; align-items: center;">
+                                <div>
+                                    <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                                    <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;display:inline-block;" onchange="this.form.submit()">
+                                            <option value="1" >10</option>
+                                            <option value="2" >25</option>
+                                            <option value="3" >50</option>
+                                            <option value="4" >100</option>
+                                    </select>
+                                    <span></span>
+                                </div>
+
+                            </form>
+                            <form method="GET" action="{{ route('admin.replies.index') }}" class="mb-3" style="max-width:350px;">
+                                <div class="input-group">
+                                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên, nội dung,..." value="{{ request('keyword') }}">
+                                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                </div>
+                            </form>
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -50,6 +69,9 @@
                             </tbody>
 
                         </table>
+                        <div class="d-flex justify-content-center mt-4">
+                            {{ $replies->appends(request()->query())->links() }}
+                        </div>
                     </div>
                 </div>
             </div>

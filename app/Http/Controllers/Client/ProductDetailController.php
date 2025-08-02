@@ -59,11 +59,21 @@ public function show($id)
         ];
     });
 
-     $reviews = $product->reviews()
-        ->with(['user', 'multimedia'])
-        ->where('is_active', 1)
-        ->latest()
-        ->get();
+$ratingFilter = request()->input('rating');
+$sortOption = request()->input('sort');
+$allReviews = $product->reviews()
+    ->where('is_active', 1)
+    ->get();
+
+$reviews = $product->reviews()
+    ->with(['user', 'multimedia'])
+    ->where('is_active', 1)
+    ->when(in_array($ratingFilter, [1, 2, 3, 4, 5]), fn($q) => $q->where('rating', $ratingFilter))
+    ->when($sortOption === 'latest', fn($q) => $q->orderByDesc('created_at'))
+    ->when($sortOption === 'highest', fn($q) => $q->orderByDesc('rating'))
+    ->when($sortOption === 'lowest', fn($q) => $q->orderBy('rating'))
+    ->paginate(5) // Có thể đổi số 5 tuỳ ý
+    ->withQueryString();
     $relatedProducts = Product::with('variants')
 
    ->withCount('comments')   // đếm comments thay vì reviews

@@ -23,13 +23,19 @@
     <link rel="stylesheet" href="{{ asset('assets/Client/css/responsive.css') }}">
      <link rel="stylesheet" href="{{ asset('assets/Client/css/cssuser.css') }}">
      <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+     <!-- Thêm trong layout app.blade.php -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
 
     @include('client.layouts.header')
 
-    @yield('content')
+    <main style="padding-top: 120px;"> {{-- Thêm dòng này --}}
+        @yield('content')
+    </main>
 
     @include('client.layouts.footer')
 
