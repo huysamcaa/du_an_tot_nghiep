@@ -73,8 +73,24 @@ class CartController extends Controller
         );
 
         if ($request->ajax()) {
-            $totalProduct = CartItem::where('user_id', $userId)->sum('quantity');
-            return response()->json(['success' => true, 'totalProduct' => $totalProduct]);
+            $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
+            $total = $cartItems->sum(function($item) {
+                $variant = $item->variant;
+
+                if ($variant) {
+                    $price = ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                        ? $variant->sale_price
+                        : $variant->price;
+                } else {
+                    $price = $item->product->price; // fallback
+                }
+                return $price * $item->quantity;
+            });
+            $totalProduct = $cartItems->sum('quantity');
+            // render phần icon giỏ hàng
+            $cartIcon = view('partials.cart_widget', compact('cartItems','total','totalProduct'))->render();
+
+            return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartIcon' => $cartIcon]);
         }
 
         return back()->with('success', 'Đã thêm vào giỏ hàng');

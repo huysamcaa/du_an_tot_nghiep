@@ -51,11 +51,11 @@ class LoginController extends Controller
             ]);
         }
         // 3.1. Nếu user chưa xác thực email
-        if (is_null($user->email_verified_at)) {
-            throw ValidationException::withMessages([
-                'email' => ['Bạn cần xác thực email trước khi đăng nhập. Vui lòng kiểm tra email!'],
-            ]);
-        }
+        // if (is_null($user->email_verified_at)) {
+        //     throw ValidationException::withMessages([
+        //         'email' => ['Bạn cần xác thực email trước khi đăng nhập. Vui lòng kiểm tra email!'],
+        //     ]);
+        // }
         if (!Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'password' => [trans('auth.password')],

@@ -71,20 +71,20 @@
             <p><strong>Phương thức thanh toán:</strong>
                 <span class="badge bg-info">
                     @switch($order->payment_id)
-                        @case(2)
-                            COD
-                        @break
-
-                        @case(3)
-                            Thanh toán MOMO
-                        @break
-
-                        @case(4)
-                            Thanh toán VNPAY
-                        @break
-
-                        @default
-                            Chưa xác định
+                        @case(2) COD @break
+                        @case(3) Thanh toán MOMO @break
+                        @case(4) Thanh toán VNPAY @break
+                        @default Chưa xác định
+                    @endswitch
+                </span>
+            </p>
+            <p><strong>Phí vận chuyển:</strong> 30.000 đ</p>
+            <p>Trạng Thái Thanh Toán:
+                <span class="badge bg-info">
+                    @switch($order->is_paid)
+                        @case(1) Đã Thanh Toán Online @break
+                        @case(0) Chưa Thanh Toán @break
+                        @default Chưa xác định
                     @endswitch
                 </span>
             </p>
@@ -179,7 +179,6 @@
             </table>
         </div>
 
-
         <h4>Lịch sử trạng thái đơn hàng</h4>
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -190,11 +189,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (\App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)->orderBy('created_at')->get() as $history)
-                        <tr>
-                            <td>{{ $history->orderStatus->name ?? '' }}</td>
-                            <td>{{ $history->created_at }}</td>
-                        </tr>
+                    @foreach(\App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)->orderBy('created_at')->get() as $history)
+                    <tr>
+                        <td>{{ $history->orderStatus->name ?? 'Đã Thanh Toán' }}</td>
+                        <td>{{ $history->created_at }}</td>
+                    </tr>
                     @endforeach
                 </tbody>
             </table>

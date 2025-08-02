@@ -10,15 +10,21 @@
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 * Tags: html, themplate, Ela Admin
 --------------------------------------------------------- */
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> 59729e570b78f9db90aa4fbdce687738af824270
 /*
 
 
 Googel Fonts  */
 
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,600,700");
+<<<<<<< HEAD
+=======
 
+>>>>>>> 59729e570b78f9db90aa4fbdce687738af824270
 /* Googel Fonts End
 
 */
@@ -176,13 +182,19 @@ Googel Fonts  */
     margin-bottom: 15px;
 }
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 59729e570b78f9db90aa4fbdce687738af824270
 /*
 
 
 Googel Fonts  */
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> 59729e570b78f9db90aa4fbdce687738af824270
 /* Googel Fonts End
 
 */
@@ -1143,6 +1155,43 @@ aside.left-panel:hover {
     text-align: center;
 }
 
+
+.quantity-product {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #cfd8dc; /* viền nhẹ nhàng */
+    border-radius: 9999px; /* bo tròn hoàn toàn */
+    padding: 4px 10px;
+    background-color: white;
+    margin-right: 10px;
+}
+
+.quantity-product button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: 0 8px;
+    color: #607d8b; /* màu chữ trung tính */
+    cursor: pointer;
+    font-weight: 300;
+}
+
+.quantity-product input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    color: #37474f;
+    font-weight: 400;
+    background: none;
+    outline: none;
+}
+
+/* Ẩn mũi tên tăng/giảm trên trình duyệt */
+.quantity-product input::-webkit-outer-spin-button,
+.quantity-product input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 /* Right panel */
 
@@ -3428,6 +3477,8 @@ footer.site-footer .footer-inner a {
     height: 160px;
 }
 
+<<<<<<< HEAD
+=======
 #cellPaiChart .pieLabel {
     top: 50px !important;
 }
@@ -3446,4 +3497,5 @@ footer.site-footer .footer-inner a {
 }
 
 
+>>>>>>> 59729e570b78f9db90aa4fbdce687738af824270
 /*# sourceMappingURL=style.css.map */
