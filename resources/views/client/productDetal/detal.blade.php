@@ -225,88 +225,115 @@
                                     <div class="review-section mt-4">
                                         <h3 class="mb-3">Đánh giá sản phẩm</h3>
 
-                                        @if ($reviews->count())
-                                            <p class="mb-4 text-muted">Điểm trung bình: <strong
-                                                    class="text-warning">{{ number_format($reviews->avg('rating'), 1) }}/5</strong>
-                                                từ {{ $reviews->count() }} đánh giá</p>
+                                      <h4 class="mt-4" id="reviews">Đánh giá sản phẩm</h4><br>
 
-                                            @foreach ($reviews as $review)
-                                                @if ($review->product && $review->product->is_active)
-                                                    <div class="border rounded p-3 mb-4 shadow-sm bg-white">
-                                                        <div
-                                                            class="d-flex justify-content-between align-items-center mb-2">
-                                                            <strong>{{ $review->reviewer_name }}</strong>
-                                                            <span class="badge bg-warning text-dark">⭐
-                                                                {{ $review->rating }}/5</span>
-                                                        </div>
-                                                        <p class="mb-2">{{ $review->review_text }}</p>
+{{-- BỘ LỌC ĐÁNH GIÁ + SẮP XẾP --}}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 px-3 py-3 border rounded bg-light shadow-sm">
 
-                                                        @if ($review->multimedia->count())
-                                                            <div class="d-flex flex-wrap gap-2 mt-2">
-                                                                @foreach ($review->multimedia as $media)
-                                                                    @if (Str::contains($media->mime_type, 'image'))
-                                                                        <img src="{{ asset('storage/' . $media->file) }}"
-                                                                            width="100" class="rounded border">
-                                                                    @elseif(Str::contains($media->mime_type, 'video'))
-                                                                        <video width="180" controls
-                                                                            class="border rounded">
-                                                                            <source
-                                                                                src="{{ asset('storage/' . $media->file) }}"
-                                                                                type="{{ $media->mime_type }}">
-                                                                        </video>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        @else
-                                            <div class="alert alert-info">Chưa có đánh giá nào cho sản phẩm này.</div>
-                                        @endif
+    {{-- Bộ lọc theo số sao --}}
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <strong class="me-2">Lọc theo sao:</strong>
+        <a href="{{ request()->url() }}#reviews"
+            class="btn btn-sm {{ request('rating') == null ? 'btn-warning text-white' : 'btn-outline-secondary' }}">
+            Tất cả
+        </a>
+        @for ($i = 5; $i >= 1; $i--)
+            <a href="{{ request()->fullUrlWithQuery(['rating' => $i]) }}#reviews"
+                class="btn btn-sm {{ request('rating') == $i ? 'btn-warning text-white' : 'btn-outline-secondary' }}">
+                {{ $i }} <i class="fa-solid fa-star text-warning"></i>
+            </a>
+        @endfor
 
-                                        @auth
-                                            <hr class="my-4">
-                                            <h5 class="mb-3">Gửi đánh giá của bạn</h5>
 
-                                            <form method="POST" action="{{ route('client.reviews.store') }}"
-                                                enctype="multipart/form-data">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-                                                <div class="mb-3">
-                                                    <label for="rating" class="form-label">Số sao</label>
-                                                    <select name="rating" id="rating" class="form-select w-auto"
-                                                        required>
-                                                        <option value="5">5 sao</option>
-                                                        <option value="4">4 sao</option>
-                                                        <option value="3">3 sao</option>
-                                                        <option value="2">2 sao</option>
-                                                        <option value="1">1 sao</option>
-                                                    </select>
-                                                </div>
+    </div>
 
-                                                <div class="mb-3">
-                                                    <label for="review_text" class="form-label">Nội dung</label>
-                                                    <textarea name="review_text" id="review_text" class="form-control" rows="4" required>{{ old('review_text') }}</textarea>
-                                                    @error('review_text')
-                                                        <div class="text-danger small">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+    {{-- Bộ lọc sắp xếp --}}
+    <form method="GET" class="d-flex align-items-center">
+        <div class="input-group input-group-sm" style="min-width: 200px;">
+            <label class="input-group-text bg-light"><i class="fa-solid fa-sort"></i></label>
+            <select name="sort" class="form-select" onchange="this.form.submit()">
+                <option value="">Sắp xếp theo</option>
+                <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Mới nhất</option>
+                <option value="highest" {{ request('sort') == 'highest' ? 'selected' : '' }}>Sao cao nhất</option>
+                <option value="lowest" {{ request('sort') == 'lowest' ? 'selected' : '' }}>Sao thấp nhất</option>
+            </select>
+        </div>
+    </form>
 
-                                                <div class="mb-3">
-                                                    <label for="media" class="form-label">Hình ảnh/Video (tuỳ
-                                                        chọn)</label>
-                                                    <input type="file" name="media[]" class="form-control" multiple>
-                                                </div>
+</div>
 
-                                                <button type="submit" class="btn btn-primary px-4">Gửi đánh giá</button>
-                                            </form>
-                                        @else
-                                            <div class="alert alert-warning mt-3">
-                                                Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để gửi đánh giá.
-                                            </div>
-                                        @endauth
+{{-- Trung bình đánh giá --}}
+@if ($allReviews->count())
+    <div class="p-3 mb-4 border rounded bg-light shadow-sm">
+        <h5 class="mb-2">Đánh giá trung bình</h5>
+        <div class="d-flex align-items-center">
+            <span class="fs-4 fw-semibold text-warning me-2">
+                {{ number_format($allReviews->avg('rating'), 1) }}
+                <i class="fa-solid fa-star text-warning"></i>
+            </span>
+            <span class="text-muted">
+                từ {{ $allReviews->count() }} đánh giá
+            </span>
+        </div>
+    </div>
+@endif
+
+<hr class="my-4">
+
+{{-- Danh sách đánh giá --}}
+@forelse ($reviews as $review)
+    <div class="review-box">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <strong>{{ $review->reviewer_name }}</strong>
+                <small class="text-muted ms-2">
+                    <i class="fa-regular fa-clock me-1"></i>
+                    {{ $review->created_at->format('H:i d/m/Y') }}
+                </small>
+            </div>
+            <div class="rating-stars">
+                @for ($i = 1; $i <= 5; $i++)
+                    <i class="fa{{ $i <= $review->rating ? 's' : 'r' }} fa-star text-warning"></i>
+                @endfor
+            </div>
+        </div>
+
+        <p class="mb-2">{{ $review->review_text }}</p>
+
+
+       {{-- Hình ảnh hoặc video --}}
+@if ($review->multimedia->count())
+    <div class="d-flex flex-wrap gap-3 mt-3">
+        @foreach ($review->multimedia as $media)
+            @if (Str::contains($media->mime_type, 'image'))
+                <div style="width: 120px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;">
+                    <img src="{{ asset('storage/' . $media->file) }}"
+                         alt="review image"
+                         style="width: 100%; height: 100%; object-fit: cover;"
+                         onclick="window.open(this.src)">
+                </div>
+            @elseif (Str::contains($media->mime_type, 'video'))
+                <div style="width: 200px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd;">
+                    <video style="width: 100%; height: 100%; object-fit: cover;" controls>
+                        <source src="{{ asset('storage/' . $media->file) }}" type="{{ $media->mime_type }}">
+                    </video>
+                </div>
+            @endif
+        @endforeach
+    </div>
+@endif
+
+    </div>
+
+    {{-- Ngăn cách giữa các đánh giá --}}
+    <hr>
+@empty
+    <div class="alert alert-info">Chưa có đánh giá nào.</div>
+@endforelse
+<div class="mt-3 d-flex justify-content-end">
+    {{ $reviews->links() }}
+</div>
                                     </div><br>
 
                                     <h3>Bình Luận</h3>
