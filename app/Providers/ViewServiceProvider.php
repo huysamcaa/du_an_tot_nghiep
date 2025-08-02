@@ -33,6 +33,21 @@ class ViewServiceProvider extends ServiceProvider
             'total' => $total,
             'totalProduct' => $totalProduct
         ]);
+        View::composer('partials.cart_widget', function ($view) {
+            $userId = Auth::id();
+            $cartItems = CartItem::with(['product', 'variant'])->where('user_id', $userId)->get();
+
+            $total = $cartItems->sum(function ($item) {
+                $variant = $item->variant;
+                return ($variant && $variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                    ? $variant->sale_price * $item->quantity
+                    : ($variant->price ?? $item->product->price) * $item->quantity;
+            });
+
+            $totalProduct = $cartItems->sum('quantity');
+
+            $view->with(compact('cartItems', 'total', 'totalProduct'));
+        });
     });
     }
 }

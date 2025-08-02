@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
                             </li> --}}
-                           
+
 
                              <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến mãi</a>
@@ -138,8 +138,12 @@
                         </div>
                         <div class="anItems">
                             <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a>
-                            </div>
 
+                            </div>
+                            <div class="wishlist">
+                            <a href="{{route('wishlist.index')}}" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
+
+                            </div>
 
                             <div class="anUser" id="userMenuWrapper">
                                 <a href="#" id="userMenuToggle">
@@ -209,26 +213,7 @@
                                 <a href="javascript:void(0);"><i
                                         class="fa-solid fa-shopping-cart"></i><span>{{ $totalProduct }}</span></a>
                                 <div class="cartWidgetArea">
-                                    @foreach ($cartItems as $item)
-                                        <div class="cartWidgetProduct">
-                                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                                alt="{{ $item->product->name }}" />
-                                            <a
-                                                href="{{ route('product.detail', ['id' => $item->product->id]) }}">{{ $item->product->name }}</a>
-                                            <div class="cartProductPrice clearfix">
-                                                <span
-                                                    class="price">{{ number_format($item->product->price) }}đ</span>
-                                            </div>
-                                            <a href="{{ route('cart.destroy', $item->id) }}"
-                                                class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
-                                        </div>
-                                    @endforeach
-                                    <div class="totalPrice" id="cart-total">Tổng Tiền: <span
-                                            class="price">{{ number_format($total) }}đ</span></div>
-                                    <div class="cartWidgetBTN clearfix">
-                                        <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
-                                        <a class="checkout" href="{{ route('checkout') }}">Checkout</a>
-                                    </div>
+                                    @include('partials.cart_widget')
                                 </div>
                             </div>
                         </div>

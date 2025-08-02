@@ -106,14 +106,15 @@
                         </div>
                         <!-- //////// -->
                         <div class="pcBtns">
-                            <div class="quantity clearfix">
-                                <button type="button" name="btnMinus" class="qtyBtn btnMinus">_</button>
+                            <div class="quantity-product">
+                                <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
                                 <input type="number" class="carqty input-text qty text" name="quantity" value="1" min="1">
                                 <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
                             </div>
                             <br>
                             <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
-                            <a href="wishlist.html" class="pcWishlist"><i class="fa-solid fa-heart"></i></a>
+                            <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
+                                <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
                             <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                         </div>
                     </form>
@@ -224,8 +225,7 @@
 
                                     <div class="review-section mt-4">
                                         <h3 class="mb-3">Đánh giá sản phẩm</h3>
-
-                                      <h4 class="mt-4" id="reviews">Đánh giá sản phẩm</h4><br>
+<h4 class="mt-4" id="reviews">Đánh giá sản phẩm</h4><br>
 
 {{-- BỘ LỌC ĐÁNH GIÁ + SẮP XẾP --}}
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 px-3 py-3 border rounded bg-light shadow-sm">
@@ -383,9 +383,7 @@
 
                                 {{-- Actions --}}
                                 <div class="pi01Actions">
-                                    <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
                                     <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                    <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
                                      <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                 </div>
 
@@ -657,6 +655,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     cartCountEl.innerText = data.totalProduct;
                 }
 
+                const cartWidgetArea = document.querySelector('.cartWidgetArea');
+                if(cartWidgetArea && data.cartIcon){
+                    cartWidgetArea.innerHTML = data.cartIcon;
+                }
                 return Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
@@ -745,6 +747,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         loadComments();
+    });
+    // Thêm sản phẩm yêu thích
+    const wishlistBtn = document.querySelector('.pcWishlist');
+    wishlistBtn.addEventListener('click', async () => {
+        const productId = wishlistBtn.dataset.productId;
+        const heartIcon = wishlistBtn.querySelector('i.fa-heart');
+
+        try {
+            const response = await fetch("{{ route('wishlist.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ product_id: productId })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Vui lòng đăng nhập để thêm vào danh sách yêu thích.',
+                    showConfirmButton: true
+                }).then(() => window.location.href = '/login');
+                return;
+            }
+
+            if (data.success) {
+                if (data.action === 'added') {
+                    heartIcon.classList.add('text-danger');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    heartIcon.classList.remove('text-danger');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message,
+                    showConfirmButton: true
+                });
+            }
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Đã xảy ra lỗi khi thêm vào danh sách yêu thích.',
+                showConfirmButton: true
+            });
+        }
     });
 });
 </script>
