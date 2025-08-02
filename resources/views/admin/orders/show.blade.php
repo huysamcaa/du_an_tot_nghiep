@@ -77,6 +77,16 @@
                 @endswitch
             </span>
         </p>
+        <p><strong>Phí vận chuyển:</strong> 30.000 đ</p>
+        <P>Trạng Thái Thanh Toán :
+            <span class="badge bg-info">
+                @switch($order->is_paid)
+                    @case(1) Đã Thanh Toán Online @break
+                    @case(0) Chưa Thanh Toán @break
+                    @default Chưa xác định
+                @endswitch
+            </span>
+            </p>
         <p><strong>Trạng thái đơn hàng:</strong>
             <span class="badge bg-success">{{ $order->currentStatus?->orderStatus?->name ?? 'Chờ Thanh Toán' }}</span>
         </p>
@@ -182,8 +192,10 @@
             </thead>
             <tbody>
                 @foreach(\App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)->orderBy('created_at')->get() as $history)
+                
                 <tr>
-                    <td>{{ $history->orderStatus->name ?? '' }}</td>
+                    <td>{{ $history->orderStatus->name ?? 'Đã Thanh Toán' }}</td>
+                    dd {{ $history->orderStatus->name ?? '' }}</td>
                     <td>{{ $history->created_at }}</td>
                 </tr>
                 @endforeach

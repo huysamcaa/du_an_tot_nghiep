@@ -77,7 +77,8 @@
                                 @foreach ($refunds as $refund)
                                 <tr>
                                     <td>R{{ $refund->id }}</td>
-                                    <td>{{ $refund->user->name }}</td>
+                                    <td>{{ $refund->user ? $refund->user->name : 'Không có người dùng' }}</td>
+
                                     <td>{{ $refund->order->code }}</td>
                                     <td>{{ number_format($refund->total_amount, 0, ',', '.') }}₫</td>
                                     <td>
