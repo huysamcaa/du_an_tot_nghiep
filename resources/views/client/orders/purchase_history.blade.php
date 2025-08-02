@@ -27,7 +27,30 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-12">
+                                        @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
                     @if ($orders->isEmpty())
+
                         <div class="empty-state">
                             <div class="empty-state-icon">
                                 <i class="fas fa-shopping-bag"></i>
@@ -150,10 +173,12 @@
                                                             $alreadyReviewed = $reviewedMap[$key] ?? false;
                                                         @endphp
                                                         @if ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-                                                            <a href="{{ route('client.reviews.pending') }}"
-                                                                class="btn btn-outline-warning btn-sm action-btn">
+                                                            <button
+                                                                class="btn btn-outline-warning btn-sm action-btn open-review-form"
+                                                                data-order-id="{{ $order->id }}"
+                                                                data-product-id="{{ $item->product->id }}">
                                                                 <i class="fas fa-star me-1"></i>Đánh giá
-                                                            </a>
+                                                            </button>
                                                         @endif
                                                         <a href="{{ route('client.reviews.index') }}"
                                                             class="btn btn-outline-warning btn-sm action-btn review-link">
@@ -161,11 +186,47 @@
                                                         </a>
                                                     </div>
                                                 </div>
+                                                  @if ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
+        <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
+            <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+
+                <div class="mb-2">
+                    <label>Đánh giá sao:</label>
+                    <select name="rating" class="form-select" required>
+                        <option value="">-- Chọn sao --</option>
+                        @for ($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}">{{ $i }} sao</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Nội dung:</label>
+                    <textarea name="review_text" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label>Hình ảnh / video:</label>
+                    <input type="file" name="media[]" class="form-control" multiple>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-sm submit-review-btn">
+                    <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                </button>
+            </form>
+        </div>
+    @endif
                                                 @if (!$loop->last)
                                                     <hr class="item-separator">
                                                 @endif
                                             @endforeach
                                         </div>
+
+
+
 
                                         <!-- Order Footer -->
                                         <div class="order-footer">
@@ -545,6 +606,18 @@
             justify-content: center;
             margin-top: 3rem;
         }
+.review-form-wrapper {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    opacity: 0;
+}
+
+.review-form-wrapper.active {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 1rem;
+}
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -620,7 +693,7 @@
             });
 
             // Add loading animation to buttons
-            document.querySelectorAll('.action-btn').forEach(button => {
+           document.querySelectorAll('.action-btn:not([type="submit"])').forEach(button => {
                 button.addEventListener('click', function() {
                     const originalText = this.innerHTML;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang xử lý...';
@@ -632,6 +705,29 @@
                     }, 2000);
                 });
             });
-        });
+            // Mở form đánh giá khi nhấn nút "Đánh giá"
+document.querySelectorAll('.open-review-form').forEach(button => {
+    button.addEventListener('click', function () {
+        const orderId = this.dataset.orderId;
+        const productId = this.dataset.productId;
+        const form = document.getElementById(`review-form-${orderId}-${productId}`);
+        if (form) {
+            form.classList.remove('d-none');
+            form.classList.add('active');
+            this.classList.add('d-none');
+
+            // Scroll đến form
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Focus vào textarea đầu tiên
+            const textarea = form.querySelector('textarea');
+            if (textarea) textarea.focus();
+        }
+    });
+});
+
+    });
+
+
     </script>
 @endsection
