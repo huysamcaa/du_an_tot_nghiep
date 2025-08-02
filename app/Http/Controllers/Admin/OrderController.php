@@ -61,11 +61,16 @@ class OrderController extends Controller
             ->where('is_current', 1)
             ->first();
 
-        // Nếu trạng thái hiện tại là "Đã giao hàng" (5) và muốn chuyển sang "Đã hủy" (6)
-        if ($currentStatus && $currentStatus->order_status_id == 5 && $request->order_status_id == 6) {
-            return back()->with('error', 'Đơn hàng đã hoàn thành, không thể hủy!');
+        // Nếu trạng thái hiện tại là "Đã hoàn thành"
+        if ($currentStatus && $currentStatus->order_status_id == 5) {
+            // Chỉ cho phép chuyển sang "Hoàn trả" (id = 7)
+            if ($request->order_status_id != 7) {
+                return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
+            }
         }
-
+        if ($currentStatus && in_array($currentStatus->order_status_id, [1,2,3,4]) && $request->order_status_id == 7) {
+            return back()->with('error', 'Chỉ đơn hàng đã hoàn thành mới được hoàn trả!');
+        }
         // Đặt tất cả trạng thái cũ về 0
         OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
         OrderOrderStatus::create([
@@ -83,10 +88,10 @@ class OrderController extends Controller
 
                 // Đếm số đơn đã hủy trong ngày của user này
                 $cancelCount = Order::where('user_id', $userId)
-                    ->whereHas('orderOrderStatuses', function($q) use ($today) {
+                    ->whereHas('orderOrderStatuses', function ($q) use ($today) {
                         $q->where('order_status_id', 6)
-                          ->whereDate('created_at', $today)
-                          ->where('is_current', 1);
+                            ->whereDate('created_at', $today)
+                            ->where('is_current', 1);
                     })
                     ->count();
 

@@ -98,6 +98,10 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
 Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
+
+Route::get('email/verify-otp', [RegisterController::class, 'showOtpForm'])->name('verification.otp.form');
+Route::post('email/verify-otp', [RegisterController::class, 'verifyOtp'])->name('verification.otp.verify');
+Route::post('/resend-otp', [RegisterController::class, 'resendOtp'])->name('otp.resend');
 /*
 |--------------------------------------------------------------------------
 | 2. Protected Routes (Yêu cầu đăng nhập)
