@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-      protected $fillable = [
+    use SoftDeletes;
+
+    protected $fillable = [
         'code',
         'user_id',
         'payment_id',
@@ -27,16 +29,16 @@ class Order extends Model
         'max_discount_value',
         'payment_info'
     ];
+
     protected $table = 'orders';
     protected $guarded = [];
     public $timestamps = true;
-    use SoftDeletes;
-    
 
     public function items()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
     }
+
     public function orderOrderStatuses()
     {
         return $this->hasMany(\App\Models\Admin\OrderOrderStatus::class, 'order_id');
@@ -47,15 +49,14 @@ class Order extends Model
     {
         return $this->hasOne(\App\Models\Admin\OrderOrderStatus::class, 'order_id')->orderByDesc('created_at');
     }
-     public function variant()
-{
-    return $this->belongsTo(ProductVariant::class);
-}
-    public function customer()
-{
-   
-    return $this->belongsTo(User::class, 'user_id');
-}
 
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class);
+    }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
