@@ -53,8 +53,8 @@
                         @endif
 
                         <div class="mb-3 d-flex justify-content-between">
-                           
-                            
+
+
                             <form method="GET" action="{{ route('admin.categories.index') }}" class="d-flex" style="gap: 12px; align-items: center;">
                                 <div>
                                     <label for="per_page" style="font-weight:600;">Hiển thị:</label>
@@ -65,7 +65,7 @@
                                     </select>
                                 </div>
                             </form>
-                            
+
                             <form method="GET" action="{{ route('admin.categories.index') }}" style="max-width:350px;">
                                 <div class="input-group">
                                     <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên danh mục..." value="{{ request('keyword') }}">

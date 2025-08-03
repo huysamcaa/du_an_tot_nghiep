@@ -72,7 +72,7 @@ class RefundController extends Controller
             if ($request->boolean('is_send_money')) {
                 $refund->is_send_money = true;
                 $refund->status = 'completed';
-                $refund->paid_at = now();
+                $refund->updated_at;
             }
 
             $refund->save();

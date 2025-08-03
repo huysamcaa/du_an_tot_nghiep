@@ -162,7 +162,7 @@
                                                     </div>
 
                                                     <div class="item-actions">
-                                                   @php
+                                                                                                    @php
                                                         $pending = $order->refunds->firstWhere('status', 'pending');
                                                     @endphp
 
@@ -176,14 +176,16 @@
                                                         </form>
 
                                                         <button type="submit"
-                                                                form="refund-cancel-{{ $pending->id }}"
-                                                                class="btn btn-outline-warning btn-sm action-btn"
-                                                                onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                                            form="refund-cancel-{{ $pending->id }}"
+                                                            class="btn btn-outline-warning btn-sm action-btn"
+                                                            onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
                                                             <i class="fas fa-times me-1"></i>Hủy hoàn
                                                         </button>
-                                                    @elseif ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' &&
-                                                            $order->refunds->isEmpty())
-                                                        {{-- Nút tạo yêu cầu hoàn đơn (chỉ khi chưa có refund nào) --}}
+                                                    @elseif (
+                                                        $order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' &&
+                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0
+                                                    )
+                                                        {{-- Nút tạo yêu cầu hoàn đơn (chỉ khi chưa có refund đang xử lý) --}}
                                                         <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
                                                         class="btn btn-outline-warning btn-sm action-btn">
                                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
