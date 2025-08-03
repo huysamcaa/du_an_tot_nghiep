@@ -59,6 +59,14 @@
                 </li>
                 </li>
                 <li class="menu-item-has-children dropdown">
+                <li>
+                    <a href="{{ route('admin.refunds.index') }}">
+                        <i class="menu-icon fa fa-industry"></i>Hoàn Hàng 
+                    </a>
+
+                </li>
+                </li>
+                <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
                         <i class="menu-icon fa fa-industry"></i>Biến thể

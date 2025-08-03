@@ -107,7 +107,7 @@
                         <a href="javascript:void(0);" class="menuToggler"><i class="fa-solid fa-bars"></i>
                             <span>Menu</span></a>
 
-                        <div class="anSocial">
+                        {{-- <div class="anSocial">
                             <div class="ansWrap">
                                 <a class="fac" href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
                                 <a class="twi" href="javascript:void(0);"><i class="fa-brands fa-twitter"></i></a>
@@ -116,9 +116,9 @@
                                 <a class="ins" href="javascript:void(0);"><i class="fa-brands fa-instagram"></i></a>
                             </div>
                             <a class="tog" href="javascript:void(0);"><i class="fa-solid fa-share-alt"></i></a>
-                        </div>
+                        </div> --}}
 
-                        <div class="anSelects">
+                        {{-- <div class="anSelects">
                             <div class="anSelect">
                                 <select name="languages">
                                     <option value="ENG">EN</option>
@@ -135,7 +135,7 @@
                                     <option value="OMR">OMR</option>
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="anItems">
                             <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a>
 
@@ -221,8 +221,8 @@
                     </div>
                     <div class="anSupport">
                         <i class="fa-solid fa-headset"></i>
-                        <h3>Helpline</h3>
-                        <h3>+123 - 456 - 7890</h3>
+                        <h3>Số Điện Thoại</h3>
+                        <h3>086 785 7597 </h3>
                     </div>
                 </div>
             </div>

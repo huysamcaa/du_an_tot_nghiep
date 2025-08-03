@@ -11,6 +11,9 @@ class OrderItem extends Model
     protected $table = 'order_items';
     protected $guarded = [];
     public $timestamps = false;
+    protected $casts = [
+        'attributes_variant' => 'array',
+    ];
 
     public function order()
     {

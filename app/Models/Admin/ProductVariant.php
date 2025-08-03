@@ -17,6 +17,7 @@ class ProductVariant extends Model
     {
         return $this->belongsToMany(AttributeValue::class, 'attribute_value_product_variant');
     }
+    
 
     public function getColorAttribute()
     {

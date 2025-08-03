@@ -253,6 +253,8 @@ class ProductController extends Controller
     // Lấy tất cả order items của sản phẩm
     $orderItems = $product->orderItems;
 
+    
+
     $orderStats = $product->getOrderStatusStats();
 
     // Nhóm thống kê theo trạng thái đơn hàng

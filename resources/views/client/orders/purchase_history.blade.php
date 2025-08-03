@@ -27,30 +27,29 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-12">
-                                        @if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-@if(session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     @if ($orders->isEmpty())
-
                         <div class="empty-state">
                             <div class="empty-state-icon">
                                 <i class="fas fa-shopping-bag"></i>
@@ -66,103 +65,153 @@
                         <div class="order-filters mb-4">
                             <ul class="nav nav-pills justify-content-center" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="pill" href="#all-orders">
+                                    <button class="nav-link active filter-btn" data-filter="all">
                                         <i class="fas fa-list me-2"></i>Tất cả
-                                    </a>
+                                        <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
+                                    </button>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="pill" href="#pending-orders">
+                                    <button class="nav-link filter-btn" data-filter="pending">
                                         <i class="fas fa-clock me-2"></i>Chờ xác nhận
-                                    </a>
+                                        <span class="count-badge" id="count-pending">0</span>
+                                    </button>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="pill" href="#processing-orders">
+                                    <button class="nav-link filter-btn" data-filter="processing">
                                         <i class="fas fa-box me-2"></i>Đang xử lý
-                                    </a>
+                                        <span class="count-badge" id="count-processing">0</span>
+                                    </button>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="pill" href="#completed-orders">
+                                    <button class="nav-link filter-btn" data-filter="completed">
                                         <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                                    </a>
+                                        <span class="count-badge" id="count-completed">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link filter-btn" data-filter="cancelled">
+                                        <i class="fas fa-times-circle me-2"></i>Đã hủy
+                                        <span class="count-badge" id="count-cancelled">0</span>
+                                    </button>
                                 </li>
                             </ul>
                         </div>
 
+                        <!-- Search Box -->
+                        <div class="search-box mb-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="orderSearch" placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Orders List -->
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="all-orders">
-                                @foreach ($orders as $order)
-                                    <div class="order-card">
-                                        <!-- Order Header -->
-                                        <div class="order-header">
-                                            <div class="order-info">
-                                                <div class="order-code">
-                                                    <i class="fas fa-receipt me-2"></i>
-                                                    <span class="fw-bold">#{{ $order->code }}</span>
-                                                </div>
-                                                <div class="order-date">
-                                                    <i class="far fa-calendar-alt me-1"></i>
-                                                    {{ $order->created_at->format('d/m/Y H:i') }}
-                                                </div>
+                        <div class="orders-container">
+                            @foreach ($orders as $order)
+                                @php
+                                    $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
+                                    $statusClass = '';
+                                    
+                                    // Phân loại trạng thái
+                                    switch($statusName) {
+                                        case 'Chờ xử lý':
+                                        case 'Chờ xác nhận':
+                                        case 'Đang chờ xác nhận':
+                                            $statusClass = 'pending';
+                                            break;
+                                        case 'Đang xử lý':
+                                        case 'Đang chuẩn bị':
+                                        case 'Đang giao hàng':
+                                        case 'Đã xác nhận':
+                                        case 'Đã gửi hàng':
+                                            $statusClass = 'processing';
+                                            break;
+                                        case 'Đã hoàn thành':
+                                        case 'Hoàn thành':
+                                        case 'Đã giao hàng':
+                                            $statusClass = 'completed';
+                                            break;
+                                        case 'Đã hủy':
+                                        case 'Hủy đơn hàng':
+                                            $statusClass = 'cancelled';
+                                            break;
+                                        default:
+                                            $statusClass = 'pending';
+                                    }
+                                @endphp
+                                
+                                <div class="order-card" data-status="{{ $statusClass }}" data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
+                                    <!-- Order Header -->
+                                    <div class="order-header">
+                                        <div class="order-info">
+                                            <div class="order-code">
+                                                <i class="fas fa-receipt me-2"></i>
+                                                <span class="fw-bold">#{{ $order->code }}</span>
                                             </div>
-
-                                            <div class="order-status-badges">
-                                                <!-- Payment Status -->
-                                                @if ($order->is_paid)
-                                                    <span class="status-badge paid">
-                                                        <i class="fas fa-check-circle me-1"></i>Đã thanh toán
-                                                    </span>
-                                                @else
-                                                    <span class="status-badge unpaid">
-                                                        <i class="fas fa-clock me-1"></i>Chưa thanh toán
-                                                    </span>
-                                                @endif
-
-                                                <!-- Order Status -->
-                                                @if ($order->currentStatus)
-                                                    <span class="status-badge order-status">
-                                                        {{ $order->currentStatus->orderStatus->name }}
-                                                    </span>
-                                                @else
-                                                    <span class="status-badge no-status">Chưa có trạng thái</span>
-                                                @endif
+                                            <div class="order-date">
+                                                <i class="far fa-calendar-alt me-1"></i>
+                                                {{ $order->created_at->format('d/m/Y H:i') }}
                                             </div>
                                         </div>
 
-                                        <!-- Order Items -->
-                                        <div class="order-body">
-                                            @foreach ($order->items as $item)
-                                                <div class="order-item">
-                                                    <div class="item-image">
-                                                        @if ($item->product && $item->product->thumbnail)
-                                                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                                                alt="{{ $item->product->name }}" class="product-thumbnail">
-                                                        @else
-                                                            <div class="product-placeholder">
-                                                                <i class="fas fa-image"></i>
-                                                            </div>
-                                                        @endif
-                                                    </div>
+                                        <div class="order-status-badges">
+                                            <!-- Payment Status -->
+                                            @if ($order->is_paid)
+                                                <span class="status-badge paid">
+                                                    <i class="fas fa-check-circle me-1"></i>Đã thanh toán
+                                                </span>
+                                            @else
+                                                <span class="status-badge unpaid">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                </span>
+                                            @endif
 
-                                                    <div class="item-details">
-                                                        <h6 class="product-name">
-                                                            {{ $item->product->name ?? 'Sản phẩm không tồn tại' }}</h6>
-                                                        <p class="product-variant">
-                                                            <i class="fas fa-tag me-1"></i>
-                                                            {{ $item->variant->name ?? 'Không phân loại' }}
-                                                        </p>
-                                                        <div class="quantity-badge">
-                                                            <i class="fas fa-times me-1"></i>{{ $item->quantity }}
+                                            <!-- Order Status -->
+                                            <span class="status-badge order-status status-{{ $statusClass }}">
+                                                {{ $statusName }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Order Items -->
+                                    <div class="order-body">
+                                        @foreach ($order->items as $item)
+                                            <div class="order-item" data-product-name="{{ $item->product->name ?? '' }}">
+                                                <div class="item-image">
+                                                    @if ($item->product && $item->product->thumbnail)
+                                                        <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
+                                                            alt="{{ $item->product->name }}" class="product-thumbnail">
+                                                    @else
+                                                        <div class="product-placeholder">
+                                                            <i class="fas fa-image"></i>
                                                         </div>
-                                                    </div>
+                                                    @endif
+                                                </div>
 
-                                                    <div class="item-price">
-                                                        <span
-                                                            class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                                <div class="item-details">
+                                                    <h6 class="product-name">
+                                                        {{ $item->product->name ?? 'Sản phẩm không tồn tại' }}
+                                                    </h6>
+                                                    <p class="product-variant">
+                                                        <i class="fas fa-tag me-1"></i>
+                                                        {{ $item->variant->product_id ?? 'Không phân loại' }}
+                                                    </p>
+                                                    <div class="quantity-badge">
+                                                        <i class="fas fa-times me-1"></i>{{ $item->quantity }}
                                                     </div>
+                                                </div>
 
-                                                    <div class="item-actions">
-                                                                                                    @php
+                                                <div class="item-price">
+                                                    <span class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                                </div>
+
+                                                <div class="item-actions">
+                                                    @php
                                                         $pending = $order->refunds->firstWhere('status', 'pending');
                                                     @endphp
 
@@ -170,115 +219,119 @@
                                                         {{-- Form hủy yêu cầu hoàn đơn --}}
                                                         <form id="refund-cancel-{{ $pending->id }}"
                                                             action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-                                                            method="POST"
-                                                            style="display:none">
+                                                            method="POST" style="display:none">
                                                             @csrf
                                                         </form>
 
-                                                        <button type="submit"
-                                                            form="refund-cancel-{{ $pending->id }}"
+                                                        <button type="submit" form="refund-cancel-{{ $pending->id }}"
                                                             class="btn btn-outline-warning btn-sm action-btn"
                                                             onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
                                                             <i class="fas fa-times me-1"></i>Hủy hoàn
                                                         </button>
-                                                    @elseif (
-                                                        $order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' &&
-                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0
-                                                    )
-                                                        {{-- Nút tạo yêu cầu hoàn đơn (chỉ khi chưa có refund đang xử lý) --}}
+                                                    @elseif ($statusName === 'Đã hoàn thành' && $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                        {{-- Nút tạo yêu cầu hoàn đơn --}}
                                                         <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
                                                         class="btn btn-outline-warning btn-sm action-btn">
                                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                                         </a>
                                                     @endif
-                                                        <button class="btn btn-outline-primary btn-sm action-btn">
-                                                            <i class="fas fa-redo-alt me-1"></i>Mua lại
+
+                                                    <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
+                                                        <i class="fas fa-redo-alt me-1"></i>Mua lại
+                                                    </button>
+                                                    
+                                                    <button class="btn btn-outline-success btn-sm action-btn">
+                                                        <i class="fas fa-comments me-1"></i>Chat
+                                                    </button>
+
+                                                    @php
+                                                        $key = $order->id . '-' . ($item->product->id ?? 'null');
+                                                        $alreadyReviewed = $reviewedMap[$key] ?? false;
+                                                    @endphp
+                                                    
+                                                    @if ($statusName === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
+                                                        <button class="btn btn-outline-warning btn-sm action-btn open-review-form"
+                                                            data-order-id="{{ $order->id }}" data-product-id="{{ $item->product->id }}">
+                                                            <i class="fas fa-star me-1"></i>Đánh giá
                                                         </button>
-                                                        <button class="btn btn-outline-success btn-sm action-btn">
-                                                            <i class="fas fa-comments me-1"></i>Chat
-                                                        </button>
-                                                        @php
-                                                            $key = $order->id . '-' . ($item->product->id ?? 'null');
-                                                            $alreadyReviewed = $reviewedMap[$key] ?? false;
-                                                        @endphp
-                                                        @if ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-                                                            <button
-                                                                class="btn btn-outline-warning btn-sm action-btn open-review-form"
-                                                                data-order-id="{{ $order->id }}"
-                                                                data-product-id="{{ $item->product->id }}">
-                                                                <i class="fas fa-star me-1"></i>Đánh giá
-                                                            </button>
-                                                        @endif
-                                                        <a href="{{ route('client.reviews.index') }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn review-link">
-                                                            <i class="fas fa-star me-1 review-icon"></i>Xem đánh giá
-                                                        </a>
-                                                    </div>
+                                                    @endif
+                                                    
+                                                    <a href="{{ route('client.reviews.index') }}"
+                                                        class="btn btn-outline-warning btn-sm action-btn review-link">
+                                                        <i class="fas fa-star me-1 review-icon"></i>Xem đánh giá
+                                                    </a>
                                                 </div>
-                                                  @if ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-        <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
-            <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="order_id" value="{{ $order->id }}">
-                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
-
-                <div class="mb-2">
-                    <label>Đánh giá sao:</label>
-                    <select name="rating" class="form-select" required>
-                        <option value="">-- Chọn sao --</option>
-                        @for ($i = 5; $i >= 1; $i--)
-                            <option value="{{ $i }}">{{ $i }} sao</option>
-                        @endfor
-                    </select>
-                </div>
-
-                <div class="mb-2">
-                    <label>Nội dung:</label>
-                    <textarea name="review_text" class="form-control" rows="3" required></textarea>
-                </div>
-
-                <div class="mb-2">
-                    <label>Hình ảnh / video:</label>
-                    <input type="file" name="media[]" class="form-control" multiple>
-                </div>
-
-                <button type="submit" class="btn btn-success btn-sm submit-review-btn">
-                    <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
-                </button>
-            </form>
-        </div>
-    @endif
-                                                @if (!$loop->last)
-                                                    <hr class="item-separator">
-                                                @endif
-                                            @endforeach
-                                        </div>
-
-
-
-
-                                        <!-- Order Footer -->
-                                        <div class="order-footer">
-                                            <div class="shop-info">
-                                                <i class="fas fa-store me-2"></i>
-                                                <span class="shop-name">{{ $order->shop->name ?? 'MailKits.vn' }}</span>
                                             </div>
 
-                                            <div class="order-actions">
-                                                <a href="{{ route('client.orders.show', $order->code) }}"
-                                                    class="btn btn-outline-info btn-sm me-2">
-                                                    <i class="fas fa-eye me-1"></i>Chi tiết
-                                                </a>
+                                            @if ($statusName === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
+                                                <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
+                                                    <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                        <input type="hidden" name="product_id" value="{{ $item->product->id }}">
 
-                                                <div class="total-amount">
-                                                    <span class="total-label">Tổng tiền:</span>
-                                                    <span
-                                                        class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
+                                                        <div class="mb-2">
+                                                            <label>Đánh giá sao:</label>
+                                                            <select name="rating" class="form-select" required>
+                                                                <option value="">-- Chọn sao --</option>
+                                                                @for ($i = 5; $i >= 1; $i--)
+                                                                    <option value="{{ $i }}">{{ $i }} sao</option>
+                                                                @endfor
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="mb-2">
+                                                            <label>Nội dung:</label>
+                                                            <textarea name="review_text" class="form-control" rows="3" required></textarea>
+                                                        </div>
+
+                                                        <div class="mb-2">
+                                                            <label>Hình ảnh / video:</label>
+                                                            <input type="file" name="media[]" class="form-control" multiple>
+                                                        </div>
+
+                                                        <button type="submit" class="btn btn-success btn-sm submit-review-btn">
+                                                            <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                                                        </button>
+                                                    </form>
                                                 </div>
+                                            @endif
+
+                                            @if (!$loop->last)
+                                                <hr class="item-separator">
+                                            @endif
+                                        @endforeach
+                                    </div>
+
+                                    <!-- Order Footer -->
+                                    <div class="order-footer">
+                                        <div class="shop-info">
+                                            <i class="fas fa-store me-2"></i>
+                                            <span class="shop-name">{{ $order->shop->name ?? ' FreshFit.vn' }}</span>
+                                        </div>
+
+                                        <div class="order-actions">
+                                            <a href="{{ route('client.orders.show', $order->code) }}"
+                                                class="btn btn-outline-info btn-sm me-2">
+                                                <i class="fas fa-eye me-1"></i>Chi tiết
+                                            </a>
+
+                                            <div class="total-amount">
+                                                <span class="total-label">Tổng tiền:</span>
+                                                <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- No Results Message -->
+                        <div class="no-results d-none">
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Không tìm thấy đơn hàng nào</h5>
+                                <p class="text-muted">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
                             </div>
                         </div>
 
@@ -293,7 +346,10 @@
             </div>
         </div>
     </div>
+
     <style>
+        /* Previous styles remain the same... */
+        
         /* Banner Section */
         .banner-title {
             font-size: 3rem;
@@ -381,6 +437,8 @@
             border: 2px solid transparent;
             transition: all 0.3s ease;
             margin: 0 5px;
+            background: none;
+            position: relative;
         }
 
         .nav-pills .nav-link:hover {
@@ -394,6 +452,46 @@
             color: white;
             box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
             transform: translateY(-2px);
+        }
+
+        /* Count Badge */
+        .count-badge {
+            background: rgba(255, 255, 255, 0.3);
+            color: inherit;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+            min-width: 20px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .nav-link.active .count-badge {
+            background: rgba(255, 255, 255, 0.9);
+            color: #16a34a;
+        }
+
+        /* Search Box */
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-box .input-group-text {
+            background: #ecf5f4;
+            border-color: #d1fae5;
+            color: #16a34a;
+        }
+
+        .search-box .form-control {
+            border-color: #d1fae5;
+        }
+
+        .search-box .form-control:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
         }
 
         /* Order Cards */
@@ -410,6 +508,10 @@
         .order-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .order-card.hidden {
+            display: none;
         }
 
         /* Order Header */
@@ -470,9 +572,24 @@
         }
 
         .status-badge.order-status {
-            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.status-pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .status-badge.status-processing {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .status-badge.status-completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .status-badge.status-cancelled {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
         }
 
         .status-badge.no-status {
@@ -634,18 +751,27 @@
             justify-content: center;
             margin-top: 3rem;
         }
-.review-form-wrapper {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.4s ease;
-    opacity: 0;
-}
 
-.review-form-wrapper.active {
-    max-height: 500px;
-    opacity: 1;
-    margin-top: 1rem;
-}
+        .review-form-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            opacity: 0;
+        }
+
+        .review-form-wrapper.active {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        /* No Results */
+        .no-results {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -705,58 +831,308 @@
         .order-card:nth-child(even) {
             animation-delay: 0.2s;
         }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #16a34a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 
     <script>
-        // Add some interactive features
         document.addEventListener('DOMContentLoaded', function() {
-            // Smooth scroll for navigation
+            // Elements
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const orderCards = document.querySelectorAll('.order-card');
+            const searchInput = document.getElementById('orderSearch');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const noResults = document.querySelector('.no-results');
+            
+            // Count orders by status
+            const statusCounts = {
+                all: orderCards.length,
+                pending: 0,
+                processing: 0,
+                completed: 0,
+                cancelled: 0
+            };
+
+            // Count each status
+            orderCards.forEach(card => {
+                const status = card.dataset.status;
+                if (statusCounts.hasOwnProperty(status)) {
+                    statusCounts[status]++;
+                }
+            });
+
+            // Update count badges
+            Object.keys(statusCounts).forEach(status => {
+                const badge = document.getElementById(`count-${status}`);
+                if (badge) {
+                    badge.textContent = statusCounts[status];
+                }
+            });
+
+            // Filter functionality
+            let currentFilter = 'all';
+            let currentSearch = '';
+
+            function applyFilters() {
+                let visibleCount = 0;
+
+                orderCards.forEach(card => {
+                    const cardStatus = card.dataset.status;
+                    const orderCode = card.dataset.orderCode.toLowerCase();
+                    const productNames = Array.from(card.querySelectorAll('[data-product-name]'))
+                        .map(el => el.dataset.productName.toLowerCase())
+                        .join(' ');
+
+                    // Check status filter
+                    const matchesStatus = currentFilter === 'all' || cardStatus === currentFilter;
+
+                    // Check search filter
+                    const matchesSearch = currentSearch === '' || 
+                        orderCode.includes(currentSearch) || 
+                        productNames.includes(currentSearch);
+
+                    if (matchesStatus && matchesSearch) {
+                        card.classList.remove('hidden');
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show/hide no results message
+                if (visibleCount === 0) {
+                    noResults.classList.remove('d-none');
+                } else {
+                    noResults.classList.add('d-none');
+                }
+
+                // Animate visible cards
+                setTimeout(() => {
+                    const visibleCards = document.querySelectorAll('.order-card:not(.hidden)');
+                    visibleCards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('fade-in');
+                    });
+                }, 100);
+            }
+
+            // Filter button event listeners
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update current filter
+                    currentFilter = this.dataset.filter;
+                    
+                    // Apply filters
+                    applyFilters();
+
+                    // Add loading effect
+                    this.innerHTML = this.innerHTML.replace(/(<i[^>]*><\/i>)/, '$1<span class="loading-spinner ms-2"></span>');
+                    
+                    setTimeout(() => {
+                        const spinner = this.querySelector('.loading-spinner');
+                        if (spinner) {
+                            spinner.remove();
+                        }
+                    }, 500);
+                });
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                currentSearch = this.value.toLowerCase().trim();
+                applyFilters();
+            });
+
+            // Clear search
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                currentSearch = '';
+                applyFilters();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + F to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // Escape to clear search
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    currentSearch = '';
+                    applyFilters();
+                    searchInput.blur();
+                }
+            });
+
+            // Review form functionality
+            document.querySelectorAll('.open-review-form').forEach(button => {
+                button.addEventListener('click', function () {
+                    const orderId = this.dataset.orderId;
+                    const productId = this.dataset.productId;
+                    const form = document.getElementById(`review-form-${orderId}-${productId}`);
+                    
+                    if (form) {
+                        form.classList.remove('d-none');
+                        form.classList.add('active');
+                        this.classList.add('d-none');
+
+                        // Scroll to form
+                        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Focus on textarea
+                        const textarea = form.querySelector('textarea');
+                        if (textarea) {
+                            setTimeout(() => textarea.focus(), 500);
+                        }
+                    }
+                });
+            });
+
+            // Action button loading states
+            document.querySelectorAll('.action-btn:not([type="submit"]):not(.open-review-form)').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.classList.contains('reorder-btn')) {
+                        // Special handling for reorder button
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang xử lý...';
+                        this.disabled = true;
+
+                        // Simulate API call
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="fas fa-check me-1"></i>Đã thêm vào giỏ';
+                            this.classList.remove('btn-outline-primary');
+                            this.classList.add('btn-success');
+                            
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                                this.classList.remove('btn-success');
+                                this.classList.add('btn-outline-primary');
+                                this.disabled = false;
+                            }, 2000);
+                        }, 1500);
+                    } else {
+                        // General loading state
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang xử lý...';
+                        this.disabled = true;
+
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.disabled = false;
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Smooth scroll for internal links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
                 });
             });
 
-            // Add loading animation to buttons
-           document.querySelectorAll('.action-btn:not([type="submit"])').forEach(button => {
-                button.addEventListener('click', function() {
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang xử lý...';
-                    this.disabled = true;
+            // Auto-refresh order status (optional)
+            let refreshInterval;
+            
+            function startAutoRefresh() {
+                refreshInterval = setInterval(() => {
+                    // Check if there are any pending orders
+                    const hasPendingOrders = document.querySelector('.order-card[data-status="pending"]');
+                    
+                    if (hasPendingOrders) {
+                        // Show subtle notification
+                        showNotification('Đang kiểm tra cập nhật trạng thái đơn hàng...', 'info');
+                        
+                        // In real app, make AJAX call to check status updates
+                        // fetch('/api/orders/status-updates')
+                        //     .then(response => response.json())
+                        //     .then(data => {
+                        //         if (data.updates.length > 0) {
+                        //             location.reload();
+                        //         }
+                        //     });
+                    }
+                }, 30000); // Check every 30 seconds
+            }
 
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.disabled = false;
-                    }, 2000);
-                });
+            function stopAutoRefresh() {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+            }
+
+            // Start auto-refresh if there are pending orders
+            if (document.querySelector('.order-card[data-status="pending"]')) {
+                startAutoRefresh();
+            }
+
+            // Stop auto-refresh when page becomes hidden
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stopAutoRefresh();
+                } else {
+                    startAutoRefresh();
+                }
             });
-            // Mở form đánh giá khi nhấn nút "Đánh giá"
-document.querySelectorAll('.open-review-form').forEach(button => {
-    button.addEventListener('click', function () {
-        const orderId = this.dataset.orderId;
-        const productId = this.dataset.productId;
-        const form = document.getElementById(`review-form-${orderId}-${productId}`);
-        if (form) {
-            form.classList.remove('d-none');
-            form.classList.add('active');
-            this.classList.add('d-none');
 
-            // Scroll đến form
-            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Notification function
+            function showNotification(message, type = 'success') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                notification.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
 
-            // Focus vào textarea đầu tiên
-            const textarea = form.querySelector('textarea');
-            if (textarea) textarea.focus();
-        }
-    });
-});
+                document.body.appendChild(notification);
 
-    });
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
 
+            // Initialize filters
+            applyFilters();
 
+            console.log('Order History initialized with:', {
+                totalOrders: orderCards.length,
+                statusCounts: statusCounts
+            });
+        });
     </script>
 @endsection
-

@@ -22,28 +22,48 @@
                     <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Thông tin cơ bản</h5>
                 </div>
                 <div class="card-body">
-                    <dl class="row">
-                        <dt class="col-sm-4 text-muted">ID</dt>
-                        <dd class="col-sm-8">#{{ $product->id }}</dd>
-
-                        <dt class="col-sm-4 text-muted">Tên sản phẩm</dt>
-                        <dd class="col-sm-8 fw-semibold">{{ $product->name }}</dd>
-
-                        <dt class="col-sm-4 text-muted">Nhà sản xuất</dt>
-                        <dd class="col-sm-8"><span class="badge bg-info text-dark">{{ optional($product->brand)->name ?? 'N/A' }}</span></dd>
-
-                        <dt class="col-sm-4 text-muted">Số lượng tổng</dt>
-                        <dd class="col-sm-8"><span class="fw-semibold {{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">{{ $product->stock }}</span></dd>
-
-                        <dt class="col-sm-4 text-muted">Giá gốc</dt>
-                        <dd class="col-sm-8 fw-bold text-danger">{{ number_format($product->price, 0, ',', '.') }} đ</dd>
-
-                        <dt class="col-sm-4 text-muted">Mô tả ngắn</dt>
-                        <dd class="col-sm-8 fst-italic text-muted">{{ $product->short_description }}</dd>
-
-                        <dt class="col-sm-4 text-muted">Mô tả chi tiết</dt>
-                        <dd class="col-sm-8 text-muted">{!! nl2br(e($product->description)) !!}</dd>
-                    </dl>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <tbody>
+                                <tr>
+                                    <th width="30%" class="text-muted">ID</th>
+                                    <td>
+                                        <span class="badge bg-light text-dark">#{{ $product->id }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Tên sản phẩm</th>
+                                    <td class="fw-semibold">{{ $product->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Nhà sản xuất</th>
+                                    <td>
+                                        <span class="badge bg-info text-dark">{{ optional($product->brand)->name ?? 'N/A' }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Số lượng tổng</th>
+                                    <td>
+                                        <span class="fw-semibold {{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ $product->stock }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Giá gốc</th>
+                                    <td class="fw-bold text-danger">{{ number_format($product->price, 0, ',', '.') }} đ</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Mô tả ngắn</th>
+                                    <td class="fst-italic text-muted">{{ $product->short_description }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Mô tả chi tiết</th>
+                                    <td class="text-muted">{!! nl2br(e($product->description)) !!}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -148,35 +168,51 @@
                                         <th>Khách hàng</th>
                                         <th class="text-end">SL</th>
                                         <th class="text-end">Thành tiền</th>
-                                        <th>Trạng thái</th>
+                                       
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($recentOrders as $orderItem)
-                                        <tr>
-                                            <td><a href="{{ route('admin.orders.show', $orderItem->order_id) }}" class="text-primary">#{{ $orderItem->order->code ?? 'N/A' }}</a></td>
-                                            <td class="text-truncate" style="max-width:120px;">{{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}</td>
-                                            <td class="text-end">{{ $orderItem->quantity }}</td>
-                                            <td class="text-end fw-semibold">{{ number_format($orderItem->price * $orderItem->quantity,0,',','.') }} đ</td>
-                                            <td>
-                                                @switch($orderItem->order->status)
-                                                    @case(1)
-                                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass me-1"></i>Chờ xử lý</span>
-                                                        @break
-                                                    @case(2)
-                                                        <span class="badge bg-info text-dark"><i class="bi bi-gear me-1"></i>Đang xử lý</span>
-                                                        @break
-                                                    @case(3)
-                                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Hoàn thành</span>
-                                                        @break
-                                                    @case(4)
-                                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
-                                                        @break
-                                                    @default
-                                                        <span class="badge bg-secondary">{{ $orderItem->order->status }}</span>
-                                                @endswitch
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.orders.show', $orderItem->order_id) }}" class="text-primary">
+                                                #{{ $orderItem->order->code ?? 'N/A' }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                                                {{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">{{ $orderItem->quantity }}</td>
+                                        <td class="text-end fw-semibold">{{ number_format($orderItem->price * $orderItem->quantity, 0, ',', '.') }} đ</td>
+                                        <td>
+                                            @switch($orderItem->order->status)
+                                                @case(1)
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-hourglass me-1"></i>Chờ xử lý
+                                                    </span>
+                                                    @break
+                                                @case(2)
+                                                    <span class="badge bg-info text-dark">
+                                                        <i class="bi bi-gear me-1"></i>Đang xử lý
+                                                    </span>
+                                                    @break
+                                                @case(3)
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Hoàn thành
+                                                    </span>
+                                                    @break
+                                                @case(4)
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle me-1"></i>Đã hủy
+                                                    </span>
+                                                    @break
+                                                @default
+                                                    <span class="badge bg-secondary">{{ $orderItem->order->status }}</span>
+                                            @endswitch
+                                        </td>
+                                    </tr>
                                     @endforeach
                                 </tbody>
                             </table>
