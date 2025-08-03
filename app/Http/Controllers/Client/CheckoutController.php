@@ -578,7 +578,7 @@ class CheckoutController extends Controller
 
             $reviewedMap[$key] = \App\Models\Admin\Review::where('product_id', $item->product->id)
                 ->where('order_id', $order->id)
-               
+
                 ->where('user_id', auth()->id())
                 ->exists();
         }
