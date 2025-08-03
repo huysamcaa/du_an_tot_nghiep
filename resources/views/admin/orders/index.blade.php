@@ -69,8 +69,10 @@
                                     <td>{{ $order->fullname }}</td>
                                     <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
+                                        {{-- dd{{ $order->currentStatus?->orderStatus  }} --}}
                                         <span class="badge badge-info">
-                                            {{ $order->currentStatus?->orderStatus?->name ?? 'Chưa Thanh Toán' }}
+                                            {{ $order->currentStatus?->orderStatus?->name ?? 'Lỗi Thanh Toán' }}
+                                        
                                         </span>
                                     </td>
                                     <td>
