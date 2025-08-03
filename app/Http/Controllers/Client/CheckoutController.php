@@ -430,7 +430,12 @@ class CheckoutController extends Controller
      */
     public function vnpayReturn(Request $request)
     {
-        Log::info('VNPay Return', $request->all());
+         Log::info('VNPay Return - Full Request Data:', $request->all());
+          Log::debug('Session data:', [
+        'pending_order' => Session::get('pending_order'),
+        'vnpay_order_data' => Session::get('vnpay_order_data'),
+        'vnpay_order_code' => Session::get('vnpay_order_code')
+    ]);
 
         try {
             $inputData = $request->all();
@@ -734,7 +739,7 @@ class CheckoutController extends Controller
                 'items.variant'
             ])
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(100);
 
         // Tạo map xác định sản phẩm nào đã đánh giá
         $reviewedMap = [];
