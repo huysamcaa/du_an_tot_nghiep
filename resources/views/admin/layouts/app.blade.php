@@ -88,6 +88,18 @@
         .content {
             flex: 1;
         }
+
+
+    .table td,
+    .table th {
+        vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+    }
+
+
     </style>
 </head>
 
