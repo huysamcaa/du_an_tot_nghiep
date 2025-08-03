@@ -59,18 +59,18 @@
                                 {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
                                 data-phone="{{ $address->phone_number }}"
                                 data-fullname="{{ $address->fullname }}">
-                                {{ $address->address }} ({{ $address->fullname }} - {{ $address->phone_number }})
+                                {{ $address->address }} 
                             </option>
                         @endforeach
                     </select>
                 </div>
 
 <!-- Nếu muốn thêm nút "Thêm địa chỉ mới" -->
-<div class="mt-2">
+{{-- <div class="mt-2">
     <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#addAddressModal">
         + Thêm địa chỉ mới
     </button>
-</div>
+</div> --}}
                             {{-- <div class="col-lg-12">
                                 <input type="text" name="field7" placeholder="Địa chỉ *">
                             {{-- <div class="col-lg-12">
@@ -229,5 +229,49 @@
             </div>
         </form>
     </div>
+    <script>
+$(document).ready(function() {
+    // Cập nhật thông tin khi chọn địa chỉ
+    $('.address-select').change(function() {
+        const selectedOption = $(this).find('option:selected');
+        $('input[name="field5"]').val(selectedOption.data('phone') || '');
+        $('input[name="field1"]').val(selectedOption.data('fullname')?.split(' ')[0] || '');
+        $('input[name="field2"]').val(selectedOption.data('fullname')?.split(' ').slice(1).join(' ') || '');
+    });
+
+    // Tính toán lại tổng tiền khi áp dụng coupon
+    $('#coupon_code').change(function() {
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        const subtotal = {{ $total }};
+        const shippingFee = 30000;
+        let discount = 0;
+        const coupon = $('#coupon_code option:selected');
+        
+        if (coupon.val()) {
+            const discountType = coupon.data('discount-type');
+            const discountValue = parseFloat(coupon.data('discount-value'));
+            const maxDiscount = parseFloat(coupon.data('max-discount')) || Infinity;
+            
+            if (discountType === 'percent') {
+                discount = subtotal * discountValue / 100;
+                if (discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+            } else {
+                discount = discountValue;
+            }
+        }
+        
+        const total = subtotal + shippingFee - discount;
+        
+        // Cập nhật UI
+        $('.shippingRow ins').text('30,000đ');
+        $('tr:contains("Tổng thanh toán") td ins').text(total.toLocaleString('vi-VN') + 'đ');
+    }
+});
+</script>
 </section>
 @endsection

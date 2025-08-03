@@ -262,24 +262,25 @@ class CheckoutController extends Controller
         }
     }
 
-    protected function processRegularOrder(Request $request, $couponData)
-    {
-        DB::beginTransaction();
-        try {
-            $orderData = Session::get('pending_order');
-            $order = $this->saveOrderToDatabase($orderData);
-            $this->clearCart(auth()->id());
+   protected function processRegularOrder(Request $request, $couponData)
+{
+    DB::beginTransaction();
+    try {
+        $orderData = Session::get('pending_order');
+        $order = $this->saveOrderToDatabase($orderData); // Lưu đơn hàng nhưng CHƯA trừ stock
+        $this->clearCart(auth()->id()); // Xóa giỏ hàng
 
-            DB::commit();
-            Session::forget('pending_order');
+        DB::commit();
+        Session::forget('pending_order');
 
-            return redirect()->route('client.orders.show', $order->code)
-                ->with('success', 'Đặt hàng thành công!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
-        }
+        return redirect()->route('client.orders.show', $order->code)
+            ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
     }
+}
+
 
     public function momoReturn(Request $request)
     {

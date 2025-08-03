@@ -171,7 +171,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                         <li data-index="rs-3047" data-transition="random-premium" data-slotamount="default" data-hideafterloop="0" data-hideslideonmobile="off"  data-easein="Power3.easeInOut" data-easeout="Power3.easeInOut" data-masterspeed="1000"  data-thumb=""  data-rotate="0"  data-saveperformance="off"  data-title="" data-param1="01" data-param2="" data-param3="" data-param4="" data-param5="" data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
@@ -284,7 +284,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                         <li data-index="rs-3048" data-transition="random-premium" data-slotamount="default" data-hideafterloop="0" data-hideslideonmobile="off"  data-easein="Power3.easeInOut" data-easeout="Power3.easeInOut" data-masterspeed="1000"  data-thumb=""  data-rotate="0"  data-saveperformance="off"  data-title="" data-param1="01" data-param2="" data-param3="" data-param4="" data-param5="" data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
@@ -342,7 +342,7 @@
                                  data-marginleft="['0','10','10','0']"
 
                                  >Giảm Giá Hôm Nay</div>
-                            <div class="tp-caption jost textLayer theTitles"
+                                <div class="tp-caption jost textLayer theTitles"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['-5','-5','0','0']"
 
@@ -397,7 +397,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                     </ul>
@@ -2789,8 +2789,8 @@
                                 <div class="ci01Thumb">
                                     <img src="{{ asset('assets/Client/images/categoy/1.jpg') }}" alt="Cloths"/>
                                 </div>
-                                <h3><a href="shop_full_width.html">Cloths</a></h3>
-                                <p>192 Items</p>
+                                <h3><a href="http://localhost:8000/categories?category_id=5">Cloths</a></h3>
+                                <p>0 Items</p>
                             </div>
                             <div class="categoryItem01 text-center">
                                 <div class="ci01Thumb">
@@ -2834,7 +2834,7 @@
                     <div class="col-lg-4 col-xl-3">
                         <div class="testimoniLeft">
                             <h2 class="secTitle">Khách hàng nói gì về chúng tôi</h2>
-                            <p class="secDesc">Bobore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitat ion ullamco laboris</p>
+                            <p class="secDesc">Và nỗi đau to lớn. Để giảm thiểu điều đó, ai đó đã cố gắng thực hiện công việc một cách nghiêm túc.</p>
                             <div class="testimonalNav">
                                 <button class="tprev"><i class="fa-solid fa-angle-left"></i></button>
                                 <button class="tnext"><i class="fa-solid fa-angle-right"></i></button>

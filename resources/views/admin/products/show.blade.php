@@ -41,14 +41,14 @@
                                         <span class="badge bg-info text-dark">{{ optional($product->brand)->name ?? 'N/A' }}</span>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <th class="text-muted">Số lượng tổng</th>
-                                    <td>
-                                        <span class="fw-semibold {{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">
-                                            {{ $product->stock }}
-                                        </span>
-                                    </td>
-                                </tr>
+                                {{-- <tr>
+    <th class="text-muted">Số lượng tổng</th>
+    <td>
+        <span class="fw-semibold {{ $totalStock > 0 ? 'text-success' : 'text-danger' }}">
+            {{ $totalStock }}
+        </span>
+    </td>
+</tr> --}}
                                 <tr>
                                     <th class="text-muted">Giá gốc</th>
                                     <td class="fw-bold text-danger">{{ number_format($product->price, 0, ',', '.') }} đ</td>
@@ -224,7 +224,7 @@
                                         <th>Khách hàng</th>
                                         <th class="text-end">SL</th>
                                         <th class="text-end">Thành tiền</th>
-                                        <th>Trạng thái</th>
+                                       
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -237,7 +237,7 @@
                                         </td>
                                         <td>
                                             <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                                                {{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}
+                                                {{ $orderItem->order->customer->name ?? 'Huy Đỗ Quang' }}
                                             </span>
                                         </td>
                                         <td class="text-end">{{ $orderItem->quantity }}</td>

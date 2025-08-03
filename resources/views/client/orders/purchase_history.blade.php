@@ -114,7 +114,7 @@
                                                     </span>
                                                 @else
                                                     <span class="status-badge unpaid">
-                                                        <i class="fas fa-clock me-1"></i>Chưa thanh toán
+                                                        <i class="fas fa-clock me-1"></i>
                                                     </span>
                                                 @endif
 
@@ -160,6 +160,7 @@
                                                         <span
                                                             class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
                                                     </div>
+                                                    
 
                                                     <div class="item-actions">
                                                    @php
@@ -214,21 +215,21 @@
                                                     </div>
                                                 </div>
                                                   @if ($order->currentStatus?->orderStatus?->name === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-        <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
-            <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="order_id" value="{{ $order->id }}">
-                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                                    <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
+                                                        <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
+                                                            @csrf
+                                                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                            <input type="hidden" name="product_id" value="{{ $item->product->id }}">
 
-                <div class="mb-2">
-                    <label>Đánh giá sao:</label>
-                    <select name="rating" class="form-select" required>
-                        <option value="">-- Chọn sao --</option>
-                        @for ($i = 5; $i >= 1; $i--)
-                            <option value="{{ $i }}">{{ $i }} sao</option>
-                        @endfor
-                    </select>
-                </div>
+                                                            <div class="mb-2">
+                                                                <label>Đánh giá sao:</label>
+                                                                <select name="rating" class="form-select" required>
+                                                                    <option value="">-- Chọn sao --</option>
+                                                                    @for ($i = 5; $i >= 1; $i--)
+                                                                        <option value="{{ $i }}">{{ $i }} sao</option>
+                                                                    @endfor
+                                                                </select>
+                                                            </div>
 
                 <div class="mb-2">
                     <label>Nội dung:</label>
@@ -259,7 +260,7 @@
                                         <div class="order-footer">
                                             <div class="shop-info">
                                                 <i class="fas fa-store me-2"></i>
-                                                <span class="shop-name">{{ $order->shop->name ?? 'MailKits.vn' }}</span>
+                                                <span class="shop-name">{{ $order->shop->name ?? ' FreshFit.vn' }}</span>
                                             </div>
 
                                             <div class="order-actions">
