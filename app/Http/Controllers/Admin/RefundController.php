@@ -26,10 +26,42 @@ class RefundController extends Controller
      * Hiển thị chi tiết yêu cầu hoàn tiền
      */
     public function show(Refund $refund)
-    {
-        $refund->load(['user', 'items.orderItem.product', 'order']);
-        return view('admin.refunds.show', compact('refund'));
-    }
+{
+    $refund->load(['user', 'items.orderItem.product', 'order']);
+
+    // Các màu trạng thái
+    $statusColors = [
+        'pending' => 'secondary',
+        'receiving' => 'info',
+        'completed' => 'success',
+        'rejected' => 'danger',
+        'failed' => 'warning',
+        'cancel' => 'dark',
+    ];
+    $bankStatusColors = [
+        'unverified' => 'secondary',
+        'verified' => 'info',
+        'sent' => 'success',
+    ];
+
+    // Nhãn hiển thị
+    $statusLabels = [
+        'pending' => 'Chờ xử lý',
+        'receiving' => 'Đang tiếp nhận',
+        'completed' => 'Hoàn thành',
+        'rejected' => 'Đã từ chối',
+        'failed' => 'Thất bại',
+        'cancel' => 'Đã hủy',
+    ];
+    $bankLabels = [
+        'unverified' => 'Chưa xác minh',
+        'verified' => 'Đã xác minh',
+        'sent' => 'Đã gửi',
+    ];
+
+    return view('admin.refunds.show', compact('refund', 'statusColors', 'bankStatusColors', 'statusLabels', 'bankLabels'));
+}
+
 
     /**
      * Cập nhật trạng thái và thông tin hoàn tiền
