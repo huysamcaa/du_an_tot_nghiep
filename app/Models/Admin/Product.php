@@ -131,6 +131,7 @@ class Product extends Model
             ->with('values')
             ->get();
     }
+    
 
     // Helper: Lấy các giá trị thuộc tính biến thể khả dụng
     public function availableVariantValues(string $attributeSlug)

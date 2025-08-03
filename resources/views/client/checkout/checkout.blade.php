@@ -31,6 +31,8 @@
 
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
+                        
+                                
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" name="field1" placeholder="Họ *"  required>
@@ -64,6 +66,7 @@
                         @endforeach
                     </select>
                 </div>
+                 
 
 <!-- Nếu muốn thêm nút "Thêm địa chỉ mới" -->
 {{-- <div class="mt-2">
@@ -94,6 +97,9 @@
                             <div class="col-lg-12">
                                 <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
+                            <div class="col-md-6">
+                                    <a href="{{ route('user.addresses.index') }}" class="placeOrderBTN ulinaBTN"><span>+ Thêm địa chỉ mới</span></a>
+                                </div>
                         </div>
                     </div>
                 </div>

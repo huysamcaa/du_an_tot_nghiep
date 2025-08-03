@@ -82,18 +82,32 @@ Route::get('/cart/destroy/{id}', [CartController::class, 'destroy'])->name('cart
 Route::post('/check-variant', [CartController::class, 'checkVariant'])->name('check.variant');
 Route::post('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
 
-// Checkout
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-        Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
-        Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
-        Route::post('/checkout/momo', [CheckoutController::class, 'processMomoPayment'])->name('checkout.momo');
-        Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('checkout.momo.return');
-        Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('checkout.momo.ipn');
-        Route::post('/checkout/vnpay', [CheckoutController::class, 'processVNPayPayment'])->name('checkout.vnpay');
-        Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
-        Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
-    });
+// Checkout routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
+    
+    // Payment status and cancel
+    Route::get('/payment/status/{orderCode}', [CheckoutController::class, 'checkPaymentStatus'])->name('payment.status');
+    Route::post('/payment/cancel', [CheckoutController::class, 'cancelPayment'])->name('payment.cancel');
+});
+
+// MoMo callback routes (không cần auth middleware)
+Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name('checkout.momo.ipn');
+Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('checkout.momo.return');
+Route::post('/checkout/momo/webhook', [CheckoutController::class, 'momoWebhook'])->name('checkout.momo.webhook');
+
+// VNPay callback routes (không cần auth middleware)  
+Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('checkout.vnpay.return');
+
+// Order routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
+    Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.history');
+});
+Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 
 // Đăng ký & đăng nhập
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
