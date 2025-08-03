@@ -11,16 +11,16 @@ use App\Models\Admin\AttributeValue;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\Shared\OrderItem;
 class ProductController extends Controller
 {
     public function index()
     {
         $categories = Category::all();
         $products = Product::where('is_active', 1)
-        ->with(['variants', 'categories', 'brand'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with(['variants', 'categories', 'brand'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.products.index', compact('products', 'categories'));
     }
 
@@ -34,7 +34,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-             'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'stock' => 'required|integer|min:0',
             'name' => 'required|string|max:255|unique:products,name',
@@ -106,9 +106,9 @@ class ProductController extends Controller
                 $product->variants()->save($variant);
 
                 // Gán giá trị thuộc tính cho sản phẩm (nếu có)
-                        if ($request->has('attribute_value_id')) {
-                            $product->attributeValues()->sync($request->input('attribute_value_id'));
-                        }
+                if ($request->has('attribute_value_id')) {
+                    $product->attributeValues()->sync($request->input('attribute_value_id'));
+                }
 
                 // $variantData['attribute_value_id'] là mảng các id
                 if (isset($variantData['attribute_value_id'])) {
@@ -137,6 +137,18 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $product->load(['cartItems', 'orderItems']);
+
+        // Nếu sản phẩm đã từng có trong giỏ hoặc đơn hàng => không cho đổi tên
+        if (
+            $request->name !== $product->name &&
+            ($product->cartItems()->exists() || $product->orderItems()->exists())
+        ) {
+            return redirect()->back()->with('error', 'Không thể đổi tên sản phẩm đã có trong giỏ hàng hoặc đơn hàng!');
+        }
+
+        // Nếu chưa có trong đơn hàng thì cho phép update
+        $product->update($request->all());
         $data = $request->validate([
             'brand_id' => 'required|exists:brands,id',
             // 'stock' => 'required|integer|min:0|max:100',
@@ -241,57 +253,57 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
-   public function show(Product $product)
-{
-    // Load các quan hệ cần thiết
-    $product->load([
-        'variants.attributeValues.attribute',
-        'galleries',
-        // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
-    ]);
+    public function show(Product $product)
+    {
+        // Load các quan hệ cần thiết
+        $product->load([
+            'variants.attributeValues.attribute',
+            'galleries',
+            // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
+        ]);
 
-    // Lấy tất cả order items của sản phẩm
-    $orderItems = $product->orderItems;
+        // Lấy tất cả order items của sản phẩm
+        $orderItems = $product->orderItems;
 
-    
 
-    $orderStats = $product->getOrderStatusStats();
 
-    // Nhóm thống kê theo trạng thái đơn hàng
-    $orderStats = $orderItems->groupBy('order.status')
-        ->map(function ($items, $status) {
-            return [
-                'status' => $status,
-                'order_count' => $items->unique('order_id')->count(),
-                'total_quantity' => $items->sum('quantity'),
-                'total_revenue' => $items->sum(function ($item) {
-                    return $item->price * $item->quantity;
-                })
-            ];
-        })->values();
+        $orderStats = $product->getOrderStatusStats();
 
-    // Tính tổng các thống kê
-    $totalOrders = $orderStats->sum('order_count');
-    $totalSold = $orderStats->sum('total_quantity');
-    $totalRevenue = $orderStats->sum('total_revenue');
+        // Nhóm thống kê theo trạng thái đơn hàng
+        $orderStats = $orderItems->groupBy('order.status')
+            ->map(function ($items, $status) {
+                return [
+                    'status' => $status,
+                    'order_count' => $items->unique('order_id')->count(),
+                    'total_quantity' => $items->sum('quantity'),
+                    'total_revenue' => $items->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    })
+                ];
+            })->values();
 
-    // Lấy danh sách đơn hàng gần nhất (10 đơn)
-    $recentOrders = $orderItems->sortByDesc('created_at')
-        ->take(10)
-        ->groupBy('order_id')
-        ->map(function ($items) {
-            return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
-        });
+        // Tính tổng các thống kê
+        $totalOrders = $orderStats->sum('order_count');
+        $totalSold = $orderStats->sum('total_quantity');
+        $totalRevenue = $orderStats->sum('total_revenue');
 
-    return view('admin.products.show', compact(
-        'product',
-        'orderStats',
-        'totalOrders',
-        'totalSold',
-        'totalRevenue',
-        'recentOrders'
-    ));
-}
+        // Lấy danh sách đơn hàng gần nhất (10 đơn)
+        $recentOrders = $orderItems->sortByDesc('created_at')
+            ->take(10)
+            ->groupBy('order_id')
+            ->map(function ($items) {
+                return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
+            });
+
+        return view('admin.products.show', compact(
+            'product',
+            'orderStats',
+            'totalOrders',
+            'totalSold',
+            'totalRevenue',
+            'recentOrders'
+        ));
+    }
 
     public function destroy(Product $product)
     {
