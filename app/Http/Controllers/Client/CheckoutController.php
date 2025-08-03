@@ -394,7 +394,7 @@ class CheckoutController extends Controller
             // Nếu IPN chưa được gọi, xử lý tại đây
             DB::beginTransaction();
             $orderData = Session::get('pending_order');
-            
+
             if (!$orderData) {
                 throw new \Exception('Không tìm thấy thông tin đơn hàng');
             }
@@ -473,7 +473,7 @@ class CheckoutController extends Controller
 
             // Lấy dữ liệu đơn hàng từ session
             $orderData = Session::get('vnpay_order_data') ?? Session::get('pending_order');
-            
+
             if (!$orderData) {
                 throw new \Exception('Không tìm thấy thông tin đơn hàng');
             }
@@ -513,7 +513,7 @@ class CheckoutController extends Controller
         try {
             // Tìm session data từ cache hoặc database
             $orderData = $this->getOrderDataFromCache($orderCode) ?? Session::get('pending_order');
-            
+
             if (!$orderData) {
                 // Nếu không có session, tạo order từ thông tin MoMo
                 throw new \Exception('Không tìm thấy thông tin đơn hàng');
@@ -551,7 +551,7 @@ class CheckoutController extends Controller
     protected function saveOrderToDatabase($orderData)
     {
         $orderCode = 'DH' . strtoupper(Str::random(8));
-        
+
         $order = Order::create([
             'code' => $orderCode,
             'user_id' => $orderData['user_id'],
@@ -622,14 +622,14 @@ class CheckoutController extends Controller
 
         $computedSignature = hash_hmac('sha256', $rawHash, $this->momoConfig['secretKey']);
         $isValid = hash_equals($computedSignature, $params['signature']);
-        
+
         if (!$isValid) {
             Log::warning('MoMo Signature Mismatch', [
                 'computed' => $computedSignature,
                 'received' => $params['signature']
             ]);
         }
-        
+
         return $isValid;
     }
 
@@ -723,36 +723,42 @@ class CheckoutController extends Controller
         return view('client.orders.show', compact('order'));
     }
 
-    public function purchaseHistory()
-    {
-        $userId = auth()->id();
+   public function purchaseHistory()
+{
+    $userId = auth()->id();
 
-        $orders = Order::where('user_id', $userId)
-            ->with([
-                'currentStatus.orderStatus',
-                'items.product',
-                'items.variant'
-            ])
-            ->orderByDesc('created_at')
-            ->paginate(10);
+    $orders = Order::where('user_id', $userId)
+        ->with([
+            'currentStatus.orderStatus',
+            'items.product.reviews.multimedia',
+            'items.variant'
+        ])
+        ->orderByDesc('created_at')
+        ->paginate(10);
 
-        // Tạo map xác định sản phẩm nào đã đánh giá
-        $reviewedMap = [];
-        foreach ($orders as $order) {
-            foreach ($order->items as $item) {
-                if (!$item->product) continue;
+    // Map xác định đã đánh giá hay chưa
+    $reviewedMap = [];
+    $reviewDataMap = [];
 
-                $key = $order->id . '-' . $item->product->id;
+    foreach ($orders as $order) {
+        foreach ($order->items as $item) {
+            if (!$item->product) continue;
 
-                $reviewedMap[$key] = \App\Models\Admin\Review::where('product_id', $item->product->id)
-                    ->where('order_id', $order->id)
-                    ->where('user_id', auth()->id())
-                    ->exists();
-            }
+            $key = $order->id . '-' . $item->product->id;
+
+            $review = $item->product->reviews
+                ->where('order_id', $order->id)
+                ->where('user_id', $userId)
+                ->first();
+
+            $reviewedMap[$key] = !is_null($review);
+            $reviewDataMap[$key] = $review;
         }
-
-        return view('client.orders.purchase_history', compact('orders', 'reviewedMap'));
     }
+
+    return view('client.orders.purchase_history', compact('orders', 'reviewedMap', 'reviewDataMap'));
+}
+
 
     // ==================== ADDITIONAL SECURITY & OPTIMIZATION ====================
 
@@ -792,7 +798,7 @@ class CheckoutController extends Controller
         $expiredKeys = [
             'pending_order',
             'momo_order_code',
-            'momo_request_id', 
+            'momo_request_id',
             'vnpay_order_data',
             'vnpay_order_code'
         ];
@@ -865,7 +871,7 @@ class CheckoutController extends Controller
     protected function retryApiCall($callback, $maxRetries = 3, $delay = 1000)
     {
         $attempts = 0;
-        
+
         while ($attempts < $maxRetries) {
             try {
                 return $callback();
@@ -874,11 +880,11 @@ class CheckoutController extends Controller
                 if ($attempts >= $maxRetries) {
                     throw $e;
                 }
-                
+
                 Log::warning("API call failed, retrying... Attempt {$attempts}/{$maxRetries}", [
                     'error' => $e->getMessage()
                 ]);
-                
+
                 usleep($delay * $attempts * 1000); // Progressive delay
             }
         }
@@ -890,7 +896,7 @@ class CheckoutController extends Controller
     public function momoWebhook(Request $request)
     {
         Log::info('MoMo Webhook Received', $request->all());
-        
+
         // Xử lý tương tự như IPN nhưng có thể có format khác
         return $this->momoIPN($request);
     }
@@ -902,7 +908,7 @@ class CheckoutController extends Controller
     {
         try {
             $order = Order::where('code', $orderCode)->first();
-            
+
             if (!$order) {
                 return response()->json([
                     'status' => 'not_found',
@@ -934,11 +940,11 @@ class CheckoutController extends Controller
     {
         try {
             $orderCode = $request->input('order_code');
-            
+
             // Xóa session data
             Session::forget([
                 'pending_order',
-                'momo_order_code', 
+                'momo_order_code',
                 'momo_request_id',
                 'vnpay_order_data',
                 'vnpay_order_code'

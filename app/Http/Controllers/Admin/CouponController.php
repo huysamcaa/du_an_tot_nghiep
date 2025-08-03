@@ -16,20 +16,22 @@ use App\Mail\CouponPromotionMail;
 use Illuminate\Support\Facades\Mail;
 class CouponController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $perPage = $request->input('perPage', 10);
+   public function index(Request $request)
+{
+    $search = $request->input('search');
+    $perPage = $request->input('perPage', 10); // Mặc định 10 nếu không chọn
 
-        $coupons = Coupon::when($search, function ($query, $search) {
+    $coupons = Coupon::when($search, function ($query, $search) {
             $query->where('code', 'like', '%' . $search . '%')
                   ->orWhere('title', 'like', '%' . $search . '%');
         })
         ->orderByDesc('created_at')
-        ->paginate($perPage);
+        ->paginate($perPage) // ❗ Quan trọng: Phân trang đúng số lượng
+        ->appends(['perPage' => $perPage, 'search' => $search]); // Giữ lại filter khi chuyển trang
 
-        return view('admin.coupons.index', compact('coupons', 'search', 'perPage'));
-    }
+    return view('admin.coupons.index', compact('coupons', 'search', 'perPage'));
+}
+
 
     public function create()
     {

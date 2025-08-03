@@ -4,6 +4,19 @@
 <h1>Danh sách thương hiệu</h1>
 <a href="{{ route('admin.brands.create') }}" class="btn btn-primary mb-3">Thêm thương hiệu</a>
 <a href="{{ route('admin.brands.trash') }}" class="btn btn-secondary mb-3">Thương hiệu đã xóa</a>
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
 <div class="breadcrumbs">
     <div class="breadcrumbs-inner">
@@ -72,7 +85,7 @@
                                         @if ($brand->updated_at != $brand->created_at)
                                             {{ $brand->updated_at->format('d/m/Y H:i') }}
                                         @else
-                                            <span class="text-muted">--</span>
+                                            <span class="text-muted"></span>
                                         @endif
                                     </td>
                                     <td>
