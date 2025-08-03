@@ -15,13 +15,13 @@
         </div>
     </div>
 </section>
-@if(auth()->user()->account_type === 'limited')
+{{-- @if(auth()->user()->account_type === 'limited')
 <div class="alert alert-warning">
     Tài khoản của bạn chỉ được phép:
     - Thanh toán COD
     - Tối đa 10 đơn/ngày
 </div>
-@endif
+@endif --}}
 <section class="checkoutPage">
     <div class="container">
         <form action="{{ route('checkout.placeOrder') }}" method="POST">
@@ -31,6 +31,8 @@
 
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
+                        
+                                
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" name="field1" placeholder="Họ *"  required>
@@ -51,10 +53,27 @@
                                     {{-- ...other countries... --}}
                                 </select>
                             </div>
-                            <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Địa chỉ *"
-                                    value="{{ old('field7', $defaultAddress->address ?? '') }}" required>
-                            </div>
+                           <div class="col-lg-12">
+                    <select name="field7" class="form-control address-select" required>
+                        <option value="">Chọn địa chỉ *</option>
+                        @foreach($userAddresses as $address)
+                            <option value="{{ $address->address }}"  
+                                {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
+                                data-phone="{{ $address->phone_number }}"
+                                data-fullname="{{ $address->fullname }}">
+                                {{ $address->address }} 
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                 
+
+<!-- Nếu muốn thêm nút "Thêm địa chỉ mới" -->
+{{-- <div class="mt-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#addAddressModal">
+        + Thêm địa chỉ mới
+    </button>
+</div> --}}
                             {{-- <div class="col-lg-12">
                                 <input type="text" name="field7" placeholder="Địa chỉ *">
                             {{-- <div class="col-lg-12">
@@ -78,6 +97,9 @@
                             <div class="col-lg-12">
                                 <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
+                            <div class="col-md-6">
+                                    <a href="{{ route('user.addresses.index') }}" class="placeOrderBTN ulinaBTN"><span>+ Thêm địa chỉ mới</span></a>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -213,5 +235,49 @@
             </div>
         </form>
     </div>
+    <script>
+$(document).ready(function() {
+    // Cập nhật thông tin khi chọn địa chỉ
+    $('.address-select').change(function() {
+        const selectedOption = $(this).find('option:selected');
+        $('input[name="field5"]').val(selectedOption.data('phone') || '');
+        $('input[name="field1"]').val(selectedOption.data('fullname')?.split(' ')[0] || '');
+        $('input[name="field2"]').val(selectedOption.data('fullname')?.split(' ').slice(1).join(' ') || '');
+    });
+
+    // Tính toán lại tổng tiền khi áp dụng coupon
+    $('#coupon_code').change(function() {
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        const subtotal = {{ $total }};
+        const shippingFee = 30000;
+        let discount = 0;
+        const coupon = $('#coupon_code option:selected');
+        
+        if (coupon.val()) {
+            const discountType = coupon.data('discount-type');
+            const discountValue = parseFloat(coupon.data('discount-value'));
+            const maxDiscount = parseFloat(coupon.data('max-discount')) || Infinity;
+            
+            if (discountType === 'percent') {
+                discount = subtotal * discountValue / 100;
+                if (discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+            } else {
+                discount = discountValue;
+            }
+        }
+        
+        const total = subtotal + shippingFee - discount;
+        
+        // Cập nhật UI
+        $('.shippingRow ins').text('30,000đ');
+        $('tr:contains("Tổng thanh toán") td ins').text(total.toLocaleString('vi-VN') + 'đ');
+    }
+});
+</script>
 </section>
 @endsection

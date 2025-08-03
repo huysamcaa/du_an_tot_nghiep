@@ -1,5 +1,6 @@
 <!doctype html>
 <html class="no-js" lang="">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,23 +25,33 @@
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/datatable/dataTables.bootstrap.min.css') }}">
+
+    <!-- JS -->
+    <script src="{{ asset('assets/js/lib/data-table/datatables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/lib/data-table/dataTables.bootstrap.min.js') }}"></script>
     <style>
         #weatherWidget .currentDesc {
-            color: #ffffff!important;
+            color: #ffffff !important;
         }
+
         .traffic-chart {
             min-height: 335px;
         }
+
         #flotPie1 {
             height: 150px;
         }
+
         #flotPie1 td {
-            padding:3px;
+            padding: 3px;
         }
+
         #flotPie1 table {
-            top: 20px!important;
-            right: -10px!important;
+            top: 20px !important;
+            right: -10px !important;
         }
+
         .chart-container {
             display: table;
             min-width: 270px;
@@ -48,33 +59,35 @@
             padding-top: 10px;
             padding-bottom: 10px;
         }
+
         #flotLine5 {
             height: 105px;
         }
+
         #flotBarChart {
             height: 150px;
         }
+
         #cellPaiChart {
             height: 160px;
         }
 
 
-    html, body {
-    height: 100%;
-    margin: 0;
-}
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
 
-#right-panel {
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-}
+        #right-panel {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
 
-.content {
-    flex: 1;
-}
-
-
+        .content {
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -130,10 +143,12 @@
 
     <!--Local Stuff-->
     <script>
-        // Giữ nguyên phần script JavaScript từ file gốc
-        // ... (phần script dài ở cuối file HTML)
+        $(document).ready(function() {
+            $('#bootstrap-data-table').DataTable(); // id đúng với bảng
+        });
     </script>
     @yield('scripts')
- @stack('scripts')
+    @stack('scripts')
 </body>
+
 </html>
