@@ -1,78 +1,83 @@
 @extends('admin.layouts.app')
 
 @section('content')
-
-<h1 class="mb-4">Chi Tiết Thương Hiệu</h1>
-
-<!-- Breadcrumb -->
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb bg-light px-3 py-2 rounded">
-        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('admin.brands.index') }}">Thương hiệu</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ $brand->name }}</li>
-    </ol>
-</nav>
-
-<div class="card shadow-sm p-4">
-
-    <table class="table table-bordered table-striped mb-0">
-        <tbody>
-            <tr>
-                <th width="20%">Tên thương hiệu</th>
-                <td>{{ $brand->name }}</td>
-            </tr>
-            <tr>
-                <th>Slug</th>
-                <td>{{ $brand->slug }}</td>
-            </tr>
-            <tr>
-                <th>Trạng thái</th>
-                <td>
-                    <span class="badge badge-{{ $brand->is_active ? 'success' : 'secondary' }}">
-                        {{ $brand->is_active ? 'Hiển thị' : 'Ẩn' }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <th>Tổng sản phẩm</th>
-                <td>{{ $brand->products_count ?? $brand->products()->count() }}</td>
-            </tr>
-            <tr>
-                <th>Ngày tạo</th>
-                <td>{{ $brand->created_at->format('d/m/Y H:i') }}</td>
-            </tr>
-            <tr>
-                <th>Ngày sửa</th>
-                <td>
-                    @if ($brand->updated_at != $brand->created_at)
-                        {{ $brand->updated_at->format('d/m/Y H:i') }}
-                    @else
-                        <span class="text-muted">--</span>
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <th>Logo</th>
-                <td>
-                    @if($brand->logo)
-                        <img src="{{ asset('storage/' . $brand->logo) }}" width="100" class="img-thumbnail" alt="Logo thương hiệu">
-                    @else
-                        <span class="text-muted">Không có logo</span>
-                    @endif
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="mt-4 text-end">
-        <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-warning me-2">
-            Sửa
-        </a>
-        <a href="{{ route('admin.brands.index') }}" class="btn btn-secondary">
-            Quay lại
-        </a>
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Chi tiết thương hiệu</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
+                            <li><a href="{{ route('admin.brands.index') }}">Thương hiệu</a></li>
+                            <li class="active">{{ $brand->name }}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
 </div>
 
+<div class="content">
+    <div class="animated fadeIn">
+        {{-- Thông tin thương hiệu --}}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin cơ bản</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4"><strong>Tên thương hiệu:</strong> {{ $brand->name }}</div>
+                    <div class="col-md-4"><strong>Slug:</strong> {{ $brand->slug }}</div>
+                    <div class="col-md-4">
+                        <strong>Trạng thái:</strong>
+                        <span class="badge badge-{{ $brand->is_active ? 'success' : 'secondary' }}">
+                            {{ $brand->is_active ? 'Hiển thị' : 'Ẩn' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4"><strong>Tổng sản phẩm:</strong> {{ $brand->products_count ?? $brand->products()->count() }}</div>
+                    <div class="col-md-4"><strong>Ngày tạo:</strong> {{ $brand->created_at->format('d/m/Y H:i') }}</div>
+                    <div class="col-md-4">
+                        <strong>Ngày cập nhật:</strong>
+                        @if ($brand->updated_at != $brand->created_at)
+                            {{ $brand->updated_at->format('d/m/Y H:i') }}
+                        @else
+                            <span class="text-muted">--</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-md-4"><strong>Logo:</strong></div>
+                    <div class="col-md-8">
+                        @if($brand->logo)
+                            <img src="{{ asset('storage/' . $brand->logo) }}" class="img-thumbnail" width="120" alt="Logo thương hiệu">
+                        @else
+                            <span class="text-muted">Không có logo</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Nút hành động --}}
+        <div class="mt-4 text-end">
+            <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-warning me-2">
+                <i class="fa fa-edit me-1"></i> Sửa
+            </a>
+            <a href="{{ route('admin.brands.index') }}" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left me-1"></i> Quay lại
+            </a>
+        </div>
+    </div>
+</div>
 @endsection
