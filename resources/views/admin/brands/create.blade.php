@@ -1,37 +1,123 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<h1 class="mb-4">Thêm Thương Hiệu</h1>
-
-<form action="{{ route('admin.brands.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
-    @csrf
-
-    <div class="form-group mb-3">
-        <label for="name">Tên thương hiệu <span class="text-danger">*</span></label>
-        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
-        @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+{{-- Breadcrumbs --}}
+<div class="breadcrumbs mb-4">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Thêm thương hiệu</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
+                            <li><a href="{{ route('admin.brands.index') }}">Thương hiệu</a></li>
+                            <li class="active">Thêm mới</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label for="slug">Slug</label>
-        <input type="text" name="slug" class="form-control" value="{{ old('slug') }}">
-        @error('slug') <small class="text-danger">{{ $message }}</small> @enderror
-    </div>
+{{-- Nội dung --}}
+<div class="content">
+    <div class="animated fadeIn">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thêm thương hiệu mới</h5>
+            </div>
+            <div class="card-body">
 
-    <div class="form-group mb-3">
-        <label for="logo">Logo</label>
-        <input type="file" name="logo" class="form-control-file">
-        @error('logo') <small class="text-danger">{{ $message }}</small> @enderror
-    </div>
+                {{-- Hiển thị lỗi --}}
+                @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $e)
+                                <li>{{ $e }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-    <div class="form-check mb-4">
-        <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_active">Hiển thị</label>
-    </div>
+                {{-- Form --}}
+                <form action="{{ route('admin.brands.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
 
-    <div class="mt-3">
-        <button type="submit" class="btn btn-success w-auto d-inline-block me-2">Lưu</button>
-        <a href="{{ route('admin.brands.index') }}" class="btn btn-warning w-auto d-inline-block">Quay lại</a>
+                    {{-- Dòng 1: Tên, Slug --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Tên thương hiệu <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Slug</label>
+                            <input type="text" name="slug" class="form-control" value="{{ old('slug') }}">
+                        </div>
+                    </div>
+
+                    {{-- Dòng 2: Logo, Trạng thái --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Logo</label>
+                            <input type="file" name="logo" id="logoInput" class="form-control" accept="image/*">
+                            <div class="mt-3" id="logoPreviewArea" style="display:none;">
+                                <img id="logoPreview" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Trạng thái</label>
+                            <select name="is_active" class="form-control">
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Hiển thị</option>
+                                <option value="0" {{ old('is_active') == 0 ? 'selected' : '' }}>Ẩn</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Nút hành động --}}
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fa fa-save"></i> Lưu
+                            </button>
+                            <a href="{{ route('admin.brands.index') }}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     </div>
-</form>
+</div>
+
+{{-- Preview ảnh --}}
+@push('scripts')
+<script>
+    $(document).ready(function () {
+        $('#logoInput').on('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#logoPreview').attr('src', e.target.result);
+                    $('#logoPreviewArea').show();
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                $('#logoPreviewArea').hide();
+                $('#logoPreview').attr('src', '');
+            }
+        });
+    });
+</script>
+@endpush
+
 @endsection
