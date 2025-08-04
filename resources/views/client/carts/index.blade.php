@@ -39,30 +39,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $total = 0;
+                            @php 
+                                $total = 0; 
                                 $totalQuantity = 0;
                             @endphp
                             @foreach($cartItems as $item)
-                            @php
+                            @php 
                                 $price = $item->variant->sale_price > 0 ? $item->variant->sale_price : $item->variant->price;
-                                $total += $price * $item->quantity;
+                                $total += $price * $item->quantity; 
                                 $totalQuantity += $item->quantity;
-                                $isOutOfStock = $item->variant->stock == 0;
                             @endphp
-                            <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}"
-                                class="{{$isOutOfStock ? 'out-of-stock' : ''}}">
+                            <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}">
                                 <td class="product-select">
-                                    <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item" {{$isOutOfStock ? 'disabled' : ''}}>
+                                    <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item">
                                 </td>
                                 <td class="product-thumbnail">
                                     <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="Cart Item"></a>
                                 </td>
                                 <td class="product-name">
                                     <a href="{{ route('product.detail', $item->product->id) }}">{{ $item->product->name }}</a>
-                                    @if ($isOutOfStock)
-                                    <span class="badge bg-danger small">Hết hàng</span>
-                                @endif
                                 </td>
                                 <td class="product-variant">
                                     @if($item->variant)
@@ -87,9 +82,7 @@
                                             <div class="mt-2">
                                                 <span class="quantity-num mx-2" data-item-id="{{ $item->id }}">{{ $item->quantity }}</span>
                                             </div>
-                                            @if (!$isOutOfStock)
-                                                <button class="change-qty" type="submit" data-action="increase">+</button>
-                                            @endif
+                                            <button class="change-qty" type="submit" data-action="increase">+</button>
                                         </form>
 
                                     </div>
@@ -108,7 +101,7 @@
                         <tfoot>
                             <tr class="actions">
                                 <td colspan="2" class="text-start">
-                                    <a href="{{ route('client.categories.index') }}" class="ulinaBTN"><span>Tiếp tục mua sắm</span></a>
+                                    <a href="{{ route('client.categories.index') }}" class="ulinaBTN"><span>Tiếp tục mua sắm</span></a>  
                                 </td>
                                 <td colspan="6" class="text-end">
                                     <button type="button" id="delete-selected" class="ulinaBTN">
@@ -158,7 +151,7 @@
                             <button type="submit" class="ulinaBTN" id="checkout-btn">
                                 <span>TIẾN HÀNH THANH TOÁN</span>
                             </button>
-
+                        
                     </div>
                 </div>
             </div>
@@ -184,21 +177,18 @@ $(document).ready(function () {
     function updateCartTotal() {
         let total = 0;
         let selectedCount = 0;
-        let hasValidItem = false;
 
         // Duyệt qua từng sản phẩm được chọn
         $selectItems.each(function () {
-            if (this.checked && (this).is('disabled')) {
+            if (this.checked) {
                 const row = $(this).closest('tr');
                 const price = parseFloat(row.data('price'));
                 const qty = parseInt(row.find('.quantity-num').text());
                 total += price * qty;
                 selectedCount++;
-                hasValidItem = true;
             }
         });
 
-        $('#checkout-btn').prop('disabled', !hasValidItem);
         // Cập nhật hiển thị tổng tiền và tổng đơn
         $('#cart-total ins').text(new Intl.NumberFormat('vi-VN').format(total) + 'đ');
         $('#grand-total ins').text(new Intl.NumberFormat('vi-VN').format(total + 30000) + 'đ');
