@@ -209,7 +209,7 @@
                                                         <i class="fas fa-tag me-1"></i>
                                                         @if($item->variant)
                                                             @foreach($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }} 
+                                                                {{ $attrValue->value }}
                                                             @endforeach
                                                         @endif
                                                     </p>
@@ -251,6 +251,7 @@
                                                         </a>
                                                     @endif
 
+<<<<<<< HEAD
 
                                                     <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
                                                         <i class="fas fa-redo-alt me-1"></i>Mua lại
@@ -258,14 +259,18 @@
 
 
                                                     <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+
+                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+
     @csrf
     @method('POST')
-    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn" 
+    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
             onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
         <i class="fas fa-times-circle me-1"></i>Hủy Đơn
     </button>
-</form>
-                                                    
+
+</form> --}}
+
 
                                                     <button class="btn btn-outline-success btn-sm action-btn">
                                                         <i class="fas fa-comments me-1"></i>Chat
