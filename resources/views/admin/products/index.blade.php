@@ -46,6 +46,7 @@
                         <table id="bootstrap-data-table" class="table table-striped table-bordered text-center">
                             <thead>
                                 <tr>
+                                    <th>STT</th>
                                     <th>Ảnh</th>
                                     <th>Tên</th>
                                     <th>Danh mục</th>
@@ -59,6 +60,7 @@
                             <tbody>
                                 @forelse ($products as $product)
                                 <tr class="text-center align-middle">
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>
                                         @if ($product->thumbnail)
                                         <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
@@ -69,7 +71,7 @@
                                     <td>{{ $product->name }}</td>
                                     <td>{{ $product->category->name ?? '-' }}</td>
                                     <td>{{ $product->brand->name ?? '-' }}</td>
-                                    <td>{{ $product->stock }}</td>
+                                    <td>{{ $product->total_stock ?? 0 }}</td>
                                     <td class="text-right">
                                         {{ number_format($product->price, 0, ',', '.') }} đ
                                     </td>
@@ -98,7 +100,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">Chưa có sản phẩm nào.</td>
+                                    <td colspan="9" class="text-center text-muted">Chưa có sản phẩm nào.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

@@ -1,6 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
+    <!-- Existing breadcrumbs and header code remains unchanged -->
     <div class="breadcrumbs">
         <div class="breadcrumbs-inner">
             <div class="row m-0">
@@ -25,6 +26,7 @@
             </div>
         </div>
     </div>
+
     <div class="content">
         <div class="animated fadeIn">
             <div class="card mb-4 shadow-sm">
@@ -39,7 +41,6 @@
                                 {{ session('error') }}
                             </div>
                         @endif
-                        {{-- Hiển thị lỗi --}}
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -50,13 +51,12 @@
                             </div>
                         @endif
 
-                        {{-- Form cập nhật --}}
                         <form action="{{ route('admin.products.update', $product->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
-                            {{-- Tên + Danh mục --}}
+                            <!-- Existing fields for product details (name, category, brand, etc.) remain unchanged -->
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold">Tên sản phẩm <span class="text-danger">*</span></label>
@@ -77,7 +77,6 @@
                                 </div>
                             </div>
 
-                            {{-- Brand + Mô tả ngắn --}}
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold">Nhà sản xuất <span class="text-danger">*</span></label>
@@ -97,7 +96,6 @@
                                 </div>
                             </div>
 
-                            {{-- Giá + Sale + Số lượng --}}
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label class="font-weight-bold">Giá gốc <span class="text-danger">*</span></label>
@@ -109,14 +107,13 @@
                                     <input type="number" name="sale_price" step="0.01" class="form-control"
                                         value="{{ old('sale_price', $product->sale_price) }}">
                                 </div>
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <label class="font-weight-bold">Số lượng</label>
                                     <input type="number" name="stock" class="form-control"
                                         value="{{ old('stock', $product->stock ?? 0) }}">
-                                </div>
+                                </div> --}}
                             </div>
 
-                            {{-- Ngày sale --}}
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold">Bắt đầu sale</label>
@@ -130,7 +127,6 @@
                                 </div>
                             </div>
 
-                            {{-- Checkbox hiển thị --}}
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold d-block">Tùy chọn</label>
@@ -147,7 +143,6 @@
                                 </div>
                             </div>
 
-                            {{-- Mô tả dài --}}
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <label class="font-weight-bold">Mô tả chi tiết</label>
@@ -155,7 +150,6 @@
                                 </div>
                             </div>
 
-                            {{-- Ảnh đại diện --}}
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="font-weight-bold">Ảnh đại diện</label>
@@ -169,16 +163,17 @@
                                 </div>
                             </div>
 
-                            {{-- Biến thể --}}
+                            <!-- Existing Variants -->
                             <h5 class="mt-4 mb-3">Biến thể sản phẩm</h5>
                             @if ($product->variants->count())
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
+                                    <table class="table table-bordered" id="existing-variants-table">
                                         <thead>
                                             <tr>
                                                 <th>Giá</th>
                                                 <th>SKU</th>
                                                 <th>Ảnh</th>
+                                                <th>Số lượng</th>
                                                 <th>Giá trị thuộc tính</th>
                                                 <th>Xóa</th>
                                             </tr>
@@ -206,6 +201,11 @@
                                                             class="form-control-file" accept="image/*">
                                                     </td>
                                                     <td>
+                                                        <input type="number" name="variants[{{ $i }}][stock]"
+                                                            class="form-control"
+                                                            value="{{ old("variants.$i.stock", $variant->stock) }}">
+                                                    </td>
+                                                    <td>
                                                         @foreach ($variant->attributeValues as $attrValue)
                                                             <span
                                                                 class="badge bg-info text-white mb-1">{{ $attrValue->attribute->name }}:
@@ -214,6 +214,22 @@
                                                                 name="variants[{{ $i }}][attribute_value_id][]"
                                                                 value="{{ $attrValue->id }}">
                                                         @endforeach
+                                                        <!-- Dropdown to select attributes for existing variant -->
+                                                        {{-- <select name="variants[{{ $i }}][attribute_value_id][]"
+                                                            class="form-control" multiple>
+                                                            @foreach ($colors as $color)
+                                                                <option value="{{ $color->id }}"
+                                                                    {{ $variant->attributeValues->contains($color->id) ? 'selected' : '' }}>
+                                                                    Màu: {{ $color->value }}
+                                                                </option>
+                                                            @endforeach
+                                                            @foreach ($sizes as $size)
+                                                                <option value="{{ $size->id }}"
+                                                                    {{ $variant->attributeValues->contains($size->id) ? 'selected' : '' }}>
+                                                                    Kích thước: {{ $size->value }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select> --}}
                                                     </td>
                                                     <td>
                                                         <input type="checkbox"
@@ -231,7 +247,16 @@
                                 <p>Chưa có biến thể nào cho sản phẩm này.</p>
                             @endif
 
-                            {{-- Nút hành động --}}
+                            <!-- New Variants Section -->
+                            <h5 class="mt-4 mb-3">Thêm biến thể mới</h5>
+                            <div id="new-variants">
+                                <!-- JavaScript will append new variant rows here -->
+                            </div>
+                            <button type="button" class="btn btn-success mt-3" id="add-variant-btn">
+                                <i class="fa fa-plus me-1"></i> Thêm biến thể
+                            </button>
+
+                            <!-- Nút hành động -->
                             <div class="mt-4 d-flex justify-content-between">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-save me-1"></i> Cập nhật sản phẩm
@@ -240,7 +265,6 @@
                                     <i class="fa fa-arrow-left me-1"></i> Quay lại danh sách
                                 </a>
                             </div>
-
                         </form>
                     </div>
                 </div>
@@ -248,4 +272,56 @@
         </div><!-- .animated -->
     </div><!-- .content -->
 
+    <!-- JavaScript for Adding New Variants -->
+    @section('scripts')
+        <script>
+            let variantIndex = {{ $product->variants->count() }};
+
+            document.getElementById('add-variant-btn').addEventListener('click', function() {
+                const newVariantRow = `
+                    <div class="row mb-3 new-variant-row">
+                        <div class="col-md-3">
+                            <label class="font-weight-bold">Giá <span class="text-danger">*</span></label>
+                            <input type="number" name="variants[${variantIndex}][price]" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="font-weight-bold">SKU</label>
+                            <input type="text" name="variants[${variantIndex}][sku]" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="font-weight-bold">Số lượng</label>
+                            <input type="number" name="variants[${variantIndex}][stock]" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="font-weight-bold">Ảnh</label>
+                            <input type="file" name="variants[${variantIndex}][thumbnail]" class="form-control-file" accept="image/*">
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <label class="font-weight-bold">Giá trị thuộc tính <span class="text-danger">*</span></label>
+                            <select name="variants[${variantIndex}][attribute_value_id][]" class="form-control" multiple required>
+                                @foreach ($colors as $color)
+                                    <option value="{{ $color->id }}">Màu: {{ $color->value }}</option>
+                                @endforeach
+                                @foreach ($sizes as $size)
+                                    <option value="{{ $size->id }}">Kích thước: {{ $size->value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <button type="button" class="btn btn-danger btn-sm remove-variant-btn">Xóa biến thể</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('new-variants').insertAdjacentHTML('beforeend', newVariantRow);
+                variantIndex++;
+            });
+
+            // Remove new variant row
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-variant-btn')) {
+                    e.target.closest('.new-variant-row').remove();
+                }
+            });
+        </script>
+    @endsection
 @endsection

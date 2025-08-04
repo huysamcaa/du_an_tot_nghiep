@@ -2,6 +2,7 @@
 
 namespace App\Models\Shared;
 
+use App\Models\Admin\OrderOrderStatus;
 use App\Models\Admin\ProductVariant;
 use App\Models\Client\UserAddress;
 use App\Models\User;
@@ -64,7 +65,20 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\Refund::class);
     }
+public function canBeCancelled()
+{
+    // Chỉ cho phép hủy khi đơn hàng ở trạng thái chờ xác nhận (status_id = 1)
+    return $this->current_status_id == 1;
+}
 
+public function getCurrentStatusIdAttribute()
+{
+    return $this->statuses()->wherePivot('is_current', 1)->first()->id;
+}
+public function statuses()
+    {
+        return $this->hasMany(OrderOrderStatus::class);
+    }
 
 
 
