@@ -144,5 +144,5 @@ public function updateStatus(Request $request, $orderId)
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
-    
+
 }
