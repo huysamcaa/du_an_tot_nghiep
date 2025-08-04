@@ -69,7 +69,7 @@
                                     <td>{{ $product->name }}</td>
                                     <td>{{ $product->category->name ?? '-' }}</td>
                                     <td>{{ $product->brand->name ?? '-' }}</td>
-                                    <td>{{ $product->stock }}</td>
+                                    <td>{{ $product->total_stock ?? 0 }}</td>
                                     <td class="text-right">
                                         {{ number_format($product->price, 0, ',', '.') }} đ
                                     </td>
