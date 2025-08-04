@@ -406,7 +406,7 @@ class CheckoutController extends Controller
 
             OrderOrderStatus::create([
                 'order_id' => $order->id,
-                'order_status_id' => 9,
+                'order_status_id' => 1,
                 'modified_by' => $order->user_id ?? 5,
                 'notes' => 'Thanh toán qua MoMo thành công',
             ]);
@@ -490,7 +490,7 @@ class CheckoutController extends Controller
 
             OrderOrderStatus::create([
                 'order_id' => $order->id,
-                'order_status_id' => 9,
+                'order_status_id' => 1,
                 'modified_by' => $order->user_id ?? 5,
                 'notes' => 'Thanh toán qua VNPay thành công',
             ]);
