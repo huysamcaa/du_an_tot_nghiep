@@ -77,18 +77,44 @@
                 @endif
 
 
-                @if($coupon->restriction)
-                    <hr>
-                    <h5 class="text-dark">📌 Điều Kiện Áp Dụng</h5>
-                    <ul class="list-unstyled ms-2">
-                        <li><i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>Đơn tối thiểu:</strong> {{ number_format($coupon->restriction->min_order_value, 0, ',', '.') }} VND
-                        </li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i>
-                            <strong>Giảm tối đa:</strong> {{ number_format($coupon->restriction->max_discount_value, 0, ',', '.') }} VND
-                        </li>
-                    </ul>
-                @endif
+   @if($coupon->restriction || (isset($categories) && $categories->isNotEmpty()) || (isset($products) && $products->isNotEmpty()))
+    <hr>
+    <h5 class="text-dark mb-3">📌 Điều Kiện & Phạm Vi Áp Dụng</h5>
+    <div class="ms-2">
+
+        @if($coupon->restriction)
+            <p>
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong>Đơn tối thiểu:</strong> {{ number_format($coupon->restriction->min_order_value, 0, ',', '.') }} VND
+            </p>
+            <p>
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong>Giảm tối đa:</strong> {{ number_format($coupon->restriction->max_discount_value, 0, ',', '.') }} VND
+            </p>
+        @endif
+
+        @if(isset($categories) && $categories->isNotEmpty())
+            <p>
+                <i class="fas fa-folder-open text-primary me-2"></i>
+                <strong>Danh mục áp dụng:</strong><br>
+                @foreach($categories as $category)
+                    <span class="badge bg-secondary me-1 mb-1">{{ $category->name }}</span>
+                @endforeach
+            </p>
+        @endif
+
+        @if(isset($products) && $products->isNotEmpty())
+            <p>
+                <i class="fas fa-box text-warning me-2"></i>
+                <strong>Sản phẩm áp dụng:</strong><br>
+                @foreach($products as $product)
+                    <span class="badge bg-success me-1 mb-1">{{ $product->name }}</span>
+                @endforeach
+            </p>
+        @endif
+
+    </div>
+@endif
 
 
                 <div class="mt-4">

@@ -91,7 +91,7 @@
                 <div class="card-header bg-light"><strong> Danh mục áp dụng</strong></div>
                 <div class="card-body">
                     @forelse($categories as $category)
-                        <span class="badge bg-secondary me-1">{{ $category->name }}</span>
+                        <span class="badge bg-info me-1">{{ $category->name }}</span>
                     @empty
                         <span class="text-muted">Không có</span>
                     @endforelse
