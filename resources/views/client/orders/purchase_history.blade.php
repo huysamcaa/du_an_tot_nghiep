@@ -240,14 +240,9 @@
                                                         </a>
                                                     @endif
 
-                                                    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
-    @csrf
-    @method('POST')
-    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn" 
-            onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-    </button>
-</form>
+                                                    <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
+                                                        <i class="fas fa-redo-alt me-1"></i>Hủy Đơn 
+                                                    </button>
                                                     
                                                     <button class="btn btn-outline-success btn-sm action-btn">
                                                         <i class="fas fa-comments me-1"></i>Chat
