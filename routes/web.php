@@ -86,7 +86,7 @@ Route::post('/cart/delete-selected', [CartController::class, 'deleteSelected'])-
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
-    
+
     // Payment status and cancel
     Route::get('/payment/status/{orderCode}', [CheckoutController::class, 'checkPaymentStatus'])->name('payment.status');
     Route::post('/payment/cancel', [CheckoutController::class, 'cancelPayment'])->name('payment.cancel');
@@ -97,7 +97,7 @@ Route::post('/checkout/momo/ipn', [CheckoutController::class, 'momoIPN'])->name(
 Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('checkout.momo.return');
 Route::post('/checkout/momo/webhook', [CheckoutController::class, 'momoWebhook'])->name('checkout.momo.webhook');
 
-// VNPay callback routes (không cần auth middleware)  
+// VNPay callback routes (không cần auth middleware)
 Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('checkout.vnpay.return');
 
 // Order routes
@@ -130,7 +130,7 @@ Route::post('/resend-otp', [RegisterController::class, 'resendOtp'])->name('otp.
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'check.user.status'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/home', [HomeController::class, 'index'])->name('user.dashboard');
@@ -203,10 +203,8 @@ Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 
     |--------------------------------------------------------------------------
     */
 
-Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['admin','check.user.status'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
-
-
     // Categories với chức năng thùng rác
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
     Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');

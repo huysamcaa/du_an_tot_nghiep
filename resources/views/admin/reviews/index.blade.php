@@ -1,10 +1,6 @@
 @extends('admin.layouts.app')
 
 
-@section('content')
-
-
-@section('title', 'Danh sách đánh giá người dùng')
 
 @section('content')
 <div class="breadcrumbs">
@@ -158,5 +154,6 @@
 
 
 </div>
+
 
 @endsection

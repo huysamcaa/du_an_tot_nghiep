@@ -10,21 +10,35 @@ use App\Models\Admin\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\OrderOrderStatus;
 use App\Models\Admin\Comment;
-
+use Carbon\Carbon;
 class AdminController extends Controller
 {
     public function dashboard(Request $request)
     {
         $year = $request->get('year', date('Y'));
         $month = $request->get('month', date('m'));
-        $view = $request->get('view', 'month'); // month | week
-
+        $view = $request->get('view', 'month');
+        $fromDate = $request->get('from_date');
+        $toDate = $request->get('to_date');
         // Lấy các order_id đã hoàn thành
         $completedOrderIds = OrderOrderStatus::where('order_status_id', 5)
             ->where('is_current', 1)
             ->pluck('order_id');
-
-        if ($view == 'month') {
+        if ($fromDate && $toDate) {
+            $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
+                ->whereDate('created_at', '>=', $fromDate)
+                ->whereDate('created_at', '<=', $toDate)
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total'))
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'label' => $item->date,
+                        'total' => $item->total
+                    ];
+                });
+        } elseif ($view == 'month') {
             // Doanh thu theo tháng của năm
             $revenueByPeriod = collect(range(1, 12))->map(function ($m) use ($completedOrderIds, $year) {
                 $total = Order::whereIn('id', $completedOrderIds)
@@ -83,7 +97,9 @@ class AdminController extends Controller
         $months = range(1, 12);
 
         // Các thống kê khác
-        $revenue = Order::whereIn('id', $completedOrderIds)->sum('total_amount');
+        $revenue = Order::whereIn('id', $completedOrderIds)
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->sum('total_amount');
         $orderCount = Order::count();
         $productCount = Product::count();
         $userCount = User::count();
@@ -92,13 +108,38 @@ class AdminController extends Controller
             ->select('order_statuses.name', DB::raw('COUNT(*) as total')) // Sửa lại thành COUNT(*)
             ->groupBy('order_statuses.name')
             ->get();
-        $topCustomers = Order::whereIn('id', $completedOrderIds)
-            ->select('user_id', DB::raw('SUM(total_amount) as total'))
-            ->groupBy('user_id')
+
+        $topCustomers = Order::whereHas('orderOrderStatuses', function ($query) {
+            $query->where('order_order_status.order_status_id', 5)
+                ->where('order_order_status.is_current', 1);
+        })
+            ->selectRaw('user_id, COUNT(*) as total_orders, SUM(total_amount) as total_amount')
             ->with('user')
-            ->orderByDesc('total')
+            ->groupBy('user_id')
+            ->orderByDesc('total_amount')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($order) {
+                $lastOrder = Order::where('user_id', $order->user_id)
+                    ->latest()
+                    ->first();
+
+                if ($lastOrder) {
+                    $status = DB::table('order_order_status')
+                        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+                        ->where('order_order_status.order_id', $lastOrder->id)
+                        ->where('order_order_status.is_current', 1)
+                        ->value('order_statuses.name');
+
+                    $order->last_order_status = $status ?? null;
+                } else {
+                    $order->last_order_status = null;
+                }
+
+                return $order;
+            });
+
+
         $topProductsByComments = Comment::select('product_id', DB::raw('COUNT(*) as total'))
             ->whereHas('product')
             ->groupBy('product_id')
@@ -138,7 +179,9 @@ class AdminController extends Controller
             'months',
             'year',
             'month',
-            'view'
+            'view',
+            'fromDate',
+            'toDate'
         ));
     }
 

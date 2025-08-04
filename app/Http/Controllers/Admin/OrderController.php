@@ -53,7 +53,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $orderId)
     {
         $request->validate([
-            'order_status_id' => 'required|exists:order_statuses,id',
+            'order_status_id' => 'nullable|exists:order_statuses,id',
         ]);
 
         // Lấy trạng thái hiện tại
@@ -68,7 +68,7 @@ class OrderController extends Controller
                 return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
             }
         }
-        if ($currentStatus && in_array($currentStatus->order_status_id, [1,2,3,4]) && $request->order_status_id == 7) {
+        if ($currentStatus && in_array($currentStatus->order_status_id, [1, 2, 3, 4]) && $request->order_status_id == 7) {
             return back()->with('error', 'Chỉ đơn hàng đã hoàn thành mới được hoàn trả!');
         }
         // Đặt tất cả trạng thái cũ về 0
@@ -81,12 +81,16 @@ class OrderController extends Controller
             // created_at sẽ tự động nếu có timestamps
         ]);
         if ($request->order_status_id == 6) {
+            if (!$currentStatus || $currentStatus->order_status_id != 1) {
+                return back()->with('error', 'Chỉ đơn hàng đang chờ xác nhận mới được phép hủy!');
+            }
+
+            // Đếm số đơn bị hủy trong ngày của user
             $order = Order::find($orderId);
             if ($order) {
                 $userId = $order->user_id;
                 $today = now()->toDateString();
 
-                // Đếm số đơn đã hủy trong ngày của user này
                 $cancelCount = Order::where('user_id', $userId)
                     ->whereHas('orderOrderStatuses', function ($q) use ($today) {
                         $q->where('order_status_id', 6)

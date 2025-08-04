@@ -207,7 +207,11 @@
                                                     </h6>
                                                     <p class="product-variant">
                                                         <i class="fas fa-tag me-1"></i>
-                                                        {{ $item->variant->product_id ?? 'Không phân loại' }}
+                                                        @if($item->variant)
+                                                            @foreach($item->variant->attributeValues as $attrValue)
+                                                                {{ $attrValue->value }} 
+                                                            @endforeach
+                                                        @endif
                                                     </p>
                                                     <div class="quantity-badge">
                                                         <i class="fas fa-times me-1"></i>{{ $item->quantity }}
