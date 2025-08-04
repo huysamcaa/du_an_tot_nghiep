@@ -24,10 +24,10 @@
               <form action="{{ route('login') }}" method="POST" class="signin-form">
                 @csrf
                 <div class="form-group">
-                  <input type="email" name="email" class="form-control" placeholder="Email" required>
+                  <input type="email" name="email" class="form-control" placeholder="Email" >
                 </div>
                 <div class="form-group">
-                  <input id="password-field" type="password" name="password" class="form-control" placeholder="Mật khẩu" required>
+                  <input id="password-field" type="password" name="password" class="form-control" placeholder="Mật khẩu" >
                   <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                 </div>
                 <div class="form-group">

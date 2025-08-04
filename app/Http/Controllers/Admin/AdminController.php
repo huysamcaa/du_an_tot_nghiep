@@ -106,11 +106,11 @@ class AdminController extends Controller
             ->select('order_statuses.name', DB::raw('COUNT(*) as total')) // Sửa lại thành COUNT(*)
             ->groupBy('order_statuses.name')
             ->get();
-
-        $topCustomers = Order::whereHas('orderOrderStatuses', function ($query) {
-            $query->where('order_order_status.order_status_id', 5)
-                ->where('order_order_status.is_current', 1);
-        })
+        $topCustomers = Order::whereHas('user') // loại các đơn hàng có user đã bị xóa
+            ->whereHas('orderOrderStatuses', function ($query) {
+                $query->where('order_order_status.order_status_id', 5)
+                    ->where('order_order_status.is_current', 1);
+            })
             ->selectRaw('user_id, COUNT(*) as total_orders, SUM(total_amount) as total_amount')
             ->with('user')
             ->groupBy('user_id')

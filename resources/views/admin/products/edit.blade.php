@@ -109,11 +109,11 @@
                                     <input type="number" name="sale_price" step="0.01" class="form-control"
                                         value="{{ old('sale_price', $product->sale_price) }}">
                                 </div>
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <label class="font-weight-bold">Số lượng</label>
                                     <input type="number" name="stock" class="form-control"
                                         value="{{ old('stock', $product->stock ?? 0) }}">
-                                </div>
+                                </div> --}}
                             </div>
 
                             {{-- Ngày sale --}}

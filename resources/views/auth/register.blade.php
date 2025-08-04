@@ -35,12 +35,14 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="password" name="password" class="form-control" placeholder="Mật khẩu" required>
+                  <input type="password" id="password-field" name="password" class="form-control" placeholder="Mật khẩu" required>
+                    <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                   @error('password') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
-                  <input type="password" name="password_confirmation" class="form-control" placeholder="Xác nhận mật khẩu" required>
+                  <input type="password" id="password-field" name="password_confirmation" class="form-control" placeholder="Xác nhận mật khẩu" required>
+                <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                 </div>
 
                 <div class="form-group">
