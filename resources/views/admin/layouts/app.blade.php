@@ -103,7 +103,9 @@
     max-height: 40px;
     width: auto;
 }
-
+.sub-menu .subtitle {
+    display: none !important;
+}
     </style>
 </head>
 
