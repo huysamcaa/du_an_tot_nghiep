@@ -2,7 +2,31 @@
 
 @section('content')
 
-<h1 class="mb-4">Thêm Thương Hiệu</h1>
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Thương hiệu</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
+                            <li class="active">Thương hiệu</li>
+                            <li class="active">Thêm thương hiệu</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {{-- Thông báo session --}}
 @if(session('success'))
@@ -18,7 +42,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
-
+<div class="content">
 <form action="{{ route('admin.brands.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
     @csrf
 
@@ -36,7 +60,7 @@
 
 
 
-              
+
 
 
     <div class="form-group mb-3">
@@ -44,7 +68,7 @@
         <input type="file" name="logo" class="form-control">
         @error('logo') <small class="text-danger">{{ $message }}</small> @enderror
     </div>
-    
+
 
      <div class="form-check mb-4">
         <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
@@ -52,7 +76,7 @@
     </div>
 
 
-                  
+
 
 
     <div class="mt-3">
@@ -65,5 +89,5 @@
 
     </div>
 </div>
-
+</div>
 @endsection
