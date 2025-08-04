@@ -10,7 +10,7 @@ use App\Models\Admin\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\OrderOrderStatus;
 use App\Models\Admin\Comment;
-use Carbon\Carbon;
+
 class AdminController extends Controller
 {
     public function dashboard(Request $request)
@@ -97,9 +97,7 @@ class AdminController extends Controller
         $months = range(1, 12);
 
         // Các thống kê khác
-        $revenue = Order::whereIn('id', $completedOrderIds)
-            ->where('created_at', '>=', Carbon::now()->subDays(7))
-            ->sum('total_amount');
+        $revenue = Order::whereIn('id', $completedOrderIds)->sum('total_amount');
         $orderCount = Order::count();
         $productCount = Product::count();
         $userCount = User::count();

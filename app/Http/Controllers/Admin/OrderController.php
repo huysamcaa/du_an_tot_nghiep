@@ -38,9 +38,39 @@ class OrderController extends Controller
     public function confirm($id)
     {
         $order = Order::findOrFail($id);
-        $order->is_paid = true;
-        $order->save();
-        return redirect()->back()->with('success', 'Đã xác nhận thanh toán COD');
+
+        // Kiểm tra nếu đơn hàng đã thanh toán online
+        if (in_array($order->payment_id, [3, 4])) { // 3: MOMO, 4: VNPAY (hoặc mã id khác của thanh toán online)
+
+            // Tạo trạng thái "Đã thanh toán" nếu chưa có
+            $orderStatusPaid = OrderStatus::where('name', 'Đã thanh toán')->first();
+            if ($orderStatusPaid) {
+                // Cập nhật trạng thái "Đã thanh toán"
+                OrderOrderStatus::create([
+                    'order_id' => $order->id,
+                    'order_status_id' => $orderStatusPaid->id,
+                    'modified_by' => Auth::id(),
+                    'is_current' => 1, // Đặt trạng thái này là trạng thái hiện tại
+                ]);
+            }
+
+            // Chuyển trạng thái từ "Đã thanh toán" sang "Chờ xác nhận"
+            $orderStatusWaiting = OrderStatus::where('name', 'Chờ xác nhận')->first();
+            if ($orderStatusWaiting) {
+                OrderOrderStatus::create([
+                    'order_id' => $order->id,
+                    'order_status_id' => $orderStatusWaiting->id,
+                    'modified_by' => Auth::id(),
+                    'is_current' => 1, // Đặt trạng thái này là trạng thái hiện tại
+                ]);
+            }
+        } else {
+            // Nếu không phải thanh toán online, vẫn cập nhật như trước
+            $order->is_paid = true;
+            $order->save();
+        }
+
+        return redirect()->back()->with('success', 'Đã xác nhận thanh toán hoặc chuyển trạng thái sang Chờ xác nhận');
     }
 
     // Xóa đơn hàng
@@ -66,6 +96,11 @@ class OrderController extends Controller
             // Chỉ cho phép chuyển sang "Hoàn trả" (id = 7)
             if ($request->order_status_id != 7) {
                 return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
+            }
+        }
+        if ($request->order_status_id == 6) { // 6 là trạng thái Hủy
+            if (!$currentStatus || $currentStatus->order_status_id != 1) {
+                return back()->with('error', 'Chỉ đơn hàng đang chờ xác nhận mới được phép hủy!');
             }
         }
         if ($currentStatus && in_array($currentStatus->order_status_id, [1, 2, 3, 4]) && $request->order_status_id == 7) {

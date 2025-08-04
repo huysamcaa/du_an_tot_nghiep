@@ -83,7 +83,11 @@
             $finalStatusIds = [6, 7, 8];
             $isFinal = in_array($currentStatusId, $finalStatusIds);
         @endphp
-
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-warning text-dark">
                 <h5 class="mb-0">Cập nhật trạng thái đơn hàng</h5>
