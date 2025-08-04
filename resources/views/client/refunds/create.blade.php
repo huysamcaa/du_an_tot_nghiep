@@ -35,52 +35,59 @@
         <div class="row">
             {{-- Cột trái: danh sách sản phẩm lỗi --}}
             <div class="col-lg-6">
-                <div class="orderReviewWrap mb-4">
-                    <h3>Sản phẩm lỗi đã chọn</h3>
-                    <table class="shop_table cart_table">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th>Phân loại</th>
-                                <th>Giá</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php $totalRefund = 0; @endphp
-                            @foreach($selectedItems as $item)
-                            @php $totalRefund += $item->price; @endphp
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                        alt="{{ $item->product->name }}"
-                                        style="width:50px; height:50px; object-fit:cover; border-radius:6px; margin-right:10px;">
-                                    <div>
-                                        <strong>{{ $item->product->name }}</strong><br>
-                                        @if($item->variant)
-                                        <small class="text-muted">{{ $item->variant->name }}</small>
+                <div class="orderReviewWrap mb-4 p-4 shadow-sm rounded border bg-white">
+                    <h4 class="mb-4"><i class="fas fa-exclamation-circle me-2 text-danger"></i>Sản phẩm lỗi đã chọn</h4>
+                    <div class="table-responsive">
+                        <table class="table align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-start">Sản phẩm</th>
+                                    <th>Phân loại</th>
+                                    <th>Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php $totalRefund = 0; @endphp
+                                @foreach($selectedItems as $item)
+                                @php $totalRefund += $item->price; @endphp
+                                <tr>
+                                    <td class="text-start d-flex align-items-center">
+                                        <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
+                                            alt="{{ $item->product->name }}"
+                                            class="me-3"
+                                            style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                                        <div>
+                                            <div class="fw-semibold">{{ $item->product->name }}</div>
+                                            @if($item->variant && $item->variant->attributeValues->count())
+                                            <small class="text-muted">
+                                                {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                            </small>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($item->variant && $item->variant->attributeValues->count())
+                                        {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                        @else
+                                        <span class="text-muted">-</span>
                                         @endif
-                                    </div>
-                                </td>
-                                <td>{{ $item->variant->name ?? '-' }}</td>
-                                <td>
-                                    <div class="pi01Price">
-                                        <ins>{{ number_format($item->price) }}đ</ins>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="2" class="text-end">Tổng hoàn tiền:</th>
-                                <th>
-                                    <div class="pi01Price">
-                                        <ins>{{ number_format($totalRefund) }}đ</ins>
-                                    </div>
-                                </th>
-                            </tr>
-                        </tfoot>
-                    </table>
+                                    </td>
+                                    <td>
+                                        <div class="text-danger fw-semibold">
+                                            {{ number_format($item->price) }}đ
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="2" class="text-end fw-bold">Tổng hoàn tiền:</td>
+                                    <td class="fw-bold text-danger">{{ number_format($totalRefund) }}đ</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
 

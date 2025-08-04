@@ -63,7 +63,11 @@
                                 {{ $item->product->name }}
                             </td>
                             <td class="product-variation">
-                                {{ $item->variant->name ?? '-' }}
+                                @if($item->variant && $item->variant->attributeValues->count())
+                                {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                @else
+                                <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="product-category">
                                 {{ $item->product->category->name ?? 'Không có' }}
