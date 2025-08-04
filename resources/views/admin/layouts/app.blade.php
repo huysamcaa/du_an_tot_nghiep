@@ -99,6 +99,10 @@
         max-width: 150px;
     }
 
+   .navbar-brand img {
+    max-height: 40px;
+    width: auto;
+}
 
     </style>
 </head>

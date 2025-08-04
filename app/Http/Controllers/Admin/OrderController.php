@@ -101,6 +101,24 @@ public function updateStatus(Request $request, $orderId)
                     $item->variant->save();
                 }
             }
+            if ($request->order_status_id == 6) {
+                $order = Order::with('items.variant')->findOrFail($orderId);
+
+                foreach ($order->items as $item) {
+                    if (!$item->variant) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm không tồn tại!');
+                    }
+
+                    if ($item->variant->stock < $item->quantity) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm ' . ($item->variant->sku ?? '') . ' không đủ số lượng tồn kho!');
+                    }
+
+                    $item->variant->stock += $item->quantity;
+                    $item->variant->save();
+                }
+            }
 
             // Cập nhật trạng thái cũ
             OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
@@ -126,4 +144,5 @@ public function updateStatus(Request $request, $orderId)
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
+    
 }
