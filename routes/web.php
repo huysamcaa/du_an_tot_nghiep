@@ -68,6 +68,7 @@ Route::post('/product/{id}/add-comment', [ProductDetailController::class, 'addCo
 Route::post('/product/{id}/add-reply', [ProductDetailController::class, 'addReply'])->name('product.addReply');
 Route::put('/product/{id}/update-comment-or-reply', [ProductDetailController::class, 'updateCommentOrReply'])->name('product.updateCommentOrReply');
 
+
 // Danh mục sản phẩm
 Route::get('/categories', [ClientCategoryController::class, 'index'])
     ->name('client.categories.index');
@@ -105,6 +106,7 @@ Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.history');
+    
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');

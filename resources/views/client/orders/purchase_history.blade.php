@@ -199,7 +199,11 @@
                                                     </h6>
                                                     <p class="product-variant">
                                                         <i class="fas fa-tag me-1"></i>
-                                                        {{ $item->variant->product_id ?? 'Không phân loại' }}
+                                                        @if($item->variant)
+                                                            @foreach($item->variant->attributeValues as $attrValue)
+                                                                {{ $attrValue->value }} 
+                                                            @endforeach
+                                                        @endif
                                                     </p>
                                                     <div class="quantity-badge">
                                                         <i class="fas fa-times me-1"></i>{{ $item->quantity }}
@@ -236,9 +240,14 @@
                                                         </a>
                                                     @endif
 
-                                                    <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
-                                                        <i class="fas fa-redo-alt me-1"></i>Mua lại
-                                                    </button>
+                                                    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+    @csrf
+    @method('POST')
+    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn" 
+            onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+    </button>
+</form>
                                                     
                                                     <button class="btn btn-outline-success btn-sm action-btn">
                                                         <i class="fas fa-comments me-1"></i>Chat
@@ -1024,7 +1033,7 @@
 
                         // Simulate API call
                         setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-check me-1"></i>Đã thêm vào giỏ';
+                            this.innerHTML = '<i class="fas fa-check me-1"></i>Đơn Hàng Đã Hủy';
                             this.classList.remove('btn-outline-primary');
                             this.classList.add('btn-success');
                             
