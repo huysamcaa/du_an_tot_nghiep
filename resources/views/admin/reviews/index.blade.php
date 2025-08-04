@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Danh sách đánh giá người dùng')
+
 
 @section('content')
 <div class="breadcrumbs">
@@ -20,12 +20,13 @@
                             <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
                             <li class="active">Đánh giá</li>
                         </ol>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
 
 <div class="content">
     <div class="animated fadeIn">
@@ -140,6 +141,7 @@
                             <div>
                                 {{ $reviews->appends(request()->query())->links('pagination::bootstrap-4') }}
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -147,5 +149,11 @@
             </div>
         </div>
     </div>
+
+
+
+
 </div>
+
+
 @endsection

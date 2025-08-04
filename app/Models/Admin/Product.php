@@ -26,7 +26,7 @@ class Product extends Model
         'views',
         'short_description',
         'description',
-        'stock',
+        // 'stock',
         'thumbnail',
         'type',
         'sku',
@@ -131,7 +131,7 @@ class Product extends Model
             ->with('values')
             ->get();
     }
-    
+
 
     // Helper: Lấy các giá trị thuộc tính biến thể khả dụng
     public function availableVariantValues(string $attributeSlug)
@@ -219,7 +219,7 @@ protected function getStatusLabel($status)
         'cancelled' => 'Đã hủy',
         'returned' => 'Trả hàng'
     ];
-    
+
     return $labels[strtolower($status)] ?? $status;
 }
 

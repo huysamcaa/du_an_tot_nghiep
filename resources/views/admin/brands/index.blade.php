@@ -1,7 +1,6 @@
 @extends('admin.layouts.app')
 
 @section('content')
-{{-- Breadcrumbs --}}
 <div class="breadcrumbs">
     <div class="breadcrumbs-inner">
         <div class="row m-0">
@@ -90,7 +89,7 @@
                                         @if ($brand->updated_at != $brand->created_at)
                                             {{ $brand->updated_at->format('d/m/Y H:i') }}
                                         @else
-                                            <span class="text-muted">--</span>
+                                            <span class="text-muted"></span>
                                         @endif
                                     </td>
                                     <td>

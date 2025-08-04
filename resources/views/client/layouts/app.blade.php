@@ -74,6 +74,8 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{ asset('assets/Client/js/theme.js') }}"></script>
     {{-- ... Thêm các file js cần thiết tương tự ... --}}
+    @yield('modals')
+
 </body>
 @stack('scripts')
 </html>

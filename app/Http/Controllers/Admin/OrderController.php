@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\OrderOrderStatus;
 use App\Models\Admin\OrderStatus;
 use Illuminate\Support\Facades\Auth;
+use Exception;
 
 class OrderController extends Controller
 {
@@ -38,9 +39,39 @@ class OrderController extends Controller
     public function confirm($id)
     {
         $order = Order::findOrFail($id);
-        $order->is_paid = true;
-        $order->save();
-        return redirect()->back()->with('success', 'Đã xác nhận thanh toán COD');
+
+        // Kiểm tra nếu đơn hàng đã thanh toán online
+        if (in_array($order->payment_id, [3, 4])) { // 3: MOMO, 4: VNPAY (hoặc mã id khác của thanh toán online)
+
+            // Tạo trạng thái "Đã thanh toán" nếu chưa có
+            $orderStatusPaid = OrderStatus::where('name', 'Đã thanh toán')->first();
+            if ($orderStatusPaid) {
+                // Cập nhật trạng thái "Đã thanh toán"
+                OrderOrderStatus::create([
+                    'order_id' => $order->id,
+                    'order_status_id' => $orderStatusPaid->id,
+                    'modified_by' => Auth::id(),
+                    'is_current' => 1, // Đặt trạng thái này là trạng thái hiện tại
+                ]);
+            }
+
+            // Chuyển trạng thái từ "Đã thanh toán" sang "Chờ xác nhận"
+            $orderStatusWaiting = OrderStatus::where('name', 'Chờ xác nhận')->first();
+            if ($orderStatusWaiting) {
+                OrderOrderStatus::create([
+                    'order_id' => $order->id,
+                    'order_status_id' => $orderStatusWaiting->id,
+                    'modified_by' => Auth::id(),
+                    'is_current' => 1, // Đặt trạng thái này là trạng thái hiện tại
+                ]);
+            }
+        } else {
+            // Nếu không phải thanh toán online, vẫn cập nhật như trước
+            $order->is_paid = true;
+            $order->save();
+        }
+
+        return redirect()->back()->with('success', 'Đã xác nhận thanh toán hoặc chuyển trạng thái sang Chờ xác nhận');
     }
 
     // Xóa đơn hàng
@@ -48,44 +79,37 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $order->delete();
-        return redirect()->route('admin.orders.destroy')->with('success', 'Đã xóa đơn hàng');
+        return redirect()->route('admin.orders.index')->with('success', 'Đã xóa đơn hàng');
     }
-public function updateStatus(Request $request, $orderId)
+    public function updateStatus(Request $request, $orderId)
     {
         $request->validate([
             'order_status_id' => 'required|exists:order_statuses,id',
         ]);
 
-        // Khởi tạo transaction
         $order = new Order();
         $connection = $order->getConnection();
         $connection->beginTransaction();
 
         try {
-            // Lấy trạng thái hiện tại
             $currentStatus = OrderOrderStatus::where('order_id', $orderId)
                 ->where('is_current', 1)
                 ->first();
 
-            // Kiểm tra điều kiện chuyển trạng thái
             if ($currentStatus) {
-                // Nếu đã hoàn thành chỉ được chuyển sang hoàn trả
                 if ($currentStatus->order_status_id == 5 && $request->order_status_id != 7) {
                     $connection->rollBack();
                     return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
                 }
 
-                // Chỉ đơn hoàn thành mới được hoàn trả
                 if (in_array($currentStatus->order_status_id, [1, 2, 3, 4]) && $request->order_status_id == 7) {
                     $connection->rollBack();
                     return back()->with('error', 'Chỉ đơn hàng đã hoàn thành mới được hoàn trả!');
                 }
             }
 
-            // Xử lý khi xác nhận đơn hàng (trừ kho)
             if ($request->order_status_id == 2) {
                 $order = Order::with('items.variant')->findOrFail($orderId);
-
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
@@ -101,18 +125,13 @@ public function updateStatus(Request $request, $orderId)
                     $item->variant->save();
                 }
             }
+
             if ($request->order_status_id == 6) {
                 $order = Order::with('items.variant')->findOrFail($orderId);
-
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
                         return back()->with('error', 'Sản phẩm không tồn tại!');
-                    }
-
-                    if ($item->variant->stock < $item->quantity) {
-                        $connection->rollBack();
-                        return back()->with('error', 'Sản phẩm ' . ($item->variant->sku ?? '') . ' không đủ số lượng tồn kho!');
                     }
 
                     $item->variant->stock += $item->quantity;
@@ -120,10 +139,8 @@ public function updateStatus(Request $request, $orderId)
                 }
             }
 
-            // Cập nhật trạng thái cũ
             OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
 
-            // Tạo trạng thái mới
             OrderOrderStatus::create([
                 'order_id' => $orderId,
                 'order_status_id' => $request->order_status_id,
@@ -131,14 +148,12 @@ public function updateStatus(Request $request, $orderId)
                 'is_current' => 1,
             ]);
 
-            // Xử lý khi hủy đơn hàng (khóa tài khoản nếu hủy nhiều)
             if ($request->order_status_id == 6) {
                 $this->handleCancelOrder($orderId);
             }
 
             $connection->commit();
             return back()->with('success', 'Cập nhật trạng thái thành công!');
-
         } catch (Exception $e) {
             $connection->rollBack();
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());

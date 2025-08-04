@@ -97,10 +97,10 @@
                             <label class="font-weight-bold">Giá sale</label>
                             <input type="number" name="sale_price" step="0.01" class="form-control" value="{{ old('sale_price') }}">
                         </div>
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <label class="font-weight-bold">Số lượng <span class="text-danger">*</span></label>
                             <input type="number" name="stock" min="0" class="form-control" value="{{ old('stock', 0) }}" required>
-                        </div>
+                        </div> --}}
                     </div>
 
                     {{-- Dòng 4: Ngày sale --}}

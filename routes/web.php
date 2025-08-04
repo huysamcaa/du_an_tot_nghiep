@@ -40,6 +40,7 @@ use App\Http\Controllers\Client\BlogController as ClientBlogController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ChangePasswordController;
 use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Client\NotificationController;
 /*
@@ -122,6 +123,8 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/admin/login', fn() => redirect()->route('login'))->name('admin.login.redirect');
 Route::get('/admin/register', fn() => redirect()->route('register'))->name('admin.register.redirect');
 
+Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->middleware('auth')->name('password.change.form');
+Route::post('/change-password', [ChangePasswordController::class, 'update'])->middleware('auth')->name('password.change');
 
 Route::get('email/verify-otp', [RegisterController::class, 'showOtpForm'])->name('verification.otp.form');
 Route::post('email/verify-otp', [RegisterController::class, 'verifyOtp'])->name('verification.otp.verify');
@@ -152,6 +155,8 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::get('/profile', [UserProfileController::class, 'show'])->name('client.profile.show');
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('client.profile.edit');
     Route::post('/profile/update', [UserProfileController::class, 'update'])->name('client.profile.update');
+    Route::get('/profile/change-password', [UserProfileController::class, 'showChangePasswordForm'])
+        ->name('client.password.change.form');
 
     // Coupon
     Route::get('/coupons', [ClientCouponController::class, 'index'])->name('client.coupons.index');
@@ -167,18 +172,18 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
 
     // Sản phẩm yêu thích
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/add', [WishlistController::class,'store'])->name('wishlist.add');
+    Route::post('/wishlist/add', [WishlistController::class, 'store'])->name('wishlist.add');
     Route::get('/wishlist/destroy/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
 
 
     // Gửi yêu cầu hoàn tiền
     Route::get('/refunds/{order_id}/select-items', [ClientRefundController::class, 'selectItems'])
-     ->name('refunds.select_items');
+        ->name('refunds.select_items');
 
-// Xử lý form chọn sản phẩm, chuyển sang trang create
-Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 'confirmItems'])
-     ->name('refunds.confirm_items');
+    // Xử lý form chọn sản phẩm, chuyển sang trang create
+    Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 'confirmItems'])
+        ->name('refunds.confirm_items');
 
     Route::get('/refunds/create/{order_id}/{items}', [ClientRefundController::class, 'create'])->name('refunds.create');
     Route::post('/refunds/store', [ClientRefundController::class, 'store'])->name('refunds.store');
@@ -188,15 +193,14 @@ Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 
 
     // Xem chi tiết yêu cầu
     Route::get('/refunds/{id}', [ClientRefundController::class, 'show'])->name('refunds.show');
-          Route::get('/refunds', [ClientRefundController::class, 'index'])
-              ->name('refunds.index');
+    Route::get('/refunds', [ClientRefundController::class, 'index'])
+        ->name('refunds.index');
     Route::get('/products', [ProductController::class, 'index'])->name('client.products.index');
     // Route hiển thị thông báo cho người dùng
     Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
     // Route đánh dấu thông báo đã đọc
     Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
     Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
-
 });
 
 /*
@@ -205,7 +209,7 @@ Route::post('/refunds/{order_id}/select-items', [ClientRefundController::class, 
     |--------------------------------------------------------------------------
     */
 
-Route::prefix('admin')->name('admin.')->middleware(['admin','check.user.status'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     // Categories với chức năng thùng rác
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
@@ -228,7 +232,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin','check.user.status']
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
 
 
- Route::resource('coupon', CouponController::class)->except(['show']);
+    Route::resource('coupon', CouponController::class)->except(['show']);
 
     Route::get('coupon/trashed', [CouponController::class, 'trashed'])->name('coupon.trashed');
     Route::post('coupon/{id}/restore', [CouponController::class, 'restore'])->name('coupon.restore');
@@ -267,21 +271,15 @@ Route::prefix('admin')->name('admin.')->middleware(['admin','check.user.status']
 
 
 
-     // Quản lý hoàn tiền
+    // Quản lý hoàn tiền
     Route::get('refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
     Route::get('refunds/{refund}', [AdminRefundController::class, 'show'])->name('refunds.show');
     // routes/web.php
     Route::patch('refunds/{refund}', [AdminRefundController::class, 'update'])
-     ->name('refunds.update');
+        ->name('refunds.update');
 
 
 
     //Blogs
     Route::resource('blogs', BlogController::class);
-
-
-
-
-
-
 });
