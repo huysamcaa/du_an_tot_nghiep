@@ -33,7 +33,7 @@
             <div class="col-md-12">
                 {{-- Nút thêm tài khoản --}}
                 <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-outline-primary">
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-success">
                         <i class="fa fa-plus mr-1"></i> Thêm tài khoản
                     </a>
                 </div>

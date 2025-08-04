@@ -2,8 +2,17 @@
     <nav class="navbar navbar-expand-sm navbar-default">
         <div id="main-menu" class="main-menu collapse navbar-collapse">
             <ul class="nav navbar-nav">
+                <li class="menu-title">Quản lý</li>
 
-                <li class="menu-title">UI elements</li>
+                 <li class="menu-item-has-children dropdown">
+                <li>
+                    <a href="http://127.0.0.1:8000/admin">
+                        <i class="menu-icon fa fa-area-chart"></i> Thống Kê
+                    </a>
+                </li>
+                </li>
+
+
                 <li class="menu-item-has-children dropdown">
                 <li>
                     <a href="{{ route('admin.brands.index') }}">
@@ -14,24 +23,13 @@
 
 
                 </li>
-                <li class="menu-item-has-children dropdown">
-                <li>
-                    <a href="http://127.0.0.1:8000/admin">
-                        <i class="menu-icon fa fa-comments"></i> Thống Kê
-                    </a>
-                </li>
-
-                </li>
-
                 <!-- Các menu item khác -->
                 <li class="menu-item-has-children dropdown">
-                    <a href="admin.categories.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                        <i class="menu-icon fa fa-cogs"></i>Danh mục
+                    <a href="admin.categories.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"aria-expanded="false">
+                       <i class="menu-icon fa fa-book"></i>Danh mục
                     </a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.categories.index') }}">Xem Danh
-                                Mục</a></li>
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.categories.index') }}">Xem Danh Mục</a></li>
                         <!-- Các mục con khác -->
                     </ul>
                 </li>
@@ -61,7 +59,7 @@
                 <li class="menu-item-has-children dropdown">
                 <li>
                     <a href="{{ route('admin.refunds.index') }}">
-                        <i class="menu-icon fa fa-industry"></i>Hoàn Hàng 
+                        <i class="menu-icon fa fa-industry"></i>Hoàn Hàng
                     </a>
 
                 </li>
@@ -146,18 +144,18 @@
 
                 </li>
                 <li class="menu-item-has-children dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="menu-icon fa fa-book"></i> Bài Viết
-    </a>
-    <ul class="sub-menu children dropdown-menu">
-        <li><i class="fa fa-list"></i>
-            <a href="{{ route('admin.blogs.index') }}">Danh sách bài viết</a>
-        </li>
-        <li><i class="fa fa-plus"></i>
-            <a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a>
-        </li>
-    </ul>
-</li>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-book"></i> Bài Viết
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-list"></i>
+                            <a href="{{ route('admin.blogs.index') }}">Danh sách bài viết</a>
+                        </li>
+                        <li><i class="fa fa-plus"></i>
+                            <a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a>
+                        </li>
+                    </ul>
+                </li>
 
         </div>
     </nav>
