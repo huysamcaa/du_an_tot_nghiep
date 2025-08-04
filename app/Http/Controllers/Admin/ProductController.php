@@ -136,122 +136,146 @@ class ProductController extends Controller
     }
 
     public function update(Request $request, Product $product)
-    {
-        $product->load(['cartItems', 'orderItems']);
+{
+    $product->load(['cartItems', 'orderItems']);
 
-        // Nếu sản phẩm đã từng có trong giỏ hoặc đơn hàng => không cho đổi tên
-        if (
-            $request->name !== $product->name &&
-            ($product->cartItems()->exists() || $product->orderItems()->exists())
-        ) {
-            return redirect()->back()->with('error', 'Không thể đổi tên sản phẩm đã có trong giỏ hàng hoặc đơn hàng!');
+    // Prevent name change if product is in cart or orders
+    if (
+        $request->name !== $product->name &&
+        ($product->cartItems()->exists() || $product->orderItems()->exists())
+    ) {
+        return redirect()->back()->with('error', 'Không thể đổi tên sản phẩm đã có trong giỏ hàng hoặc đơn hàng!');
+    }
+
+    // Validation rules
+    $data = $request->validate([
+        'brand_id' => 'required|exists:brands,id',
+        'name' => 'required|string|max:255|unique:products,name,' . $product->id,
+        'short_description' => 'required|string',
+        'description' => 'required|string',
+        'thumbnail' => 'nullable|image|max:2048',
+        'sku' => 'nullable|string|unique:products,sku,' . $product->id,
+        'price' => 'required|numeric',
+        'sale_price' => 'nullable|numeric',
+        'sale_price_start_at' => 'nullable|date',
+        'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
+        'is_sale' => 'boolean',
+        'is_active' => 'boolean',
+        'stock' => 'required|integer|min:0|max:100',
+        'variants' => 'sometimes|array',
+        'variants.*.price' => 'required_with:variants|numeric|min:0',
+        'variants.*.sku' => 'nullable|string|unique:product_variants,sku',
+        'variants.*.stock' => 'required_with:variants|integer|min:0',
+        'variants.*.thumbnail' => 'nullable|image|max:2048',
+        'variants.*.attribute_value_id' => 'required_with:variants|array',
+        'variants.*.attribute_value_id.*' => 'exists:attribute_values,id',
+        'variants.*.delete' => 'sometimes|boolean',
+    ]);
+
+    // Handle checkboxes
+    $data['is_sale'] = $request->has('is_sale');
+    $data['is_active'] = $request->has('is_active');
+
+    // Handle thumbnail upload
+    if ($request->hasFile('thumbnail')) {
+        // Validate thumbnail dimensions
+        [$width, $height] = getimagesize($request->file('thumbnail'));
+        if ($width < 600 || $height < 600 || $width > 1200 || $height > 1200) {
+            return redirect()->back()->withInput()->withErrors([
+                'thumbnail' => 'Ảnh phải có kích thước từ 600x600 đến 1200x1200 pixels.',
+            ]);
         }
 
-        // Nếu chưa có trong đơn hàng thì cho phép update
-        $product->update($request->all());
-        $data = $request->validate([
-            'brand_id' => 'required|exists:brands,id',
-            // 'stock' => 'required|integer|min:0|max:100',
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'short_description' => 'required|string',
-            'description' => 'required|string',
-            'thumbnail' => 'nullable|image|max:2048',
-            'sku' => 'nullable|string|unique:products,sku,' . $product->id,
-            'price' => 'required|numeric',
-            'sale_price' => 'nullable|numeric',
-            'sale_price_start_at' => 'nullable|date',
-            'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
-            'is_sale' => 'boolean',
-            'is_active' => 'boolean',
-            'variants' => 'sometimes|array',
-            'variants.*.price' => 'required_with:variants|numeric',
-            'variants.*.sku' => 'nullable|string|unique:product_variants,sku,' . ($request->variants[0]['id'] ?? 'NULL'),
-            'variants.*.thumbnail' => 'nullable|image',
-        ]);
-
-        // Xử lý checkbox
-        $data['is_sale'] = $request->has('is_sale');
-        $data['is_active'] = $request->has('is_active');
-
-        // Upload ảnh chính nếu có
-        if ($request->hasFile('thumbnail')) {
-            // Xóa ảnh cũ nếu tồn tại
-            if ($product->thumbnail) {
-                Storage::disk('public')->delete($product->thumbnail);
-            }
-            $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
+        // Delete old thumbnail if exists
+        if ($product->thumbnail) {
+            Storage::disk('public')->delete($product->thumbnail);
         }
-        if ($request->hasFile('thumbnail')) {
-            [$width, $height] = getimagesize($request->file('thumbnail'));
-            if ($width < 600 || $height < 600 || $width > 1200 || $height > 1200) {
-                return redirect()->back()->withInput()->withErrors([
-                    'thumbnail' => 'Ảnh phải có kích thước từ 600x600 đến 1200x1200 pixels.',
-                ]);
-            }
-        }
-        // Cập nhật sản phẩm
-        $product->update($data);
+        $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
+    }
 
-        // Xử lý biến thể
+    // Update product
+    $product->update($data);
 
-        if ($request->has('variants')) {
-            $existingVariantIds = [];
+    // Handle variants
+    if ($request->has('variants')) {
+        $existingVariantIds = [];
 
-            foreach ($request->variants as $variantData) {
-                $variantData = array_filter($variantData);
+        foreach ($request->variants as $index => $variantData) {
+            $variantData = array_filter($variantData);
 
+            // Skip if variant is marked for deletion
+            if (isset($variantData['delete']) && $variantData['delete'] == 1) {
                 if (isset($variantData['id'])) {
-                    // Cập nhật biến thể hiện có
                     $variant = ProductVariant::find($variantData['id']);
+                    if ($variant) {
+                        if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
+                            Storage::disk('public')->delete($variant->thumbnail);
+                        }
+                        $variant->delete();
+                    }
+                }
+                continue;
+            }
+
+            if (isset($variantData['id'])) {
+                // Update existing variant
+                $variant = ProductVariant::find($variantData['id']);
+                if ($variant) {
                     $variant->update([
                         'price' => $variantData['price'],
                         'sku' => $variantData['sku'] ?? $variant->sku,
+                        'stock' => $variantData['stock'] ?? $variant->stock,
                     ]);
 
-                    // Upload ảnh biến thể nếu có
+                    // Handle thumbnail upload for existing variant
                     if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
-                        if ($variant->thumbnail) {
+                        if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
                             Storage::disk('public')->delete($variant->thumbnail);
                         }
                         $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
                         $variant->save();
                     }
 
-                    // Cập nhật thuộc tính biến thể (dùng mảng động)
+                    // Sync attribute values
                     if (isset($variantData['attribute_value_id'])) {
                         $variant->attributeValues()->sync($variantData['attribute_value_id']);
                     }
 
-                    $existingVariantIds[] = $variantData['id'];
-                } else {
-                    // Tạo biến thể mới
-                    $variant = new ProductVariant([
-                        'sku' => $variantData['sku'] ?? null,
-                        'price' => $variantData['price'],
-                    ]);
-
-                    if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
-                        $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
-                    } else {
-                        $variant->thumbnail = $product->thumbnail;
-                    }
-
-                    $product->variants()->save($variant);
-
-                    if (isset($variantData['attribute_value_id'])) {
-                        $variant->attributeValues()->attach($variantData['attribute_value_id']);
-                    }
-
                     $existingVariantIds[] = $variant->id;
                 }
-            }
+            } else {
+                // Create new variant
+                $variant = new ProductVariant([
+                    'price' => $variantData['price'],
+                    'sku' => $variantData['sku'] ?? null,
+                    'stock' => $variantData['stock'] ?? 0,
+                ]);
 
-            // Xóa các biến thể không còn tồn tại
-            $product->variants()->whereNotIn('id', $existingVariantIds)->delete();
+                // Handle thumbnail upload for new variant
+                if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile && $variantData['thumbnail']->isValid()) {
+                    $variant->thumbnail = $variantData['thumbnail']->store('uploads/variants', 'public');
+                } else {
+                    $variant->thumbnail = $product->thumbnail;
+                }
+
+                // Save variant and attach to product
+                $product->variants()->save($variant);
+
+                // Attach attribute values
+                if (isset($variantData['attribute_value_id'])) {
+                    $variant->attributeValues()->attach($variantData['attribute_value_id']);
+                }
+
+                $existingVariantIds[] = $variant->id;
+            }
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        // Delete variants not in the request
+        $product->variants()->whereNotIn('id', $existingVariantIds)->delete();
     }
+
+    return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+}
 
     public function show(Product $product)
     {

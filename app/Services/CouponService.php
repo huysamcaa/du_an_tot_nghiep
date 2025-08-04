@@ -39,6 +39,11 @@ class CouponService
             return back()->withErrors(['coupon' => 'Mã không áp dụng cho nhóm người dùng của bạn.']);
         }
 
+        if ($user && $coupon->users()->where('user_id', $user->id)->exists()) {
+            return back()->withErrors(['coupon' => 'Bạn đã sử dụng mã này rồi.']);
+        }
+
+
         $total = $cartItems->sum(fn($item) => $item->price * $item->quantity);
 
         $restriction = $coupon->restriction;

@@ -27,13 +27,13 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-12">
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success">
                             {{ session('success') }}
                         </div>
                     @endif
 
-                    @if(session('error'))
+                    @if (session('error'))
                         <div class="alert alert-danger">
                             {{ session('error') }}
                         </div>
@@ -103,7 +103,8 @@
                                 <span class="input-group-text">
                                     <i class="fas fa-search"></i>
                                 </span>
-                                <input type="text" class="form-control" id="orderSearch" placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
+                                <input type="text" class="form-control" id="orderSearch"
+                                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
                                 <button class="btn btn-outline-secondary" type="button" id="clearSearch">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -116,9 +117,9 @@
                                 @php
                                     $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
                                     $statusClass = '';
-                                    
+
                                     // Phân loại trạng thái
-                                    switch($statusName) {
+                                    switch ($statusName) {
                                         case 'Chờ xử lý':
                                         case 'Chờ xác nhận':
                                         case 'Đang chờ xác nhận':
@@ -144,8 +145,9 @@
                                             $statusClass = 'pending';
                                     }
                                 @endphp
-                                
-                                <div class="order-card" data-status="{{ $statusClass }}" data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
+
+                                <div class="order-card" data-status="{{ $statusClass }}"
+                                    data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
                                     <!-- Order Header -->
                                     <div class="order-header">
                                         <div class="order-info">
@@ -181,6 +183,12 @@
                                     <!-- Order Items -->
                                     <div class="order-body">
                                         @foreach ($order->items as $item)
+                                            @php
+                                                $key = $order->id . '-' . ($item->product->id ?? 'null');
+                                                $alreadyReviewed = $reviewedMap[$key] ?? false;
+                                                $review = $reviewDataMap[$key] ?? null;
+                                            @endphp
+
                                             <div class="order-item" data-product-name="{{ $item->product->name ?? '' }}">
                                                 <div class="item-image">
                                                     @if ($item->product && $item->product->thumbnail)
@@ -201,7 +209,7 @@
                                                         <i class="fas fa-tag me-1"></i>
                                                         @if($item->variant)
                                                             @foreach($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }} 
+                                                                {{ $attrValue->value }}
                                                             @endforeach
                                                         @endif
                                                     </p>
@@ -211,7 +219,8 @@
                                                 </div>
 
                                                 <div class="item-price">
-                                                    <span class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                                    <span
+                                                        class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
                                                 </div>
 
                                                 <div class="item-actions">
@@ -232,80 +241,50 @@
                                                             onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
                                                             <i class="fas fa-times me-1"></i>Hủy hoàn
                                                         </button>
-                                                    @elseif ($statusName === 'Đã hoàn thành' && $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                    @elseif (
+                                                        $statusName === 'Đã hoàn thành' &&
+                                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
                                                         {{-- Nút tạo yêu cầu hoàn đơn --}}
                                                         <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                        class="btn btn-outline-warning btn-sm action-btn">
+                                                            class="btn btn-outline-warning btn-sm action-btn">
                                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                                         </a>
                                                     @endif
 
+
                                                     <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
-                                                        <i class="fas fa-redo-alt me-1"></i>Hủy Đơn 
+                                                        <i class="fas fa-redo-alt me-1"></i>Mua lại
                                                     </button>
-                                                    
+
+
+                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline"> --}}
+
+                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+
+    @csrf
+    @method('POST')
+    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
+            onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+    </button>
+
+</form> --}}
+
+
                                                     <button class="btn btn-outline-success btn-sm action-btn">
                                                         <i class="fas fa-comments me-1"></i>Chat
                                                     </button>
 
-                                                    @php
-                                                        $key = $order->id . '-' . ($item->product->id ?? 'null');
-                                                        $alreadyReviewed = $reviewedMap[$key] ?? false;
-                                                    @endphp
-                                                    
-                                                    @if ($statusName === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-                                                        <button class="btn btn-outline-warning btn-sm action-btn open-review-form"
-                                                            data-order-id="{{ $order->id }}" data-product-id="{{ $item->product->id }}">
-                                                            <i class="fas fa-star me-1"></i>Đánh giá
-                                                        </button>
-                                                    @endif
-                                                    
-                                                    <a href="{{ route('client.reviews.index') }}"
-                                                        class="btn btn-outline-warning btn-sm action-btn review-link">
-                                                        <i class="fas fa-star me-1 review-icon"></i>Xem đánh giá
-                                                    </a>
+
+
+
                                                 </div>
                                             </div>
-
-                                            @if ($statusName === 'Đã hoàn thành' && $item->product && !$alreadyReviewed)
-                                                <div class="review-form-wrapper d-none mt-3" id="review-form-{{ $order->id }}-{{ $item->product->id }}">
-                                                    <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
-                                                        <input type="hidden" name="product_id" value="{{ $item->product->id }}">
-
-                                                        <div class="mb-2">
-                                                            <label>Đánh giá sao:</label>
-                                                            <select name="rating" class="form-select" required>
-                                                                <option value="">-- Chọn sao --</option>
-                                                                @for ($i = 5; $i >= 1; $i--)
-                                                                    <option value="{{ $i }}">{{ $i }} sao</option>
-                                                                @endfor
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="mb-2">
-                                                            <label>Nội dung:</label>
-                                                            <textarea name="review_text" class="form-control" rows="3" required></textarea>
-                                                        </div>
-
-                                                        <div class="mb-2">
-                                                            <label>Hình ảnh / video:</label>
-                                                            <input type="file" name="media[]" class="form-control" multiple>
-                                                        </div>
-
-                                                        <button type="submit" class="btn btn-success btn-sm submit-review-btn">
-                                                            <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @endif
-
-                                            @if (!$loop->last)
-                                                <hr class="item-separator">
-                                            @endif
                                         @endforeach
+
+
                                     </div>
+
 
                                     <!-- Order Footer -->
                                     <div class="order-footer">
@@ -315,14 +294,31 @@
                                         </div>
 
                                         <div class="order-actions">
+                                            @if ($statusName === 'Đã hoàn thành')
+                                                @if ($alreadyReviewed)
+                                                    <button class="btn btn-outline-warning btn-sm action-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#reviewModal-{{ $order->id }}-{{ $item->product->id }}">
+                                                        <i class="fas fa-star me-1"></i>Xem Đánh Giá Shop
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-outline-success btn-sm action-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#reviewFormModal-{{ $order->id }}-{{ $item->product->id }}">
+                                                        <i class="fas fa-pen me-1"></i>Đánh Giá
+                                                    </button>
+                                                @endif
+                                            @endif
                                             <a href="{{ route('client.orders.show', $order->code) }}"
                                                 class="btn btn-outline-info btn-sm me-2">
                                                 <i class="fas fa-eye me-1"></i>Chi tiết
                                             </a>
 
+
                                             <div class="total-amount">
                                                 <span class="total-label">Tổng tiền:</span>
-                                                <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
+                                                <span
+                                                    class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
                                             </div>
                                         </div>
                                     </div>
@@ -353,7 +349,7 @@
 
     <style>
         /* Previous styles remain the same... */
-        
+
         /* Banner Section */
         .banner-title {
             font-size: 3rem;
@@ -777,6 +773,37 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            flex: 1 1 auto;
+        }
+
+        .modal-footer {
+            flex-shrink: 0;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .modal-backdrop.show {
+            background-color: transparent !important;
+            backdrop-filter: none !important;
+            z-index: 1050 !important;
+        }
+
+        .modal.show {
+            z-index: 1055 !important;
+            /* cao hơn mọi thứ khác */
+        }
+
+
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .banner-title {
@@ -848,8 +875,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 
@@ -861,7 +893,7 @@
             const searchInput = document.getElementById('orderSearch');
             const clearSearchBtn = document.getElementById('clearSearch');
             const noResults = document.querySelector('.no-results');
-            
+
             // Count orders by status
             const statusCounts = {
                 all: orderCards.length,
@@ -905,8 +937,8 @@
                     const matchesStatus = currentFilter === 'all' || cardStatus === currentFilter;
 
                     // Check search filter
-                    const matchesSearch = currentSearch === '' || 
-                        orderCode.includes(currentSearch) || 
+                    const matchesSearch = currentSearch === '' ||
+                        orderCode.includes(currentSearch) ||
                         productNames.includes(currentSearch);
 
                     if (matchesStatus && matchesSearch) {
@@ -941,19 +973,20 @@
                 button.addEventListener('click', function() {
                     // Remove active class from all buttons
                     filterButtons.forEach(btn => btn.classList.remove('active'));
-                    
+
                     // Add active class to clicked button
                     this.classList.add('active');
-                    
+
                     // Update current filter
                     currentFilter = this.dataset.filter;
-                    
+
                     // Apply filters
                     applyFilters();
 
                     // Add loading effect
-                    this.innerHTML = this.innerHTML.replace(/(<i[^>]*><\/i>)/, '$1<span class="loading-spinner ms-2"></span>');
-                    
+                    this.innerHTML = this.innerHTML.replace(/(<i[^>]*><\/i>)/,
+                        '$1<span class="loading-spinner ms-2"></span>');
+
                     setTimeout(() => {
                         const spinner = this.querySelector('.loading-spinner');
                         if (spinner) {
@@ -983,7 +1016,7 @@
                     e.preventDefault();
                     searchInput.focus();
                 }
-                
+
                 // Escape to clear search
                 if (e.key === 'Escape') {
                     searchInput.value = '';
@@ -995,18 +1028,21 @@
 
             // Review form functionality
             document.querySelectorAll('.open-review-form').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const orderId = this.dataset.orderId;
                     const productId = this.dataset.productId;
                     const form = document.getElementById(`review-form-${orderId}-${productId}`);
-                    
+
                     if (form) {
                         form.classList.remove('d-none');
                         form.classList.add('active');
                         this.classList.add('d-none');
 
                         // Scroll to form
-                        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        form.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
 
                         // Focus on textarea
                         const textarea = form.querySelector('textarea');
@@ -1028,10 +1064,13 @@
 
                         // Simulate API call
                         setTimeout(() => {
+
+
                             this.innerHTML = '<i class="fas fa-check me-1"></i>Đơn Hàng Đã Hủy';
+
                             this.classList.remove('btn-outline-primary');
                             this.classList.add('btn-success');
-                            
+
                             setTimeout(() => {
                                 this.innerHTML = originalText;
                                 this.classList.remove('btn-success');
@@ -1069,16 +1108,16 @@
 
             // Auto-refresh order status (optional)
             let refreshInterval;
-            
+
             function startAutoRefresh() {
                 refreshInterval = setInterval(() => {
                     // Check if there are any pending orders
                     const hasPendingOrders = document.querySelector('.order-card[data-status="pending"]');
-                    
+
                     if (hasPendingOrders) {
                         // Show subtle notification
                         showNotification('Đang kiểm tra cập nhật trạng thái đơn hàng...', 'info');
-                        
+
                         // In real app, make AJAX call to check status updates
                         // fetch('/api/orders/status-updates')
                         //     .then(response => response.json())
@@ -1137,6 +1176,254 @@
                 totalOrders: orderCards.length,
                 statusCounts: statusCounts
             });
+            // Hiển thị phần đánh giá đã có khi nhấn "Xem đánh giá"
+            document.querySelectorAll('.toggle-review-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.dataset.orderId;
+                    const productId = this.dataset.productId;
+                    const reviewEl = document.getElementById(`review-${orderId}-${productId}`);
+                    if (reviewEl) {
+                        reviewEl.classList.toggle('d-none');
+                        reviewEl.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            });
+
+        });
+        document.querySelectorAll('.star-rating').forEach(container => {
+            const stars = container.querySelectorAll('.star-icon');
+            const input = container.closest('form').querySelector('.rating-input');
+
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', function() {
+                    const value = parseInt(this.dataset.value);
+                    stars.forEach(s => {
+                        s.classList.toggle('active', parseInt(s.dataset.value) <= value);
+                    });
+                });
+
+                star.addEventListener('mouseleave', function() {
+                    const selected = parseInt(container.dataset.selected || 0);
+                    stars.forEach(s => {
+                        s.classList.toggle('active', parseInt(s.dataset.value) <= selected);
+                    });
+                });
+
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.dataset.value);
+                    container.dataset.selected = value;
+                    input.value = value;
+                    stars.forEach(s => {
+                        s.classList.toggle('active', parseInt(s.dataset.value) <= value);
+                    });
+                });
+            });
         });
     </script>
+@endsection
+@section('modals')
+    @foreach ($orders as $order)
+        @foreach ($order->items as $item)
+            @php
+                $key = $order->id . '-' . ($item->product->id ?? 'null');
+                $review = $reviewDataMap[$key] ?? null;
+                $alreadyReviewed = $reviewedMap[$key] ?? false;
+            @endphp
+
+            {{-- Modal Đánh giá nếu chưa đánh giá --}}
+           @if (!$alreadyReviewed)
+    <div class="modal fade" id="reviewFormModal-{{ $order->id }}-{{ $item->product->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
+                    <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Đánh giá sản phẩm</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}" class="rounded"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
+                            <div>
+                                <h6 class="mb-1">{{ $item->product->name }}</h6>
+                                <p class="mb-1 text-muted small">
+                                    Phân loại: {{ $item->variant->name ?? 'Không phân loại' }}
+                                </p>
+                                <p class="mb-1 text-muted small">
+                                    Giá: {{ number_format($item->price, 0, ',', '.') }}đ
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3 d-flex align-items-center gap-2 ms-3 mt-1">
+                            @php
+                                $reviewUser = $order->user;
+                                $avatarPath = $reviewUser?->avatar ?? null;
+                            @endphp
+
+                            @if ($avatarPath)
+                                <img src="{{ asset('storage/' . $avatarPath) }}" alt="Avatar"
+                                     class="rounded-circle border"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            @else
+                                <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Avatar mặc định"
+                                     class="rounded-circle border"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                            @endif
+
+                            <strong>{{ $reviewUser->name ?? 'Ẩn danh' }}</strong>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label class="form-label">Đánh giá sao:</label>
+                            <div class="d-flex gap-1">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <input type="radio" name="rating" class="btn-check"
+                                        id="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}"
+                                        value="{{ $i }}" required>
+                                    <label class="btn btn-outline-warning"
+                                        for="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                @endfor
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="review_text">Nội dung đánh giá:</label>
+                            <textarea name="review_text" class="form-control" rows="3" required></textarea>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="media">Hình ảnh / video:</label>
+                            <input type="file" name="media[]" class="form-control" multiple>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
+
+            {{-- Modal Xem đánh giá nếu đã đánh giá --}}
+            @if ($review)
+                <div class="modal fade" id="reviewModal-{{ $order->id }}-{{ $item->product->id }}" tabindex="-1"
+                    aria-labelledby="reviewModalLabel-{{ $order->id }}-{{ $item->product->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                        <div class="modal-content d-flex flex-column">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="reviewModalLabel-{{ $order->id }}-{{ $item->product->id }}">
+                                    Đánh giá sản phẩm
+                                </h5>
+
+                            </div>
+                            <div class="mb-3">
+                                <div class="mb-3 d-flex align-items-center gap-2 ms-3 mt-3">
+                                    @php
+                                        $reviewUser = $review->user ?? $order->user;
+                                        $avatarPath = $reviewUser?->avatar ?? null;
+                                    @endphp
+
+                                    @if ($avatarPath)
+                                        <img src="{{ asset('storage/' . $avatarPath) }}" alt="Avatar"
+                                            class="rounded-circle border"
+                                            style="width: 40px; height: 40px; object-fit: cover;">
+                                    @else
+                                        <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Avatar mặc định"
+                                            class="rounded-circle border"
+                                            style="width: 40px; height: 40px; object-fit: cover;">
+                                    @endif
+
+                                    <strong>{{ $reviewUser->name ?? 'Ẩn danh' }}</strong>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-body overflow-auto" style="max-height: 70vh;">
+
+                                <div class="d-flex align-items-start gap-3 mb-3">
+                                    <img src="{{ asset('storage/' . $item->product->thumbnail) }}" class="rounded"
+                                        style="width: 80px; height: 80px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-1">{{ $item->product->name }}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            Phân loại: {{ $item->variant->name ?? 'Không phân loại' }}
+                                        </p>
+                                        <div class="text-warning">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i
+                                                    class="fas fa-star {{ $i <= $review->rating ? '' : 'text-muted' }}"></i>
+                                            @endfor
+                                        </div>
+                                        <div class="text-muted small mt-1">
+                                            Đánh giá lúc {{ $review->created_at->format('H:i d/m/Y') }}
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                @if (!empty($review->title))
+                                    <h5 class="fw-bold mb-2">Tiêu đề: {{ $review->title }}</h5>
+                                @endif
+
+
+                                <p class="mb-3">Nội dung: {{ $review->review_text }}</p>
+
+                                <p class="mb-3">Hình ảnh/ Video:
+                                    @if ($review->multimedia && $review->multimedia->count())
+                                        <div class="d-flex flex-wrap gap-2">
+
+                                            <br>
+                                            @foreach ($review->multimedia as $media)
+                                                @if (str_starts_with($media->mime_type, 'image/'))
+                                                    <img src="{{ asset('storage/' . $media->file) }}"
+                                                        class="rounded border"
+                                                        style="width: 100px; height: 100px; object-fit: cover;">
+                                                @elseif (str_starts_with($media->mime_type, 'video/'))
+                                                    <video controls style="width: 120px; height: 100px;">
+                                                        <source src="{{ asset('storage/' . $media->file) }}"
+                                                            type="{{ $media->mime_type }}">
+                                                    </video>
+                                                @endif
+                                            @endforeach
+
+                                        </div>
+                                    @endif
+                                </p>
+                            </div>
+
+                            <div class="modal-footer justify-content-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Đóng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    @endforeach
 @endsection
