@@ -35,7 +35,10 @@ class RefundController extends Controller
     // 2. Hiển thị form tạo yêu cầu hoàn tiền
     public function selectItems($orderId)
     {
-        $order = Order::with(['items.product', 'items.variant'])
+        $order = Order::with([
+            'items.product',
+            'items.variant.attributeValues.attribute', // thêm dòng này
+        ])
             ->where('user_id', auth()->id())
             ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'đã hoàn thành'))
             ->findOrFail($orderId);

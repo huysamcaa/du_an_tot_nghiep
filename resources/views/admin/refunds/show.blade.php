@@ -128,7 +128,11 @@
                                     @endif
                                 </td>
                                 <td>{{ $item->name }}</td>
-                                <td>{{ $item->name_variant ?? '-' }}</td>
+                                <td> @if($item->variant && $item->variant->attributeValues->count())
+                                        {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                        @else
+                                        <span class="text-muted">-</span>
+                                        @endif</td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ number_format($item->price, 0, ',', '.') }} đ</td>
                                 <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }} đ</td>
