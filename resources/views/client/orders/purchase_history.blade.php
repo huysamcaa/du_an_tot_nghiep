@@ -251,14 +251,13 @@
                                                         </a>
                                                     @endif
 
-<<<<<<< HEAD
 
                                                     <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
                                                         <i class="fas fa-redo-alt me-1"></i>Mua lại
                                                     </button>
 
 
-                                                    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline"> --}}
 
                                                     {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
 
