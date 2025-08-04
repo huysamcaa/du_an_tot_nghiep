@@ -137,7 +137,7 @@
                                         case 'Đã giao hàng':
                                             $statusClass = 'completed';
                                             break;
-                                        case 'Đã hủy':
+                                        case 'Hủy Đơn':
                                         case 'Hủy đơn hàng':
                                             $statusClass = 'cancelled';
                                             break;
@@ -224,61 +224,46 @@
                                                 </div>
 
                                                 <div class="item-actions">
-                                                    @php
-                                                        $pending = $order->refunds->firstWhere('status', 'pending');
-                                                    @endphp
+    @php
+        $pending = $order->refunds->firstWhere('status', 'pending');
+    @endphp
 
-                                                    @if ($pending)
-                                                        {{-- Form hủy yêu cầu hoàn đơn --}}
-                                                        <form id="refund-cancel-{{ $pending->id }}"
-                                                            action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-                                                            method="POST" style="display:none">
-                                                            @csrf
-                                                        </form>
+    @if ($pending)
+        {{-- Form hủy yêu cầu hoàn đơn --}}
+        <form id="refund-cancel-{{ $pending->id }}"
+              action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
+              method="POST" style="display:none">
+            @csrf
+        </form>
 
-                                                        <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn"
-                                                            onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-                                                            <i class="fas fa-times me-1"></i>Hủy hoàn
-                                                        </button>
-                                                    @elseif (
-                                                        $statusName === 'Đã hoàn thành' &&
-                                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-                                                        {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                                        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn">
-                                                            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
-                                                        </a>
-                                                    @endif
+        <button type="submit" form="refund-cancel-{{ $pending->id }}"
+                class="btn btn-outline-warning btn-sm action-btn"
+                onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+            <i class="fas fa-times me-1"></i>Hủy hoàn
+        </button>
+    @elseif ($statusName === 'Đã hoàn thành' && $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+        {{-- Nút tạo yêu cầu hoàn đơn --}}
+        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+           class="btn btn-outline-warning btn-sm action-btn">
+            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+        </a>
+    @endif
 
+    @if ($statusName === 'Chờ Xác Nhận')
+    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+        @csrf
+        @method('POST')
+        <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
+                onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+        </button>
+    </form>
+@endif
 
-                                                    <button class="btn btn-outline-primary btn-sm action-btn reorder-btn">
-                                                        <i class="fas fa-redo-alt me-1"></i>Mua lại
-                                                    </button>
-
-
-                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline"> --}}
-
-                                                    {{-- <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
-
-    @csrf
-    @method('POST')
-    <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
-            onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+    <button class="btn btn-outline-success btn-sm action-btn">
+        <i class="fas fa-comments me-1"></i>Chat
     </button>
-
-</form> --}}
-
-
-                                                    <button class="btn btn-outline-success btn-sm action-btn">
-                                                        <i class="fas fa-comments me-1"></i>Chat
-                                                    </button>
-
-
-
-
-                                                </div>
+</div>
                                             </div>
                                         @endforeach
 
