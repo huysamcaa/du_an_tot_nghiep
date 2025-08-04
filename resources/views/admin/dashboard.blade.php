@@ -140,12 +140,12 @@
                                                         </a>
                                                     </div>
                                                 </td>
-                                                <td>#{{ $order->user->id }}</td>
+                                               {{-- <td>#{{ $order->user->id }}</td> 
                                                 <td><span class="name">{{ $order->user->name }}</span></td>
                                                 <td><span
                                                         class="product">{{ number_format($order->total_amount, 0, ',', '.') }}
                                                         đ</span></td>
-                                                <td><span class="count">{{ $order->total_orders }}</span></td>
+                                                <td><span class="count">{{ $order->total_orders }}</span></td> --}}
                                             </tr>
                                         @endforeach
                                     </tbody>

@@ -50,65 +50,99 @@ class OrderController extends Controller
         $order->delete();
         return redirect()->route('admin.orders.destroy')->with('success', 'Đã xóa đơn hàng');
     }
-    public function updateStatus(Request $request, $orderId)
+public function updateStatus(Request $request, $orderId)
     {
         $request->validate([
-            'order_status_id' => 'nullable|exists:order_statuses,id',
+            'order_status_id' => 'required|exists:order_statuses,id',
         ]);
 
-        // Lấy trạng thái hiện tại
-        $currentStatus = OrderOrderStatus::where('order_id', $orderId)
-            ->where('is_current', 1)
-            ->first();
+        // Khởi tạo transaction
+        $order = new Order();
+        $connection = $order->getConnection();
+        $connection->beginTransaction();
 
-        // Nếu trạng thái hiện tại là "Đã hoàn thành"
-        if ($currentStatus && $currentStatus->order_status_id == 5) {
-            // Chỉ cho phép chuyển sang "Hoàn trả" (id = 7)
-            if ($request->order_status_id != 7) {
-                return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
-            }
-        }
-        if ($currentStatus && in_array($currentStatus->order_status_id, [1, 2, 3, 4]) && $request->order_status_id == 7) {
-            return back()->with('error', 'Chỉ đơn hàng đã hoàn thành mới được hoàn trả!');
-        }
-        // Đặt tất cả trạng thái cũ về 0
-        OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
-        OrderOrderStatus::create([
-            'order_id' => $orderId,
-            'order_status_id' => $request->order_status_id,
-            'modified_by' => Auth::id(),
-            'is_current' => 1,
-            // created_at sẽ tự động nếu có timestamps
-        ]);
-        if ($request->order_status_id == 6) {
-            if (!$currentStatus || $currentStatus->order_status_id != 1) {
-                return back()->with('error', 'Chỉ đơn hàng đang chờ xác nhận mới được phép hủy!');
-            }
+        try {
+            // Lấy trạng thái hiện tại
+            $currentStatus = OrderOrderStatus::where('order_id', $orderId)
+                ->where('is_current', 1)
+                ->first();
 
-            // Đếm số đơn bị hủy trong ngày của user
-            $order = Order::find($orderId);
-            if ($order) {
-                $userId = $order->user_id;
-                $today = now()->toDateString();
+            // Kiểm tra điều kiện chuyển trạng thái
+            if ($currentStatus) {
+                // Nếu đã hoàn thành chỉ được chuyển sang hoàn trả
+                if ($currentStatus->order_status_id == 5 && $request->order_status_id != 7) {
+                    $connection->rollBack();
+                    return back()->with('error', 'Đơn hàng đã hoàn thành, chỉ được chuyển sang trạng thái Hoàn trả!');
+                }
 
-                $cancelCount = Order::where('user_id', $userId)
-                    ->whereHas('orderOrderStatuses', function ($q) use ($today) {
-                        $q->where('order_status_id', 6)
-                            ->whereDate('created_at', $today)
-                            ->where('is_current', 1);
-                    })
-                    ->count();
-
-                if ($cancelCount >= 5) {
-                    $user = \App\Models\User::find($userId);
-                    if ($user && $user->status !== 'locked') {
-                        $user->status = 'locked';
-                        $user->reason_lock = 'Hủy 5 đơn trong 1 ngày';
-                        $user->save();
-                    }
+                // Chỉ đơn hoàn thành mới được hoàn trả
+                if (in_array($currentStatus->order_status_id, [1, 2, 3, 4]) && $request->order_status_id == 7) {
+                    $connection->rollBack();
+                    return back()->with('error', 'Chỉ đơn hàng đã hoàn thành mới được hoàn trả!');
                 }
             }
+
+            // Xử lý khi xác nhận đơn hàng (trừ kho)
+            if ($request->order_status_id == 2) {
+                $order = Order::with('items.variant')->findOrFail($orderId);
+
+                foreach ($order->items as $item) {
+                    if (!$item->variant) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm không tồn tại!');
+                    }
+
+                    if ($item->variant->stock < $item->quantity) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm ' . ($item->variant->sku ?? '') . ' không đủ số lượng tồn kho!');
+                    }
+
+                    $item->variant->stock -= $item->quantity;
+                    $item->variant->save();
+                }
+            }
+            if ($request->order_status_id == 6) {
+                $order = Order::with('items.variant')->findOrFail($orderId);
+
+                foreach ($order->items as $item) {
+                    if (!$item->variant) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm không tồn tại!');
+                    }
+
+                    if ($item->variant->stock < $item->quantity) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm ' . ($item->variant->sku ?? '') . ' không đủ số lượng tồn kho!');
+                    }
+
+                    $item->variant->stock += $item->quantity;
+                    $item->variant->save();
+                }
+            }
+
+            // Cập nhật trạng thái cũ
+            OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
+
+            // Tạo trạng thái mới
+            OrderOrderStatus::create([
+                'order_id' => $orderId,
+                'order_status_id' => $request->order_status_id,
+                'modified_by' => Auth::id(),
+                'is_current' => 1,
+            ]);
+
+            // Xử lý khi hủy đơn hàng (khóa tài khoản nếu hủy nhiều)
+            if ($request->order_status_id == 6) {
+                $this->handleCancelOrder($orderId);
+            }
+
+            $connection->commit();
+            return back()->with('success', 'Cập nhật trạng thái thành công!');
+
+        } catch (Exception $e) {
+            $connection->rollBack();
+            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
-        return back()->with('success', 'Cập nhật trạng thái thành công!');
     }
+    
 }
