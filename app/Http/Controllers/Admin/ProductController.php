@@ -11,7 +11,9 @@ use App\Models\Admin\AttributeValue;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\Shared\OrderItem;
+
 class ProductController extends Controller
 {
     public function index()
@@ -19,6 +21,9 @@ class ProductController extends Controller
         $categories = Category::all();
         $products = Product::where('is_active', 1)
             ->with(['variants', 'categories', 'brand'])
+            ->withCount(['variants as total_stock' => function ($query) {
+                $query->select(DB::raw('SUM(stock)'));
+            }])
             ->orderBy('created_at', 'desc')
             ->get();
         return view('admin.products.index', compact('products', 'categories'));
@@ -36,11 +41,11 @@ class ProductController extends Controller
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-            'stock' => 'required|integer|min:0',
+            // 'stock' => 'required|integer|min:0',
             'name' => 'required|string|max:255|unique:products,name',
             'short_description' => 'required|string',
             'description' => 'required|string',
-            'stock' => 'required|integer|min:0|max:100',
+            // 'stock' => 'required|integer|min:0|max:100',
             'thumbnail' => 'required|image|max:2048',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
