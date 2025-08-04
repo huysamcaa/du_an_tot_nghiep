@@ -87,9 +87,7 @@
                                             <div class="mt-2">
                                                 <span class="quantity-num mx-2" data-item-id="{{ $item->id }}">{{ $item->quantity }}</span>
                                             </div>
-                                            @if (!$isOutOfStock)
-                                                <button class="change-qty" type="submit" data-action="increase">+</button>
-                                            @endif
+                                            <button class="change-qty" type="submit" data-action="increase">+</button>
                                         </form>
 
                                     </div>
@@ -188,7 +186,7 @@ $(document).ready(function () {
 
         // Duyệt qua từng sản phẩm được chọn
         $selectItems.each(function () {
-            if (this.checked && (this).is('disabled')) {
+            if (this.checked && !$(this).is(':disabled')) {
                 const row = $(this).closest('tr');
                 const price = parseFloat(row.data('price'));
                 const qty = parseInt(row.find('.quantity-num').text());
