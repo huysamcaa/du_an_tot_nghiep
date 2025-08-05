@@ -83,9 +83,10 @@
                         <tbody>
                             @forelse ($refunds as $refund)
                                 <tr>
-                                    <td>R{{ $refund->id }}</td>
+                                    <td>{{ $refund->id }}</td>
                                     <td>{{ $refund->user->name ?? 'Không rõ' }}</td>
-                                    <td>{{ $refund->order->code }}</td>
+                                
+                                    <td>{{ $refund->order->code ?? 'Không rõ'}} </td>
                                     <td class="text-right">{{ number_format($refund->total_amount, 0, ',', '.') }}₫</td>
                                     <td>
                                         @switch($refund->status)
