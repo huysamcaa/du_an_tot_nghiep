@@ -43,6 +43,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Client\NotificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -125,7 +127,13 @@ Route::get('/admin/register', fn() => redirect()->route('register'))->name('admi
 
 Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->middleware('auth')->name('password.change.form');
 Route::post('/change-password', [ChangePasswordController::class, 'update'])->middleware('auth')->name('password.change');
+// Gửi link reset qua email
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
+// Form nhập mật khẩu mới
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 Route::get('email/verify-otp', [RegisterController::class, 'showOtpForm'])->name('verification.otp.form');
 Route::post('email/verify-otp', [RegisterController::class, 'verifyOtp'])->name('verification.otp.verify');
 Route::post('/resend-otp', [RegisterController::class, 'resendOtp'])->name('otp.resend');
