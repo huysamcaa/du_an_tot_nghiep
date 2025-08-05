@@ -48,7 +48,8 @@ class BrandController extends Controller
     $data = [
         'name' => $request->name,
         'slug' => $request->slug,
-        'is_active' => $request->has('is_active') ? 1 : 0,
+        'is_active' => (int) $request->input('is_active', 0),
+
     ];
 
     // Nếu có upload logo thì xử lý upload file
@@ -80,7 +81,8 @@ class BrandController extends Controller
         $data = [
             'name' => $request->name,
             'slug' => $slug,
-            'is_active' => $request->has('is_active') ? 1 : 0,
+            'is_active' => (int) $request->input('is_active', 0),
+
         ];
 
         if ($request->hasFile('logo')) {
@@ -163,7 +165,8 @@ class BrandController extends Controller
             Rule::unique('brands', 'slug')->ignore($id)
         ],
         'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        'is_active' => 'nullable',
+        'is_active' => 'required|boolean',
+
     ];
 
     $messages = [

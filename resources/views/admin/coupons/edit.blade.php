@@ -41,34 +41,39 @@
                         </div>
                         <div class="card-body">
                             @foreach ([
-                            'code' => 'Mã giảm giá',
-                            'title' => 'Tiêu đề',
-                            'description' => 'Mô tả',
-                            'discount_value' => 'Giá trị giảm',
-                            'usage_limit' => 'Giới hạn sử dụng',
-                            ] as $field => $label)
-                            <div class="form-group">
-                                <label>{{ $label }}</label>
-                                @if ($field === 'description')
-                                <textarea name="{{ $field }}" class="form-control">{{ old($field, $coupon->$field) }}</textarea>
-                                @error($field)
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                                @elseif ($field === 'discount_value')
-                                <input type="number" step="any" max="99999999.99" name="{{ $field }}" class="form-control" value="{{ old($field, $coupon->$field) }}">
+    'code' => 'Mã giảm giá',
+    'title' => 'Tiêu đề',
+    'description' => 'Mô tả',
+    'discount_value' => 'Giá trị giảm',
+    'usage_limit' => 'Giới hạn sử dụng',
+] as $field => $label)
+    <div class="form-group">
+        <label>{{ $label }}</label>
 
-                                @error($field)
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                                @else
-                                <input type="text" name="{{ $field }}" class="form-control" value="{{ old($field, $coupon->$field) }}">
-                                @error($field)
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                                @endif
+        @if ($field === 'description')
+            <textarea name="{{ $field }}" class="form-control">{{ old($field, $coupon->$field) }}</textarea>
+            @error($field) <small class="text-danger">{{ $message }}</small> @enderror
 
-                            </div>
-                            @endforeach
+        @elseif ($field === 'discount_value')
+            <input type="number" step="any" min="0" max="99999999.99"
+                   name="{{ $field }}" class="form-control"
+                   value="{{ old($field, $coupon->$field) }}">
+            @error($field) <small class="text-danger">{{ $message }}</small> @enderror
+
+        @elseif ($field === 'usage_limit')
+            <input type="number" step="1" min="0"
+                   name="{{ $field }}" class="form-control"
+                   value="{{ old($field, $coupon->$field) }}">
+            @error($field) <small class="text-danger">{{ $message }}</small> @enderror
+
+        @else
+            <input type="text" name="{{ $field }}" class="form-control"
+                   value="{{ old($field, $coupon->$field) }}">
+            @error($field) <small class="text-danger">{{ $message }}</small> @enderror
+        @endif
+    </div>
+@endforeach
+
 
                             <div class="form-group">
                                 <label>Kiểu giảm giá</label>
@@ -151,7 +156,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label>Giá trị đơn hàng tối thiểu</label>
-                                    <input type="number" step="any" name="min_order_value" class="form-control" value="{{ old('min_order_value', $restriction->min_order_value ?? 0) }}">
+                                    <input type="number" step="any" min =0 name="min_order_value" class="form-control" value="{{ old('min_order_value', $restriction->min_order_value ?? 0) }}">
                                     @error('min_order_value')
                                     <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -159,7 +164,7 @@
 
                                 <div class="col-md-6">
                                     <label>Số tiền giảm tối đa</label>
-                                  <input type="number" step="any" max="99999999.99" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', $restriction->max_discount_value ?? 0) }}">
+                                  <input type="number" step="any" min =0 max="99999999.99" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', $restriction->max_discount_value ?? 0) }}">
 
                                     @error('max_discount_value')
                                     <small class="text-danger">{{ $message }}</small>
@@ -225,7 +230,44 @@
             placeholder: 'Chọn...'
             , allowClear: true
         });
+ const selectors = [
+            'input[name="discount_value"]',
+            'input[name="usage_limit"]',
+            'input[name="min_order_value"]',
+            'input[name="max_discount_value"]',
+        ];
+        const fields = document.querySelectorAll(selectors.join(','));
 
+        fields.forEach(el => {
+            // Không cho nhập -, e, E, +
+            el.addEventListener('keydown', (e) => {
+                if (['-', 'e', 'E', '+'].includes(e.key)) e.preventDefault();
+            });
+
+            // Chặn cuộn chuột khi đang focus (tránh lỡ tay làm âm)
+            el.addEventListener('wheel', (e) => {
+                if (document.activeElement === el) e.preventDefault();
+            }, { passive: false });
+
+            // Kẹp giá trị về >= 0 sau mọi thay đổi
+            const clamp = () => {
+                let v = el.value.trim();
+                if (v === '') return; // cho phép trống để người dùng tiếp tục nhập
+                let num = parseFloat(v);
+                if (isNaN(num) || num < 0) num = 0;
+                // Tôn trọng min nếu có set khác 0
+                const minAttr = el.getAttribute('min');
+                if (minAttr !== null) {
+                    const min = parseFloat(minAttr);
+                    if (!isNaN(min) && num < min) num = min;
+                }
+                el.value = num;
+            };
+
+            el.addEventListener('input', clamp);
+            el.addEventListener('change', clamp);
+            el.addEventListener('blur', clamp);
+        });
     });
 
 </script>

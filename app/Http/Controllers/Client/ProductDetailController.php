@@ -18,7 +18,16 @@ class ProductDetailController extends Controller
 {
     public function show($id)
     {
-        $product = Product::with('variants')->findOrFail($id);
+        $product = Product::query()
+            ->with(['variants.attributeValues.attribute'])
+            ->withAvg(['reviews as avg_rating' => function ($q) {
+                $q->where('is_active', 1);
+            }], 'rating')
+            ->withCount(['reviews as reviews_count' => function ($q) {
+                $q->where('is_active', 1);
+            }])
+            ->findOrFail($id);
+
 
         $category = $product->category;
         // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
@@ -74,17 +83,25 @@ class ProductDetailController extends Controller
             ->when($sortOption === 'lowest', fn($q) => $q->orderBy('rating'))
             ->paginate(5) // Có thể đổi số 5 tuỳ ý
             ->withQueryString();
-        $relatedProducts = Product::with('variants')
+        $relatedProducts = Product::query()
+    ->where('category_id', $product->category_id)
+    ->where('id', '<>', $product->id)
+    ->with(['variants.attributeValues.attribute'])
+    ->withAvg(['reviews as avg_rating' => function ($q) {
+        $q->where('is_active', 1);
+    }], 'rating')
+    ->withCount(['reviews as reviews_count' => function ($q) {
+        $q->where('is_active', 1);
+    }])
+    ->orderByDesc('avg_rating')   // 👈 ưu tiên sp được đánh giá cao
+    ->orderByDesc('reviews_count')// 👈 rồi tới số lượng đánh giá
+    ->take(8)
+    ->get();
 
-            ->withCount('comments')   // đếm comments thay vì reviews
-            ->where('category_id', $product->category_id)
-            ->where('id', '<>', $product->id)
-            ->take(8)
-            ->get();
 
         $isFavorite = Wishlist::where('user_id', Auth::id())
-                ->where('product_id', $product->id)
-                ->exists();
+            ->where('product_id', $product->id)
+            ->exists();
         $hasReviewed = false;
         $myReview = null;
 
@@ -97,7 +114,7 @@ class ProductDetailController extends Controller
             $hasReviewed = $myReview !== null;
         }
 
-        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview','isFavorite'));
+        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview', 'isFavorite'));
     }
     public function attributeValues()
     {
