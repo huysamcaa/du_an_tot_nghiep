@@ -106,7 +106,7 @@ Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.history');
-    
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');

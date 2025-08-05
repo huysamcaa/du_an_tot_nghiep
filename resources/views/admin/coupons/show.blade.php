@@ -117,20 +117,20 @@
         </div>
         @endif
 
-        {{-- Danh mục và sản phẩm áp dụng --}}
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0">Danh mục áp dụng</h5>
-                    </div>
-                    <div class="card-body">
-                        @forelse($categories as $category)
-                            <span class="badge bg-secondary me-1 mb-1">{{ $category->name }}</span>
-                        @empty
-                            <span class="text-muted">Không có</span>
-                        @endforelse
-                    </div>
+
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light"><strong> Danh mục áp dụng</strong></div>
+                <div class="card-body">
+                    @forelse($categories as $category)
+                        <span class="badge bg-info me-1">{{ $category->name }}</span>
+                    @empty
+                        <span class="text-muted">Không có</span>
+                    @endforelse
+
+     
+
                 </div>
             </div>
             <div class="col-md-6">

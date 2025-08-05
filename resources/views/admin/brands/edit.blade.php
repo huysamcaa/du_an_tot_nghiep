@@ -1,6 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
 {{-- Breadcrumbs --}}
 <div class="breadcrumbs">
   <div class="breadcrumbs-inner">
@@ -27,6 +28,7 @@
   </div>
 </div>
 
+
 <div class="content">
   <div class="animated fadeIn">
     {{-- Form cập nhật thương hiệu --}}
@@ -45,9 +47,11 @@
           </div>
         @endif
 
+
         <form action="{{ route('admin.brands.update', $brand) }}" method="POST" enctype="multipart/form-data">
           @csrf
           @method('PUT')
+
 
           <div class="row mb-3">
             <div class="col-md-6">

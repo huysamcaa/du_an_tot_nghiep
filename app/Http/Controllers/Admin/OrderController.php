@@ -15,7 +15,7 @@ class OrderController extends Controller
     // Danh sách đơn hàng COD
     public function index()
     {
-        $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(20);
+        $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(100);
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -117,7 +117,10 @@ class OrderController extends Controller
             }
 
             if ($request->order_status_id == 2) {
-                $order = Order::with('items.variant')->findOrFail($orderId);
+            $order = Order::with('items.variant')->findOrFail($orderId);
+            
+            // Kiểm tra payment_id = 1 (COD)
+            if ($order->payment_id == 1) {
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
@@ -133,19 +136,41 @@ class OrderController extends Controller
                     $item->variant->save();
                 }
             }
-
-            if ($request->order_status_id == 6) {
-                $order = Order::with('items.variant')->findOrFail($orderId);
+        }
+        if ($request->order_status_id == 6) {
+            $order = Order::with('items.variant')->findOrFail($orderId);
+            
+            // Kiểm tra payment_id = 1 (COD)
+            if ($order->payment_id == 3 || $order->payment_id == 4) {
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
                         return back()->with('error', 'Sản phẩm không tồn tại!');
                     }
 
+                    if ($item->variant->stock < $item->quantity) {
+                        $connection->rollBack();
+                        return back()->with('error', 'Sản phẩm ' . ($item->variant->sku ?? '') . ' không đủ số lượng tồn kho!');
+                    }
+
                     $item->variant->stock += $item->quantity;
                     $item->variant->save();
                 }
             }
+        }
+
+            // if ($request->order_status_id == 6) {
+            //     $order = Order::with('items.variant')->findOrFail($orderId);
+            //     foreach ($order->items as $item) {
+            //         if (!$item->variant) {
+            //             $connection->rollBack();
+            //             return back()->with('error', 'Sản phẩm không tồn tại!');
+            //         }
+
+            //         $item->variant->stock += $item->quantity;
+            //         $item->variant->save();
+            //     }
+            // }
 
             OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
 
@@ -167,4 +192,5 @@ class OrderController extends Controller
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
+
 }

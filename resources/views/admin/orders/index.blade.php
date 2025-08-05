@@ -55,6 +55,7 @@
                         <table id="bootstrap-data-table" class="table table-bordered table-striped text-center">
                             <thead>
                                 <tr>
+                                      <th>STT</th>
                                     <th>Mã đơn</th>
                                     <th>Khách hàng</th>
                                     <th>Ngày đặt</th>
@@ -65,6 +66,7 @@
                             <tbody>
                                 @forelse($orders as $order)
                                 <tr>
+                                      <td>{{ $loop->iteration }}</td>
                                     <td>{{ $order->code }}</td>
                                     <td>{{ $order->fullname }}</td>
                                     <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
@@ -72,7 +74,7 @@
                                         {{-- dd{{ $order->currentStatus?->orderStatus  }} --}}
                                         <span class="badge badge-info">
                                             {{ $order->currentStatus?->orderStatus?->name ?? 'Lỗi Thanh Toán' }}
-                                        
+
                                         </span>
                                     </td>
                                     <td>
@@ -83,7 +85,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">Không có đơn hàng nào.</td>
+                                    <td colspan="6" class="text-center text-muted">Không có đơn hàng nào.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

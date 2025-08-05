@@ -55,29 +55,34 @@ class CouponController extends Controller
 }
 
 
-    public function show($id)
-    {
-        $user = Auth::user();
+  public function show($id)
+{
+    $user = Auth::user();
 
-        $coupon = Coupon::with('restriction')
-            ->where('id', $id)
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->where(function ($query) use ($user) {
-                $query->whereNull('user_group')->orWhere('user_group', $user->user_group ?? 'guest');
-            })
-            ->where(function ($query) {
-                $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-            })
-            ->firstOrFail();
+    $coupon = Coupon::with('restriction')
+        ->where('id', $id)
+        ->where('is_active', true)
+        ->where(function ($query) {
+            $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+        })
+        ->where(function ($query) {
+            $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })
+        ->where(function ($query) use ($user) {
+            $query->whereNull('user_group')->orWhere('user_group', $user->user_group ?? 'guest');
+        })
+        ->where(function ($query) {
+            $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+        })
+        ->firstOrFail();
 
-        return view('client.coupons.show', compact('coupon'));
-    }
+    // ✅ Truy vấn thêm danh mục & sản phẩm từ restriction
+    $categories = \App\Models\Admin\Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
+    $products = \App\Models\Admin\Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
+
+    return view('client.coupons.show', compact('coupon', 'categories', 'products'));
+}
+
 
    public function claim($id, Request $request)
 {
