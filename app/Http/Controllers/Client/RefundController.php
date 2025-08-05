@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Shared\Order;
 use App\Models\Refund;
 use App\Models\RefundItem;
@@ -35,9 +36,14 @@ class RefundController extends Controller
     // 2. Hiển thị form tạo yêu cầu hoàn tiền
     public function selectItems($orderId)
     {
+        // Validation đơn giản cho tham số trên URL
+        if (!is_numeric($orderId) || $orderId <= 0) {
+            abort(404);
+        }
+
         $order = Order::with([
             'items.product',
-            'items.variant.attributeValues.attribute', // thêm dòng này
+            'items.variant.attributeValues.attribute',
         ])
             ->where('user_id', auth()->id())
             ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'đã hoàn thành'))
@@ -49,14 +55,23 @@ class RefundController extends Controller
     // Bước 1 POST: xác nhận items, redirect sang create
     public function confirmItems(Request $request, $orderId)
     {
-        $request->validate([
-            'items' => 'required|array|min:1',
+        // Sử dụng Validator::make()
+        $validator = Validator::make($request->all(), [
+            'items'   => 'required|array|min:1',
             'items.*' => 'regex:/^\d+_\d+$/',
+        ], [
+            'items.required'  => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'items.min'       => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'items.*.regex'   => 'Định dạng sản phẩm không hợp lệ.',
         ]);
 
-        $rawItems = $request->input('items');
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        // Lấy danh sách ID sản phẩm thật sự
+        $validated = $validator->validated();
+        $rawItems = $validated['items'];
+
         $itemIds = array_map(function ($val) {
             return explode('_', $val)[0];
         }, $rawItems);
@@ -72,14 +87,18 @@ class RefundController extends Controller
     // Bước 2 (create): nhận order_id và items list
     public function create($orderId, $items)
     {
+        // Validation đơn giản cho tham số trên URL
+        if (!is_numeric($orderId) || $orderId <= 0 || !preg_match('/^(\d+\|?)+$/', $items)) {
+            abort(404);
+        }
+
         $order = Order::where('id', $orderId)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        $itemIds = explode('|', $items); // ['5', '5', '8']
+        $itemIds = explode('|', $items);
 
-        // Đếm số lần mỗi item_id xuất hiện
-        $itemCounts = array_count_values($itemIds); // ['5' => 2, '8' => 1]
+        $itemCounts = array_count_values($itemIds);
 
         $selectedItems = collect();
 
@@ -87,7 +106,7 @@ class RefundController extends Controller
             $item = OrderItem::with(['variant'])->find($itemId);
             if ($item) {
                 for ($i = 0; $i < $count; $i++) {
-                    $selectedItems->push($item); // thêm bản sao của item
+                    $selectedItems->push($item);
                 }
             }
         }
@@ -98,22 +117,44 @@ class RefundController extends Controller
         ]);
     }
 
-
     // 3. Lưu yêu cầu hoàn tiền mới
     public function store(Request $request)
     {
-
-        $validated = $request->validate([
+        // Sử dụng Validator::make()
+        $validator = Validator::make($request->all(), [
             'order_id'         => 'required|exists:orders,id',
-            'reason'           => 'required|string|max:500',
-            'bank_account'     => 'required|string|max:255',
+            'reason'           => 'required|string|max:500', // Đã có giới hạn 500 ký tự
+            'bank_account'     => 'required|string|min:8|max:20', // Bổ sung kiểm tra số tài khoản từ 8-20 ký tự
             'user_bank_name'   => 'required|string|max:255',
-            'phone_number'     => 'required|string|max:20',
+            'phone_number'     => ['required', 'regex:/^0\d{9}$/'], // Bổ sung regex cho số điện thoại 10 chữ số, bắt đầu bằng 0
             'bank_name'        => 'required|string|max:100',
-            'reason_image'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'reason_image'     => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240', // 10MB
             'item_ids'         => 'required|array|min:1',
             'item_ids.*'       => 'exists:order_items,id',
+        ], [
+            // Thông báo lỗi tùy chỉnh (tương tự như Request::validate)
+            'order_id.required'      => 'Đơn hàng không được để trống.',
+            'order_id.exists'        => 'Đơn hàng không tồn tại.',
+            'reason.required'        => 'Lý do hoàn tiền không được để trống.',
+            'reason.max'             => 'Lý do hoàn tiền không được vượt quá 500 ký tự.',
+            'bank_account.required'  => 'Số tài khoản không được để trống.',
+            'bank_account.string'    => 'Số tài khoản không hợp lệ.',
+            'bank_account.min'       => 'Số tài khoản phải có ít nhất 8 ký tự.',
+            'bank_account.max'       => 'Số tài khoản không được vượt quá 20 ký tự.',
+            'user_bank_name.required'=> 'Tên chủ tài khoản không được để trống.',
+            'phone_number.required'  => 'Số điện thoại không được để trống.',
+            'phone_number.regex'     => 'Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số, bắt đầu bằng 0.',
+            'bank_name.required'     => 'Tên ngân hàng không được để trống.',
+            'item_ids.required'      => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'item_ids.min'           => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'item_ids.*.exists'      => 'Một hoặc nhiều sản phẩm không hợp lệ.',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $validated = $validator->validated();
 
         $existing = Refund::where('order_id', $validated['order_id'])
             ->where('status', 'pending')
@@ -150,20 +191,20 @@ class RefundController extends Controller
                 'is_send_money'       => 0,
             ];
 
-            if ($request->hasFile('reason_image')) {
-                $refundData['reason_image'] = $request->file('reason_image')->store('refunds', 'public');
-            }
-
             $refund = Refund::create($refundData);
+
+            if ($request->hasFile('reason_image')) {
+                $file = $request->file('reason_image');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('refunds', $filename, 'public');
+
+                $refund->update([
+                    'reason_image' => $path,
+                ]);
+            }
             $order = Order::find($validated['order_id']);
             if (!$order) {
                 Log::error("Không tìm thấy order với ID: " . $validated['order_id']);
-            }
-            // Nếu người dùng từng gửi hoàn nhưng đã tự hủy, cho phép gửi lại bằng cách reset is_refund_cancel
-            if ($order->is_refund == 1 && $order->is_refund_cancel == 1) {
-                $order->update([
-                    'is_refund_cancel' => 0,
-                ]);
             }
             $order->update([
                 'is_refund' => 1,
@@ -197,10 +238,15 @@ class RefundController extends Controller
 
     public function show($id)
     {
+        // Validation đơn giản cho tham số trên URL
+        if (!is_numeric($id) || $id <= 0) {
+            abort(404);
+        }
+
         $refund = Refund::with([
             'order',
-            'items.product',     // cần để lấy thumbnail, name
-            'items.variant'      // cần để lấy tên phân loại
+            'items.product',
+            'items.variant'
         ])
             ->where('user_id', auth()->id())
             ->findOrFail($id);
@@ -211,6 +257,11 @@ class RefundController extends Controller
     // 4. Hủy yêu cầu hoàn hàng
     public function cancel($id)
     {
+        // Validation đơn giản cho tham số trên URL
+        if (!is_numeric($id) || $id <= 0) {
+            abort(404);
+        }
+
         $refund = Refund::where('user_id', auth()->id())
             ->where('status', 'pending')
             ->findOrFail($id);
@@ -223,7 +274,7 @@ class RefundController extends Controller
             ]);
             $refund->load('order');
             $refund->order->update([
-                'is_refund_cancel' => 1,
+                'is_refund' => 0,
             ]);
             DB::commit();
 
@@ -234,7 +285,6 @@ class RefundController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Refund cancel error', ['error' => $e->getMessage()]);
-            dd($e);
             return back()->withErrors(['general' => 'Hủy yêu cầu thất bại. Vui lòng thử lại.']);
         }
     }

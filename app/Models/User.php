@@ -80,7 +80,7 @@ class User extends Authenticatable
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user')
                 ->using(CouponUser::class)
-                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
+                ->withPivot(['id', 'amount','used_at', 'created_at', 'updated_at'])
                 ->withTimestamps();
 }
  public function notifications()
@@ -91,6 +91,6 @@ class User extends Authenticatable
     }
 
 
-    
+
 
 }

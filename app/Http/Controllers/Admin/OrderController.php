@@ -192,5 +192,82 @@ class OrderController extends Controller
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
+ public function cancel(Request $request, $orderId)
+    {
+        // Tìm đơn hàng
+        $order = Order::findOrFail($orderId);
+
+        // Kiểm tra quyền sở hữu đơn hàng
+        if ($order->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
+        }
+
+        // Kiểm tra trạng thái đơn hàng (chỉ cho phép hủy khi ở trạng thái "Chờ xác nhận")
+        $currentStatus = $order->currentStatus->orderStatus->name ?? '';
+        if ($currentStatus !== 'Chờ Xác Nhận') {
+            return redirect()->back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+        }
+
+        // Cập nhật trạng thái trong bảng order_order_status
+        OrderOrderStatus::where('order_id', $order->id)
+            ->where('is_current', 1)
+            ->update(['is_current' => 0]); // Đặt trạng thái hiện tại thành cũ
+
+        // Thêm trạng thái mới với order_status_id = 6
+        OrderOrderStatus::create([
+            'order_id' => $order->id,
+            'order_status_id' => 6, // Trạng thái "Đã hủy"
+            'modified_by' => Auth::id(), // Người dùng hiện tại
+            'notes' => $request->input('notes', 'Hủy bởi khách hàng'),
+            'is_current' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Đơn hàng đã được hủy thành công.');
+    }
+protected function handleCancelOrder($orderId)
+    {
+        // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
+        $order = Order::find($orderId);
+        if ($order) {
+            $order->is_paid = false; // hoặc các hành động khác
+            $order->save();
+        }
+    }
+    public function markAsReceived(Request $request, $orderId)
+{
+    // Tìm đơn hàng
+    $order = Order::findOrFail($orderId);
+
+    // Kiểm tra quyền sở hữu đơn hàng
+    if ($order->user_id !== Auth::id()) {
+        return redirect()->back()->with('error', 'Bạn không có quyền xác nhận đơn hàng này.');
+    }
+
+    // Kiểm tra trạng thái đơn hàng (chỉ cho phép xác nhận khi ở trạng thái "Đã hoàn thành")
+    $currentStatus = $order->currentStatus->orderStatus->name ?? '';
+    if ($currentStatus !== 'Đã hoàn thành') {
+        return redirect()->back()->with('error', 'Chỉ có thể xác nhận đã nhận hàng khi đơn ở trạng thái "Đã hoàn thành".');
+    }
+
+    // Cập nhật trạng thái hiện tại thành không còn là current
+    OrderOrderStatus::where('order_id', $order->id)
+        ->where('is_current', 1)
+        ->update(['is_current' => 0]);
+
+    // Thêm trạng thái mới với order_status_id = 11 (Đã nhận hàng)
+    OrderOrderStatus::create([
+        'order_id' => $order->id,
+        'order_status_id' => 11, // Trạng thái "Đã nhận hàng"
+        'modified_by' => Auth::id(), // Người dùng hiện tại
+        'notes' => $request->input('notes', 'Khách hàng xác nhận đã nhận hàng'),
+        'is_current' => 1,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Đã xác nhận nhận hàng thành công.');
+}
 
 }

@@ -41,11 +41,11 @@ class ProductController extends Controller
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-            // 'stock' => 'required|integer|min:0',
+            
             'name' => 'required|string|max:255|unique:products,name',
             'short_description' => 'required|string',
             'description' => 'required|string',
-            // 'stock' => 'required|integer|min:0|max:100',
+            
             'thumbnail' => 'required|image|max:2048',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',

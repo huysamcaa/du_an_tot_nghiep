@@ -15,11 +15,13 @@ class CouponUser extends Pivot
         'coupon_id',
         'user_id',
         'amount',
+        'used_at',
         'created_at',
         'updated_at',
     ];
 
     protected $casts = [
+        'used_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

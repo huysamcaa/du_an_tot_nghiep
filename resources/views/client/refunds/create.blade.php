@@ -22,15 +22,6 @@
         @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-        @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
 
         <div class="row">
             {{-- Cột trái: danh sách sản phẩm lỗi --}}
@@ -154,14 +145,26 @@
 
                             <div class="col-lg-12 mb-3">
                                 <label for="reason_image" class="form-label">Ảnh/Video sản phẩm lỗi</label>
-                                <input type="file" name="reason_image" id="reason_image"
-                                    class="form-control @error('reason_image') is-invalid @enderror"
-                                    accept="image/*,video/*">
+                                <div class="custom-file-upload">
+                                    <input type="file" name="reason_image" id="reason_image"
+                                        class="form-control @error('reason_image') is-invalid @enderror"
+                                        accept="image/*,video/*" style="display: none;"> {{-- Ẩn input gốc --}}
+
+                                    <label for="reason_image" class="custom-file-label">
+                                        <i class="fas fa-camera me-2"></i>Chọn Ảnh/Video
+                                    </label>
+                                    {{-- Hiển thị tên file được chọn ở đây --}}
+                                    <span id="file-name" class="ms-3 text-muted">Không có tệp nào được chọn</span>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    Hỗ trợ ảnh hoặc video định dạng JPEG, PNG, MP4, MOV, AVI. Dung lượng tối đa: <strong>10MB</strong>. Thời lượng video khuyến nghị: <strong>dưới 1 phút</strong>.
+                                </small>
                                 @error('reason_image')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
 
+                                <div class="mt-3" id="preview_area"></div>
+                            </div>
                             <div class="col-lg-12 text-end">
                                 <button type="submit" class="placeOrderBTN ulinaBTN">
                                     <span>Gửi yêu cầu hoàn tiền</span>
@@ -176,3 +179,71 @@
     </div>
 </section>
 @endsection
+@push('scripts')
+<script>
+    document.getElementById('reason_image').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('preview_area');
+        const fileNameSpan = document.getElementById('file-name'); // Lấy element để hiển thị tên file
+        preview.innerHTML = '';
+
+        if (!file) {
+            fileNameSpan.textContent = 'Không có tệp nào được chọn';
+            return;
+        }
+
+        // Hiển thị tên file đã chọn
+        fileNameSpan.textContent = file.name;
+
+        // Đoạn code preview ảnh/video vẫn giữ nguyên
+        const fileType = file.type;
+        const fileURL = URL.createObjectURL(file);
+
+        if (fileType.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = fileURL;
+            img.alt = 'Preview';
+            img.classList.add('img-fluid', 'rounded');
+            img.style.maxHeight = '300px';
+            preview.appendChild(img);
+        } else if (fileType.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.src = fileURL;
+            video.controls = true;
+            video.style.maxHeight = '300px';
+            video.classList.add('w-100', 'rounded');
+            preview.appendChild(video);
+        }
+    });
+</script>
+<style>
+    .custom-file-upload {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-file-label {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        padding: .375rem .75rem;
+        cursor: pointer;
+        transition: background-color .2s, border-color .2s;
+        font-weight: 500;
+    }
+
+    .custom-file-label:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+
+    .custom-file-label:active {
+        background-color: #dee2e6;
+        border-color: #adb5bd;
+    }
+
+    .custom-file-label i {
+        margin-right: .5rem;
+    }
+</style>
+@endpush

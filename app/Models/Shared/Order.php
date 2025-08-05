@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Shared;
 
 use App\Models\Admin\OrderOrderStatus;
@@ -31,19 +30,14 @@ class Order extends Model
         'coupon_discount_type',
         'coupon_discount_value',
         'max_discount_value',
-        'payment_info'
+        'payment_info',
     ];
 
-    protected $table = 'orders';
+    protected $table   = 'orders';
     protected $guarded = [];
     public $timestamps = true;
 
-
-
-
     use SoftDeletes;
-
-
 
     public function items()
     {
@@ -65,23 +59,20 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\Refund::class);
     }
-public function canBeCancelled()
-{
-    // Chỉ cho phép hủy khi đơn hàng ở trạng thái chờ xác nhận (status_id = 1)
-    return $this->current_status_id == 1;
-}
+    public function canBeCancelled()
+    {
+        // Chỉ cho phép hủy khi đơn hàng ở trạng thái chờ xác nhận (status_id = 1)
+        return $this->current_status_id == 1;
+    }
 
-public function getCurrentStatusIdAttribute()
-{
-    return $this->statuses()->wherePivot('is_current', 1)->first()->id;
-}
-public function statuses()
+    public function getCurrentStatusIdAttribute()
+    {
+        return $this->statuses()->wherePivot('is_current', 1)->first()->id;
+    }
+    public function statuses()
     {
         return $this->hasMany(OrderOrderStatus::class);
     }
-
-
-
 
     public function variant()
     {
@@ -93,8 +84,8 @@ public function statuses()
         return $this->belongsTo(User::class, 'user_id');
     }
     public function addresses()
-{
-    return $this->hasMany(UserAddress::class);
-}
+    {
+        return $this->hasMany(UserAddress::class);
+    }
 
 }

@@ -49,7 +49,7 @@
                                 @if($field === 'description')
                                 <textarea name="{{ $field }}" class="form-control">{{ old($field) }}</textarea>
                                 @elseif($field === 'discount_value')
-                                <input type="number" step="any" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
+                                <input type="number" min="0" step="any" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
                                 @else
                                 <input type="text" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
                                 @endif
@@ -123,15 +123,15 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label>Giá trị đơn hàng tối thiểu</label>
-                                    <input type="number" step="any" name="min_order_value" class="form-control" value="{{ old('min_order_value', 0) }}">
+                                    <input type="number" step="any"min="0" name="min_order_value" class="form-control" value="{{ old('min_order_value', 0) }}">
                                     @error('min_order_value') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <label>Số tiền giảm tối đa</label>
-                                    <input type="number" step="any" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', 0) }}">
+                                    <input type="number" step="any" min="0" name="max_discount_value" class="form-control" value="{{ old('max_discount_value', 0) }}">
                                     @error('max_discount_value') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
-                               
+
                                 <div class="col-md-6">
                                     <label>Sản phẩm áp dụng</label>
                                     <select name="valid_products[]" class="form-control select2" multiple>
@@ -167,6 +167,32 @@
         $('.select2').select2({
             placeholder: 'Chọn...'
             , allowClear: true
+        });
+           // Chặn nhập số âm và e/E/+/- cho các input cần
+        const noNegativeFields = [
+            'discount_value',
+            'min_order_value',
+            'max_discount_value',
+            'usage_limit'
+        ];
+
+        noNegativeFields.forEach(function(name) {
+            const field = document.querySelector(`input[name="${name}"]`);
+            if (field) {
+                // Ngăn nhập ký tự không mong muốn
+                field.addEventListener('keydown', function(e) {
+                    if (['-','e','E','+'].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // Nếu giá trị < 0 thì set lại 0
+                field.addEventListener('input', function() {
+                    if (parseFloat(this.value) < 0) {
+                        this.value = 0;
+                    }
+                });
+            }
         });
     });
 

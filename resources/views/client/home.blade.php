@@ -496,8 +496,10 @@
         </div> -->
 
         <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-            {{ $product->name }}
-        </h3>
+    <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
+        {{ $product->name }}
+    </a>
+</h3>
 
         <div class="pi01Price">
             <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
@@ -2785,44 +2787,29 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="categoryCarousel owl-carousel">
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/1.jpg') }}" alt="Cloths"/>
-                                </div>
-                                <h3><a href="http://localhost:8000/categories?category_id=5">Cloths</a></h3>
-                                <p>0 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/2.jpg') }}" alt="Bags"/>
-                                </div>
-                                <h3><a href="shop_left_sidebar.html">Bags</a></h3>
-                                <p>139 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/3.jpg') }}" alt="Watches"/>
-                                </div>
-                                <h3><a href="shop_right_sidebar.html">Watches</a></h3>
-                                <p>162 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/4.jpg') }}" alt="Jewellery"/>
-                                </div>
-                                <h3><a href="shop_full_width.html">Jewellery</a></h3>
-                                <p>187 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/5.jpg') }}" alt="Women"/>
-                                </div>
-                                <h3><a href="shop_right_sidebar.html">Women</a></h3>
-                                <p>362 Items</p>
-                            </div>
-                        </div>
+    @foreach ($categories as $category)
+        <div class="categoryItem01 text-center">
+            <div class="ci01Thumb">
+                {{-- nếu có trường thumbnail trong DB --}}
+                <img src="{{ asset('storage/'.$category->thumbnail) }}"
+                     alt="{{ $category->name }}"
+                     style="width:100%; height:auto; object-fit:cover;" />
+            </div>
+            <h3>
+               <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
+
+
+                    {{ $category->name }}
+                </a>
+            </h3>
+            <p>{{ $category->products_count }} Items</p>
+        </div>
+    @endforeach
+</div>
+
                     </div>
                 </div>
+
             </div>
         </section>
         <!-- END: Category Section -->

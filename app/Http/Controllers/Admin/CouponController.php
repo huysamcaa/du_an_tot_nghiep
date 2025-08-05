@@ -55,10 +55,9 @@ class CouponController extends Controller
             $data['coupon_id'] = $coupon->id;
             $coupon->restriction()->create($data);
         }
-
-        // Gửi thông báo cho người dùng khi mã giảm giá mới được tạo, chỉ khi is_notified là true
         if ($coupon->is_notified) {
-            $this->sendCouponNotification($coupon);
+            // Lần đầu tạo: upsert để đảm bảo chỉ có 1 bản ghi/thông báo cho mỗi user-coupon
+            $this->upsertCouponNotification($coupon, true);
         }
 
 
@@ -93,11 +92,10 @@ class CouponController extends Controller
             $coupon->restriction()->create($data);
         }
 
-        // Gửi thông báo khi mã giảm giá được cập nhật, chỉ khi is_notified là true
         if ($coupon->is_notified) {
-            $this->sendCouponNotification($coupon);
+            // Khi SỬA: chỉ cập nhật lại message của thông báo cũ, không tạo bản ghi mới
+            $this->upsertCouponNotification($coupon, true);
         }
-
         return redirect()->route('admin.coupon.index')->with('success', 'Mã giảm giá đã được cập nhật thành công!');
     }
 
@@ -209,31 +207,31 @@ class CouponController extends Controller
 
 
 
-   protected function couponData(Request $request)
-{
-    $data = $request->only([
-        'title',
-        'description',
-        'discount_type',
-        'usage_limit',
-        'user_group',
-        'start_date',
-        'end_date',
-    ]);
+    protected function couponData(Request $request)
+    {
+        $data = $request->only([
+            'title',
+            'description',
+            'discount_type',
+            'usage_limit',
+            'user_group',
+            'start_date',
+            'end_date',
+        ]);
 
-    $data['code'] = $request->filled('code')
-        ? trim($request->input('code'))
-        : $this->generateRandomCode();
+        $data['code'] = $request->filled('code')
+            ? trim($request->input('code'))
+            : $this->generateRandomCode();
 
-    $data['is_expired'] = $request->has('is_expired');
-    $data['is_active'] = $request->has('is_active');
-    $data['is_notified'] = $request->has('is_notified');
+        $data['is_expired'] = $request->has('is_expired');
+        $data['is_active'] = $request->has('is_active');
+        $data['is_notified'] = $request->has('is_notified');
 
-    // ✅ Sử dụng hàm sanitizeNumber chuẩn hóa
-    $data['discount_value'] = $this->sanitizeNumber($request->input('discount_value'));
+        // ✅ Sử dụng hàm sanitizeNumber chuẩn hóa
+        $data['discount_value'] = $this->sanitizeNumber($request->input('discount_value'));
 
-    return $data;
-}
+        return $data;
+    }
 
 
 
@@ -309,35 +307,73 @@ class CouponController extends Controller
         return $code;
     }
 
-protected function sanitizeNumber($value)
-{
-    if (is_null($value)) return null;
+    protected function sanitizeNumber($value)
+    {
+        if (is_null($value)) return null;
 
-    // Nếu value là số rồi thì giữ nguyên
-    if (is_numeric($value)) {
-        return (float) $value;
-    }
+        // Nếu value là số rồi thì giữ nguyên
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
 
-    // Nếu có cả dấu ',' và '.' => xác định định dạng kiểu quốc tế hay Việt Nam
-    if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
-        if (strpos($value, ',') > strpos($value, '.')) {
-            // VD: "1.234,56" (format Việt) => bỏ dấu . rồi thay , bằng .
-            $value = str_replace('.', '', $value);
+        // Nếu có cả dấu ',' và '.' => xác định định dạng kiểu quốc tế hay Việt Nam
+        if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
+            if (strpos($value, ',') > strpos($value, '.')) {
+                // VD: "1.234,56" (format Việt) => bỏ dấu . rồi thay , bằng .
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
+            } else {
+                // VD: "1,234.56" (format US) => bỏ dấu , (thousands), giữ .
+                $value = str_replace(',', '', $value);
+            }
+        } elseif (strpos($value, ',') !== false) {
+            // Chỉ có dấu phẩy => giả định là định dạng Việt => thay , thành .
             $value = str_replace(',', '.', $value);
         } else {
-            // VD: "1,234.56" (format US) => bỏ dấu , (thousands), giữ .
-            $value = str_replace(',', '', $value);
+            // Trường hợp chỉ có dấu chấm, coi như hợp lệ
+            $value = $value;
         }
-    } elseif (strpos($value, ',') !== false) {
-        // Chỉ có dấu phẩy => giả định là định dạng Việt => thay , thành .
-        $value = str_replace(',', '.', $value);
-    } else {
-        // Trường hợp chỉ có dấu chấm, coi như hợp lệ
-        $value = $value;
+
+        return floatval($value);
+    }
+    // 1) Sinh nội dung thông báo đồng nhất
+    protected function buildCouponMessage(\App\Models\Coupon $coupon): string
+    {
+        $value = $coupon->discount_value . ($coupon->discount_type === 'percent' ? '%' : '₫');
+
+        $parts = [
+            "Mã {$coupon->code} - {$coupon->title}",
+            "Giảm: {$value}",
+        ];
+
+        if ($coupon->start_date) $parts[] = "Bắt đầu: {$coupon->start_date}";
+        if ($coupon->end_date)   $parts[] = "Kết thúc: {$coupon->end_date}";
+
+        return '📣 ' . implode(' | ', $parts);
     }
 
-    return floatval($value);
-}
+    // 2) Upsert thông báo theo (user_id, coupon_id, type)
+    // - Nếu đã có: chỉ cập nhật message (+ optionally đặt lại read=0)
+    // - Nếu chưa có: tạo mới
+    protected function upsertCouponNotification(\App\Models\Coupon $coupon, bool $resetRead = true): void
+    {
+        $users = \App\Models\User::all();
+        $message = $this->buildCouponMessage($coupon);
 
-
+        foreach ($users as $user) {
+            DB::table('notifications')->updateOrInsert(
+                [
+                    'user_id'   => $user->id,
+                    'coupon_id' => $coupon->id,
+                    'type'      => 1, // giữ đúng “type” bạn đang dùng cho coupon
+                ],
+                [
+                    'message'    => $message,
+                    'read'       => $resetRead ? 0 : DB::raw('read'), // set về chưa đọc để user thấy có cập nhật
+                    'updated_at' => now(),
+                    'created_at' => now(), // chỉ tác dụng khi insert
+                ]
+            );
+        }
+    }
 }
