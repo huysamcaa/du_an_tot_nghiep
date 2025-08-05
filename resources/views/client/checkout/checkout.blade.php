@@ -180,7 +180,7 @@
                                     <th>Tổng tiền hàng</th>
                                     <td>
                                         <div class="pi01Price">
-                                            <ins>{{ number_format($total) }}đ</ins>
+                                            <ins id="subtotal">{{ number_format($total) }} đ</ins>
                                         </div>
                                     </td>
                                 </tr>
@@ -189,7 +189,17 @@
                                     <th>Phí vận chuyển</th>
                                     <td>
                                         <div class="pi01Price">
-                                            <ins>30,000đ</ins>
+                                            <ins id="shipping-fee">30,000đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Dòng giảm giá (ẩn khi chưa chọn coupon) -->
+                                <tr id="discount-row" style="display: none;">
+                                    <th>Giảm giá</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins id="discount-amount" style="color: #dc3545;">-0đ</ins>
                                         </div>
                                     </td>
                                 </tr>
@@ -198,7 +208,7 @@
                                     <th>Tổng thanh toán</th>
                                     <td>
                                         <div class="pi01Price">
-                                            <ins>{{ number_format($total + 30000)}}đ</ins>
+                                            <ins id="final-total">{{ number_format($total + 30000) }}đ</ins>
                                         </div>
                                     </td>
                                 </tr>
@@ -235,48 +245,98 @@
             </div>
         </form>
     </div>
-    <script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
 $(document).ready(function() {
+    // Debug: Kiểm tra giá trị
+    console.log('Subtotal from PHP:', {{ $total }});
+    
+    const subtotal = {{ $total }};
+    const shippingFee = 30000;
+    
+    console.log('JavaScript - Subtotal:', subtotal, 'Shipping:', shippingFee);
+    
     // Cập nhật thông tin khi chọn địa chỉ
     $('.address-select').change(function() {
         const selectedOption = $(this).find('option:selected');
         $('input[name="field5"]').val(selectedOption.data('phone') || '');
-        $('input[name="field1"]').val(selectedOption.data('fullname')?.split(' ')[0] || '');
-        $('input[name="field2"]').val(selectedOption.data('fullname')?.split(' ').slice(1).join(' ') || '');
+        const fullname = selectedOption.data('fullname') || '';
+        const nameParts = fullname.split(' ');
+        $('input[name="field1"]').val(nameParts[0] || '');
+        $('input[name="field2"]').val(nameParts.slice(1).join(' ') || '');
     });
 
-    // Tính toán lại tổng tiền khi áp dụng coupon
-    $('#coupon_code').change(function() {
-        calculateTotal();
-    });
-
-    function calculateTotal() {
-        const subtotal = {{ $total }};
-        const shippingFee = 30000;
-        let discount = 0;
-        const coupon = $('#coupon_code option:selected');
+    // Tính toán và cập nhật tổng tiền khi chọn coupon
+    $('#coupon_code').on('change', function() {
+        console.log('Coupon changed!'); // Debug
         
-        if (coupon.val()) {
-            const discountType = coupon.data('discount-type');
-            const discountValue = parseFloat(coupon.data('discount-value'));
-            const maxDiscount = parseFloat(coupon.data('max-discount')) || Infinity;
+        let discount = 0;
+        const selectedCoupon = $(this).find('option:selected');
+        const couponValue = selectedCoupon.val();
+        
+        console.log('Selected coupon:', couponValue); // Debug
+        
+        if (couponValue && couponValue !== '') {
+            const discountType = selectedCoupon.data('discount-type');
+            const discountValue = parseFloat(selectedCoupon.data('discount-value'));
+            const maxDiscount = parseFloat(selectedCoupon.data('max-discount')) || 0;
             
+            console.log('Discount type:', discountType, 'Value:', discountValue, 'Max:', maxDiscount); // Debug
+            
+            // Tính toán giảm giá
             if (discountType === 'percent') {
-                discount = subtotal * discountValue / 100;
-                if (discount > maxDiscount) {
+                discount = (subtotal * discountValue) / 100;
+                if (maxDiscount > 0 && discount > maxDiscount) {
                     discount = maxDiscount;
                 }
-            } else {
+            } else if (discountType === 'fixed') {
                 discount = discountValue;
             }
+            
+            // Đảm bảo discount không vượt quá subtotal
+            if (discount > subtotal) {
+                discount = subtotal;
+            }
+            
+            console.log('Calculated discount:', discount); // Debug
+            
+            // Hiển thị dòng giảm giá
+            $('#discount-row').show();
+            $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
+            
+        } else {
+            // Ẩn dòng giảm giá khi bỏ chọn coupon
+            $('#discount-row').hide();
+            discount = 0;
+            console.log('No coupon selected, discount = 0'); // Debug
         }
         
-        const total = subtotal + shippingFee - discount;
+        // Tính tổng tiền cuối cùng
+        const finalTotal = subtotal + shippingFee - discount;
         
-        // Cập nhật UI
-        $('.shippingRow ins').text('30,000đ');
-        $('tr:contains("Tổng thanh toán") td ins').text(total.toLocaleString('vi-VN') + 'đ');
-    }
+        console.log('Final calculation:', subtotal, '+', shippingFee, '-', discount, '=', finalTotal); // Debug
+        
+        // Cập nhật tổng tiền
+        $('#final-total').text(Math.round(finalTotal).toLocaleString('vi-VN') + 'đ');
+        
+        // Thêm hiệu ứng highlight
+        $('#final-total').css('color', '#28a745').animate({fontSize: '1.1em'}, 200).animate({fontSize: '1em'}, 200);
+        setTimeout(function() {
+            $('#final-total').css('color', '');
+        }, 1000);
+    });
+    
+    // Khởi tạo hiển thị ban đầu
+    const initialTotal = subtotal + shippingFee;
+    $('#final-total').text(initialTotal.toLocaleString('vi-VN') + 'đ');
+    console.log('Initial total set:', initialTotal);
+    
+    // Test function - có thể xóa sau khi debug xong
+    window.testCoupon = function() {
+        console.log('Testing coupon functionality...');
+        $('#coupon_code').trigger('change');
+    };
 });
 </script>
 </section>

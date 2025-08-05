@@ -41,11 +41,11 @@ class ProductController extends Controller
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-            // 'stock' => 'required|integer|min:0',
+            
             'name' => 'required|string|max:255|unique:products,name',
             'short_description' => 'required|string',
             'description' => 'required|string',
-            // 'stock' => 'required|integer|min:0|max:100',
+            
             'thumbnail' => 'required|image|max:2048',
             'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
@@ -166,7 +166,7 @@ class ProductController extends Controller
         'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
         'is_sale' => 'boolean',
         'is_active' => 'boolean',
-        'stock' => 'required|integer|min:0|max:100',
+        // 'stock' => 'required|integer|min:0|max:100',
         'variants' => 'sometimes|array',
         'variants.*.price' => 'required_with:variants|numeric|min:0',
         'variants.*.sku' => 'nullable|string|unique:product_variants,sku',

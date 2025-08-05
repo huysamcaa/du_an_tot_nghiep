@@ -205,14 +205,10 @@
                                                     <h6 class="product-name">
                                                         {{ $item->product->name ?? 'Sản phẩm không tồn tại' }}
                                                     </h6>
-                                                    <p class="product-variant">
-                                                        <i class="fas fa-tag me-1"></i>
-                                                        @if($item->variant)
-                                                            @foreach($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }}
-                                                            @endforeach
+                                                       @if ($item->variant)
+                                                            Màu: {{ $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? 'N/A' }}<br>
+                                                            Size: {{ $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? 'N/A' }}
                                                         @endif
-                                                    </p>
                                                     <div class="quantity-badge">
                                                         <i class="fas fa-times me-1"></i>{{ $item->quantity }}
                                                     </div>
@@ -224,46 +220,16 @@
                                                 </div>
 
                                                 <div class="item-actions">
-    @php
-        $pending = $order->refunds->firstWhere('status', 'pending');
-    @endphp
+                                                    @php
+                                                        $pending = $order->refunds->firstWhere('status', 'pending');
+                                                    @endphp
 
-    @if ($pending)
-        {{-- Form hủy yêu cầu hoàn đơn --}}
-        <form id="refund-cancel-{{ $pending->id }}"
-              action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-              method="POST" style="display:none">
-            @csrf
-        </form>
 
-        <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                class="btn btn-outline-warning btn-sm action-btn"
-                onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-            <i class="fas fa-times me-1"></i>Hủy hoàn
-        </button>
-    @elseif ($statusName === 'Đã hoàn thành' && $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-        {{-- Nút tạo yêu cầu hoàn đơn --}}
-        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-           class="btn btn-outline-warning btn-sm action-btn">
-            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
-        </a>
-    @endif
 
-    @if ($statusName === 'Chờ Xác Nhận')
-    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
-        @csrf
-        @method('POST')
-        <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
-                onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-        </button>
-    </form>
-@endif
-
-    <button class="btn btn-outline-success btn-sm action-btn">
-        <i class="fas fa-comments me-1"></i>Chat
-    </button>
-</div>
+                                                    <button class="btn btn-outline-success btn-sm action-btn">
+                                                        <i class="fas fa-comments me-1"></i>Chat
+                                                    </button>
+                                                </div>
                                             </div>
                                         @endforeach
 
@@ -275,8 +241,12 @@
                                     <div class="order-footer">
                                         <div class="shop-info">
                                             <i class="fas fa-store me-2"></i>
-                                            <span class="shop-name">{{ $order->shop->name ?? ' FreshFit.vn' }}</span>
+                                            <span class="shop-name">{{ $order->shop->name ?? '' }}</span>
+                                            
+                                                
+                                           <span class="shop-name">{{ $order->coupon_code ? 'Mã Giảm Giá Đã Dùng : ' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span>
                                         </div>
+
 
                                         <div class="order-actions">
                                             @if ($statusName === 'Đã hoàn thành')
@@ -294,12 +264,64 @@
                                                     </button>
                                                 @endif
                                             @endif
+                                            {{-- Hủy Đơn --}}
+                                            @if ($pending)
+                                                {{-- Form hủy yêu cầu hoàn đơn --}}
+                                                <form id="refund-cancel-{{ $pending->id }}"
+                                                    action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
+                                                    method="POST" style="display:none">
+                                                    @csrf
+                                                </form>
+
+                                                <button type="submit" form="refund-cancel-{{ $pending->id }}"
+                                                    class="btn btn-outline-warning btn-sm action-btn"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                                    <i class="fas fa-times me-1"></i>Hủy hoàn
+                                                </button>
+                                            @elseif (
+                                                $statusName === 'Đã hoàn thành' &&
+                                                    $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                {{-- Nút tạo yêu cầu hoàn đơn --}}
+                                                <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+                                                    class="btn btn-outline-warning btn-sm action-btn">
+                                                    <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+                                                </a>
+                                            @endif
+
+                                            @if ($statusName === 'Đã hoàn thành' && $order->currentStatus->orderStatus->id !== 11)
+                                                <form action="{{ route('client.orders.received', $order->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" 
+                                                            class="btn btn-outline-success btn-sm action-btn received-order-btn"
+                                                            onclick="return confirm('Bạn đã nhận được hàng? Xác nhận sẽ hoàn tất quá trình mua hàng.')">
+                                                        <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            @if ($statusName === 'Chờ Xác Nhận')
+                                                <form action="{{ route('client.orders.cancel', $order->id) }}"
+                                                    method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit"
+                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                                                        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                                    </button>
+                                                </form>
+                                            @endif
                                             <a href="{{ route('client.orders.show', $order->code) }}"
                                                 class="btn btn-outline-info btn-sm me-2">
                                                 <i class="fas fa-eye me-1"></i>Chi tiết
                                             </a>
 
-
+                                             <div class="total-amount">
+                                                <span class="total-label">Phí Ship:</span>
+                                                <span
+                                                    class="total-price">30.000đ</span>
+                                            </div>
                                             <div class="total-amount">
                                                 <span class="total-label">Tổng tiền:</span>
                                                 <span
@@ -1051,7 +1073,8 @@
                         setTimeout(() => {
 
 
-                            this.innerHTML = '<i class="fas fa-check me-1"></i>Đơn Hàng Đã Hủy';
+                            this.innerHTML =
+                                '<i class="fas fa-check me-1"></i>Đơn Hàng Đã Hủy';
 
                             this.classList.remove('btn-outline-primary');
                             this.classList.add('btn-success');
@@ -1219,96 +1242,98 @@
             @endphp
 
             {{-- Modal Đánh giá nếu chưa đánh giá --}}
-           @if (!$alreadyReviewed)
-    <div class="modal fade" id="reviewFormModal-{{ $order->id }}-{{ $item->product->id }}" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <form action="{{ route('client.reviews.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="order_id" value="{{ $order->id }}">
-                    <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+            @if (!$alreadyReviewed)
+                <div class="modal fade" id="reviewFormModal-{{ $order->id }}-{{ $item->product->id }}"
+                    tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <form action="{{ route('client.reviews.store') }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">Đánh giá sản phẩm</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Đánh giá sản phẩm</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="d-flex align-items-start gap-3 mb-3">
+                                        <img src="{{ asset('storage/' . $item->product->thumbnail) }}" class="rounded"
+                                            style="width: 80px; height: 80px; object-fit: cover;">
+                                        <div>
+                                            <h6 class="mb-1">{{ $item->product->name }}</h6>
+                                            <p class="mb-1 text-muted small">
+                                                Phân loại: {{ $item->variant->name ?? 'Không phân loại' }}
+                                            </p>
+                                            <p class="mb-1 text-muted small">
+                                                Giá: {{ number_format($item->price, 0, ',', '.') }}đ
+                                            </p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mb-3 d-flex align-items-center gap-2 ms-3 mt-1">
+                                        @php
+                                            $reviewUser = $order->user;
+                                            $avatarPath = $reviewUser?->avatar ?? null;
+                                        @endphp
+
+                                        @if ($avatarPath)
+                                            <img src="{{ asset('storage/' . $avatarPath) }}" alt="Avatar"
+                                                class="rounded-circle border"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
+                                        @else
+                                            <img src="{{ asset('assets/images/default-avatar.png') }}"
+                                                alt="Avatar mặc định" class="rounded-circle border"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
+                                        @endif
+
+                                        <strong>{{ $reviewUser->name ?? 'Ẩn danh' }}</strong>
+                                    </div>
+
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Đánh giá sao:</label>
+                                        <div class="d-flex gap-1">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <input type="radio" name="rating" class="btn-check"
+                                                    id="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}"
+                                                    value="{{ $i }}" required>
+                                                <label class="btn btn-outline-warning"
+                                                    for="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}">
+                                                    <i class="fas fa-star"></i>
+                                                </label>
+                                            @endfor
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mb-3">
+                                        <label for="review_text">Nội dung đánh giá:</label>
+                                        <textarea name="review_text" class="form-control" rows="3" required></textarea>
+                                    </div>
+
+
+                                    <div class="mb-3">
+                                        <label for="media">Hình ảnh / video:</label>
+                                        <input type="file" name="media[]" class="form-control" multiple>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
-                    <div class="modal-body">
-
-                        <div class="d-flex align-items-start gap-3 mb-3">
-                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}" class="rounded"
-                                 style="width: 80px; height: 80px; object-fit: cover;">
-                            <div>
-                                <h6 class="mb-1">{{ $item->product->name }}</h6>
-                                <p class="mb-1 text-muted small">
-                                    Phân loại: {{ $item->variant->name ?? 'Không phân loại' }}
-                                </p>
-                                <p class="mb-1 text-muted small">
-                                    Giá: {{ number_format($item->price, 0, ',', '.') }}đ
-                                </p>
-                            </div>
-                        </div>
-
-
-                        <div class="mb-3 d-flex align-items-center gap-2 ms-3 mt-1">
-                            @php
-                                $reviewUser = $order->user;
-                                $avatarPath = $reviewUser?->avatar ?? null;
-                            @endphp
-
-                            @if ($avatarPath)
-                                <img src="{{ asset('storage/' . $avatarPath) }}" alt="Avatar"
-                                     class="rounded-circle border"
-                                     style="width: 40px; height: 40px; object-fit: cover;">
-                            @else
-                                <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Avatar mặc định"
-                                     class="rounded-circle border"
-                                     style="width: 40px; height: 40px; object-fit: cover;">
-                            @endif
-
-                            <strong>{{ $reviewUser->name ?? 'Ẩn danh' }}</strong>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label class="form-label">Đánh giá sao:</label>
-                            <div class="d-flex gap-1">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <input type="radio" name="rating" class="btn-check"
-                                        id="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}"
-                                        value="{{ $i }}" required>
-                                    <label class="btn btn-outline-warning"
-                                        for="star{{ $i }}-{{ $order->id }}-{{ $item->product->id }}">
-                                        <i class="fas fa-star"></i>
-                                    </label>
-                                @endfor
-                            </div>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="review_text">Nội dung đánh giá:</label>
-                            <textarea name="review_text" class="form-control" rows="3" required></textarea>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="media">Hình ảnh / video:</label>
-                            <input type="file" name="media[]" class="form-control" multiple>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-@endif
+                </div>
+            @endif
 
             {{-- Modal Xem đánh giá nếu đã đánh giá --}}
             @if ($review)

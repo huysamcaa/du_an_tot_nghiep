@@ -186,7 +186,13 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-1">{{ $item->name }}</h6>
-                                                <small class="text-muted">SKU: {{ $item->product->sku ?? 'N/A' }}</small>
+                                                <small class="text-muted"><p class="product-variant">
+                                                        
+                                                        @if ($item->variant)
+                                                            Màu: {{ $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? 'N/A' }}<br>
+                                                            Size: {{ $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? 'N/A' }}
+                                                        @endif
+                                                    </p></small>
                                             </div>
                                         </div>
                                     </td>
@@ -203,6 +209,7 @@
                                 @endforeach
                             </tbody>
                             <tfoot class="table-light">
+                                
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold ps-4">Tổng tiền hàng</td>
                                     <td class="text-end fw-bold pe-4">{{ number_format($order->items->sum(function($item) { return $item->price * $item->quantity; })) }}đ</td>
@@ -210,6 +217,10 @@
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold ps-4">Phí vận chuyển</td>
                                     <td class="text-end fw-bold pe-4">30.000đ</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold ps-4">Mã Giảm Đã Dùng</td>
+                                    <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold ps-4">Tổng thanh toán</td>

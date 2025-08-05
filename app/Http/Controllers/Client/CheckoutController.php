@@ -803,7 +803,7 @@ class CheckoutController extends Controller
    public function purchaseHistory()
 {
     $userId = auth()->id();
-
+    $coupons = $this->getAvailableCoupons();
     $orders = Order::where('user_id', $userId)
         ->with([
             'currentStatus.orderStatus',
@@ -837,7 +837,7 @@ class CheckoutController extends Controller
         }
     }
 
-    return view('client.orders.purchase_history', compact('orders', 'reviewedMap', 'reviewDataMap'));
+    return view('client.orders.purchase_history', compact('orders', 'reviewedMap', 'reviewDataMap') , ['coupons' => $coupons,]);
 }
 
 

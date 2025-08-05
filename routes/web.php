@@ -188,6 +188,9 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::get('/refunds/create/{order_id}/{items}', [ClientRefundController::class, 'create'])->name('refunds.create');
     Route::post('/refunds/store', [ClientRefundController::class, 'store'])->name('refunds.store');
     Route::post('/refunds/{id}/cancel', [ClientRefundController::class, 'cancel'])->name('refunds.cancel');
+    Route::post('/orders/{id}/received', [OrderController::class, 'markAsReceived'])
+     ->name('client.orders.received')
+     ->middleware('auth');
     // Xem danh sách yêu cầu của user
     Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
 
