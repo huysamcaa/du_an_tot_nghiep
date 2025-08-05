@@ -1,23 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
-    <div class="checkoutPage">
+
 
         <section class="pageBannerSection">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="pageBannerContent text-center">
-                            <h2>Mã Giảm Giá</h2>
-                            <div class="pageBannerPath">
-                                <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Mã giảm
-                                    giá</span>
-                            </div>
-                        </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Khuyến Mãi</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Khuyến mãi</span>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
 
 
         <div class="container py-5">
@@ -128,5 +127,5 @@
                 </div>
             @endif
         </div>
-    </div>
+
 @endsection

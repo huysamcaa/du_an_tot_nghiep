@@ -39,10 +39,11 @@ class CouponService
             return back()->withErrors(['coupon' => 'Mã không áp dụng cho nhóm người dùng của bạn.']);
         }
 
-        if ($user && $coupon->users()->where('user_id', $user->id)->exists()) {
+        if ($user && $coupon->users()->where('user_id', $user->id)->wherePivotNotNull('used_at')->exists()) {
             return back()->withErrors(['coupon' => 'Bạn đã sử dụng mã này rồi.']);
         }
-        
+
+
 
 
         $total = $cartItems->sum(fn($item) => $item->price * $item->quantity);
@@ -56,9 +57,9 @@ class CouponService
 
         // Điều kiện về danh mục và sản phẩm
         $validCategoryIds = collect($restriction->valid_categories ?? []);
-        $validProductIds  = collect($restriction->valid_products ?? []);
-        $cartProductIds   = $cartItems->pluck('product_id')->map(fn($id) => (int) $id);
-        $cartCategoryIds  = $cartItems->pluck('category_id')->map(fn($id) => (int) $id);
+        $validProductIds = collect($restriction->valid_products ?? []);
+        $cartProductIds = $cartItems->pluck('product_id')->map(fn($id) => (int) $id);
+        $cartCategoryIds = $cartItems->pluck('category_id')->map(fn($id) => (int) $id);
 
         if ($validProductIds->isNotEmpty() && $cartProductIds->intersect($validProductIds)->isEmpty()) {
             return back()->withErrors(['coupon' => 'Mã không áp dụng cho các sản phẩm trong giỏ hàng.']);

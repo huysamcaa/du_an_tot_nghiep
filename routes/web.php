@@ -200,11 +200,19 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
         ->name('refunds.index');
     Route::get('/products', [ProductController::class, 'index'])->name('client.products.index');
     // Route hiển thị thông báo cho người dùng
+    // Route danh sách thông báo
     Route::get('/notifications', [NotificationController::class, 'index'])->name('client.notifications.index');
-    // Route đánh dấu thông báo đã đọc
+
+    // Route HÀNH ĐỘNG cụ thể phải đặt TRƯỚC {id}
+    Route::patch('/notifications/bulk-read', [NotificationController::class, 'bulkMarkAsRead'])->name('client.notifications.bulkMarkAsRead');
+    Route::delete('/notifications/bulk-delete', [NotificationController::class, 'bulkDelete'])->name('client.notifications.bulkDelete');
+
+    // Route xử lý từng thông báo cá nhân
     Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('client.notifications.markAsRead');
     Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('client.notifications.show');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('client.notifications.destroy');
 });
+
 
 /*
     |--------------------------------------------------------------------------
