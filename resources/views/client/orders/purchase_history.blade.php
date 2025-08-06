@@ -120,7 +120,7 @@
                     // Phân loại trạng thái
                     switch ($statusName) {
                     case 'Chờ xử lý':
-                    case 'Chờ xác nhận':
+                    case 'Chờ Xác Nhận':
                     case 'Đang chờ xác nhận':
                     $statusClass = 'pending';
                     break;
@@ -240,34 +240,27 @@
                                     </a>
                                     @endif
 
-                                    @if ($statusName === 'Chờ Xác Nhận')
-                                    <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-                                        </button>
-                                    </form>
-                                    @endif
+                                   
 
                                     <button class="btn btn-outline-success btn-sm action-btn">
                                         <i class="fas fa-comments me-1"></i>Chat
                                     </button>
+                                    
                                     @if ($statusName === 'Đã hoàn thành')
-        @if ($alreadyReviewed)
-            <button class="btn btn-outline-warning btn-sm action-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#reviewModal-{{ $order->id }}-{{ $item->product->id }}">
-                <i class="fas fa-star me-1"></i>Xem Đánh Giá Shop
-            </button>
-        @else
-            <button class="btn btn-outline-success btn-sm action-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#reviewFormModal-{{ $order->id }}-{{ $item->product->id }}">
-                <i class="fas fa-pen me-1"></i>Đánh Giá
-            </button>
-        @endif
-    @endif
+                                        @if ($alreadyReviewed)
+                                            <button class="btn btn-outline-warning btn-sm action-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#reviewModal-{{ $order->id }}-{{ $item->product->id }}">
+                                                <i class="fas fa-star me-1"></i>Xem Đánh Giá Shop
+                                            </button>
+                                        @else
+                                            <button class="btn btn-outline-success btn-sm action-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#reviewFormModal-{{ $order->id }}-{{ $item->product->id }}">
+                                                <i class="fas fa-pen me-1"></i>Đánh Giá
+                                            </button>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                             @endforeach
@@ -280,11 +273,34 @@
                         <div class="order-footer">
                             <div class="shop-info">
                                 <i class="fas fa-store me-2"></i>
-                                <span class="shop-name">{{ $order->shop->name ?? ' FreshFit.vn' }}</span>
+                                <span class="shop-name"> <tr>
+                                    
+                                    <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
+                                </span>
                             </div>
 
                             <div class="order-actions">
+                                 @if ($statusName === 'Chờ Xác Nhận')
+                                    @if ($order->payment_id == 2) <!-- COD -->
+                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                        </a>
+                                    @elseif ($order->payment_id == 3 || $order->payment_id == 4) <!-- Online payment -->
+                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                        </a>
+                                    @endif
+                                @endif
 
+                                     @if ($statusName === 'Đang giao hàng')
+                                    <form action="{{ route('client.orders.received', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('POST')
+                                        <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
+                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng 
+                                        </button>
+                                    </form>
+                                    @endif
                                 <a href="{{ route('client.orders.show', $order->code) }}" class="btn btn-outline-info btn-sm me-2">
                                     <i class="fas fa-eye me-1"></i>Chi tiết
                                 </a>

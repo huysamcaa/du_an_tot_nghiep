@@ -107,6 +107,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{code}', [CheckoutController::class, 'orderDetail'])->name('client.orders.show');
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.history');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
+    Route::post('/orders/{order}/cancel2', [OrderController::class, 'cancel2'])
+    ->name('client.orders.cancel2')
+    ->middleware('auth');
+    Route::get('/orders/{order}/cancel-form', [OrderController::class, 'showCancelForm'])
+    ->name('client.orders.cancel-form');
+    Route::get('/orders/{order}/cancel-online', [OrderController::class, 'showCancelForm2'])
+    ->name('client.orders.cancel-online');
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
@@ -191,6 +198,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::post('/orders/{id}/received', [OrderController::class, 'markAsReceived'])
      ->name('client.orders.received')
      ->middleware('auth');
+     
     // Xem danh sách yêu cầu của user
     Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
 

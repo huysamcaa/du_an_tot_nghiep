@@ -184,40 +184,181 @@ class OrderController extends Controller
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
+
  public function cancel(Request $request, $orderId)
-    {
-        // Tìm đơn hàng
-        $order = Order::findOrFail($orderId);
+{
+    $order = Order::findOrFail($orderId);
+    
+    // Kiểm tra quyền sở hữu đơn hàng
+    if ($order->user_id !== Auth::id()) {
+        return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
+    }
 
-        // Kiểm tra quyền sở hữu đơn hàng
+    // Kiểm tra trạng thái đơn hàng
+    $currentStatus = $order->currentStatus->orderStatus->name ?? '';
+    if ($currentStatus !== 'Chờ Xác Nhận') {
+        return redirect()->back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+    }
+
+    // Validate dữ liệu
+    $request->validate([
+        'cancel_reason' => 'required',
+        'other_reason' => 'required_if:cancel_reason,other',
+    ], [
+        'cancel_reason.required' => 'Vui lòng chọn lý do hủy đơn hàng',
+        'other_reason.required_if' => 'Vui lòng nhập lý do hủy đơn hàng',
+    ]);
+
+    // Xử lý lý do hủy
+    $cancelReason = $request->input('cancel_reason');
+    if ($cancelReason === 'other') {
+        $cancelReason = $request->input('other_reason');
+    }
+
+    // Cập nhật trạng thái hiện tại thành không còn hiện hành
+    OrderOrderStatus::where('order_id', $order->id)
+        ->where('is_current', 1)
+        ->update(['is_current' => 0]);
+
+    // Tạo trạng thái hủy mới
+    OrderOrderStatus::create([
+        'order_id' => $order->id,
+        'order_status_id' => 6, // ID trạng thái "Đã hủy"
+        'modified_by' => Auth::id(),
+        'cancel_reason' => $cancelReason,
+        'customer_feedback' => $request->input('cancel_feedback'),
+        'notes' => 'Đơn hàng đã bị hủy bởi khách hàng',
+        'is_current' => 1,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Cập nhật trạng thái đơn hàng chính
+    $order->update([
+        'status' => 'cancelled',
+        'updated_at' => now(),
+    ]);
+
+    return redirect()->route('client.orders.purchase.history')
+        ->with('success', 'Đơn hàng #' . $order->code . ' đã được hủy thành công.');
+}
+    public function cancel2(Request $request, $orderId)
+{
+    try {
+        // Validate dữ liệu
+        $rules = [
+            'cancel_reason' => 'required|string',
+            'other_reason' => 'required_if:cancel_reason,other|string|nullable',
+            'cancel_feedback' => 'nullable|string|max:500',
+        ];
+
+        // Lấy thông tin đơn hàng
+        $order = Order::with('currentStatus.orderStatus')->findOrFail($orderId);
+
+        // Thêm rules cho thông tin ngân hàng nếu đơn hàng đã thanh toán
+        if ($order->is_paid) {
+            $rules = array_merge($rules, [
+                'bank_name' => 'required|string',
+                'account_name' => 'required|string|max:100',
+                'account_number' => 'required|string|max:20',
+                'phone_number' => 'required|string|max:15',
+            ]);
+        }
+
+        $validated = $request->validate($rules);
+
+        // Kiểm tra quyền truy cập
         if ($order->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
+            return redirect()->route('client.orders.purchase.history')
+                ->with('error', 'Bạn không có quyền hủy đơn hàng này.');
         }
 
-        // Kiểm tra trạng thái đơn hàng (chỉ cho phép hủy khi ở trạng thái "Chờ xác nhận")
-        $currentStatus = $order->currentStatus->orderStatus->name ?? '';
-        if ($currentStatus !== 'Chờ Xác Nhận') {
-            return redirect()->back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+        // Kiểm tra trạng thái đơn hàng (ID 1 = Chờ Xác Nhận)
+        if ($order->currentStatus->order_status_id !== 1) {
+            return redirect()->route('client.orders.purchase.history')
+                ->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
         }
 
-        // Cập nhật trạng thái trong bảng order_order_status
+        // Xử lý lý do hủy
+        $cancelReason = $request->cancel_reason === 'other' 
+            ? $request->other_reason 
+            : $request->cancel_reason;
+
+        // 1. Cập nhật trạng thái cũ
         OrderOrderStatus::where('order_id', $order->id)
             ->where('is_current', 1)
-            ->update(['is_current' => 0]); // Đặt trạng thái hiện tại thành cũ
+            ->update(['is_current' => 0]);
 
-        // Thêm trạng thái mới với order_status_id = 6
-        OrderOrderStatus::create([
+        // 2. Tạo trạng thái hủy mới (ID 6 = Đã Hủy)
+        $newStatusData = [
             'order_id' => $order->id,
-            'order_status_id' => 6, // Trạng thái "Đã hủy"
-            'modified_by' => Auth::id(), // Người dùng hiện tại
-            'notes' => $request->input('notes', 'Hủy bởi khách hàng'),
+            'order_status_id' => 6,
+            'modified_by' => Auth::id(),
+            'cancel_reason' => $cancelReason,
+            'customer_feedback' => $request->cancel_feedback,
+            'notes' => $this->generateCancelNotes($cancelReason, $request->cancel_feedback),
             'is_current' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        ];
 
-        return redirect()->back()->with('success', 'Đơn hàng đã được hủy thành công.');
+        // Thêm thông tin ngân hàng nếu đơn hàng đã thanh toán
+        if ($order->is_paid) {
+            $newStatusData = array_merge($newStatusData, [
+                'bank_name' => $request->bank_name,
+                'account_name' => $request->account_name,
+                'account_number' => $request->account_number,
+                'phone_number' => $request->phone_number,
+            ]);
+        }
+
+        $newStatus = OrderOrderStatus::create($newStatusData);
+
+        if (!$newStatus) {
+            return redirect()->route('client.orders.purchase.history')
+                ->with('error', 'Không thể tạo trạng thái mới');
+        }
+
+        // 3. Cập nhật đơn hàng
+        
+        
+        
+        if (!$order->save()) {
+            return redirect()->route('client.orders.purchase.history')
+                ->with('error', 'Không thể cập nhật đơn hàng');
+        }
+
+        // Gửi thông báo
+        $bankInfo = $order->is_paid ? [
+            'bank_name' => $request->bank_name,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number,
+            'phone_number' => $request->phone_number,
+        ] : null;
+
+        $this->sendCancellationNotification($order, $cancelReason, $bankInfo);
+
+        return redirect()->route('client.orders.purchase.history')
+            ->with('success', 'Đơn hàng #' . $order->code . ' đã được hủy thành công.');
+
+    } catch (\Exception $e) {
+        return redirect()->route('client.orders.purchase.history')
+            ->with('error', 'Có lỗi xảy ra khi hủy đơn hàng: '.$e->getMessage());
     }
+}
+
+private function generateCancelNotes($reason, $feedback)
+{
+    $notes = "Lý do hủy: $reason";
+    if ($feedback) {
+        $notes .= " | Góp ý: $feedback";
+    }
+    return $notes;
+}
+
+private function sendCancellationNotification($order, $reason, $bankInfo)
+{
+    // Gửi email/thông báo cho khách hàng và admin
+    // Triển khai logic gửi thông báo tại đây
+}
 protected function handleCancelOrder($orderId)
     {
         // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
@@ -239,8 +380,8 @@ protected function handleCancelOrder($orderId)
 
     // Kiểm tra trạng thái đơn hàng (chỉ cho phép xác nhận khi ở trạng thái "Đã hoàn thành")
     $currentStatus = $order->currentStatus->orderStatus->name ?? '';
-    if ($currentStatus !== 'Đã hoàn thành') {
-        return redirect()->back()->with('error', 'Chỉ có thể xác nhận đã nhận hàng khi đơn ở trạng thái "Đã hoàn thành".');
+    if ($currentStatus !== 'Đang giao hàng') {
+        return redirect()->back()->with('error', 'Chỉ có thể xác nhận đã nhận hàng khi đơn ở trạng thái "Đang giao hàng".');
     }
 
     // Cập nhật trạng thái hiện tại thành không còn là current
@@ -251,7 +392,7 @@ protected function handleCancelOrder($orderId)
     // Thêm trạng thái mới với order_status_id = 11 (Đã nhận hàng)
     OrderOrderStatus::create([
         'order_id' => $order->id,
-        'order_status_id' => 11, // Trạng thái "Đã nhận hàng"
+        'order_status_id' => 5, // Trạng thái "Đã nhận hàng"
         'modified_by' => Auth::id(), // Người dùng hiện tại
         'notes' => $request->input('notes', 'Khách hàng xác nhận đã nhận hàng'),
         'is_current' => 1,
@@ -260,6 +401,40 @@ protected function handleCancelOrder($orderId)
     ]);
 
     return redirect()->back()->with('success', 'Đã xác nhận nhận hàng thành công.');
+}
+public function showCancelForm($orderId)
+{
+    $order = Order::findOrFail($orderId);
+    
+    // Kiểm tra quyền sở hữu đơn hàng
+    if ($order->user_id !== Auth::id()) {
+        return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
+    }
+
+    // Kiểm tra trạng thái đơn hàng
+    $currentStatus = $order->currentStatus->orderStatus->name ?? '';
+    if ($currentStatus !== 'Chờ Xác Nhận') {
+        return redirect()->back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+    }
+
+    return view('client.orders.cancel-form', compact('order'));
+}
+public function showCancelForm2($orderId)
+{
+    $order = Order::findOrFail($orderId);
+    
+    // Kiểm tra quyền sở hữu đơn hàng
+    if ($order->user_id !== Auth::id()) {
+        return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
+    }
+
+    // Kiểm tra trạng thái đơn hàng
+    $currentStatus = $order->currentStatus->orderStatus->name ?? '';
+    if ($currentStatus !== 'Chờ Xác Nhận') {
+        return redirect()->back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+    }
+
+    return view('client.orders.cancel-online', compact('order'));
 }
 
 }
