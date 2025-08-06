@@ -236,6 +236,7 @@ class OrderController extends Controller
     // Cập nhật trạng thái đơn hàng chính
     $order->update([
         'status' => 'cancelled',
+        'is_refund_cancel' => 1,
         'updated_at' => now(),
     ]);
 
@@ -319,6 +320,13 @@ class OrderController extends Controller
 
         // 3. Cập nhật đơn hàng
         
+        $order->is_refund_cancel = 1; // 1 Nếu hủy hàng, 0 Nếu không hủy hàng
+        
+        
+        if (!$order->save()) {
+            return redirect()->route('client.orders.purchase.history')
+                ->with('error', 'Không thể cập nhật đơn hàng');
+        }
         
         
         if (!$order->save()) {
@@ -435,6 +443,104 @@ public function showCancelForm2($orderId)
     }
 
     return view('client.orders.cancel-online', compact('order'));
+}
+
+public function confirmRefund(Request $request, $orderId)
+{
+    try {
+        $order = Order::with(['currentStatus', 'paymentMethod'])->findOrFail($orderId);
+        
+        // Validate only online payment orders can be processed
+        if ($order->paymentMethod->type !== 'online') {
+            return redirect()->back()->with('error', 'Chỉ áp dụng cho đơn hàng thanh toán online');
+        }
+
+        // Validate order is cancelled
+        if ($order->status !== 'cancelled') {
+            return redirect()->back()->with('error', 'Đơn hàng chưa ở trạng thái hủy');
+        }
+
+        // Validate data
+        $request->validate([
+            'evidence_images' => 'required|array',
+            'evidence_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        // Get current order status
+        $currentStatus = $order->currentStatus;
+
+        // Update order status record
+        $updateData = [
+            'modified_by' => Auth::id(),
+            'notes' => $request->notes ?? 'Admin đã xác nhận hoàn tiền',
+            'employee_evidence' => $this->processEvidenceImages($request->evidence_images),
+            'customer_confirmation' => null, // Reset customer confirmation
+            'updated_at' => now(),
+        ];
+
+        // Update the current status record
+        OrderOrderStatus::where('order_id', $order->id)
+            ->where('is_current', 1)
+            ->update($updateData);
+
+        // Update order
+        $order->update([
+            'check_refund_cancel' => 1,
+            'img_send_refund_money' => $this->storeEvidenceImages($request->evidence_images),
+            'updated_at' => now(),
+        ]);
+
+        // Send notification to customer
+        $this->sendRefundConfirmationNotification($order);
+
+        return redirect()->back()->with('success', 'Đã xác nhận hoàn tiền cho đơn hàng #' . $order->code);
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Lỗi khi xác nhận hoàn tiền: ' . $e->getMessage());
+    }
+}
+
+private function processEvidenceImages($images)
+{
+    $evidence = [];
+    foreach ($images as $image) {
+        $path = $image->store('public/refund_evidence');
+        $evidence[] = [
+            'path' => str_replace('public/', '', $path),
+            'uploaded_at' => now()->toDateTimeString(),
+            'uploaded_by' => Auth::id(),
+        ];
+    }
+    return $evidence;
+}
+
+private function storeEvidenceImages($images)
+{
+    $paths = [];
+    foreach ($images as $image) {
+        $path = $image->store('public/refund_evidence');
+        $paths[] = str_replace('public/', '', $path);
+    }
+    return json_encode($paths);
+}
+// OrderController.php
+
+public function listCancelledOrders(Request $request)
+{
+    try {
+        $orders = Order::whereHas('currentStatus', function($query) {
+                $query->where('order_status_id', 6); // ID 6 = Đã hủy
+            })
+            ->with(['user', 'currentStatus']) // Chỉ load user và currentStatus
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('admin.orders.cancelled', compact('orders'));
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Lỗi khi tải danh sách đơn hủy: '.$e->getMessage());
+    }
 }
 
 }

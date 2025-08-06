@@ -39,6 +39,7 @@ class Order extends Model
 
     use SoftDeletes;
 
+
     public function items()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
