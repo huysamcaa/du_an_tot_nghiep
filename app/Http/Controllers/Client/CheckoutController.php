@@ -402,7 +402,7 @@ class CheckoutController extends Controller
                 ->where('order_status_id', 1)
                 ->where('modified_by', $order->user_id ?? 5)
                 ->first();
-                
+
             if (!$existingStatus) {
                 OrderOrderStatus::create([
                     'order_id' => $order->id,
@@ -414,7 +414,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            
+
             Session::forget(['pending_order', 'momo_order_code', 'momo_request_id']);
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Thanh toán thành công!');
@@ -424,7 +424,7 @@ class CheckoutController extends Controller
         // Nếu IPN chưa được gọi, xử lý tại đây
         DB::beginTransaction();
         $orderData = Session::get('pending_order');
-        
+
         if (!$orderData) {
             throw new \Exception('Không tìm thấy thông tin đơn hàng');
         }
@@ -439,7 +439,7 @@ class CheckoutController extends Controller
             ->where('order_status_id', 1)
             ->where('modified_by', $order->user_id ?? 5)
             ->first();
-            
+
         if (!$existingStatus) {
             OrderOrderStatus::create([
                 'order_id' => $order->id,
@@ -520,7 +520,7 @@ class CheckoutController extends Controller
 
         // Kiểm tra đơn hàng đã tồn tại chưa
         $order = Order::where('code', $orderCode)->first();
-        
+
         if (!$order) {
             $order = $this->saveOrderToDatabase($orderData);
             $order->update([
@@ -551,7 +551,7 @@ class CheckoutController extends Controller
         }
 
         DB::commit();
-        
+
         // Xóa session sau khi xử lý thành công
         Session::forget(['pending_order', 'vnpay_order_data', 'vnpay_order_code']);
         Session::save();
@@ -562,7 +562,7 @@ class CheckoutController extends Controller
     } catch (\Exception $e) {
         DB::rollBack();
         Log::error('VNPay Return Error: ' . $e->getMessage());
-        
+
         return redirect()->route('cart.index')
             ->with('error', 'Có lỗi xảy ra khi xử lý thanh toán: ' . $e->getMessage())
             ->with('transaction_no', $inputData['vnp_TransactionNo'] ?? '');
@@ -605,14 +605,14 @@ protected function reconstructOrderFromVNPayData($vnpayData)
 
     protected function processMomoSuccess($momoData, $orderCode)
 
- 
+
 
 {
     DB::beginTransaction();
     try {
         // Tìm session data từ cache hoặc database
         $orderData = $this->getOrderDataFromCache($orderCode) ?? Session::get('pending_order');
-        
+
         if (!$orderData) {
             // Nếu không có session, tạo order từ thông tin MoMo
             throw new \Exception('Không tìm thấy thông tin đơn hàng');
@@ -629,7 +629,7 @@ protected function reconstructOrderFromVNPayData($vnpayData)
             ->where('order_status_id', 9)
             ->where('modified_by', $order->user_id ?? 5)
             ->first();
-            
+
         if (!$existingStatus) {
             OrderOrderStatus::create([
                 'order_id' => $order->id,
@@ -881,7 +881,7 @@ protected function reconstructOrderFromVNPayData($vnpayData)
                 ->where('user_id', $userId)
                 ->first();
 
-       
+
 
 
             $reviewedMap[$key] = !is_null($review);
@@ -1095,6 +1095,6 @@ protected function reconstructOrderFromVNPayData($vnpayData)
         }
     }
 
-    
+
 }
 
