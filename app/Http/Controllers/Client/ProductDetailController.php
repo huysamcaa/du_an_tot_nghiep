@@ -56,6 +56,7 @@ class ProductDetailController extends Controller
                 'price' => $variant->price,
                 'sale_price' => $variant->sale_price,
                 'stock' => $variant->stock,
+                'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : asset('storage/' . $product->thumbnail),
             ];
         });
 

@@ -10,7 +10,7 @@
                     <!-- Slider ảnh lớn -->
                     <div class="productGallery">
                         <div class="pgImage">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                            <img id="main-product-image"  src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
                         </div>
                         @foreach ($product->variants as $variant)
                             @if ($variant->thumbnail)
@@ -62,14 +62,13 @@
                             </div>
                             <div class="ratingCounts">{{ $product->views }}</div>
                         </div>
-                        <div class="productStock float-end">
-                            <span>Số Lượng: </span>
-                            <span id="stock-quantity">--</span>
-                        </div>
+
                     </div>
+
                     <div class="pcExcerpt">
                         <p>{{ $product->short_description }}</p>
                     </div>
+
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}" />
@@ -104,8 +103,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="productStock">
+                            <span>Số Lượng: </span>
+                            <span id="stock-quantity">--</span>
+                        </div>
                         <!-- //////// -->
-                        <div class="pcBtns">
+                        <div class="pcBtns mt-3">
                             <div class="quantity-product">
                                 <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
                                 <input type="number" class="carqty input-text qty text" name="quantity" value="1" min="1">
@@ -115,25 +118,9 @@
                             <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
                             <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
                                 <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
-                            <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                         </div>
                     </form>
-                    <div class="pcMeta">
-                        <p>
-                            <span>Sku</span>
-                            <a href="javascript:void(0);">{{ $product->sku }}</a>
-                        </p>
-                        <p class="pcmTags">
-                            <span>Tags:</span>
-                        </p>
-                        <p class="pcmSocial">
-                            <span>Share</span>
-                            <a class="fac" href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
-                            <a class="twi" href="javascript:void(0);"><i class="fa-brands fa-twitter"></i></a>
-                            <a class="lin" href="javascript:void(0);"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a class="ins" href="javascript:void(0);"><i class="fa-brands fa-instagram"></i></a>
-                        </p>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -383,7 +370,6 @@
 
                                 {{-- Actions --}}
                                 <div class="pi01Actions">
-                                    <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                      <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                 </div>
 
@@ -588,6 +574,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     addToCartBtn.innerHTML = '<span>Hết hàng</span>';
                 }
             }
+            // Hiện ảnh theo variant
+            const mainImgEl = document.getElementById('main-product-image');
+
+            if (mainImgEl && variant && variant.thumbnail) {
+                mainImgEl.src = variant.thumbnail;
+            }
+
         } catch (error) {
             console.error('Error in updatePriceAndStock:', error);
         }
