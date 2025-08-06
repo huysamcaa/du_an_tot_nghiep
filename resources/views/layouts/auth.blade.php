@@ -1,43 +1,38 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>@yield('title', 'Đăng nhập')</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>@yield('title', 'Auth Page')</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    {{-- ✅ Bootstrap CSS --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ asset('login-form-20/css/style.css') }}">
+  </head>
+  <body class="img js-fullheight" style="background-image: url('{{ asset('login-form-20/images/cucu.png') }}');">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh">
+    <section class="ftco-section">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-6 text-center mb-5">
+            <h2 class="heading-section">@yield('page-title', 'Xác thực')</h2>
+          </div>
+        </div>
 
-    @yield('content')
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-4">
+            <div class="login-wrap p-0">
+              @yield('content')
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    {{-- ✅ Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function setupToggle(inputId, iconWrapperId) {
-                const input = document.getElementById(inputId);
-                const iconWrapper = document.getElementById(iconWrapperId);
-                const icon = iconWrapper.querySelector('i'); // lấy icon thực sự
+    <script src="{{ asset('login-form-20/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('login-form-20/js/popper.js') }}"></script>
+    <script src="{{ asset('login-form-20/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('login-form-20/js/main.js') }}"></script>
 
-                iconWrapper.addEventListener('click', function () {
-                    const isHidden = input.type === 'password';
-                    input.type = isHidden ? 'text' : 'password';
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
-            }
-
-            setupToggle('password', 'togglePassword');
-            setupToggle('password_confirmation', 'togglePasswordConfirm');
-        });
-    </script>
-
-
-
-
-</body>
+  </body>
 </html>

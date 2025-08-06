@@ -1,20 +1,19 @@
 <?php
 
 namespace App\Models\Admin;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Admin\Product;
 use App\Models\User;
+
 class Comment extends Model
 {
     use HasFactory;
-    protected $fillable = ['product_id', 'user_id', 'content','is_active'];
+    protected $fillable = ['product_id', 'user_id', 'content', 'is_active'];
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
+
 
     public function user()
     {
@@ -24,5 +23,9 @@ class Comment extends Model
     public function replies()
     {
         return $this->hasMany(CommentReply::class);
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

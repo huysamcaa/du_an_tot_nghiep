@@ -23,6 +23,10 @@
     <link rel="stylesheet" href="{{ asset('assets/Client/css/responsive.css') }}">
      <link rel="stylesheet" href="{{ asset('assets/Client/css/cssuser.css') }}">
      <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+     <!-- Thêm trong layout app.blade.php -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+
     {{-- ... Thêm các file css cần thiết tương tự ... --}}
 </head>
 <body>
@@ -70,6 +74,8 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{ asset('assets/Client/js/theme.js') }}"></script>
     {{-- ... Thêm các file js cần thiết tương tự ... --}}
+    @yield('modals')
+
 </body>
 @stack('scripts')
 </html>

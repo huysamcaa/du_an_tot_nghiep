@@ -8,29 +8,30 @@ use Illuminate\Http\Request;
 class ReviewController extends Controller
 {
     public function index(Request $request)
-    {
-        // Khởi tạo truy vấn với mối quan hệ và sắp xếp mới nhất
-        $query = Review::with(['user', 'product', 'order', 'multimedia'])->latest();
+{
+    $query = Review::with(['user', 'product', 'order', 'multimedia'])
+        ->leftJoin('users', 'reviews.user_id', '=', 'users.id')
+        ->orderByRaw('users.id IS NULL')           // User tồn tại lên trước
+        ->orderBy('reviews.created_at', 'asc')    // Mới nhất lên đầu
+        ->select('reviews.*');                     // Tránh xung đột cột khi join
 
-        // Kiểm tra nếu có giá trị tìm kiếm trong yêu cầu
-        if ($request->has('search')) {
-            $search = $request->get('search');
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('user', function($query) use ($search) {
-                    $query->where('fullname', 'like', "%$search%"); // Tìm kiếm theo tên người dùng
-                })
-                ->orWhereHas('product', function($query) use ($search) {
-                    $query->where('name', 'like', "%$search%"); // Tìm kiếm theo tên sản phẩm
-                })
-                ->orWhere('review_text', 'like', "%$search%"); // Tìm kiếm theo nội dung đánh giá (thay content bằng review_text)
-            });
-        }
-
-        // Paginate kết quả với 10 mục mỗi trang
-        $reviews = $query->paginate(10);
-
-        return view('admin.reviews.index', compact('reviews'));
+    if ($request->has('search')) {
+        $search = $request->get('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('users.fullname', 'like', "%$search%")              // từ join
+              ->orWhereHas('product', function($query) use ($search) {
+                  $query->where('name', 'like', "%$search%");
+              })
+              ->orWhere('review_text', 'like', "%$search%");
+        });
     }
+
+$perPage = $request->get('perPage', 10); // lấy từ request, mặc định 10
+$reviews = $query->paginate($perPage)->appends(['perPage' => $perPage]);
+
+
+    return view('admin.reviews.index', compact('reviews'));
+}
 
     public function approve($id)
     {

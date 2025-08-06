@@ -408,29 +408,22 @@
 
 @push('scripts')
 <script>
-    $(window).on('load', function() {
-        // Hủy slider mặc định
-        if ($("#sliderRange").hasClass("ui-slider")) {
-            $("#sliderRange").slider("destroy");
-        }
+    // Hàm định dạng tiền tệ Việt Nam
+    function formatVND(n) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(n).replace('₫', '') + '₫';
+    }
+
+    $(document).ready(function() {
         // Đọc giá từ Blade vào JS
-        var minPrice = {
-            {
-                $min
-            }
-        };
-        var maxPrice = {
-            {
-                $max
-            }
-        };
-        var globalMin = 0;
-        var globalMax = 5000000;
+        var minPrice = {{ $min }};
+        var maxPrice = {{ $max }};
+        var globalMin = {{ $globalMin ?? 0 }}; // Giá trị min toàn cục, bạn có thể truyền từ controller
+        var globalMax = {{ $globalMax ?? 5000000 }}; // Giá trị max toàn cục
 
-        function formatVND(n) {
-            return n.toLocaleString('vi-VN') + ' đ';
-        }
-
+        // Tạo slider
         $("#sliderRange").slider({
             range: true,
             min: globalMin,
@@ -438,15 +431,17 @@
             step: 10000,
             values: [minPrice, maxPrice],
             slide: function(event, ui) {
-                $("#amount").text(formatVND(ui.values[0]) + ' – ' + formatVND(ui.values[1]));
+                // Cập nhật hiển thị giá
+                $("#amount").text(formatVND(ui.values[0]) + ' - ' + formatVND(ui.values[1]));
+                // Cập nhật giá trị vào input ẩn
                 $("#price_min").val(ui.values[0]);
                 $("#price_max").val(ui.values[1]);
             }
         });
 
-        // Khởi tạo hiển thị ban đầu
-        var init = $("#sliderRange").slider("values");
-        $("#amount").text(formatVND(init[0]) + ' – ' + formatVND(init[1]));
+        // Cập nhật hiển thị giá trị ban đầu cho thanh slider
+        var initialValues = $("#sliderRange").slider("values");
+        $("#amount").text(formatVND(initialValues[0]) + ' - ' + formatVND(initialValues[1]));
     });
 </script>
 @endpush

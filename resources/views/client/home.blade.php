@@ -171,7 +171,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                         <li data-index="rs-3047" data-transition="random-premium" data-slotamount="default" data-hideafterloop="0" data-hideslideonmobile="off"  data-easein="Power3.easeInOut" data-easeout="Power3.easeInOut" data-masterspeed="1000"  data-thumb=""  data-rotate="0"  data-saveperformance="off"  data-title="" data-param1="01" data-param2="" data-param3="" data-param4="" data-param5="" data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
@@ -284,7 +284,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                         <li data-index="rs-3048" data-transition="random-premium" data-slotamount="default" data-hideafterloop="0" data-hideslideonmobile="off"  data-easein="Power3.easeInOut" data-easeout="Power3.easeInOut" data-masterspeed="1000"  data-thumb=""  data-rotate="0"  data-saveperformance="off"  data-title="" data-param1="01" data-param2="" data-param3="" data-param4="" data-param5="" data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
@@ -342,7 +342,7 @@
                                  data-marginleft="['0','10','10','0']"
 
                                  >Giảm Giá Hôm Nay</div>
-                            <div class="tp-caption jost textLayer theTitles"
+                                <div class="tp-caption jost textLayer theTitles"
                                  data-x="['left','left','left','center']"
                                  data-hoffset="['-5','-5','0','0']"
 
@@ -397,7 +397,7 @@
                                  data-paddingleft="['0','0','0','0']"
                                  data-marginleft="['0','0','0','0']"
 
-                                 ><a class="ulinaBTN ulinaSliderBTN" href="collections.html"><span>Explore Now</span></a>
+                                 ><a class="ulinaBTN ulinaSliderBTN" href="http://localhost:8000/categories"><span>Xem Ngay</span></a>
                             </div>
                         </li>
                     </ul>
@@ -469,12 +469,10 @@
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
 
-        
+
         <div class="pi01Actions" data-product-id="{{ $product->id }}">
 
-            <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
             <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-            <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
             <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
 
         </div>
@@ -498,8 +496,10 @@
         </div> -->
 
         <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-            {{ $product->name }}
-        </h3>
+    <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
+        {{ $product->name }}
+    </a>
+</h3>
 
         <div class="pi01Price">
             <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
@@ -2780,53 +2780,38 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h2 class="secTitle">Shop By Category</h2>
-                        <p class="secDesc">Showing our latest arrival on this summer</p>
+                        <h2 class="secTitle">Danh Mục Của Của Hàng</h2>
+                        <p class="secDesc">Tận Hưởng Những Thứ Mới Mẻ Nhất</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="categoryCarousel owl-carousel">
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/1.jpg') }}" alt="Cloths"/>
-                                </div>
-                                <h3><a href="shop_full_width.html">Cloths</a></h3>
-                                <p>192 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/2.jpg') }}" alt="Bags"/>
-                                </div>
-                                <h3><a href="shop_left_sidebar.html">Bags</a></h3>
-                                <p>139 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/3.jpg') }}" alt="Watches"/>
-                                </div>
-                                <h3><a href="shop_right_sidebar.html">Watches</a></h3>
-                                <p>162 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/4.jpg') }}" alt="Jewellery"/>
-                                </div>
-                                <h3><a href="shop_full_width.html">Jewellery</a></h3>
-                                <p>187 Items</p>
-                            </div>
-                            <div class="categoryItem01 text-center">
-                                <div class="ci01Thumb">
-                                    <img src="{{ asset('assets/Client/images/categoy/5.jpg') }}" alt="Women"/>
-                                </div>
-                                <h3><a href="shop_right_sidebar.html">Women</a></h3>
-                                <p>362 Items</p>
-                            </div>
-                        </div>
+    @foreach ($categories as $category)
+        <div class="categoryItem01 text-center">
+            <div class="ci01Thumb">
+                {{-- nếu có trường thumbnail trong DB --}}
+                <img src="{{ asset('storage/'.$category->thumbnail) }}"
+                     alt="{{ $category->name }}"
+                     style="width:100%; height:auto; object-fit:cover;" />
+            </div>
+            <h3>
+               <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
+
+
+                    {{ $category->name }}
+                </a>
+            </h3>
+            <p>{{ $category->products_count }} Items</p>
+        </div>
+    @endforeach
+</div>
+
                     </div>
                 </div>
+
             </div>
-        </section>  
+        </section>
         <!-- END: Category Section -->
 
         <!-- BEGIN: Testimonial Section -->
@@ -2835,8 +2820,8 @@
                 <div class="row">
                     <div class="col-lg-4 col-xl-3">
                         <div class="testimoniLeft">
-                            <h2 class="secTitle">What Customers Say About Us</h2>
-                            <p class="secDesc">Bobore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitat ion ullamco laboris</p>
+                            <h2 class="secTitle">Khách hàng nói gì về chúng tôi</h2>
+                            <p class="secDesc">Và nỗi đau to lớn. Để giảm thiểu điều đó, ai đó đã cố gắng thực hiện công việc một cách nghiêm túc.</p>
                             <div class="testimonalNav">
                                 <button class="tprev"><i class="fa-solid fa-angle-left"></i></button>
                                 <button class="tnext"><i class="fa-solid fa-angle-right"></i></button>
@@ -2858,8 +2843,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
-                                        aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
+                                       FreshFit gây ấn tượng với thiết kế áo năng động, hiện đại và rất dễ phối đồ. Vải co giãn nhẹ nhưng vẫn giữ form cực tốt sau nhiều lần giặt. Nhân viên tư vấn tận tình và không gian cửa hàng gọn gàng, dễ chọn sản phẩm. Giá cả cũng khá hợp lý cho chất lượng nhận được.
                                     </div>
                                     <div class="ti01Author">
                                         <img src="{{ asset('assets/Client/images/author/1.jpg') }}" alt="Sanjida Ema"/>
@@ -2879,8 +2863,7 @@
                                         </div>
                                     </div>
                                     <div class="ti01Content">
-                                        Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed tempor incididunt ut labore et doleore magna
-                                        aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris nisi ut aliquip.
+                                        Mua áo tại FreshFit khiến mình khá hài lòng – từ kiểu dáng trẻ trung đến chất liệu thoáng mát, thích hợp cả đi làm lẫn đi chơi. Cửa hàng bày trí tinh tế và dịch vụ chăm sóc khách hàng rất chuyên nghiệp. Chắc chắn sẽ quay lại lần sau!
                                     </div>
                                     <div class="ti01Author">
                                         <img src="{{ asset('assets/Client/images/author/2.jpg') }}" alt="Mike Anderson"/>
@@ -2977,7 +2960,7 @@
                     </div>
                 </div>
             </div>
-        </section> 
+        </section>
         <!-- END: Testimonial Section -->
 
         <!-- BEGIN: Blog Section -->
@@ -3024,7 +3007,7 @@
 </section>
  
 
- 
+
         <!-- END: Blog Section -->
 
         <!-- BEGIN: Instagram Section -->

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'birthday',
         'role',
         'status',
+        'user_group',
         'code_verified_email',
         'bank_name',
         'user_bank_name',
@@ -79,7 +80,17 @@ class User extends Authenticatable
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user')
                 ->using(CouponUser::class)
-                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
+                ->withPivot(['id', 'amount','used_at', 'created_at', 'updated_at'])
                 ->withTimestamps();
 }
+ public function notifications()
+    {
+
+        // Mối quan hệ giữa User và Notification (1 User có nhiều thông báo)
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
+
+
+
 }

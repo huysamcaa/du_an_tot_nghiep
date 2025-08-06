@@ -15,15 +15,24 @@
         </div>
     </div>
 </section>
+{{-- @if(auth()->user()->account_type === 'limited')
+<div class="alert alert-warning">
+    Tài khoản của bạn chỉ được phép:
+    - Thanh toán COD
+    - Tối đa 10 đơn/ngày
+</div>
+@endif --}}
 <section class="checkoutPage">
     <div class="container">
         <form action="{{ route('checkout.placeOrder') }}" method="POST">
             @csrf
             <div class="row">
                 <div class="col-lg-6">
-                    
+
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
+                        
+                                
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" name="field1" placeholder="Họ *"  required>
@@ -44,10 +53,29 @@
                                     {{-- ...other countries... --}}
                                 </select>
                             </div>
-                            <div class="col-lg-12">
-                                <input type="text" name="field7" placeholder="Địa chỉ *" 
-                                    value="{{ old('field7', $defaultAddress->address ?? '') }}" required>
-                            </div>
+                           <div class="col-lg-12">
+                    <select name="field7" class="form-control address-select" required>
+                        <option value="">Chọn địa chỉ *</option>
+                        @foreach($userAddresses as $address)
+                            <option value="{{ $address->address }}"  
+                                {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
+                                data-phone="{{ $address->phone_number }}"
+                                data-fullname="{{ $address->fullname }}">
+                                {{ $address->address }} 
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                 
+
+<!-- Nếu muốn thêm nút "Thêm địa chỉ mới" -->
+{{-- <div class="mt-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#addAddressModal">
+        + Thêm địa chỉ mới
+    </button>
+</div> --}}
+                            {{-- <div class="col-lg-12">
+                                <input type="text" name="field7" placeholder="Địa chỉ *">
                             {{-- <div class="col-lg-12">
                                 <input type="text" name="field8" placeholder="Thành phố *">
                             </div>
@@ -58,7 +86,7 @@
                                 <input type="text" name="field10" placeholder="Mã bưu điện *">
                             </div> --}}
                             {{-- <div class="col-lg-12">
-                                
+
                                 <div class="checkoutPassword">
                                     <input type="password" name="field12" placeholder="Mật khẩu *">
                                 </div>
@@ -69,84 +97,125 @@
                             <div class="col-lg-12">
                                 <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
+                            <div class="col-md-6">
+                                    <a href="{{ route('user.addresses.index') }}" class="placeOrderBTN ulinaBTN"><span>+ Thêm địa chỉ mới</span></a>
+                                </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="shippingCoupons">
+                    {{-- <div class="shippingCoupons">
                         <h3>Mã giảm giá</h3>
                         <div class="couponFormWrap clearfix">
                             <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Nhập mã giảm giá">
                             <button type="submit" class="ulinaBTN" name="apply_coupon" value="Apply Code"><span>Áp dụng</span></button>
                         </div>
+                    </div> --}}
+                    <div class="shippingCoupons">
+                        <h3>Mã giảm giá</h3>
+                        <select id="coupon_code" name="coupon_code" class="form-control">
+                            <option value="">-- Chọn mã giảm giá --</option>
+                            @foreach($coupons as $coupon)
+                                <option
+                                    value="{{ $coupon->code }}"
+                                    data-discount-type="{{ $coupon->discount_type }}"
+                                    data-discount-value="{{ $coupon->discount_value }}"
+                                    data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}"
+                                >
+                                    {{ $coupon->code }} -
+                                    @if($coupon->discount_type == 'percent')
+                                        Giảm {{ $coupon->discount_value }}%
+                                    @else
+                                        Giảm {{ number_format($coupon->discount_value) }}₫
+                                    @endif
+                                    @isset($coupon->end_date)
+                                        (HSD: {{ $coupon->end_date->format('d/m/Y') }})
+                                    @else
+                                        (HSD: Không xác định)
+                                    @endisset
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="orderReviewWrap">
                         <h3>Đơn hàng của bạn</h3>
                         <div class="orderReview">
                            <table>
-    <thead>
-        <tr>
-            <th>Sản phẩm</th>
-            <th>Thành tiền</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($cartItems as $item)
-        <tr>
-            <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
-            <td>
-                <a href="javascript:void(0);">
-                    {{ $item->product->name }}
-                    @if($item->variant)
-                        - {{ $item->variant->sku }}
-                    @endif
-                </a>
-            </td>
-            <td>
-                <div class="pi01Price">
-                    @php
-                        $price = $item->variant ?  
-                                ($item->variant->sale_price ?? $item->variant->price) :  
-                                $item->product->price;
-                        $itemTotal = $price * $item->quantity;
-                    @endphp
-                    <ins>{{ number_format($itemTotal) }}đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        @endforeach
-        
-        <tr>
-            <th>Tổng tiền hàng</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>{{ number_format($total) }}đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        <tr class="shippingRow">
-            <th>Phí vận chuyển</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>30,000đ</ins>
-                </div>
-            </td>
-        </tr>
-        
-        <tr>
-            <th>Tổng thanh toán</th>
-            <td>
-                <div class="pi01Price">
-                    <ins>{{ number_format($total + 30000)}}đ</ins>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($cartItems as $item)
+                                <tr>
+                                    <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
+                                    <td>
+                                        <a href="javascript:void(0);">
+
+
+                                            {{ $item->product->name }}
+                                            @if($item->variant)
+                                                 {{ $item->variant->sku }}
+                                            @endif
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="pi01Price">
+                                            @php
+                                                $price = $item->variant ?
+                                                        ($item->variant->sale_price ?? $item->variant->price) :
+                                                        $item->product->price;
+                                                $itemTotal = $price * $item->quantity;
+                                            @endphp
+                                            <ins>{{ number_format($itemTotal) }}đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                @endforeach
+
+                                <tr>
+                                    <th>Tổng tiền hàng</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins id="subtotal">{{ number_format($total) }} đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="shippingRow">
+                                    <th>Phí vận chuyển</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins id="shipping-fee">30,000đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Dòng giảm giá (ẩn khi chưa chọn coupon) -->
+                                <tr id="discount-row" style="display: none;">
+                                    <th>Giảm giá</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins id="discount-amount" style="color: #dc3545;">-0đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Tổng thanh toán</th>
+                                    <td>
+                                        <div class="pi01Price">
+                                            <ins id="final-total">{{ number_format($total + 30000) }}đ</ins>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                             <ul class="wc_payment_methods">
-                               
+
                                     <li>
                                         <input type="radio" value="4" name="paymentMethod" id="paymentMethod04" required>
                                         <label for="paymentMethod04">VNPay</label>
@@ -176,5 +245,99 @@
             </div>
         </form>
     </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Debug: Kiểm tra giá trị
+    console.log('Subtotal from PHP:', {{ $total }});
+    
+    const subtotal = {{ $total }};
+    const shippingFee = 30000;
+    
+    console.log('JavaScript - Subtotal:', subtotal, 'Shipping:', shippingFee);
+    
+    // Cập nhật thông tin khi chọn địa chỉ
+    $('.address-select').change(function() {
+        const selectedOption = $(this).find('option:selected');
+        $('input[name="field5"]').val(selectedOption.data('phone') || '');
+        const fullname = selectedOption.data('fullname') || '';
+        const nameParts = fullname.split(' ');
+        $('input[name="field1"]').val(nameParts[0] || '');
+        $('input[name="field2"]').val(nameParts.slice(1).join(' ') || '');
+    });
+
+    // Tính toán và cập nhật tổng tiền khi chọn coupon
+    $('#coupon_code').on('change', function() {
+        console.log('Coupon changed!'); // Debug
+        
+        let discount = 0;
+        const selectedCoupon = $(this).find('option:selected');
+        const couponValue = selectedCoupon.val();
+        
+        console.log('Selected coupon:', couponValue); // Debug
+        
+        if (couponValue && couponValue !== '') {
+            const discountType = selectedCoupon.data('discount-type');
+            const discountValue = parseFloat(selectedCoupon.data('discount-value'));
+            const maxDiscount = parseFloat(selectedCoupon.data('max-discount')) || 0;
+            
+            console.log('Discount type:', discountType, 'Value:', discountValue, 'Max:', maxDiscount); // Debug
+            
+            // Tính toán giảm giá
+            if (discountType === 'percent') {
+                discount = (subtotal * discountValue) / 100;
+                if (maxDiscount > 0 && discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+            } else if (discountType === 'fixed') {
+                discount = discountValue;
+            }
+            
+            // Đảm bảo discount không vượt quá subtotal
+            if (discount > subtotal) {
+                discount = subtotal;
+            }
+            
+            console.log('Calculated discount:', discount); // Debug
+            
+            // Hiển thị dòng giảm giá
+            $('#discount-row').show();
+            $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
+            
+        } else {
+            // Ẩn dòng giảm giá khi bỏ chọn coupon
+            $('#discount-row').hide();
+            discount = 0;
+            console.log('No coupon selected, discount = 0'); // Debug
+        }
+        
+        // Tính tổng tiền cuối cùng
+        const finalTotal = subtotal + shippingFee - discount;
+        
+        console.log('Final calculation:', subtotal, '+', shippingFee, '-', discount, '=', finalTotal); // Debug
+        
+        // Cập nhật tổng tiền
+        $('#final-total').text(Math.round(finalTotal).toLocaleString('vi-VN') + 'đ');
+        
+        // Thêm hiệu ứng highlight
+        $('#final-total').css('color', '#28a745').animate({fontSize: '1.1em'}, 200).animate({fontSize: '1em'}, 200);
+        setTimeout(function() {
+            $('#final-total').css('color', '');
+        }, 1000);
+    });
+    
+    // Khởi tạo hiển thị ban đầu
+    const initialTotal = subtotal + shippingFee;
+    $('#final-total').text(initialTotal.toLocaleString('vi-VN') + 'đ');
+    console.log('Initial total set:', initialTotal);
+    
+    // Test function - có thể xóa sau khi debug xong
+    window.testCoupon = function() {
+        console.log('Testing coupon functionality...');
+        $('#coupon_code').trigger('change');
+    };
+});
+</script>
 </section>
 @endsection
