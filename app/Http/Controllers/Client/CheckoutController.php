@@ -239,11 +239,19 @@ class CheckoutController extends Controller
     try {
         $orderData = $this->prepareOrderData($request, $couponData);
         $orderCode = 'DH' . strtoupper(Str::random(8));
-
-        // Lưu dữ liệu vào session và COMMIT ngay lập tức
-        Session::put('vnpay_order_data', $orderData);
-        Session::put('vnpay_order_code', $orderCode);
-        Session::save(); // Quan trọng: Lưu session ngay lập tức
+        
+        // Thêm timestamp để kiểm soát thời gian sống
+        $orderData['created_at'] = now()->timestamp;
+        
+        // Lưu vào session với key duy nhất cho VNPay
+        session([
+            'vnpay_order_data' => $orderData,
+            'vnpay_order_code' => $orderCode,
+            'vnpay_session_id' => session()->getId() // Lưu lại session ID để debug
+        ]);
+        
+        // Commit session ngay lập tức
+        session()->save();
 
         $paymentData = [
             'vnp_Version' => '2.1.0',
@@ -257,7 +265,8 @@ class CheckoutController extends Controller
             'vnp_OrderInfo' => json_encode([
                 'order_code' => $orderCode,
                 'user_id' => auth()->id(),
-                'timestamp' => now()->timestamp
+                'timestamp' => now()->timestamp,
+                'session_id' => session()->getId() // Thêm session ID vào thông tin đơn hàng
             ]),
             'vnp_OrderType' => 'billpayment',
             'vnp_ReturnUrl' => $this->vnpayConfig['vnp_Returnurl'],
@@ -272,7 +281,8 @@ class CheckoutController extends Controller
         Log::info('VNPay Payment Request', [
             'order_code' => $orderCode,
             'amount' => $orderData['total_amount'],
-            'session_id' => session()->getId() // Log session ID để debug
+            'session_id' => session()->getId(),
+            'session_data' => session()->all() // Log toàn bộ session để debug
         ]);
 
         return redirect()->away($this->vnpayConfig['vnp_Url'] . '?' . http_build_query($paymentData));
@@ -494,25 +504,35 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
 
-        // Kiểm tra đơn hàng đã tồn tại chưa (phòng trường hợp IPN đã xử lý)
+        // Thử lấy dữ liệu từ nhiều nguồn khác nhau
+        $orderData = Session::get('vnpay_order_data') 
+                   ?? Session::get('pending_order')
+                   ?? $this->reconstructOrderFromVNPayData($inputData);
+
+        if (!$orderData) {
+            throw new \Exception('Không tìm thấy thông tin đơn hàng trong session');
+        }
+
+        // Kiểm tra thời gian tạo đơn hàng (không quá 1 giờ)
+        if (now()->timestamp - ($orderData['created_at'] ?? 0) > 3600) {
+            throw new \Exception('Thông tin đơn hàng đã hết hạn');
+        }
+
+        // Kiểm tra đơn hàng đã tồn tại chưa
         $order = Order::where('code', $orderCode)->first();
 
         if (!$order) {
-            // Lấy dữ liệu từ session
-            $orderData = Session::get('vnpay_order_data') ?? Session::get('pending_order');
-
-            if (!$orderData) {
-                throw new \Exception('Không tìm thấy thông tin đơn hàng trong session');
-            }
-
-            // Tạo đơn hàng mới
             $order = $this->saveOrderToDatabase($orderData);
-            $order->update(['is_paid' => 1, 'payment_id' => 4]);
+            $order->update([
+                'is_paid' => 1, 
+                'payment_id' => 4,
+                'code' => $orderCode // Đảm bảo mã đơn hàng trùng với VNPay
+            ]);
             $this->reduceStock($order);
             $this->clearCartItems($orderData['selected_items']);
         }
 
-        // Kiểm tra trạng thái đã tồn tại chưa trước khi tạo mới
+        // Kiểm tra trạng thái đã tồn tại chưa
         $existingStatus = OrderOrderStatus::where([
             'order_id' => $order->id,
             'order_status_id' => 1,
@@ -546,6 +566,38 @@ class CheckoutController extends Controller
         return redirect()->route('cart.index')
             ->with('error', 'Có lỗi xảy ra khi xử lý thanh toán: ' . $e->getMessage())
             ->with('transaction_no', $inputData['vnp_TransactionNo'] ?? '');
+    }
+}
+
+protected function reconstructOrderFromVNPayData($vnpayData)
+{
+    try {
+        $orderInfo = json_decode($vnpayData['vnp_OrderInfo'] ?? '{}', true);
+        if (empty($orderInfo)) {
+            return null;
+        }
+
+        // Lấy thông tin cơ bản
+        $userId = $orderInfo['user_id'] ?? null;
+        $orderCode = $vnpayData['vnp_TxnRef'] ?? null;
+        $amount = ($vnpayData['vnp_Amount'] ?? 0) / 100;
+
+        if (!$userId || !$orderCode) {
+            return null;
+        }
+
+        // Tạo lại dữ liệu đơn hàng cơ bản
+        return [
+            'user_id' => $userId,
+            'payment_id' => 4, // VNPay
+            'total_amount' => $amount,
+            'is_paid' => true,
+            'created_at' => $orderInfo['timestamp'] ?? now()->timestamp,
+            // Các thông tin khác có thể thêm nếu cần
+        ];
+    } catch (\Exception $e) {
+        Log::error('Failed to reconstruct order from VNPay data: ' . $e->getMessage());
+        return null;
     }
 }
 

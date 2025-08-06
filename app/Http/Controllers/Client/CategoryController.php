@@ -63,11 +63,7 @@ class CategoryController extends Controller
 
         // 7. Category filter
         if ($selectedCategory) {
-            $productsQuery->whereHas(
-                'categories',
-                fn($q) =>
-                $q->where('id', $selectedCategory)
-            );
+        $productsQuery->where('category_id', $selectedCategory);
         }
 
         // 8. Sort
