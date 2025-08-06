@@ -18,6 +18,7 @@ class HomeController extends Controller
             ->get();
 
         $categories = Category::where('is_active', 1)
+              ->withCount('products')
             ->orderBy('ordinal')
             ->get();
 

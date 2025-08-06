@@ -55,7 +55,7 @@
                                     <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item"{{$isOutOfStock ? 'disabled' : ''}}>
                                 </td>
                                 <td class="product-thumbnail">
-                                    <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="Cart Item"></a>
+                                    <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}" style="height:100%; width:auto" alt="Cart Item"></a>
                                 </td>
                                 <td class="product-name">
                                     <a href="{{ route('product.detail', $item->product->id) }}">{{ $item->product->name }}</a>

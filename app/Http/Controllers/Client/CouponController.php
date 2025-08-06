@@ -35,24 +35,36 @@ class CouponController extends Controller
         return view('client.coupons.index', compact('coupons'));
     }
 
-  public function received()
+public function received(Request $request)
 {
     $user = Auth::user();
+    $status = $request->query('status'); // ?status=...
 
-    $coupons = $user->coupons()
+    $couponsQuery = $user->coupons()
         ->with('restriction')
-        ->where(function ($query) {
-            $query->whereNull('start_date')
-                  ->orWhere('start_date', '<=', now()); // chính xác đến giây
+        ->where(function ($q) {
+            $q->whereNull('start_date')->orWhere('start_date', '<=', now());
         })
-        ->where(function ($query) {
-            $query->whereNull('end_date')
-                  ->orWhere('end_date', '>=', now()); // so sánh đúng ngày + giờ + phút
-        })
+        ->where(function ($q) {
+            $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+        });
+
+    // Lọc theo trạng thái
+    if ($status === 'used') {
+        $couponsQuery->wherePivotNotNull('used_at');
+    } elseif ($status === 'unused') {
+        $couponsQuery->wherePivotNull('used_at');
+    }
+
+    // ✅ Sắp xếp theo lúc người dùng NHẬN mã (pivot.created_at)
+    $coupons = $couponsQuery
+        ->orderByDesc('coupon_user.created_at')
         ->get();
 
     return view('client.coupons.received', compact('coupons'));
 }
+
+
 
 
   public function show($id)

@@ -50,7 +50,9 @@
             </div>
             <div class="card-body">
                 <div class="row text-center">
-                    <div class="col-md-4 mb-2"><strong>Tổng tiền:</strong> <div class="text-danger">{{ number_format($refund->total_amount, 0, ',', '.') }} đ</div></div>
+                    <div class="col-md-4 mb-2"><strong>Tổng tiền:</strong>
+                        <div class="text-danger">{{ number_format($refund->total_amount, 0, ',', '.') }} đ</div>
+                    </div>
                     <div class="col-md-4 mb-2"><strong>Trạng thái:</strong> <span class="badge badge-{{ $statusColors[$refund->status] ?? 'secondary' }}">{{ $statusLabels[$refund->status] ?? 'Không xác định' }}</span></div>
                     <div class="col-md-4 mb-2"><strong>Trạng thái TK:</strong> <span class="badge badge-{{ $bankStatusColors[$refund->bank_account_status] ?? 'secondary' }}">{{ $bankLabels[$refund->bank_account_status] ?? 'Không xác định' }}</span></div>
                 </div>
@@ -82,16 +84,49 @@
                     <div class="card-body">
                         <p><strong>Lý do:</strong> {{ $refund->reason }}</p>
                         @if($refund->reason_image)
-                        <p><strong>Ảnh minh chứng:</strong><br>
+                        <p><strong>Ảnh hoặc video từ khách:</strong><br>
+                            @php
+                            $ext = pathinfo($refund->reason_image, PATHINFO_EXTENSION);
+                            $videoExtensions = ['mp4', 'mov', 'avi', 'webm'];
+                            @endphp
+
+                            @if(in_array(strtolower($ext), $videoExtensions))
+                            <video controls style="max-width: 30%; max-height: 30%;">
+                                <source src="{{ asset('storage/' . $refund->reason_image) }}" type="video/{{ $ext }}">
+                                Trình duyệt không hỗ trợ video.
+                            </video>
+                            @else
                             <img src="{{ asset('storage/' . $refund->reason_image) }}" class="img-fluid rounded" style="max-width:160px;">
+                            @endif
                         </p>
                         @endif
-                        @if($refund->fail_reason)
-                        <p><strong>Lý do lỗi (Admin):</strong> <span class="text-danger">{{ $refund->fail_reason }}</span></p>
+
+                        {{-- Hiển thị lý do từ chối (admin_reason) --}}
+                        @if($refund->admin_reason)
+                            <p><strong>Lý do từ chối:</strong> {{ $refund->admin_reason }}</p>
                         @endif
+
+                        {{-- Hiển thị lý do thất bại (fail_reason) --}}
+                        @if($refund->fail_reason)
+                            <p><strong>Lý do thất bại:</strong> {{ $refund->fail_reason }}</p>
+                        @endif
+
+                        {{-- Hiển thị ảnh bằng chứng giao dịch từ admin --}}
                         @if($refund->img_fail_or_completed)
-                        <p><strong>Ảnh trạng thái:</strong><br>
-                            <img src="{{ asset('storage/' . $refund->img_fail_or_completed) }}" class="img-fluid rounded" style="max-width:160px;">
+                        <p><strong>Bằng chứng giao dịch từ admin:</strong><br>
+                            @php
+                                $ext = pathinfo($refund->img_fail_or_completed, PATHINFO_EXTENSION);
+                                $videoExtensions = ['mp4', 'mov', 'avi', 'webm'];
+                            @endphp
+
+                            @if(in_array(strtolower($ext), $videoExtensions))
+                                <video controls style="max-width: 100%; max-height: 300px;">
+                                    <source src="{{ asset('storage/' . $refund->img_fail_or_completed) }}" type="video/{{ $ext }}">
+                                    Trình duyệt không hỗ trợ video.
+                                </video>
+                            @else
+                                <img src="{{ asset('storage/' . $refund->img_fail_or_completed) }}" class="img-fluid rounded" style="max-width:160px;">
+                            @endif
                         </p>
                         @endif
                     </div>
@@ -129,10 +164,11 @@
                                 </td>
                                 <td>{{ $item->name }}</td>
                                 <td> @if($item->variant && $item->variant->attributeValues->count())
-                                        {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif</td>
+                                    {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ number_format($item->price, 0, ',', '.') }} đ</td>
                                 <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }} đ</td>
@@ -144,75 +180,103 @@
             </div>
         </div>
 
-        {{-- Form cập nhật --}}
+         {{-- Form cập nhật --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Cập nhật trạng thái</h5>
             </div>
             <div class="card-body">
                 @php
-                    $statusTransitions = [
-                        'pending' => ['receiving','cancel','failed','rejected'],
-                        'receiving' => ['completed','cancel','failed','rejected'],
-                        'completed' => [],
-                        'rejected' => [],
-                        'failed' => [],
-                        'cancel' => [],
-                    ];
-                    $bankTransitions = [
-                        'unverified' => ['verified'],
-                        'verified' => ['sent'],
-                        'sent' => [],
-                    ];
-                    $allowedStatuses = $statusTransitions[$refund->status] ?? [];
-                    $allowedBanks = $bankTransitions[$refund->bank_account_status] ?? [];
-                    $allStatuses = ['pending','receiving','completed','rejected','failed','cancel'];
-                    $allBanks = ['unverified','verified','sent'];
+                $statusTransitions = [
+                    'pending' => ['receiving', 'rejected', 'failed', 'cancel'],
+                    'receiving' => ['completed', 'rejected', 'failed', 'cancel'],
+                    'completed' => [],
+                    'rejected' => [],
+                    'failed' => [],
+                    'cancel' => [],
+                ];
+                $bankTransitions = [
+                    'unverified' => ['verified'],
+                    'verified' => ['sent'],
+                    'sent' => [],
+                ];
+                $allowedStatuses = $statusTransitions[$refund->status] ?? [];
+                $allowedBanks = $bankTransitions[$refund->bank_account_status] ?? [];
+                $allStatuses = ['pending','receiving','completed','rejected','failed','cancel'];
+                $allBanks = ['unverified','verified','sent'];
+                $isCompletedOrFinal = in_array($refund->status, ['completed', 'rejected', 'failed', 'cancel']);
                 @endphp
-                <form method="POST" action="{{ route('admin.refunds.update', $refund) }}">
+
+                <form method="POST" action="{{ route('admin.refunds.update', $refund) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
+
+                    {{-- Các trường dropdown trạng thái --}}
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="status">Trạng thái yêu cầu</label>
-                            <select name="status" id="status" class="form-control form-control-sm">
-                                <optgroup label="Có thể chọn">
+                            <select name="status" id="status" class="form-control form-control-sm" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
+                                <option value="{{ $refund->status }}" selected>{{ $statusLabels[$refund->status] }}</option>
+                                @if(!$isCompletedOrFinal)
                                     @foreach($allowedStatuses as $key)
-                                    <option value="{{ $key }}">{{ $statusLabels[$key] }}</option>
+                                        <option value="{{ $key }}">{{ $statusLabels[$key] }}</option>
                                     @endforeach
-                                </optgroup>
-                                <optgroup label="Không thể chọn">
-                                    @foreach(array_diff($allStatuses, $allowedStatuses) as $key)
-                                    <option value="{{ $key }}" disabled {{ $refund->status == $key ? 'selected' : '' }}>{{ $statusLabels[$key] }}</option>
-                                    @endforeach
-                                </optgroup>
+                                @endif
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="bank_account_status">Trạng thái TK ngân hàng</label>
-                            <select name="bank_account_status" id="bank_account_status" class="form-control form-control-sm">
-                                <optgroup label="Có thể chọn">
+                            <select name="bank_account_status" id="bank_account_status" class="form-control form-control-sm" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
+                                <option value="{{ $refund->bank_account_status }}" selected>{{ $bankLabels[$refund->bank_account_status] }}</option>
+                                @if(!$isCompletedOrFinal)
                                     @foreach($allowedBanks as $key)
-                                    <option value="{{ $key }}">{{ $bankLabels[$key] }}</option>
+                                        <option value="{{ $key }}">{{ $bankLabels[$key] }}</option>
                                     @endforeach
-                                </optgroup>
-                                <optgroup label="Không thể chọn">
-                                    @foreach(array_diff($allBanks, $allowedBanks) as $key)
-                                    <option value="{{ $key }}" disabled {{ $refund->bank_account_status == $key ? 'selected' : '' }}>{{ $bankLabels[$key] }}</option>
-                                    @endforeach
-                                </optgroup>
+                                @endif
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="admin_reason">Ghi chú từ Admin</label>
-                        <textarea name="admin_reason" id="admin_reason" class="form-control form-control-sm" rows="2" placeholder="Nhập ghi chú...">{{ old('admin_reason', $refund->admin_reason) }}</textarea>
+
+                    {{-- Trường admin_reason (Lý do từ chối) --}}
+                    <div class="form-group" id="admin_reason_group" style="{{ $refund->status === 'rejected' ? 'display:block;' : 'display:none;' }}">
+                        <label for="admin_reason">Lý do từ chối *</label>
+                        <textarea name="admin_reason" id="admin_reason" class="form-control form-control-sm" rows="2" placeholder="Nhập lý do từ chối">{{ old('admin_reason', $refund->admin_reason) }}</textarea>
                     </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" name="is_send_money" class="form-check-input" id="is_send_money" value="1" {{ $refund->is_send_money ? 'checked' : '' }}>
+
+                    {{-- Trường fail_reason (Lý do thất bại) --}}
+                    <div class="form-group" id="fail_reason_group" style="{{ $refund->status === 'failed' ? 'display:block;' : 'display:none;' }}">
+                        <label for="fail_reason">Lý do thất bại *</label>
+                        <textarea name="fail_reason" id="fail_reason" class="form-control form-control-sm" rows="2" placeholder="Nhập lý do giao dịch thất bại">{{ old('fail_reason', $refund->fail_reason) }}</textarea>
+                    </div>
+
+                    {{-- Checkbox "Đã chuyển tiền" --}}
+                    <div class="form-group form-check" id="is_send_money_group" style="{{ $refund->status === 'completed' ? 'display:block;' : 'display:none;' }}">
+                        <input type="checkbox" name="is_send_money" class="form-check-input" id="is_send_money" value="1" {{ $refund->is_send_money ? 'checked' : '' }} {{ $isCompletedOrFinal ? 'disabled' : '' }}>
                         <label class="form-check-label" for="is_send_money">Đã chuyển tiền</label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm"> <i class="fa fa-save"></i> Cập nhật</button>
+
+                    {{-- Trường upload ảnh bằng chứng --}}
+                    <div class="form-group" id="img_upload_group" style="{{ in_array($refund->status, ['completed', 'failed']) ? 'display:block;' : 'display:none;' }}">
+                        <label id="img_upload_label" for="img_fail_or_completed">
+                            @if($refund->status === 'completed')
+                                Ảnh chuyển khoản
+                            @elseif($refund->status === 'failed')
+                                Ảnh chứng minh thất bại
+                            @else
+                                Ảnh chứng minh
+                            @endif
+                            @if(in_array($refund->status, ['completed', 'failed'])) * @endif
+                        </label>
+                        <input type="file" name="img_fail_or_completed" id="img_fail_or_completed" accept="image/*,video/*" class="form-control-file form-control-sm" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
+                        <small class="form-text text-muted" id="img_upload_help">Vui lòng tải lên ảnh/video chứng minh.</small>
+                    </div>
+
+                    {{-- Nút cập nhật --}}
+                    @if(!$isCompletedOrFinal)
+                        <button type="submit" class="btn btn-primary btn-sm"> <i class="fa fa-save"></i> Cập nhật</button>
+                    @else
+                        <button type="button" class="btn btn-success btn-sm disabled"><i class="fa fa-check"></i> Đã hoàn thành</button>
+                    @endif
                     <a href="{{ route('admin.refunds.index') }}" class="btn btn-secondary btn-sm"><i class="fa fa-arrow-left"></i> Quay lại danh sách</a>
                 </form>
             </div>
@@ -220,3 +284,64 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    jQuery(document).ready(function($) {
+        const statusSelect = $('#status');
+        const bankStatusSelect = $('#bank_account_status');
+        const isSendMoneyCheckbox = $('#is_send_money');
+        const isSendMoneyGroup = $('#is_send_money_group');
+        const imgUploadGroup = $('#img_upload_group');
+        const imgUploadLabel = $('#img_upload_label');
+        const adminReasonGroup = $('#admin_reason_group');
+        const failReasonGroup = $('#fail_reason_group');
+
+        function updateFormState() {
+            const currentStatus = statusSelect.val();
+
+            // Ẩn/hiện các trường dựa trên trạng thái chính
+            adminReasonGroup.hide();
+            failReasonGroup.hide();
+            isSendMoneyGroup.hide();
+            imgUploadGroup.hide();
+
+            switch (currentStatus) {
+                case 'completed':
+                    isSendMoneyGroup.show();
+                    imgUploadGroup.show();
+                    imgUploadLabel.html('Ảnh chuyển khoản <span class="text-danger">*</span>');
+                    break;
+                case 'failed':
+                    failReasonGroup.show();
+                    imgUploadGroup.show();
+                    imgUploadLabel.html('Ảnh chứng minh thất bại <span class="text-danger">*</span>');
+                    break;
+                case 'rejected':
+                    adminReasonGroup.show();
+                    break;
+            }
+
+            // Tự động đồng bộ trạng thái ngân hàng khi tích "Đã chuyển tiền"
+            if (isSendMoneyCheckbox.is(':checked')) {
+                bankStatusSelect.val('sent').trigger('change');
+            }
+        }
+
+        // Sự kiện khi thay đổi trạng thái chính
+        statusSelect.on('change', updateFormState);
+
+        // Sự kiện khi tích/bỏ tích checkbox "Đã chuyển tiền"
+        isSendMoneyCheckbox.on('change', function() {
+            if ($(this).is(':checked')) {
+                if (statusSelect.val() === 'completed') {
+                    bankStatusSelect.val('sent').trigger('change');
+                }
+            }
+        });
+
+        // Cập nhật trạng thái form ngay khi load trang
+        updateFormState();
+    });
+</script>
+@endpush
