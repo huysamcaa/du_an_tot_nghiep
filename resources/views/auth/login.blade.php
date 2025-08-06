@@ -15,7 +15,7 @@
       <input id="password-field" type="password" name="password" class="form-control" placeholder="Mật khẩu">
       @error('password') <small class="text-danger">{{ $message }}</small> @enderror
       <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
-    </div>ư
+    </div>
     <div class="form-group">
       <button type="submit" class="form-control btn btn-primary submit px-3">Đăng nhập</button>
     </div>
