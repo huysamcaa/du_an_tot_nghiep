@@ -465,27 +465,26 @@
                         <div class="productCarousel owl-carousel">
                             @foreach ($products as $product)
                             <div class="productItem01">
-    <div class="pi01Thumb" style="height: 400px; overflow: hidden;">
-        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
-        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
+                            <div class="pi01Thumb" style="height: 400px; overflow: hidden;">
+                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
+                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
 
 
-        <div class="pi01Actions" data-product-id="{{ $product->id }}">
+                                <div class="pi01Actions" data-product-id="{{ $product->id }}">
 
-            <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-            <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
+                                    <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
 
-        </div>
+                                </div>
 
-        @if ($product->sale_price && $product->price > $product->sale_price)
-            <div class="productLabels clearfix">
-                <span class="plDis">
-                    - {{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ
-                </span>
-                <span class="plSale">SALE</span>
-            </div>
-        @endif
-    </div>
+                                @if ($product->sale_price && $product->price > $product->sale_price)
+                                    <div class="productLabels clearfix">
+                                        <span class="plDis">
+                                            - {{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ
+                                        </span>
+                                        <span class="plSale">SALE</span>
+                                    </div>
+                                @endif
+                            </div>
 
     <div class="pi01Details">
         <!-- <div class="productRatings">
@@ -494,6 +493,7 @@
             </div>
             <div class="ratingCounts">10 đánh giá</div>
         </div> -->
+    <a href="{{ route('product.detail', $product->id) }}">
 
         <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
     <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
@@ -507,6 +507,7 @@
                 <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
             @endif
         </div>
+    </a>
 
         <!-- <div class="pi01Variations">
             <div class="pi01VColor">
