@@ -3,7 +3,7 @@
         @foreach ($comments as $index => $comment)
             <li>
                 <div class="postReview">
-                    <img src="{{ asset('assets/client/images/author/7.jpg') }}" alt="Post Review">
+                    <img src="{{ asset('storage/' . $comment->user->avatar) }}" alt="Post Review">
 
                     <h2>
                         {{ $comment->user?->fullname ?? $comment->user?->name ?? 'Người dùng đã xoá' }}
