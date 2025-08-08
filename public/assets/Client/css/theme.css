@@ -43,6 +43,15 @@
 /*-----------------------------------------
 /  01. Header
 /-----------------------------------------*/
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap&subset=vietnamese');
+
+/* Chỉ áp dụng cho header/menu */
+.header, .navbar, .ulinaMenu, .ulinaMenu a, .mainMenu a {
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: -50;      /* nét vừa */
+    font-size: 10px;       /* thu nhỏ để cân */
+    letter-spacing: 0.2px; /* khoảng cách chữ hợp lý */
+}
 
 .header01 {
     position: absolute;
@@ -50,8 +59,11 @@
     top: 0;
     z-index: 2;
     width: 100%;
-    height: auto;
+    height: 200px;
     padding: 0 48px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: -80px;
 }
 
 .header01.fixedHeader {
@@ -110,8 +122,11 @@
 }
 
 .logo img {
-    height: 48px;
+    height: 200px;
     width: auto;
+    display: block;
+    margin: 0 auto;
+    margin-left: -20px;
 }
 
 .headerInner02 .logo img {
@@ -3234,9 +3249,10 @@
 }
 
 .footerLogo img {
-    height: 48px;
+    height: 200px;
     display: inline-block;
     width: auto;
+    margin-top: -120px;
 }
 
 .footerLogo2 img {
@@ -3248,6 +3264,7 @@
 .aboutWidContent {
     color: #bbbdc4;
     margin: 0 0 29px;
+    margin-top: -40px;
 }
 
 .footerMode2 .aboutWidContent {

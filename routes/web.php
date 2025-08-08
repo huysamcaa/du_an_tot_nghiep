@@ -29,8 +29,7 @@ use App\Http\Controllers\Client\CommentController;
 use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 use App\Http\Controllers\Client\WishlistController;
-
-//  use App\Http\Controllers\Client\ProductController as ClientProductController;
+use App\Http\Controllers\Client\SearchController;
 
 
 use App\Http\Controllers\Client\RefundController as ClientRefundController;
@@ -52,6 +51,10 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+//search
+Route::get('/search', [SearchController::class, 'search'])->name('search');
+
 
 //blogsclient
 Route::get('/blogs', [ClientBlogController::class, 'index'])->name('client.blogs.index');

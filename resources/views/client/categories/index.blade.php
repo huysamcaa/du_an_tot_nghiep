@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2>Mua sắn với FreshFit</h2>
+                    <h2>Mua sắm với FreshFit</h2>
                     <div class="pageBannerPath">
                         <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Danh mục</span>
                     </div>
