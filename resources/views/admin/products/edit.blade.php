@@ -95,7 +95,6 @@
                                     <textarea name="short_description" rows="2" class="form-control">{{ old('short_description', $product->short_description) }}</textarea>
                                 </div>
                             </div>
-
                             {{-- <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label class="font-weight-bold">Giá gốc <span class="text-danger">*</span></label>

@@ -43,7 +43,7 @@
                         <label for="otp" class="font-weight-bold">Mã OTP</label>
                         <input type="text" name="otp" id="otp"
                             class="form-control text-center {{ $errors->has('otp') ? 'is-invalid' : '' }}"
-                            maxlength="6" required autofocus placeholder="Nhập mã 6 số">
+                            maxlength="6" autofocus placeholder="Nhập mã 6 số">
                         @error('otp')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
