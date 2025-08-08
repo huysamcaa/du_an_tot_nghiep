@@ -282,7 +282,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
          ->name('orders.confirm-refund');
          
     Route::post('orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
-         ->name('orders.confirm-refund.post');
+     ->name('admin.orders.confirm-refund');
 
     // Route danh sách đơn hàng đã hủy
     Route::get('orders/cancelled', [OrderController::class, 'listCancelledOrders'])

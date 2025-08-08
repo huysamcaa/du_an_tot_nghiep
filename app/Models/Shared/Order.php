@@ -36,10 +36,37 @@ class Order extends Model
     protected $table   = 'orders';
     protected $guarded = [];
     public $timestamps = true;
-
+    protected $appends = ['status_text', 'status_class'];
     use SoftDeletes;
 
+    public function getStatusTextAttribute()
+{
+    if (!$this->currentStatus || !$this->currentStatus->orderStatus) {
+        return 'Không xác định';
+    }
+    
+    return $this->currentStatus->orderStatus->name;
+}
 
+public function getStatusClassAttribute()
+{
+    $statusId = $this->currentStatus->order_status_id ?? 0;
+    
+    $classMap = [
+        1 => 'badge-secondary',  // Chờ Xác Nhận
+        2 => 'badge-primary',    // Đã Xác Nhận
+        3 => 'badge-info',       // Đang xử lý
+        4 => 'badge-info',       // Đang giao hàng
+        5 => 'badge-success',    // Đã hoàn thành
+        6 => 'badge-warning',    // Trả hàng/Hoàn tiền
+        7 => 'badge-danger',     // Hủy Đơn
+        8 => 'badge-dark',       // Thất bại
+        9 => 'badge-success',    // Đã Thanh Toán
+        10 => 'badge-secondary'  // Chờ Thanh Toán
+    ];
+    
+    return $classMap[$statusId] ?? 'badge-dark';
+}
     public function items()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
