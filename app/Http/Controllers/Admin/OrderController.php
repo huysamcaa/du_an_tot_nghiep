@@ -34,15 +34,6 @@ class OrderController extends Controller
 
         return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
     }
-    protected function handleCancelOrder($orderId)
-    {
-        // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
-        $order = Order::find($orderId);
-        if ($order) {
-            $order->is_paid = false; // hoặc các hành động khác
-            $order->save();
-        }
-    }
     // Xác nhận đã thanh toán COD
     public function confirm($id)
     {
@@ -118,7 +109,7 @@ class OrderController extends Controller
 
             if ($request->order_status_id == 2) {
             $order = Order::with('items.variant')->findOrFail($orderId);
-            
+
             // Kiểm tra payment_id = 1 (COD)
             if ($order->payment_id == 1) {
                 foreach ($order->items as $item) {
@@ -139,7 +130,7 @@ class OrderController extends Controller
         }
         if ($request->order_status_id == 6) {
             $order = Order::with('items.variant')->findOrFail($orderId);
-            
+
             // Kiểm tra payment_id = 1 (COD)
             if ($order->payment_id == 3 || $order->payment_id == 4) {
                 foreach ($order->items as $item) {
@@ -196,7 +187,7 @@ class OrderController extends Controller
  public function cancel(Request $request, $orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -289,8 +280,8 @@ class OrderController extends Controller
         }
 
         // Xử lý lý do hủy
-        $cancelReason = $request->cancel_reason === 'other' 
-            ? $request->other_reason 
+        $cancelReason = $request->cancel_reason === 'other'
+            ? $request->other_reason
             : $request->cancel_reason;
 
         // 1. Cập nhật trạng thái cũ
@@ -327,16 +318,16 @@ class OrderController extends Controller
         }
 
         // 3. Cập nhật đơn hàng
-        
+
         $order->is_refund_cancel = 1; // 1 Nếu hủy hàng, 0 Nếu không hủy hàng
-        
-        
+
+
         if (!$order->save()) {
             return redirect()->route('client.orders.purchase.history')
                 ->with('error', 'Không thể cập nhật đơn hàng');
         }
-        
-        
+
+
         if (!$order->save()) {
             return redirect()->route('client.orders.purchase.history')
                 ->with('error', 'Không thể cập nhật đơn hàng');
@@ -421,7 +412,7 @@ protected function handleCancelOrder($orderId)
 public function showCancelForm($orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -438,7 +429,7 @@ public function showCancelForm($orderId)
 public function showCancelForm2($orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -457,7 +448,7 @@ public function confirmRefund(Request $request, $orderId)
 {
     try {
         $order = Order::with(['currentStatus', 'paymentMethod'])->findOrFail($orderId);
-        
+
         // Validate only online payment orders can be processed
         if ($order->paymentMethod->type !== 'online') {
             return redirect()->back()->with('error', 'Chỉ áp dụng cho đơn hàng thanh toán online');

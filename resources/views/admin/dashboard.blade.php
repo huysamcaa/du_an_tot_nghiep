@@ -1,6 +1,11 @@
     @extends('admin.layouts.app')
 
     @section('content')
+        <style>
+            #revenue-chart-section {
+                display: none;
+            }
+        </style>
         <div class="content">
             <div class="animated fadeIn">
                 <!-- 4 box nhỏ thống kê -->
@@ -15,16 +20,17 @@
                                     <div class="stat-content">
                                         <div class="text-left dib">
                                             <div class="stat-text"><span
-                                                    class="revenue-value">{{ number_format($revenue, 0, ',', '.') }}
-                                                    đ</span></div>
-                                            <div class="stat-heading">Doanh thu</div>
+                                                    class="revenue-value">{{ number_format($revenue, 0, ',', '.') }}đ</span>
+                                            </div>
+                                            <div class="stat-heading">
+                                                <a href="javascript:void(0);" onclick="toggleRevenue()">Doanh thu</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -42,7 +48,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -60,7 +65,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -79,7 +83,31 @@
                         </div>
                     </div>
                 </div>
-
+                <div id="revenue-detail" style="display: none;" class="mt-4">
+                    <h4>Chi tiết doanh thu</h4>
+                    <p><strong>Tổng doanh thu:</strong> {{ number_format($revenue, 0, ',', '.') }} đ</p>
+                    <div class="bg-white p-4 rounded shadow mb-4">
+                        <h2 class="text-xl font-bold mb-2">Thống kê nhanh</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 border rounded bg-blue-50">
+                                <p class="text-sm text-gray-600">Doanh thu hôm nay</p>
+                                <p class="text-2xl font-semibold text-blue-700">{{ number_format($revenueToday) }}đ</p>
+                            </div>
+                            <div class="p-4 border rounded bg-green-50">
+                                <p class="text-sm text-gray-600">Doanh thu tháng này</p>
+                                <p class="text-2xl font-semibold text-green-700">{{ number_format($revenueMonth) }}đ</p>
+                            </div>
+                            {{-- <div class="p-4 border rounded bg-yellow-50">
+                                <p class="text-sm text-gray-600">Đơn hàng tuần này</p>
+                                <p class="text-2xl font-semibold text-yellow-700">{{ $orderCountThisWeek }}</p>
+                            </div> --}}
+                            {{-- <div class="p-4 border rounded bg-red-50">
+                                <p class="text-sm text-gray-600">Đơn hàng năm nay</p>
+                                <p class="text-2xl font-semibold text-red-700">{{ $orderCountThisYear }}</p>
+                            </div> --}}
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row">
                     <!-- Bên trái -->
@@ -97,8 +125,8 @@
                                     </div>
                                     <div class="col-auto">
                                         <label for="to_date">Đến ngày</label>
-                                        <input type="date" name="to_date" id="to_date" value="{{ request('to_date') }}"
-                                            class="form-control form-control-sm">
+                                        <input type="date" name="to_date" id="to_date"
+                                            value="{{ request('to_date') }}" class="form-control form-control-sm">
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" class="btn btn-primary btn-sm">Xem</button>
@@ -288,7 +316,9 @@
                             labels: @json($statusLabels),
                             datasets: [{
                                 data: @json($statusData),
-                                backgroundColor: ['#36A2EB','#FF9F40', '#FFCE56', '#4BC0C0', '#9966FF', '#FF6384','#C9CBCF'],
+                                backgroundColor: ['#36A2EB', '#FF9F40', '#FFCE56', '#4BC0C0', '#9966FF',
+                                    '#FF6384', '#C9CBCF'
+                                ],
                                 borderWidth: 1
                             }]
                         },
@@ -302,6 +332,15 @@
                         }
                     });
                 });
+
+                function toggleRevenue() {
+                    var detail = document.getElementById("revenue-detail");
+                    if (detail.style.display === "none") {
+                        detail.style.display = "block";
+                    } else {
+                        detail.style.display = "none";
+                    }
+                }
             </script>
         @endpush
     @endsection
