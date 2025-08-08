@@ -92,7 +92,7 @@
                                                 </form>
 
                                                 {{-- Xóa vĩnh viễn --}}
-                                                @if (!$product->orderItems()->exists())
+                                                @if (!$product->cartItems()->exists() && !$product->orderItems()->exists())
                                                     <form action="{{ route('admin.products.forceDelete', $product->id) }}"
                                                         method="POST" class="d-inline"
                                                         onsubmit="return confirm('Xóa vĩnh viễn sản phẩm này?')">
@@ -105,7 +105,7 @@
                                                     </form>
                                                 @else
                                                     <button class="btn btn-sm btn-outline-danger" disabled
-                                                        title="Sản phẩm đã có trong đơn hàng, không thể xóa">
+                                                        title="Sản phẩm đã có trong giỏ hoặc đơn hàng, không thể xóa cứng">
                                                         <i class="fa fa-ban"></i>
                                                     </button>
                                                 @endif

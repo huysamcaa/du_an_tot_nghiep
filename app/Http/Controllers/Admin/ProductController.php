@@ -41,13 +41,13 @@ class ProductController extends Controller
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-
+            
             'name' => 'required|string|max:255|unique:products,name',
             'short_description' => 'required|string',
             'description' => 'required|string',
-
+            
             'thumbnail' => 'required|image|max:2048',
-            // 'price' => 'required|numeric',
+            'price' => 'required|numeric',
             'sale_price' => 'nullable|numeric',
             'sale_price_start_at' => 'nullable|date',
             'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',
@@ -390,9 +390,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Nếu sản phẩm đã từng có trong đơn hàng, không cho xóa cứng
-        if ($product->orderItems()->exists()) {
-            return redirect()->back()->with('error', 'Không thể xóa cứng sản phẩm đã có trong đơn hàng!');
+        // Nếu sản phẩm đã từng có trong giỏ hàng, không cho xóa cứng
+        if ($product->cartItems()->exists()) {
+            return redirect()->back()->with('error', 'Không thể xóa cứng sản phẩm đã từng có trong giỏ hàng!');
         }
 
         // Xóa ảnh chính nếu có

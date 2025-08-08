@@ -137,20 +137,6 @@ class AdminController extends Controller
                 return $order;
             });
 
-        // Doanh thu hôm nay
-        $revenueToday = Order::whereIn('id', $completedOrderIds)
-            ->whereDate('created_at', today())
-            ->sum('total_amount');
-
-        // Doanh thu tháng này
-        $revenueMonth = Order::whereIn('id', $completedOrderIds)
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->sum('total_amount');
-        $recentOrders = Order::where('is_paid', true)
-            ->latest()
-            ->take(10)
-            ->get();
 
         $topProductsByComments = Comment::select('product_id', DB::raw('COUNT(*) as total'))
             ->whereHas('product')
@@ -178,6 +164,7 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'revenue',
+            'orderCount',
             'productCount',
             'userCount',
             'revenueByPeriod',
@@ -192,12 +179,7 @@ class AdminController extends Controller
             'month',
             'view',
             'fromDate',
-            'toDate',
-            'revenueToday',
-            'revenueMonth',
-            'orderCount',
-            // 'orderCountThisWeek',
-            // 'orderCountThisYear'
+            'toDate'
         ));
     }
 
