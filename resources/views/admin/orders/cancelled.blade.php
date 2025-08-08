@@ -42,13 +42,23 @@
                             <tr>
                                 <td>#{{ $order->code }}</td>
                                 <td>{{ $order->user->name }}</td>
-                                <td>{{ number_format($order->total) }}đ</td>
-                                <td>{{ $order->paymentMethod->name }}</td>
+                                <td>{{ number_format($order->total_amount) }}đ</td>
+                                <td>
+                                    @if($order->payment_id == 2)
+                                         COD
+                                    @elseif($order->payment_id == 3)
+                                        Ví Momo
+                                    @elseif($order->payment_id == 4)
+                                        Ví VNPay
+                                    @else
+                                        Không Xác Định
+                                    @endif
+                                </td>
                                 <td>{{ $order->currentStatus->cancel_reason }}</td>
                                 <td>{{ $order->currentStatus->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
-                                    @if($order->paymentMethod->type === 'online')
-                                        @if($order->check_refund_cancel)
+                                    @if($order->payment_id == 3 && $order->payment_id == 4)
+                                        @if($order->check_refund_cancel == 1)
                                             <span class="badge bg-success">Đã hoàn tiền</span>
                                         @else
                                             <span class="badge bg-warning">Chờ hoàn tiền</span>
@@ -59,11 +69,11 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fa fa-eye"></i>
                                     </a>
-                                    @if($order->paymentMethod->type === 'online' && !$order->check_refund_cancel)
+                                    @if($order->payment_id == 3 || $order->payment_id == 4)
                                         <a href="{{ route('admin.orders.confirm-refund', $order->id) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-check-circle"></i> Xác nhận hoàn tiền
+                                            <i class="fa fa-edit"></i>
                                         </a>
                                     @endif
                                 </td>
