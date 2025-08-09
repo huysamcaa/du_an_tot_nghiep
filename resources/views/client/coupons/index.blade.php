@@ -1,6 +1,26 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+</style>
 
 
         <section class="pageBannerSection">
@@ -17,8 +37,6 @@
         </div>
     </div>
 </section>
-
-
         <div class="container py-5">
             <h4 class="mb-4 text-center text-dark">🎁 Danh sách mã giảm giá đang hoạt động</h4>
 

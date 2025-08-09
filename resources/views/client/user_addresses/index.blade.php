@@ -3,6 +3,22 @@
 @section('title', 'Địa chỉ của bạn')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -18,32 +34,41 @@
     </div>
 </section>
 <br>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <div class="container">
     <div class="section-header mb-4 d-flex justify-content-between align-items-center">
         <h4 class="section-title fs-4">Địa chỉ của tôi</h4>
-        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addAddressModal">+ Thêm địa chỉ mới</a>
+        <a href="#" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+            <i class="bi bi-plus-circle me-2"></i> Thêm địa chỉ mới
+        </a>
     </div>
 
     <div class="row">
         @forelse ($addresses as $address)
-            <div class="col-12 mb-4" id="address-{{ $address->id }}">
-                <div class="ulina-address-box p-4 border rounded shadow-sm" style="font-size:16px; line-height:1.8;">
-                    <div class="d-flex justify-content-between flex-wrap">
+            <div class="col-md-6 col-lg-4 mb-4" id="address-{{ $address->id }}">
+                <div class="p-4 border rounded-4 shadow-sm bg-white position-relative" style="font-size:16px; line-height:1.8;">
+                    <div class="d-flex justify-content-between flex-wrap align-items-start">
                         <div class="mb-2">
-                            <strong class="d-block mb-1 fs-5">{{ $address->fullname }}</strong>
-                            <div class="text-muted mb-1">Số điện thoại: {{ $address->phone_number }}</div>
-                            <div>Địa chỉ: {{ $address->address }}</div>
+                            <h5 class="fw-bold mb-1">
+                                <i class="bi bi-person-circle me-2 text-primary"></i>{{ $address->fullname }}
+                            </h5>
+                            <p class="mb-1 text-muted">
+                                <i class="bi bi-telephone me-2 text-success"></i>{{ $address->phone_number }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="bi bi-geo-alt-fill me-2 text-danger"></i>{{ $address->address }}
+                            </p>
                             @if($address->id_default)
-                                <span class="badge bg-primary text-white mt-2">Mặc định</span>
+                                <span class="badge bg-primary mt-2">Mặc định</span>
                             @endif
                         </div>
                         <div class="text-end">
                             <button type="button"
-                                    class="btn btn-link text-primary px-0 me-2 fs-6"
+                                    class="btn btn-outline-primary btn-sm mb-1"
                                     data-bs-toggle="modal"
                                     data-bs-target="#editAddressModal-{{ $address->id }}">
-                                Cập nhật
+                                <i class="bi bi-pencil-square me-1"></i> Cập nhật
                             </button>
 
                             @if(! $address->id_default)
@@ -53,14 +78,17 @@
                                       onsubmit="return confirm('Bạn có chắc muốn xoá địa chỉ này?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-link text-danger px-0 fs-6">Xoá</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm mb-1">
+                                        <i class="bi bi-trash3 me-1"></i> Xoá
+                                    </button>
                                 </form>
-                                <br>
                                 <form action="{{ route('user.addresses.set_default', $address->id) }}"
                                       method="POST"
                                       class="mt-2 d-inline-block">
                                     @csrf
-                                    <button class="btn btn-outline-secondary btn-sm">Thiết lập mặc định</button>
+                                    <button class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-star me-1"></i> Thiết lập mặc định
+                                    </button>
                                 </form>
                             @endif
                         </div>

@@ -1,6 +1,36 @@
 @extends('client.layouts.app')
 
 @section('content')
+<section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Bài viết</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Bài viết</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
 <div class="container pt-5 mt-5" style="min-height: 80vh;">
 
    

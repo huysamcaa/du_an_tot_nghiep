@@ -463,7 +463,7 @@
                 </div>
 
 <div id="product-list">
-    @include('client.components.product-list', ['products' => $products])
+    @include('client.components.products-list', ['products' => $products])
 </div>
 
 

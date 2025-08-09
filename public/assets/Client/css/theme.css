@@ -1193,6 +1193,7 @@
 .sliderSection01 {
     position: relative;
     background: #ecf5f4;
+    
 }
 
 .ulinaBTN.ulinaSliderBTN {
@@ -8344,4 +8345,6 @@ form.contactForm button.ulinaBTN {
     border: 1px solid #ddd;
     padding: 8px;
 }
+
+
 

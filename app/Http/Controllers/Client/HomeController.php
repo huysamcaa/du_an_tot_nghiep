@@ -24,7 +24,7 @@ class HomeController extends Controller
         $blogs = Blog::latest()->take(3)->get();
 
         if ($request->ajax()) {
-            return view('client.components.product-list', compact('products'))->render();
+            return view('client.components.products-list', compact('products'))->render();
         }
 
         return view('client.home', compact('products', 'categories', 'blogs'));
