@@ -78,7 +78,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($comments as $comment)
+                                @foreach($comments as $comment)
                                 <tr>
                                     <td>{{ $comment->id }}</td>
                                     <td>{{ $comment->product->name ?? '[Sản phẩm đã xóa]' }}</td>
@@ -104,11 +104,7 @@
                                         </a>
                                     </td>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-muted">Chưa có bình luận nào.</td>
-                                </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
 
@@ -136,7 +132,10 @@
             ],
             paging: false,
             searching: false,
-            info: false
+            info: false,
+            language: {
+                emptyTable: "Chưa có bình luận nào."
+            }
         });
     });
 </script>
