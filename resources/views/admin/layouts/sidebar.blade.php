@@ -130,6 +130,15 @@
                         <li><i class="fa fa-plus"></i><a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a></li>
                     </ul>
                 </li>
+                 <li class="menu-item-has-children dropdown">
+                    <a href="admin.contact.index" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
+                        <i class="menu-icon fa fa-cogs"></i>Liên hệ
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fa fa-puzzle-piece"></i><a href="{{ route('admin.contact.index') }}">Trang liên hệ</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>
