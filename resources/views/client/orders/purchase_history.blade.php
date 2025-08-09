@@ -350,19 +350,19 @@
                                     </div>
                                 </div>
 
-                                <div class="item-price">
+                                {{-- <div class="item-price">
                                     <span
                                         class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
-                                </div>
+                                </div> --}}
 
-                                <div class="item-actions">
+                                {{-- <div class="item-actions">
                                     @php
                                         $pending = $order->refunds->firstWhere('status', 'pending');
                                     @endphp
 
-                                    @if ($pending)
-                                        {{-- Form hủy yêu cầu hoàn đơn --}}
-                                        <form id="refund-cancel-{{ $pending->id }}"
+                                    @if ($pending) --}}
+                                {{-- Form hủy yêu cầu hoàn đơn --}}
+                                {{-- <form id="refund-cancel-{{ $pending->id }}"
                                             action="{{ route('refunds.cancel', ['id' => $pending->id]) }}" method="POST"
                                             style="display:none">
                                             @csrf
@@ -375,9 +375,9 @@
                                         </button>
                                     @elseif (
                                         $statusName === 'Đã hoàn thành' &&
-                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-                                        {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0) --}}
+                                {{-- Nút tạo yêu cầu hoàn đơn --}}
+                                {{-- <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
                                             class="btn btn-outline-warning btn-sm action-btn">
                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                         </a>
@@ -385,14 +385,14 @@
 
 
 
-                                    {{-- <button class="btn btn-outline-success btn-sm action-btn">
+                                    <button class="btn btn-outline-success btn-sm action-btn">
                                         <i class="fas fa-comments me-1"></i>Chat
-                                    </button> --}}
+                                    </button>
+                                        --}}
 
-
-                                </div>
+                                {{-- </div> --}}
                         </div>
-                    @endforeach
+                                  @endforeach
                 </div>
 
                 <!-- No Results Message -->
