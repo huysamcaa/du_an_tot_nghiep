@@ -187,10 +187,10 @@
                             $review = $reviewDataMap[$key] ?? null;
                             @endphp
 
-                            <div class="order-item" data-product-name="{{ $item->product->name ?? '' }}">
+                            <div class="order-item" data-product-name="{{ $item->name ?? '' }}">
                                 <div class="item-image">
-                                    @if ($item->product && $item->product->thumbnail)
-                                    <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" class="product-thumbnail">
+                                    @if ($item->variant && $item->variant->thumbnail)
+                                    <img src="{{ asset('storage/' . $item->variant->thumbnail) }}" alt="{{ $item->variant->name }}" class="product-thumbnail">
                                     @else
                                     <div class="product-placeholder">
                                         <i class="fas fa-image"></i>
@@ -200,7 +200,7 @@
 
                                 <div class="item-details">
                                     <h6 class="product-name">
-                                        {{ $item->product->name ?? 'Sản phẩm không tồn tại' }}
+                                        {{ $item->name ?? 'Sản phẩm không tồn tại' }}
                                     </h6>
                                     <p class="product-variant">
                                         <i class="fas fa-tag me-1"></i>
@@ -246,7 +246,7 @@
                                         <i class="fas fa-comments me-1"></i>Chat
                                     </button>
                                     
-                                    @if ($statusName === 'Đã hoàn thành')
+                                    {{-- @if ($statusName === 'Đã hoàn thành')
                                         @if ($alreadyReviewed)
                                             <button class="btn btn-outline-warning btn-sm action-btn"
                                                 data-bs-toggle="modal"
@@ -260,7 +260,7 @@
                                                 <i class="fas fa-pen me-1"></i>Đánh Giá
                                             </button>
                                         @endif
-                                    @endif
+                                    @endif --}}
                                 </div>
                             </div>
                             @endforeach
@@ -1111,13 +1111,13 @@
                     showNotification('Đang kiểm tra cập nhật trạng thái đơn hàng...', 'info');
 
                     // In real app, make AJAX call to check status updates
-                    // fetch('/api/orders/status-updates')
-                    //     .then(response => response.json())
-                    //     .then(data => {
-                    //         if (data.updates.length > 0) {
-                    //             location.reload();
-                    //         }
-                    //     });
+                    fetch('/api/orders/status-updates')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.updates.length > 0) {
+                                location.reload();
+                            }
+                        });
                 }
             }, 30000); // Check every 30 seconds
         }
@@ -1228,7 +1228,7 @@ $alreadyReviewed = $reviewedMap[$key] ?? false;
 
 
 {{-- Modal Đánh giá nếu chưa đánh giá --}}
-@if (!$alreadyReviewed)
+{{-- @if (!$alreadyReviewed)
 <div class="modal fade" id="reviewFormModal-{{ $order->id }}-{{ $item->product->id }}" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
@@ -1308,10 +1308,10 @@ $alreadyReviewed = $reviewedMap[$key] ?? false;
         </div>
     </div>
 </div>
-@endif
+@endif --}}
 
 {{-- Modal Xem đánh giá nếu đã đánh giá --}}
-@if ($review)
+{{-- @if ($review)
 <div class="modal fade" id="reviewModal-{{ $order->id }}-{{ $item->product->id }}" tabindex="-1" aria-labelledby="reviewModalLabel-{{ $order->id }}-{{ $item->product->id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content d-flex flex-column">
@@ -1396,7 +1396,7 @@ $alreadyReviewed = $reviewedMap[$key] ?? false;
         </div>
     </div>
 </div>
-@endif
+@endif --}}
 @endforeach
 @endforeach
 @endsection
