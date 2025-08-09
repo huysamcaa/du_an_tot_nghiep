@@ -55,12 +55,12 @@
                                     value="{{ $item->id }}_{{ $i }}">
                             </td>
                             <td class="product-thumbnail">
-                                <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                    alt="{{ $item->product->name }}"
+                                <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
+                                    alt="{{ $item->name }}"
                                     style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                             </td>
                             <td class="product-name">
-                                {{ $item->product->name }}
+                                {{ $item->name }}
                             </td>
                             <td class="product-variation">
                                 @if($item->variant && $item->variant->attributeValues->count())
@@ -73,7 +73,7 @@
                                 {{ $item->product->category->name ?? 'Không có' }}
                             </td>
                             <td class="product-status">
-                                {{ $order->status }}
+                                {{-- {{ $order->order_order_status->order_status_id ?? 'Chưa xác định' }} --}}
                             </td>
                             <td class="product-quantity">
                                 x1
