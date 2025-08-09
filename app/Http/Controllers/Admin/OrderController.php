@@ -41,15 +41,15 @@ class OrderController extends Controller
 
         return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
     }
-    protected function handleCancelOrder($orderId)
-    {
-        // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
-        $order = Order::find($orderId);
-        if ($order) {
-            $order->is_paid = false; // hoặc các hành động khác
-            $order->save();
-        }
-    }
+    // protected function handleCancelOrder($orderId)
+    // {
+    //     // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
+    //     $order = Order::find($orderId);
+    //     if ($order) {
+    //         $order->is_paid = false; // hoặc các hành động khác
+    //         $order->save();
+    //     }
+    // }
     // Xác nhận đã thanh toán COD
     public function confirm($id)
     {

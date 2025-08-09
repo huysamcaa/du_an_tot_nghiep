@@ -50,8 +50,8 @@
           @foreach($refunds as $refund)
           <tr>
             <td>
-              <a href="{{ route('client.orders.show', $refund->order->code) }}">
-                #{{ $refund->order->code }}
+              <a href="{{ route('client.orders.show', $refund->order->code)}}">
+                #{{ $refund->order->code ?? 'Không xác định' }}
               </a>
             </td>
             <td>
