@@ -32,6 +32,7 @@ class Coupon extends Model
     // Quan hệ 1-1: Mỗi mã có thể có 1 bộ ràng buộc
     public function restriction()
     {
+        
         return $this->hasOne(CouponRestriction::class);
     }
 
@@ -40,7 +41,7 @@ class Coupon extends Model
 {
     return $this->belongsToMany(User::class, 'coupon_user')
                 ->using(CouponUser::class)
-                ->withPivot(['id', 'amount', 'created_at', 'updated_at'])
+               ->withPivot(\App\Models\CouponUser::SNAPSHOT_COLUMNS)
                 ->withTimestamps();
 }
 
