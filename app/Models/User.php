@@ -10,6 +10,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\CouponUser;
+use App\Models\Notification;
+
 
 class User extends Authenticatable
 {
@@ -76,13 +79,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAddress::class);
     }
- public function coupons()
+public function coupons()
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user')
-                ->using(CouponUser::class)
-                ->withPivot(['id', 'amount','used_at', 'created_at', 'updated_at'])
-                ->withTimestamps();
+        ->using(CouponUser::class)
+        ->withTrashed()
+        ->withPivot(array_merge(['id'], CouponUser::SNAPSHOT_COLUMNS))
+        ->withTimestamps();
 }
+
  public function notifications()
     {
 

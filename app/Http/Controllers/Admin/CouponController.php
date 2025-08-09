@@ -178,26 +178,37 @@ class CouponController extends Controller
         $validator = Validator::make($request->all(), $rules, $messages);
 
         $validator->after(function ($validator) use ($request, $id) {
-            $type = $request->input('discount_type');
+    $type = $request->input('discount_type');
+    $discountValue = $this->sanitizeNumber($request->input('discount_value'));
+    $maxDiscountValue = $this->sanitizeNumber($request->input('max_discount_value'));
 
-            $discountValue = $this->sanitizeNumber($request->input('discount_value'));
-            $maxDiscountValue = $this->sanitizeNumber($request->input('max_discount_value'));
+    // Nếu giảm phần trăm
+    if ($type === 'percent') {
+        if ($discountValue > 100) {
+            $validator->errors()->add('discount_value', 'Giá trị phần trăm không được vượt quá 100%.');
+        }
 
-            if ($type === 'percent' && $discountValue > 100) {
-                $validator->errors()->add('discount_value', 'Giá trị phần trăm không được vượt quá 100%.');
-            }
+        if (!is_null($maxDiscountValue) && $maxDiscountValue <= 0) {
+            $validator->errors()->add('max_discount_value', 'Số tiền giảm tối đa phải lớn hơn 0 khi chọn giảm theo phần trăm.');
+        }
+    }
 
-            if ($type === 'fixed' && $discountValue !== null && $maxDiscountValue !== null && $maxDiscountValue > $discountValue) {
-                $validator->errors()->add('max_discount_value', 'Số tiền giảm tối đa không được lớn hơn giá trị giảm.');
-            }
+    // Nếu giảm cố định (fixed amount)
+    if ($type === 'fixed') {
+        if (!is_null($maxDiscountValue)) {
+            $validator->errors()->add('max_discount_value', 'Không cần nhập "Số tiền giảm tối đa" khi giảm giá cố định.');
+        }
+    }
 
-            if (
-                $request->filled('start_date') && $request->filled('end_date') &&
-                strtotime($request->input('end_date')) < strtotime($request->input('start_date'))
-            ) {
-                $validator->errors()->add('end_date', 'Ngày kết thúc phải sau ngày bắt đầu.');
-            }
-        });
+    // Kiểm tra ngày
+    if (
+        $request->filled('start_date') && $request->filled('end_date') &&
+        strtotime($request->input('end_date')) < strtotime($request->input('start_date'))
+    ) {
+        $validator->errors()->add('end_date', 'Ngày kết thúc phải sau ngày bắt đầu.');
+    }
+});
+
 
         $validator->validate();
     }
@@ -236,25 +247,25 @@ class CouponController extends Controller
 
 
 
-    protected function restrictionData(Request $request)
-    {
-        $validProducts = $request->input('valid_products', []);
+   protected function restrictionData(Request $request)
+{
+    $validProducts = $request->input('valid_products', []);
 
-        // Tìm danh mục từ các sản phẩm được chọn
-        $validCategories = Product::whereIn('id', $validProducts)
-            ->pluck('category_id')
-            ->unique()
-            ->filter() // loại bỏ null nếu có
-            ->values()
-            ->toArray();
+    // Tìm danh mục từ các sản phẩm được chọn
+    $validCategories = \App\Models\Admin\Product::whereIn('id', $validProducts)
+        ->pluck('category_id')
+        ->unique()
+        ->filter()
+        ->values()
+        ->toArray();
 
-        return [
-            'min_order_value' => $request->input('min_order_value'),
-            'max_discount_value' => $request->input('max_discount_value'),
-            'valid_categories' => $validCategories,
-            'valid_products' => array_map('intval', (array) $validProducts),
-        ];
-    }
+    return [
+        'min_order_value'    => $this->sanitizeNumber($request->input('min_order_value')),
+        'max_discount_value' => $this->sanitizeNumber($request->input('max_discount_value')),
+        'valid_categories'   => $validCategories,
+        'valid_products'     => array_map('intval', (array) $validProducts),
+    ];
+}
 
 
 
