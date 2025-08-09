@@ -1,7 +1,7 @@
 @extends('client.layouts.app')
 
 @section('content')
-    <div class="checkoutPage">
+
         <section class="pageBannerSection">
             <div class="container">
                 <div class="row">
@@ -29,17 +29,16 @@
                 <div class="card shadow-sm p-4">
                     <div class="row align-items-center">
                         <!-- Avatar -->
-                        <div class="col-md-4 text-center mb-3 mb-md-0">
-                            @if ($user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
-                                    style="width: 120px; height: 120px; object-fit: cover;">
-                            @else
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                    style="width: 120px; height: 120px;">
-                                    <span class="text-muted">No Avatar</span>
-                                </div>
-                            @endif
-                        </div>
+<div class="col-md-4 text-center mb-3 mb-md-0">
+    @if ($user->avatar)
+        <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @else
+        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @endif
+</div>
+
 
                         <!-- Thông tin -->
                         <div class="col-md-8">
@@ -90,5 +89,5 @@
                     </div>
 
                 </div>
-            </div>
+            
         @endsection
