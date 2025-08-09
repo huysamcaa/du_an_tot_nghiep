@@ -28,41 +28,41 @@ class UserAddressController extends Controller
         return view('client.user_addresses.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'fullname'     => 'required|string|max:100',
-            'phone_number' => ['required', 'regex:/^(09|03)[0-9]{8}$/'],
-            'area'         => 'required|string|max:255',
-            'address'      => 'required|string|max:255',
-        ], [
-            'fullname.required'     => 'Vui lòng nhập họ tên.',
-            'fullname.max'          => 'Họ tên không được vượt quá 100 ký tự.',
-            'phone_number.required' => 'Vui lòng nhập số điện thoại.',
-            'phone_number.regex'    => 'Số điện thoại phải bắt đầu bằng 09 hoặc 03 và gồm đúng 10 chữ số.',
-            'area.required'         => 'Vui lòng nhập khu vực.',
-            'area.max'              => 'Khu vực không được vượt quá 255 ký tự.',
-            'address.required'      => 'Vui lòng nhập địa chỉ cụ thể.',
-            'address.max'           => 'Địa chỉ không được vượt quá 255 ký tự.',
-        ]);
+        public function store(Request $request)
+        {
+            $request->validate([
+                'fullname'     => 'required|string|max:100',
+                'phone_number' => ['required', 'regex:/^(09|03)[0-9]{8}$/'],
+                'area'         => 'required|string|max:255',
+                'address'      => 'required|string|max:255',
+            ], [
+                'fullname.required'     => 'Vui lòng nhập họ tên.',
+                'fullname.max'          => 'Họ tên không được vượt quá 100 ký tự.',
+                'phone_number.required' => 'Vui lòng nhập số điện thoại.',
+                'phone_number.regex'    => 'Số điện thoại phải bắt đầu bằng 09 hoặc 03 và gồm đúng 10 chữ số.',
+                'area.required'         => 'Vui lòng nhập khu vực.',
+                'area.max'              => 'Khu vực không được vượt quá 255 ký tự.',
+                'address.required'      => 'Vui lòng nhập địa chỉ cụ thể.',
+                'address.max'           => 'Địa chỉ không được vượt quá 255 ký tự.',
+            ]);
 
 
-        $fullAddress = $request->address . ', ' . $request->area;
+            $fullAddress = $request->address . ', ' . $request->area;
 
-        if ($request->has('id_default')) {
-            Auth::user()->addresses()->update(['id_default' => 0]);
+            if ($request->has('id_default')) {
+                Auth::user()->addresses()->update(['id_default' => 0]);
+            }
+
+            UserAddress::create([
+                'user_id'       => Auth::id(),
+                'fullname'      => $request->fullname,
+                'phone_number'  => $request->phone_number,
+                'address'       => $fullAddress,
+                'id_default'    => $request->has('id_default') ? 1 : 0,
+            ]);
+
+            return redirect()->route('user.addresses.index')->with('success', 'Thêm địa chỉ thành công!');
         }
-
-        UserAddress::create([
-            'user_id'       => Auth::id(),
-            'fullname'      => $request->fullname,
-            'phone_number'  => $request->phone_number,
-            'address'       => $fullAddress,
-            'id_default'    => $request->has('id_default') ? 1 : 0,
-        ]);
-
-        return redirect()->route('user.addresses.index')->with('success', 'Thêm địa chỉ thành công!');
-    }
 
 
 
