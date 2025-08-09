@@ -43,12 +43,12 @@
                                 @php $totalRefund += $item->price; @endphp
                                 <tr>
                                     <td class="text-start d-flex align-items-center">
-                                        <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                            alt="{{ $item->product->name }}"
+                                        <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
+                                            alt="{{ $item->name }}"
                                             class="me-3"
                                             style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
                                         <div>
-                                            <div class="fw-semibold">{{ $item->product->name }}</div>
+                                            <div class="fw-semibold">{{ $item->name }}</div>
                                             @if($item->variant && $item->variant->attributeValues->count())
                                             <small class="text-muted">
                                                 {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
