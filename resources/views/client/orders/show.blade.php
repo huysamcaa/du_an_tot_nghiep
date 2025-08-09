@@ -3,6 +3,7 @@
 @section('title', 'Chi tiết đơn hàng #' . $order->code)
 
 @section('content')
+
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
