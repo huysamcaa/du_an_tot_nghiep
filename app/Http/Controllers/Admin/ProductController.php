@@ -64,15 +64,7 @@ class ProductController extends Controller
         // Xử lý checkbox
         $data['is_sale'] = $request->has('is_sale');
         $data['is_active'] = $request->has('is_active');
-        // Kiểm tra kích thước ảnh chính (thumbnail)
-        if ($request->hasFile('thumbnail')) {
-            [$width, $height] = getimagesize($request->file('thumbnail'));
-            if ($width < 600 || $height < 600 || $width > 1200 || $height > 1200) {
-                return redirect()->back()->withInput()->withErrors([
-                    'thumbnail' => 'Ảnh phải có kích thước từ 600x600 đến 1200x1200 pixels.',
-                ]);
-            }
-        }
+
         // Upload ảnh chính
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('uploads/products', 'public');
@@ -160,7 +152,7 @@ class ProductController extends Controller
         'description' => 'required|string',
         'thumbnail' => 'nullable|image|max:2048',
         'sku' => 'nullable|string|unique:products,sku,' . $product->id,
-        'price' => 'required|numeric',
+        // 'price' => 'required|numeric',
         'sale_price' => 'nullable|numeric',
         'sale_price_start_at' => 'nullable|date',
         'sale_price_end_at' => 'nullable|date|after_or_equal:sale_price_start_at',

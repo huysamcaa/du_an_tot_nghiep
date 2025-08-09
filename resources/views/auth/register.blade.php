@@ -1,47 +1,30 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Đăng ký</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+@extends('layouts.auth')
 
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{{ asset('login-form-20/css/style.css') }}">
-  </head>
-  <body class="img js-fullheight" style="background-image: url('{{ asset('login-form-20/images/cucu.png') }}');">
+@section('title', 'Đăng kí')
+@section('page-title', 'Đăng kí tài khoản')
 
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-6 text-center mb-2">
-            <h2 class="heading-section">Đăng ký tài khoản</h2>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <div class="col-md-6 col-lg-5">
-            <div class="login-wrap p-4">
+@section('content')
               <form action="{{ route('register') }}" method="POST" class="signin-form">
                 @csrf
 
                 <div class="form-group">
-                  <input type="text" name="name" class="form-control" placeholder="Tên của bạn" value="{{ old('name') }}" required>
+                  <input type="text" name="name" class="form-control" placeholder="Tên của bạn" value="{{ old('name') }}" >
                   @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
-                  <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required>
+                  <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" >
                   @error('email') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
-                  <input type="password" id="password-field" name="password" class="form-control" placeholder="Mật khẩu" required>
+                  <input type="password" id="password-field" name="password" class="form-control" placeholder="Mật khẩu" >
                     <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                   @error('password') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
-                  <input type="password" id="password-field" name="password_confirmation" class="form-control" placeholder="Xác nhận mật khẩu" required>
+                  <input type="password" id="password-field" name="password_confirmation" class="form-control" placeholder="Xác nhận mật khẩu" >
                 <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                 </div>
 
@@ -55,15 +38,5 @@
 
                 <p class="w-100 text-center">Bạn đã có tài khoản? <a href="{{ route('login') }}" style="color: #ffc107">Đăng nhập ngay</a></p>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <script src="{{ asset('login-form-20/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/popper.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/main.js') }}"></script>
-  </body>
-</html>
+@endsection

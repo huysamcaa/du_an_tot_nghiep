@@ -1,26 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>Đổi mật khẩu</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+@extends('layouts.auth')
 
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{{ asset('login-form-20/css/style.css') }}">
-  </head>
-  <body class="img js-fullheight" style="background-image: url('{{ asset('login-form-20/images/cucu.png') }}');">
+@section('title', 'Đổi mật khẩu')
+@section('page-title', 'Đổi mật khẩu')
 
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-6 text-center mb-5">
-            <h2 class="heading-section">Đổi mật khẩu</h2>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <div class="col-md-6 col-lg-4">
-            <div class="login-wrap p-0">
+@section('content')
 
               @if (session('status'))
                   <div class="alert alert-success">{{ session('status') }}</div>
@@ -61,11 +44,4 @@
         </div>
       </div>
     </section>
-
-    <script src="{{ asset('login-form-20/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/popper.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('login-form-20/js/main.js') }}"></script>
-
-  </body>
-</html>
+@endsection
