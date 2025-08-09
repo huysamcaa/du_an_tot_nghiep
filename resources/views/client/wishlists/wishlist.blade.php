@@ -56,8 +56,12 @@
                                     </div>
                                 </td>
                                 <td class="product-availability">
-                                    {{$wishlist->product->stock > 0 ? 'Còn hàng' : 'Hết hàng'}}
+                                    @php
+                                        $variantStock = $wishlist->product->variants->sum('stock');
+                                    @endphp
+                                    {{ $variantStock > 0 ? 'Còn hàng' : 'Hết hàng' }}
                                 </td>
+
                                 <td class="product-addtocart">
                                     <a href="{{route('product.detail', $wishlist->product->id)}}" class="ulinaBTN"><span>Xem chi tiết</span></a>
                                 </td>

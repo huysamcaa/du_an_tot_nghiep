@@ -9,7 +9,7 @@
         <div class="productGalleryWrap">
             <div class="productGallery">
                 <div class="pgImage">
-                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                    <img id="main-product-image" src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
                 </div>
                 @foreach ($product->variants as $variant)
                     @if ($variant->thumbnail)
@@ -93,11 +93,6 @@
                         <span style="width: {{ $avgPercent }}%"></span>
                     </div>
                 </div>
-
-                <div class="productStock float-end">
-                    <span>Số Lượng: </span>
-                    <span id="stock-quantity">--</span>
-                </div>
             </div>
             <div class="pcExcerpt">
                 <p>{{ $product->short_description }}</p>
@@ -134,6 +129,10 @@
                         </div>
                     </div>
                 </div>
+                <div class="productStock mb-3">
+                    <span>Số Lượng: </span>
+                    <span id="stock-quantity">--</span>
+                </div>
                 <div class="pcBtns">
                     <div class="quantity-product">
                         <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
@@ -148,22 +147,6 @@
                     <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                 </div>
             </form>
-            <div class="pcMeta">
-                <p>
-                    <span>Sku</span>
-                    <a href="javascript:void(0);">{{ $product->sku }}</a>
-                </p>
-                <p class="pcmTags">
-                    <span>Tags:</span>
-                </p>
-                <p class="pcmSocial">
-                    <span>Share</span>
-                    <a class="fac" href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a class="twi" href="javascript:void(0);"><i class="fa-brands fa-twitter"></i></a>
-                    <a class="lin" href="javascript:void(0);"><i class="fa-brands fa-linkedin-in"></i></a>
-                    <a class="ins" href="javascript:void(0);"><i class="fa-brands fa-instagram"></i></a>
-                </p>
-            </div>
         </div>
     </div>
 </div>
@@ -658,6 +641,19 @@
                             addToCartBtn.innerHTML = '<span>Hết hàng</span>';
                         }
                     }
+                    // Hiển thị ảnh theo variant
+                    const mainImgEl = document.getElementById('main-product-image');
+
+                   if (mainImgEl) {
+                        if (variant && variant.thumbnail) {
+                            // Luôn đặt ảnh chính theo variant
+                            mainImgEl.src = variant.thumbnail;
+                        } else {
+                            // Nếu không có variant hoặc ảnh biến thể → dùng ảnh mặc định của sản phẩm
+                            mainImgEl.src = product.thumbnail;
+                        }
+                    }
+
                 } catch (error) {
                     console.error('Error in updatePriceAndStock:', error);
                 }
