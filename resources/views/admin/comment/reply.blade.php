@@ -79,7 +79,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($replies as $reply)
+                                @foreach($replies as $reply)
                                     <tr>
                                         <td>{{ $reply->id }}</td>
                                         <td>{{ $reply->comment->product->name ?? 'Sản phẩm đã bị xóa' }}</td>
@@ -106,11 +106,7 @@
                                             </a>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-muted">Không có phản hồi nào.</td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
 
@@ -136,7 +132,10 @@
             order: [[0, 'desc']],
             paging: false,
             searching: false,
-            info: false
+            info: false,
+            language: {
+                emptyTable: 'Chưa có bình luận phản hồi'
+            }
         });
     });
 </script>
