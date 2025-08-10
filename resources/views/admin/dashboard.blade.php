@@ -1,6 +1,11 @@
     @extends('admin.layouts.app')
 
     @section('content')
+        <style>
+            #revenue-chart-section {
+                display: none;
+            }
+        </style>
         <div class="content">
             <div class="animated fadeIn">
                 <!-- 4 box nhỏ thống kê -->
@@ -15,16 +20,17 @@
                                     <div class="stat-content">
                                         <div class="text-left dib">
                                             <div class="stat-text"><span
-                                                    class="revenue-value">{{ number_format($revenue, 0, ',', '.') }}
-                                                    đ</span></div>
-                                            <div class="stat-heading">Doanh thu</div>
+                                                    class="revenue-value">{{ number_format($revenue, 0, ',', '.') }}đ</span>
+                                            </div>
+                                            <div class="stat-heading">
+                                                <a href="javascript:void(0);" onclick="toggleRevenue()">Doanh thu</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -42,7 +48,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -60,7 +65,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body">
@@ -79,7 +83,24 @@
                         </div>
                     </div>
                 </div>
+                <div id="revenue-detail" style="display: none;" class="mt-4">
+                    <h4>Chi tiết doanh thu</h4>
+                    <p><strong>Tổng doanh thu:</strong> {{ number_format($revenue, 0, ',', '.') }} đ</p>
+                    <div class="bg-white p-4 rounded shadow mb-4">
+                        <h2 class="text-xl font-bold mb-2">Thống kê nhanh</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 border rounded bg-blue-50">
+                                <p class="text-sm text-gray-600">Doanh thu hôm nay</p>
+                                <p class="text-2xl font-semibold text-blue-700">{{ number_format($revenueToday) }}đ</p>
+                            </div>
+                            <div class="p-4 border rounded bg-green-50">
+                                <p class="text-sm text-gray-600">Doanh thu tháng này</p>
+                                <p class="text-2xl font-semibold text-green-700">{{ number_format($revenueMonth) }}đ</p>
+                            </div>
 
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row">
                     <!-- Bên trái -->
@@ -90,21 +111,53 @@
                                 <h4>Thống kê doanh thu</h4>
                                 <form method="GET" action="{{ route('admin.dashboard') }}"
                                     class="row g-2 align-items-end">
-                                    <div class="col-auto">
+                                    {{-- <div class="col-auto">
                                         <label for="from_date">Từ ngày</label>
                                         <input type="date" name="from_date" id="from_date"
                                             value="{{ request('from_date') }}" class="form-control form-control-sm">
                                     </div>
                                     <div class="col-auto">
                                         <label for="to_date">Đến ngày</label>
-                                        <input type="date" name="to_date" id="to_date" value="{{ request('to_date') }}"
-                                            class="form-control form-control-sm">
+                                        <input type="date" name="to_date" id="to_date"
+                                            value="{{ request('to_date') }}" class="form-control form-control-sm">
+                                    </div> --}}
+                                    <div class="col-auto">
+                                        <label for="view">Chế độ xem</label>
+                                        <select name="view" id="view" class="form-control form-control-sm">
+                                            <option value="month" {{ request('view') == 'month' ? 'selected' : '' }}>Theo
+                                                tháng</option>
+                                            <option value="week" {{ request('view') == 'week' ? 'selected' : '' }}>Theo
+                                                tuần</option>
+                                            <option value="day" {{ request('view') == 'day' ? 'selected' : '' }}>Theo
+                                                ngày</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <label for="year">Năm</label>
+                                        <select name="year" id="year" class="form-control form-control-sm">
+                                            @foreach ($years as $y)
+                                                <option value="{{ $y }}"
+                                                    {{ request('year', $year) == $y ? 'selected' : '' }}>
+                                                    {{ $y }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <label for="month">Tháng</label>
+                                        <select name="month" id="month" class="form-control form-control-sm">
+                                            @foreach ($months as $m)
+                                                <option value="{{ $m }}"
+                                                    {{ request('month', $month) == $m ? 'selected' : '' }}>
+                                                    Tháng {{ $m }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" class="btn btn-primary btn-sm">Xem</button>
                                     </div>
                                 </form>
-
                             </div>
                             <div class="card-body">
                                 <canvas id="revenueChart" height="150"></canvas>
@@ -123,8 +176,8 @@
                                             <th class="avatar">Avatar</th>
                                             <th>ID</th>
                                             <th>Name</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
+                                            <th>Giá</th>
+                                            <th>Số lượng</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -288,7 +341,9 @@
                             labels: @json($statusLabels),
                             datasets: [{
                                 data: @json($statusData),
-                                backgroundColor: ['#36A2EB','#FF9F40', '#FFCE56', '#4BC0C0', '#9966FF', '#FF6384','#C9CBCF'],
+                                backgroundColor: ['#36A2EB', '#FF9F40', '#FFCE56', '#4BC0C0', '#9966FF',
+                                    '#FF6384', '#C9CBCF'
+                                ],
                                 borderWidth: 1
                             }]
                         },
@@ -302,6 +357,15 @@
                         }
                     });
                 });
+
+                function toggleRevenue() {
+                    var detail = document.getElementById("revenue-detail");
+                    if (detail.style.display === "none") {
+                        detail.style.display = "block";
+                    } else {
+                        detail.style.display = "none";
+                    }
+                }
             </script>
         @endpush
     @endsection
