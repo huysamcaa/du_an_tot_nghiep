@@ -11885,6 +11885,31 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
+  .hero-slider-area {
+    padding: 40px 0 !important;
+}
+
+.hero-slider-wrapper {
+    min-height: 400px !important;
+    display: flex;
+    align-items: center;
+    background-size: contain !important;
+    background-position: center center !important;
+}
+
+.hero-slider-content {
+    max-width: 600px;
+}
+
+.hero-slider-content h1 {
+    font-size: 36px !important;
+    line-height: 1.3;
+}
+
+.hero-slider-content span {
+    font-size: 16px !important;
+}
+
 }
 
 /*# sourceMappingURL=bootstrap.css.map */

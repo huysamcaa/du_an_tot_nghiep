@@ -6,6 +6,7 @@
 @section('title', 'Trang chủ')
 
 @section('content')
+
      <body>
         <!-- BEGIN: PreLoder Section -->
         <section class="preloader" id="preloader">
@@ -460,90 +461,19 @@
                         <p class="secDesc">Chúng tôi cam kết chất lượng cao, giá cạnh tranh và dịch vụ giao hàng nhanh chóng.</p>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="productCarousel owl-carousel">
-                            @foreach ($products as $product)
-                            <div class="productItem01">
-    <div class="pi01Thumb" style="height: 400px; overflow: hidden;">
-        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
-        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" style="width: 100%; height: auto; object-fit: cover;" />
 
 
-        <div class="pi01Actions" data-product-id="{{ $product->id }}">
+<div id="product-list">
+    @include('client.components.products-list', ['products' => $products])
+</div>
 
-            <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-            <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
 
-        </div>
 
-        @if ($product->sale_price && $product->price > $product->sale_price)
-            <div class="productLabels clearfix">
-                <span class="plDis">
-                    - {{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ
-                </span>
-                <span class="plSale">SALE</span>
-            </div>
-        @endif
-    </div>
-
-    <div class="pi01Details">
-        <!-- <div class="productRatings">
-            <div class="productRatingWrap">
-                <div class="star-rating"><span></span></div>
-            </div>
-            <div class="ratingCounts">10 đánh giá</div>
-        </div> -->
-
-        <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-    <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
-        {{ $product->name }}
-    </a>
-</h3>
-
-        <div class="pi01Price">
-            <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
-            @if ($product->sale_price && $product->price > $product->sale_price)
-                <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
-            @endif
-        </div>
-
-        <!-- <div class="pi01Variations">
-            <div class="pi01VColor">
-                <div class="pi01VCItem">
-                    <input checked type="radio" name="color_{{ $product->id }}" value="Blue" id="color_{{ $product->id }}_blue" />
-                    <label for="color_{{ $product->id }}_blue"></label>
-                </div>
-                <div class="pi01VCItem yellows">
-                    <input type="radio" name="color_{{ $product->id }}" value="Yellow" id="color_{{ $product->id }}_yellow" />
-                    <label for="color_{{ $product->id }}_yellow"></label>
-                </div>
-                <div class="pi01VCItem reds">
-                    <input type="radio" name="color_{{ $product->id }}" value="Red" id="color_{{ $product->id }}_red" />
-                    <label for="color_{{ $product->id }}_red"></label>
-                </div>
-            </div>
-
-            <div class="pi01VSize">
-                <div class="pi01VSItem">
-                    <input type="radio" name="size_{{ $product->id }}" value="S" id="size_{{ $product->id }}_s" />
-                    <label for="size_{{ $product->id }}_s">S</label>
-                </div>
-                <div class="pi01VSItem">
-                    <input type="radio" name="size_{{ $product->id }}" value="M" id="size_{{ $product->id }}_m" />
-                    <label for="size_{{ $product->id }}_m">M</label>
-                </div>
-                <div class="pi01VSItem">
-                    <input type="radio" name="size_{{ $product->id }}" value="XL" id="size_{{ $product->id }}_xl" />
-                    <label for="size_{{ $product->id }}_xl">XL</label>
-                </div>
-            </div>
-        </div> -->
     </div>
 </div>
 
 
-@endforeach
+
                             <!-- <div class="productItem01 pi01NoRating">
                                 <div class="pi01Thumb">
                                     <img src="{{ asset('assets/Client/images/products/2.jpg') }}" alt="Ulina Product"/>
@@ -3005,7 +2935,7 @@
         </div>
     </div>
 </section>
-
+ 
 
 
         <!-- END: Blog Section -->
@@ -3255,4 +3185,23 @@
 
 
     </body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        let url = $(this).attr('href');
+        fetchProducts(url);
+    });
+
+    function fetchProducts(url) {
+        $.ajax({
+            url: url,
+            success: function(data) {
+            
+                $('#product-list').html(data);
+                window.history.pushState("", "", url); // Cập nhật URL
+            }
+        });
+    }
+</script>
 @endsection

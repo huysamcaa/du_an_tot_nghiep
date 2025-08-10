@@ -1,14 +1,30 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2>Wishlist</h2>
+                    <h2>Sản phẩm yêu thích</h2>
                     <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Wishlist</span>
+                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Yêu thích</span>
                     </div>
                 </div>
             </div>
@@ -56,8 +72,12 @@
                                     </div>
                                 </td>
                                 <td class="product-availability">
-                                    {{$wishlist->product->stock > 0 ? 'Còn hàng' : 'Hết hàng'}}
+                                    @php
+                                        $variantStock = $wishlist->product->variants->sum('stock');
+                                    @endphp
+                                    {{ $variantStock > 0 ? 'Còn hàng' : 'Hết hàng' }}
                                 </td>
+
                                 <td class="product-addtocart">
                                     <a href="{{route('product.detail', $wishlist->product->id)}}" class="ulinaBTN"><span>Xem chi tiết</span></a>
                                 </td>

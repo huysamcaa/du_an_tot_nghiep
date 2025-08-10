@@ -1,6 +1,7 @@
 <!-- resources/views/layouts/master.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
+    <!-- Font hỗ trợ tiếng Việt -->
 <head>
     <meta charset="utf-8">
     <title>@yield('title', 'Trang chủ')</title>

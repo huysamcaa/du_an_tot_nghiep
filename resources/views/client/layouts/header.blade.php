@@ -5,7 +5,7 @@
                 <div class="headerInner01">
                     <div class="logo">
                         <a href="index.html">
-                            <img src="{{ asset('assets/Client/images/logo.png') }}" alt="Ulina" />
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="FreshFit" class="logo-img" />
                         </a>
                     </div>
                     <div class="mainMenu">
@@ -137,9 +137,9 @@
                             </div>
                         </div> --}}
                         <div class="anItems">
-                            <div class="anSearch"><a href="javascript:void(0);"><i class="fa-solid fa-search"></i></a>
-
-                            </div>
+                                <div class="searchToggle">
+        <a href="javascript:void(0);" id="toggleSearch"><i class="fa fa-search"></i></a>
+    </div>
                             <div class="wishlist">
                             <a href="{{route('wishlist.index')}}" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
 
@@ -230,3 +230,78 @@
     </div>
     </div>
 </header>
+{{-- Form tìm kiếm ẩn giống Ulina --}}
+<div class="searchWrapper" id="searchWrapper" style="display: none;">
+    <div class="searchForm">
+        <form action="{{ route('search') }}" method="GET">
+            <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required />
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <span class="searchClose" id="closeSearch"><i class="fa fa-times"></i></span>
+    </div>
+</div>
+
+{{-- CSS --}}
+<style>
+    .searchWrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(255, 255, 255, 0.95);
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .searchForm {
+        position: relative;
+        width: 90%;
+        max-width: 600px;
+    }
+
+    .searchForm input {
+        width: 100%;
+        padding: 15px 60px 15px 20px;
+        font-size: 18px;
+        border: 1px solid #ccc;
+        border-radius: 30px;
+    }
+
+    .searchForm button {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .searchClose {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .searchToggle a {
+        font-size: 20px;
+        color: #333;
+    }
+</style>
+
+{{-- JavaScript --}}
+<script>
+    document.getElementById('toggleSearch').addEventListener('click', function () {
+        document.getElementById('searchWrapper').style.display = 'flex';
+    });
+
+    document.getElementById('closeSearch').addEventListener('click', function () {
+        document.getElementById('searchWrapper').style.display = 'none';
+    });
+</script>

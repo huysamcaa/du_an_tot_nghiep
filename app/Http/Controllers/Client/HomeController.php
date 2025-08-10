@@ -10,21 +10,23 @@ use App\Models\Blog;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::where('is_active', 1)
             ->latest()
-            ->take(8)
-            ->get();
+            ->paginate(8);
 
         $categories = Category::where('is_active', 1)
-              ->withCount('products')
+            ->withCount('products')
             ->orderBy('ordinal')
             ->get();
 
-         $blogs = Blog::latest()->take(3)->get();
+        $blogs = Blog::latest()->take(3)->get();
 
+        if ($request->ajax()) {
+            return view('client.components.products-list', compact('products'))->render();
+        }
 
-        return view('client.home', compact('products', 'categories','blogs'));
+        return view('client.home', compact('products', 'categories', 'blogs'));
     }
 }

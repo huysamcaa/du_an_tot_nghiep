@@ -39,11 +39,25 @@
                         @foreach($refund->items as $item)
                         <tr>
                             <td class="text-start d-flex align-items-center">
-                                <img src="{{ asset('storage/' . ($item->product->thumbnail ?? 'default.jpg')) }}"
-                                    alt="{{ $item->product->name ?? 'Sản phẩm' }}"
-                                    class="me-3 rounded"
-                                    style="width:50px; height:50px; object-fit:cover;">
-                                <div>{{ $item->name }}</div>
+                                @if($item->variant)
+                                    {{-- Hiển thị thông tin sản phẩm nếu variant còn tồn tại --}}
+                                    <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? 'default.jpg')) }}"
+                                        alt="{{ $item->name ?? 'Sản phẩm' }}"
+                                        class="me-3 rounded"
+                                        style="width:50px; height:50px; object-fit:cover;">
+                                    <div>
+                                        <div class="fw-semibold">{{ $item->name }}</div>
+                                    </div>
+                                @else
+                                    {{-- Nếu variant đã bị xóa, hiển thị placeholder và thông báo --}}
+                                    <div class="me-3 rounded d-flex align-items-center justify-content-center bg-light-subtle text-danger" style="width:50px; height:50px;">
+                                        <i class="fas fa-trash-alt fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Sản phẩm đã bị xóa</div>
+                                        <small class="text-muted">-</small>
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 @if($item->variant && $item->variant->attributeValues->count())
