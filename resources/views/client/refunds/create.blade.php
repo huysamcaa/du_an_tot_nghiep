@@ -22,7 +22,9 @@
         @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-
+        @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
         <div class="row">
             {{-- Cột trái: danh sách sản phẩm lỗi --}}
             <div class="col-lg-6">
@@ -43,12 +45,22 @@
                                 @php $totalRefund += $item->price; @endphp
                                 <tr>
                                     <td class="text-start d-flex align-items-center">
+                                        {{-- Kiểm tra và hiển thị ảnh --}}
+                                        @if(optional($item->variant)->thumbnail)
                                         <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
                                             alt="{{ $item->name }}"
                                             class="me-3"
                                             style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                                        @else
+                                        <img src="{{ asset('storage/default-product.png') }}"
+                                            alt="{{ $item->name }}"
+                                            class="me-3"
+                                            style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                                        @endif
                                         <div>
+                                            {{-- Hiển thị tên sản phẩm, có thể dùng tên từ OrderItem để an toàn hơn --}}
                                             <div class="fw-semibold">{{ $item->name }}</div>
+                                            {{-- Hiển thị phân loại sản phẩm --}}
                                             @if($item->variant && $item->variant->attributeValues->count())
                                             <small class="text-muted">
                                                 {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
@@ -153,14 +165,13 @@
                                     <label for="reason_image" class="custom-file-label">
                                         <i class="fas fa-camera me-2"></i>Chọn Ảnh/Video
                                     </label>
-                                    {{-- Hiển thị tên file được chọn ở đây --}}
                                     <span id="file-name" class="ms-3 text-muted">Không có tệp nào được chọn</span>
                                 </div>
                                 <small class="text-muted d-block mt-1">
                                     Hỗ trợ ảnh hoặc video định dạng JPEG, PNG, MP4, MOV, AVI. Dung lượng tối đa: <strong>10MB</strong>. Thời lượng video khuyến nghị: <strong>dưới 1 phút</strong>.
                                 </small>
                                 @error('reason_image')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
 
                                 <div class="mt-3" id="preview_area"></div>
@@ -184,7 +195,7 @@
     document.getElementById('reason_image').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const preview = document.getElementById('preview_area');
-        const fileNameSpan = document.getElementById('file-name'); // Lấy element để hiển thị tên file
+        const fileNameSpan = document.getElementById('file-name');
         preview.innerHTML = '';
 
         if (!file) {
@@ -192,10 +203,8 @@
             return;
         }
 
-        // Hiển thị tên file đã chọn
         fileNameSpan.textContent = file.name;
 
-        // Đoạn code preview ảnh/video vẫn giữ nguyên
         const fileType = file.type;
         const fileURL = URL.createObjectURL(file);
 
