@@ -97,14 +97,7 @@
                                 <p class="text-sm text-gray-600">Doanh thu tháng này</p>
                                 <p class="text-2xl font-semibold text-green-700">{{ number_format($revenueMonth) }}đ</p>
                             </div>
-                            {{-- <div class="p-4 border rounded bg-yellow-50">
-                                <p class="text-sm text-gray-600">Đơn hàng tuần này</p>
-                                <p class="text-2xl font-semibold text-yellow-700">{{ $orderCountThisWeek }}</p>
-                            </div> --}}
-                            {{-- <div class="p-4 border rounded bg-red-50">
-                                <p class="text-sm text-gray-600">Đơn hàng năm nay</p>
-                                <p class="text-2xl font-semibold text-red-700">{{ $orderCountThisYear }}</p>
-                            </div> --}}
+
                         </div>
                     </div>
                 </div>
@@ -118,7 +111,7 @@
                                 <h4>Thống kê doanh thu</h4>
                                 <form method="GET" action="{{ route('admin.dashboard') }}"
                                     class="row g-2 align-items-end">
-                                    <div class="col-auto">
+                                    {{-- <div class="col-auto">
                                         <label for="from_date">Từ ngày</label>
                                         <input type="date" name="from_date" id="from_date"
                                             value="{{ request('from_date') }}" class="form-control form-control-sm">
@@ -127,12 +120,44 @@
                                         <label for="to_date">Đến ngày</label>
                                         <input type="date" name="to_date" id="to_date"
                                             value="{{ request('to_date') }}" class="form-control form-control-sm">
+                                    </div> --}}
+                                    <div class="col-auto">
+                                        <label for="view">Chế độ xem</label>
+                                        <select name="view" id="view" class="form-control form-control-sm">
+                                            <option value="month" {{ request('view') == 'month' ? 'selected' : '' }}>Theo
+                                                tháng</option>
+                                            <option value="week" {{ request('view') == 'week' ? 'selected' : '' }}>Theo
+                                                tuần</option>
+                                            <option value="day" {{ request('view') == 'day' ? 'selected' : '' }}>Theo
+                                                ngày</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <label for="year">Năm</label>
+                                        <select name="year" id="year" class="form-control form-control-sm">
+                                            @foreach ($years as $y)
+                                                <option value="{{ $y }}"
+                                                    {{ request('year', $year) == $y ? 'selected' : '' }}>
+                                                    {{ $y }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <label for="month">Tháng</label>
+                                        <select name="month" id="month" class="form-control form-control-sm">
+                                            @foreach ($months as $m)
+                                                <option value="{{ $m }}"
+                                                    {{ request('month', $month) == $m ? 'selected' : '' }}>
+                                                    Tháng {{ $m }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" class="btn btn-primary btn-sm">Xem</button>
                                     </div>
                                 </form>
-
                             </div>
                             <div class="card-body">
                                 <canvas id="revenueChart" height="150"></canvas>
@@ -151,8 +176,8 @@
                                             <th class="avatar">Avatar</th>
                                             <th>ID</th>
                                             <th>Name</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
+                                            <th>Giá</th>
+                                            <th>Số lượng</th>
                                         </tr>
                                     </thead>
                                     <tbody>

@@ -21,9 +21,21 @@ class AdminController extends Controller
         $fromDate = $request->get('from_date');
         $toDate = $request->get('to_date');
         // Lấy các order_id đã hoàn thành
-        $completedOrderIds = OrderOrderStatus::where('order_status_id', 5)
-            ->where('is_current', 1)
-            ->pluck('order_id');
+        $orderCompletedStatusId = DB::table('order_statuses')->where('name', 'Đã hoàn thành')->value('id');
+
+        $completedOrderIds = DB::table('orders')
+            ->join('order_order_status', function ($join) use ($orderCompletedStatusId) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', $orderCompletedStatusId)
+                    ->where('order_order_status.is_current', 1);
+            })
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->select('orders.id')
+            ->distinct()
+            ->pluck('id');
+
+
+
         if ($fromDate && $toDate) {
             $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
                 ->whereDate('created_at', '>=', $fromDate)
@@ -86,7 +98,13 @@ class AdminController extends Controller
             });
         }
 
-
+        $revenueToday = Order::whereIn('id', $completedOrderIds)
+            ->whereDate('created_at', now()->toDateString())
+            ->sum('total_amount');
+        $revenueMonth = Order::whereIn('id', $completedOrderIds)
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_amount');
         // Danh sách năm
         $years = Order::select(DB::raw('YEAR(created_at) as year'))
             ->distinct()
@@ -98,13 +116,13 @@ class AdminController extends Controller
 
         // Các thống kê khác
         $revenue = Order::whereIn('id', $completedOrderIds)->sum('total_amount');
-        $orderCount = Order::count();
+        $orderCount = Order::whereIn('id', $completedOrderIds)->count();
         $productCount = Product::count();
         $userCount = User::count();
         $orderStatusStats = OrderOrderStatus::where('is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-            ->select('order_statuses.name', DB::raw('COUNT(*) as total')) // Sửa lại thành COUNT(*)
-            ->groupBy('order_statuses.name')
+            ->select('order_statuses.id', 'order_statuses.name', DB::raw('COUNT(*) as total'))
+            ->groupBy('order_statuses.id', 'order_statuses.name')
             ->get();
         $topCustomers = Order::whereHas('user') // loại các đơn hàng có user đã bị xóa
             ->whereHas('orderOrderStatuses', function ($query) {
@@ -136,29 +154,6 @@ class AdminController extends Controller
 
                 return $order;
             });
-
-        // Doanh thu hôm nay
-        $revenueToday = Order::whereIn('id', $completedOrderIds)
-            ->whereDate('created_at', today())
-            ->sum('total_amount');
-
-        // Doanh thu tháng này
-        $revenueMonth = Order::whereIn('id', $completedOrderIds)
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->sum('total_amount');
-        $recentOrders = Order::where('is_paid', true)
-            ->latest()
-            ->take(10)
-            ->get();
-
-        $topProductsByComments = Comment::select('product_id', DB::raw('COUNT(*) as total'))
-            ->whereHas('product')
-            ->groupBy('product_id')
-            ->orderByDesc('total')
-            ->with('product')
-            ->limit(5)
-            ->get();
         $topProductsByFavorites = DB::table('wishlists')
             ->join('products', 'wishlists.product_id', '=', 'products.id')
             ->select('products.id', 'products.name', DB::raw('COUNT(wishlists.id) as total'))
@@ -178,12 +173,12 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'revenue',
+            'orderCount',
             'productCount',
             'userCount',
             'revenueByPeriod',
             'orderStatusStats',
             'topCustomers',
-            'topProductsByComments',
             'topProductsByFavorites',
             'topProductsBySales',
             'years',
@@ -194,10 +189,7 @@ class AdminController extends Controller
             'fromDate',
             'toDate',
             'revenueToday',
-            'revenueMonth',
-            'orderCount',
-            // 'orderCountThisWeek',
-            // 'orderCountThisYear'
+            'revenueMonth'
         ));
     }
 
