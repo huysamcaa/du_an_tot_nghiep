@@ -33,7 +33,7 @@ class RefundController extends Controller
         return view('client.refunds.index', compact('refunds'));
     }
 
-    // 2. Hiển thị form tạo yêu cầu hoàn tiền
+    // 2. Hiển thị form chọn sản phẩm hoàn tiền
     public function selectItems($orderId)
     {
         // Validation đơn giản cho tham số trên URL
@@ -97,57 +97,62 @@ class RefundController extends Controller
             ->firstOrFail();
 
         $itemIds = explode('|', $items);
-
         $itemCounts = array_count_values($itemIds);
 
-        $selectedItems = collect();
+        // Lấy tất cả OrderItem cùng lúc để tối ưu
+        $selectedItems = OrderItem::whereIn('id', array_keys($itemCounts))
+            ->with(['product', 'variant.attributeValues.attribute'])
+            ->get();
 
-        foreach ($itemCounts as $itemId => $count) {
-            $item = OrderItem::with(['variant'])->find($itemId);
-            if ($item) {
-                for ($i = 0; $i < $count; $i++) {
-                    $selectedItems->push($item);
-                }
+        // Tạo một collection mới với số lượng item đã chọn
+        $finalSelectedItems = collect();
+        foreach ($selectedItems as $item) {
+            $count = $itemCounts[$item->id] ?? 0;
+            for ($i = 0; $i < $count; $i++) {
+                $finalSelectedItems->push($item);
             }
         }
 
+        if ($finalSelectedItems->isEmpty() || $finalSelectedItems->count() != count($itemIds)) {
+            return redirect()->route('orders.show', $orderId)->withErrors(['general' => 'Một hoặc nhiều sản phẩm đã chọn không hợp lệ hoặc không tồn tại.']);
+        }
+
         return view('client.refunds.create', [
-            'order'         => $order,
-            'selectedItems' => $selectedItems,
+            'order'        => $order,
+            'selectedItems' => $finalSelectedItems,
         ]);
     }
 
     // 3. Lưu yêu cầu hoàn tiền mới
     public function store(Request $request)
     {
-        // Sử dụng Validator::make()
         $validator = Validator::make($request->all(), [
-            'order_id'         => 'required|exists:orders,id',
-            'reason'           => 'required|string|max:500', // Đã có giới hạn 500 ký tự
-            'bank_account'     => 'required|string|min:8|max:20', // Bổ sung kiểm tra số tài khoản từ 8-20 ký tự
-            'user_bank_name'   => 'required|string|max:255',
-            'phone_number'     => ['required', 'regex:/^0\d{9}$/'], // Bổ sung regex cho số điện thoại 10 chữ số, bắt đầu bằng 0
-            'bank_name'        => 'required|string|max:100',
-            'reason_image'     => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240', // 10MB
-            'item_ids'         => 'required|array|min:1',
-            'item_ids.*'       => 'exists:order_items,id',
+            'order_id'       => 'required|exists:orders,id',
+            'reason'         => 'required|string|max:500',
+            'bank_account'   => 'required|string|min:8|max:20',
+            'user_bank_name' => 'required|string|max:255',
+            'phone_number'   => ['required', 'regex:/^0\d{9}$/'],
+            'bank_name'      => 'required|string|max:100',
+            'reason_image'   => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240', // 10MB
+            'item_ids'       => 'required|array|min:1',
+            'item_ids.*'     => 'exists:order_items,id',
         ], [
-            // Thông báo lỗi tùy chỉnh (tương tự như Request::validate)
-            'order_id.required'      => 'Đơn hàng không được để trống.',
-            'order_id.exists'        => 'Đơn hàng không tồn tại.',
-            'reason.required'        => 'Lý do hoàn tiền không được để trống.',
-            'reason.max'             => 'Lý do hoàn tiền không được vượt quá 500 ký tự.',
-            'bank_account.required'  => 'Số tài khoản không được để trống.',
-            'bank_account.string'    => 'Số tài khoản không hợp lệ.',
-            'bank_account.min'       => 'Số tài khoản phải có ít nhất 8 ký tự.',
-            'bank_account.max'       => 'Số tài khoản không được vượt quá 20 ký tự.',
-            'user_bank_name.required'=> 'Tên chủ tài khoản không được để trống.',
-            'phone_number.required'  => 'Số điện thoại không được để trống.',
-            'phone_number.regex'     => 'Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số, bắt đầu bằng 0.',
-            'bank_name.required'     => 'Tên ngân hàng không được để trống.',
-            'item_ids.required'      => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
-            'item_ids.min'           => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
-            'item_ids.*.exists'      => 'Một hoặc nhiều sản phẩm không hợp lệ.',
+            'order_id.required'        => 'Đơn hàng không được để trống.',
+            'order_id.exists'          => 'Đơn hàng không tồn tại.',
+            'reason.required'          => 'Lý do hoàn tiền không được để trống.',
+            'reason.max'               => 'Lý do hoàn tiền không được vượt quá 500 ký tự.',
+            'bank_account.required'    => 'Số tài khoản không được để trống.',
+            'bank_account.min'         => 'Số tài khoản phải có ít nhất 8 ký tự.',
+            'bank_account.max'         => 'Số tài khoản không được vượt quá 20 ký tự.',
+            'user_bank_name.required'  => 'Tên chủ tài khoản không được để trống.',
+            'phone_number.required'    => 'Số điện thoại không được để trống.',
+            'phone_number.regex'       => 'Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số, bắt đầu bằng 0.',
+            'bank_name.required'       => 'Tên ngân hàng không được để trống.',
+            'reason_image.max'         => 'Kích thước tệp không được vượt quá 10MB.',
+            'reason_image.mimes'       => 'Định dạng tệp không hợp lệ. Vui lòng chọn ảnh (jpeg, png, jpg) hoặc video (mp4, mov, avi).',
+            'item_ids.required'        => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'item_ids.min'             => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
+            'item_ids.*.exists'        => 'Một hoặc nhiều sản phẩm không hợp lệ.',
         ]);
 
         if ($validator->fails()) {
@@ -163,36 +168,35 @@ class RefundController extends Controller
         if ($existing) {
             return back()->withErrors(['general' => 'Bạn đã gửi yêu cầu hoàn cho đơn hàng này rồi.']);
         }
+
         $selectedItemIds = $validated['item_ids'];
+        $itemCounts = array_count_values($selectedItemIds);
+        $selectedItems = OrderItem::whereIn('id', array_keys($itemCounts))
+            ->with(['product', 'variant'])
+            ->get();
 
-        $selectedItems = collect();
+        $totalAmount = $selectedItems->sum(function($item) use ($itemCounts) {
+            return $item->price * ($itemCounts[$item->id] ?? 0);
+        });
 
-        foreach ($selectedItemIds as $itemId) {
-            $item = OrderItem::with(['product', 'variant'])->find($itemId);
-            if ($item) {
-                $selectedItems->push($item);
-            }
-        }
-
-        $totalAmount = $selectedItems->sum(fn($item) => $item->price);
         DB::beginTransaction();
         try {
             $refundData = [
-                'user_id'             => auth()->id(),
-                'order_id'            => $validated['order_id'],
-                'reason'              => $validated['reason'],
-                'bank_account'        => $validated['bank_account'],
-                'user_bank_name'      => $validated['user_bank_name'],
-                'phone_number'        => $validated['phone_number'],
-                'bank_name'           => $validated['bank_name'],
-                'total_amount'        => $totalAmount,
-                'status'              => 'pending',
+                'user_id'           => auth()->id(),
+                'order_id'          => $validated['order_id'],
+                'reason'            => $validated['reason'],
+                'bank_account'      => $validated['bank_account'],
+                'user_bank_name'    => $validated['user_bank_name'],
+                'phone_number'      => $validated['phone_number'],
+                'bank_name'         => $validated['bank_name'],
+                'total_amount'      => $totalAmount,
+                'status'            => 'pending',
                 'bank_account_status' => 'unverified',
-                'is_send_money'       => 0,
+                'is_send_money'     => 0,
             ];
 
             $refund = Refund::create($refundData);
-            
+
             if ($request->hasFile('reason_image')) {
                 $file = $request->file('reason_image');
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -202,25 +206,30 @@ class RefundController extends Controller
                     'reason_image' => $path,
                 ]);
             }
+
             $order = Order::find($validated['order_id']);
-            if (!$order) {
+            if ($order) {
+                $order->update(['is_refund' => 1]);
+            } else {
                 Log::error("Không tìm thấy order với ID: " . $validated['order_id']);
             }
-            $order->update([
-                'is_refund' => 1,
-            ]);
+
             foreach ($selectedItems as $item) {
-                RefundItem::create([
-                    'refund_id'        => $refund->id,
-                    'product_id'       => $item->product_id,
-                    'variant_id'       => $item->product_variant_id,
-                    'name'             => $item->product->name,
-                    'name_variant'     => optional($item->variant)->name,
-                    'quantity'         => 1,
-                    'price'            => $item->price,
-                    'price_variant'    => optional($item->variant)->sale_price ?? 0,
-                    'quantity_variant' => 1,
-                ]);
+                $quantity = $itemCounts[$item->id] ?? 0;
+                if ($quantity > 0) {
+                    RefundItem::create([
+                        'refund_id'          => $refund->id,
+                        'product_id'         => $item->product_id,
+                        'variant_id'         => $item->product_variant_id,
+                        'name'               => $item->name, // Sử dụng tên sản phẩm từ OrderItem
+                        'name_variant'       => optional($item->variant)->name ?? 'Không có phân loại',
+                        'thumbnail'          => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
+                        'quantity'           => $quantity,
+                        'price'              => $item->price,
+                        'price_variant'      => optional($item->variant)->sale_price ?? 0,
+                        'quantity_variant'   => $quantity,
+                    ]);
+                }
             }
 
             DB::commit();
@@ -243,11 +252,12 @@ class RefundController extends Controller
             abort(404);
         }
 
-        $refund = Refund::with([
-            'order',
-            'items.product',
-            'items.variant'
-        ])
+        // Tải các mối quan hệ cần thiết. Tên sản phẩm, biến thể và thumbnail
+        // đã được lưu trực tiếp vào bảng refund_items trong phương thức store(),
+        // nên không cần phải eager load các model product và variant để lấy thông tin này.
+        // Điều này cũng giải quyết lỗi "withTrashed() doesn't exist" nếu các model đó không
+        // sử dụng trait SoftDeletes.
+        $refund = Refund::with(['order', 'items'])
             ->where('user_id', auth()->id())
             ->findOrFail($id);
 
@@ -272,13 +282,15 @@ class RefundController extends Controller
                 'status'       => 'cancel',
                 'admin_reason' => 'Khách tự hủy',
             ]);
+
             $refund->load('order');
-            $refund->order->update([
-                'is_refund' => 0,
-            ]);
+            if ($refund->order) {
+                $refund->order->update(['is_refund' => 0]);
+            }
+
             DB::commit();
 
-            // event(new RefundCancelled($refund));
+            event(new RefundCancelled($refund));
             auth()->user()->notify(new RefundStatusChanged($refund));
 
             return redirect()->back()->with('success', 'Yêu cầu hoàn hàng đã được hủy.');
