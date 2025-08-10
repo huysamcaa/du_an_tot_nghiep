@@ -30,7 +30,6 @@ class CommentController extends Controller
             return response()->json(['message' => 'Bạn đang gửi bình luận quá nhanh, vui lòng đợi 30 giây'], 429);
         }
 
-        // Kiểm tra nội dung trùng gần nhất (chống spam nội dung lặp)
         $lastComment = Comment::where('user_id', $userId)
             ->where('product_id', $productId)
             ->orderByDesc('created_at')
@@ -46,7 +45,6 @@ class CommentController extends Controller
             'content' => $request->content,
         ]);
 
-        // Anti-flood: ngăn gửi tiếp trong 30 giây
         Cache::put($cacheKey, true, 30);
 
         return response()->json(['message' => 'Bình luận đã được gửi']);

@@ -1,15 +1,35 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+</style>
 <div class="checkoutPage">
     <section class="pageBannerSection">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="pageBannerContent text-center">
-                        <h2 class="display-4 ">Chỉnh sửa thông tin cá nhân</h2>
+                        <h2>Chỉnh sửa thông tin cá nhân</h2>
                         <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}" class="text-decoration-none text-dark">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span class="text-muted">Chỉnh sửa thông tin cá nhân</span>
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Chỉnh sửa thông tin cá nhân</span>
                         </div>
                     </div>
                 </div>
