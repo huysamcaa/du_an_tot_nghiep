@@ -13,21 +13,27 @@ use Illuminate\Validation\Rule;
 
 class BrandController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $perPage = $request->input('perPage', 10);
+   public function index(Request $request)
+{
+    // Lấy tham số từ request
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
 
-        $brands = Brand::when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                      ->orWhere('slug', 'like', "%$search%");
-            })
-            ->orderByDesc('created_at')
-            ->paginate($perPage)
-            ->appends($request->all());
+    $query = Brand::query();
 
-        return view('admin.brands.index', compact('brands', 'search', 'perPage'));
+    // Áp dụng bộ lọc tìm kiếm
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('slug', 'LIKE', "%{$search}%");
+        });
     }
+
+    $brands = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.brands.index', compact('brands'));
+}
+
 
     public function create()
     {
@@ -138,7 +144,7 @@ class BrandController extends Controller
 
         return view('admin.brands.trash', compact('brands'));
     }
-  
+
     private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
     {
         $base = Str::slug($name, '-', 'vi'); // bỏ dấu tiếng Việt

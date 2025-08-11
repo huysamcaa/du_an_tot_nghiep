@@ -7,31 +7,32 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
 {
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
     $query = Review::with(['user', 'product', 'order', 'multimedia'])
         ->leftJoin('users', 'reviews.user_id', '=', 'users.id')
-        ->orderByRaw('users.id IS NULL')           // User tồn tại lên trước
-        ->orderBy('reviews.created_at', 'asc')    // Mới nhất lên đầu
-        ->select('reviews.*');                     // Tránh xung đột cột khi join
+        ->select('reviews.*')
+        ->orderByRaw('users.id IS NULL') // User tồn tại lên trước
+        ->orderBy('reviews.created_at', 'desc'); // Mới nhất lên đầu
 
-    if ($request->has('search')) {
-        $search = $request->get('search');
+    if ($search) {
         $query->where(function ($q) use ($search) {
-            $q->where('users.fullname', 'like', "%$search%")              // từ join
-              ->orWhereHas('product', function($query) use ($search) {
-                  $query->where('name', 'like', "%$search%");
-              })
-              ->orWhere('review_text', 'like', "%$search%");
+            $q->where('users.fullname', 'like', "%{$search}%")
+                ->orWhereHas('product', function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%");
+                })
+                ->orWhere('review_text', 'like', "%{$search}%");
         });
     }
 
-$perPage = $request->get('perPage', 10); // lấy từ request, mặc định 10
-$reviews = $query->paginate($perPage)->appends(['perPage' => $perPage]);
-
+    $reviews = $query->paginate($perPage)->withQueryString();
 
     return view('admin.reviews.index', compact('reviews'));
 }
+
 
     public function approve($id)
     {

@@ -8,23 +8,24 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Http\Requests\CategoryRequest;
 use App\Models\Admin\Category;
-use App\Models\Admin\Product; // 
+use App\Models\Admin\Product; //
 
 class CategoryController extends Controller
 {
-   public function index(Request $request)
+ public function index(Request $request)
 {
-    $perPage = $request->input('per_page', 10);
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
 
     $query = Category::with('parent')->orderBy('ordinal');
 
-    if ($request->filled('keyword')) {
-        $query->where('name', 'like', '%' . $request->keyword . '%');
+    if ($search) {
+        $query->where('name', 'LIKE', "%{$search}%");
     }
 
-    $categories = $query->paginate($perPage)->appends($request->all());
+    $categories = $query->paginate($perPage)->withQueryString();
 
-    return view('admin.categories.index', compact('categories', 'perPage')); 
+    return view('admin.categories.index', compact('categories'));
 }
 
 public function show(Category $category)
@@ -101,7 +102,7 @@ public function show(Category $category)
 
 public function trashed(Request $request)
 {
-    
+
     $perPage = $request->input('per_page', 10);
 
     $query = Category::onlyTrashed()->with('parent')->orderByDesc('deleted_at');

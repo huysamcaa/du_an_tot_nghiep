@@ -13,11 +13,26 @@ use Exception;
 class OrderController extends Controller
 {
     // Danh sách đơn hàng COD
-    public function index()
-    {
-        $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(100);
-        return view('admin.orders.index', compact('orders'));
+   public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = Order::with('currentStatus.orderStatus')
+        ->whereIn('payment_id', [2, 3, 4]);
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('code', 'LIKE', "%{$search}%")
+              ->orWhere('fullname', 'LIKE', "%{$search}%");
+        });
     }
+
+    $orders = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.orders.index', compact('orders'));
+}
+
 
     // Xem chi tiết đơn hàng
     public function show($id)
