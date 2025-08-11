@@ -1,41 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
-<style>
-    .pageBannerSection {
-        background:#ECF5F4;
-        padding: 10px 0;
-    }
-    .pageBannerContent h2 {
-        
-        font-size: 72px;
-        color:#52586D;
-        font-family: 'Jost', sans-serif;
-    }
-    .pageBannerPath a {
-        color: #007bff;
-        text-decoration: none;
-    }
-    .checkoutPage {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-</style>
-<div class="checkoutPage">
-    <section class="pageBannerSection">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="pageBannerContent text-center">
-                        <h2>Chỉnh sửa thông tin cá nhân</h2>
-                        <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Chỉnh sửa thông tin cá nhân</span>
-                        </div>
+<!-- BEGIN: Page Banner Section -->
+<section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Chỉnh Sửa Thông Tin</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Chỉnh sửa thông tin</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+<!-- END: Page Banner Section -->
 <div class="container py-5">
     <h4 class="mb-1 fw-bold">Chỉnh sửa thông tin cá nhân</h4>
     <p class="text-muted mb-4">Cập nhật thông tin để bảo vệ tài khoản và nhận ưu đãi phù hợp</p>

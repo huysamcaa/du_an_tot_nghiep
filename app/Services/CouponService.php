@@ -206,23 +206,26 @@ class CouponService
      * - Clear used_at, order_id, discount_applied
      * - Giảm usage_count
      */
-    public static function rollbackUsed(User $user, Coupon $coupon, ?Order $order = null): void
-    {
-        DB::transaction(function () use ($user, $coupon, $order) {
-            $pivot = $user->coupons()->where('coupon_id', $coupon->id)->first()?->pivot;
+   public static function rollbackUsed(User $user, Coupon $coupon, ?Order $order = null): void
+{
+    DB::transaction(function () use ($user, $coupon, $order) {
+        $pivot = $user->coupons()->where('coupon_id', $coupon->id)->first()?->pivot;
 
-            // Chỉ rollback khi thật sự đã used hoặc có order_id
-            if ($pivot && ($pivot->used_at || $pivot->order_id)) {
-                $user->coupons()->updateExistingPivot($coupon->id, [
-                    'used_at'          => null,
-                    'order_id'         => null,
-                    'discount_applied' => null,
-                ]);
+        // Nếu đã dùng rồi thì KHÔNG xoá used_at để đảm bảo 1 user chỉ dùng 1 lần
+        if ($pivot && ($pivot->used_at || $pivot->order_id)) {
+            // Chỉ clear order_id nếu muốn “rời” coupon khỏi đơn hủy
+            $user->coupons()->updateExistingPivot($coupon->id, [
+                'order_id'         => null,
+                // Giữ nguyên used_at để khóa
+                // discount_applied có thể giữ nguyên hoặc null tuỳ chính sách
+            ]);
 
-                if ($coupon->usage_count > 0) {
-                    $coupon->decrement('usage_count');
-                }
-            }
-        });
-    }
+            //  Không giảm usage_count nếu muốn giữ số lượt toàn cục đã dùng
+            // if ($coupon->usage_count > 0) {
+            //     $coupon->decrement('usage_count');
+            // }
+        }
+    });
+}
+
 }
