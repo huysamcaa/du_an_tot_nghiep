@@ -8,11 +8,22 @@ use Illuminate\Http\Request;
 
 class OrderStatusController extends Controller
 {
-    public function index()
-    {
-        $statuses = OrderStatus::paginate(10);
-        return view('admin.order_statuses.index', compact('statuses'));
+   public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = OrderStatus::query();
+
+    if ($search) {
+        $query->where('name', 'LIKE', "%{$search}%");
     }
+
+    $statuses = $query->orderBy('id', 'asc')->paginate($perPage)->withQueryString();
+
+    return view('admin.order_statuses.index', compact('statuses'));
+}
+
 
     public function create()
     {

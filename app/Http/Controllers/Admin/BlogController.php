@@ -9,11 +9,23 @@ use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
-    public function index()
-    {
-        $blogs = Blog::latest()->paginate(10);
-        return view('admin.blogs.index', compact('blogs'));
+ public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = Blog::query();
+
+    if ($search) {
+        $query->where('title', 'LIKE', "%{$search}%");
     }
+
+    $blogs = $query->latest()->paginate($perPage)->withQueryString();
+
+    return view('admin.blogs.index', compact('blogs'));
+}
+
+
 
     public function create()
     {

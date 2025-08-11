@@ -16,40 +16,37 @@ use App\Models\Shared\OrderItem;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
-    {
-        $categories = Category::all();
+  public function index(Request $request)
+{
+    // Lấy tham số từ request
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
 
-        $query = Product::where('is_active', 1)
-            ->with(['variants', 'categories', 'brand'])
-            ->withCount([
-                'variants as total_stock' => function ($q) {
-                    $q->select(DB::raw('SUM(stock)'));
-                }
-            ]);
+    $query = Product::with(['category', 'brand'])
+        ->withCount([
+            'variants as total_stock' => function ($q) {
+                $q->select(DB::raw('SUM(stock)'));
+            }
+        ]);
 
-        // Nếu có từ khóa tìm kiếm
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhereHas('categories', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereHas('brand', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    });
-            });
-        }
-
-
-        $products = $query->orderBy('created_at', 'desc')->get();
-
-        return view('admin.products.index', compact('products', 'categories'));
+    // Áp dụng tìm kiếm nếu có
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhereHas('category', function ($cat) use ($search) {
+                  $cat->where('name', 'like', "%{$search}%");
+              })
+              ->orWhereHas('brand', function ($brand) use ($search) {
+                  $brand->where('name', 'like', "%{$search}%");
+              });
+        });
     }
+
+    $products = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.products.index', compact('products'));
+}
+
 
     public function create()
     {
