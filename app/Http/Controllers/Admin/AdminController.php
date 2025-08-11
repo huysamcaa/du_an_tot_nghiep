@@ -121,9 +121,8 @@ class AdminController extends Controller
         $userCount = User::count();
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-            ->join('orders', 'orders.id', '=', 'order_order_status.order_id') // join thêm
+            ->join('orders', 'orders.id', '=', 'order_order_status.order_id')
             ->select('order_statuses.id', 'order_statuses.name', DB::raw('COUNT(*) as total'))
-            ->whereNull('orders.deleted_at')
             ->groupBy('order_statuses.id', 'order_statuses.name')
             ->get();
         $topCustomers = Order::whereHas('user') // loại các đơn hàng có user đã bị xóa

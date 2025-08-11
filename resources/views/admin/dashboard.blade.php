@@ -154,9 +154,9 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-auto">
+                                    {{-- <div class="col-auto">
                                         <button type="submit" class="btn btn-primary btn-sm">Xem</button>
-                                    </div>
+                                    </div> --}}
                                 </form>
                             </div>
                             <div class="card-body">
@@ -299,6 +299,11 @@
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
+                    document.querySelectorAll("#view, #year, #month").forEach(function(el) {
+                        el.addEventListener("change", function() {
+                            this.form.submit();
+                        });
+                    });
                     // Biểu đồ doanh thu theo tháng
                     new Chart(document.getElementById('revenueChart').getContext('2d'), {
                         type: 'line',

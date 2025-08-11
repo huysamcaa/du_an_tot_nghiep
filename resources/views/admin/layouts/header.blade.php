@@ -15,11 +15,16 @@
             <div class="header-left">
                 <button class="search-trigger"><i class="fa fa-search"></i></button>
                 <div class="form-inline">
-                    <form class="search-form">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search ..." aria-label="Search">
-                        <button class="search-close" type="submit"><i class="fa fa-close"></i></button>
+                    <form class="search-form" action="{{ route('admin.products.index') }}" method="GET">
+                        <input class="form-control mr-sm-2" type="text" name="search"
+                            value="{{ request('search') }}" placeholder="Tìm kiếm sản phẩm..." aria-label="Search">
+                        <button type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+
                     </form>
                 </div>
+
                 <div class="dropdown for-notification">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="notification"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
