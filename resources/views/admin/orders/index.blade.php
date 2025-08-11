@@ -45,18 +45,20 @@
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
                 @endif
-
+                        <li class="nav-item list-unstyled">
+                            <a href="{{ route('admin.orders.cancelled') }}" class="btn btn-success">
+                                <i class="fa fa-trash"></i>
+                                Đơn Hàng Đã Hủy
+                            </a>
+                        </li>
+                        <br>    
                 {{-- Bảng danh sách --}}
                 <div class="card">
                     <div class="card-header">
                         <strong class="card-title">Danh sách đơn hàng COD</strong>
-                        <li class="nav-item">
-                            <a href="{{ route('admin.orders.cancelled') }}" class="nav-link">
-                                <i class="nav-icon fas fa-ban"></i>
-                                <p>Đơn Hàng Đã Hủy</p>
-                            </a>
-                        </li>
+                       
                     </div>
+                    
                     <div class="card-body">
                         <table id="bootstrap-data-table" class="table table-bordered table-striped text-center">
                             <thead>

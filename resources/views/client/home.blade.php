@@ -2706,7 +2706,7 @@
         <!-- END: Lookbook Section 2 -->
 
         <!-- BEGIN: Category Section -->
-        <<section class="categorySection">
+        <section class="categorySection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -2717,25 +2717,25 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="categoryCarousel owl-carousel">
-    @foreach ($categories as $category)
-        <div class="categoryItem01 text-center">
-            <div class="ci01Thumb">
-                {{-- nếu có trường thumbnail trong DB --}}
-                <img src="{{ asset('storage/'.$category->thumbnail) }}"
-                     alt="{{ $category->name }}"
-                     style="width:100%; height:auto; object-fit:cover;" />
-            </div>
-            <h3>
-               <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
+                    @foreach ($categories as $category)
+                        <div class="categoryItem01 text-center">
+                            <div class="ci01Thumb">
+                                {{-- nếu có trường thumbnail trong DB --}}
+                                <img src="{{ asset('storage/'.$category->thumbnail) }}"
+                                    alt="{{ $category->name }}"
+                                    style="width:100%; height:auto; object-fit:cover;" />
+                            </div>
+                            <h3>
+                            <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
 
 
-                    {{ $category->name }}
-                </a>
-            </h3>
-            <p>{{ $category->products_count }} Items</p>
-        </div>
-    @endforeach
-</div>
+                                    {{ $category->name }}
+                                </a>
+                            </h3>
+                            <p>{{ $category->products_count }} Items</p>
+                        </div>
+                    @endforeach
+                </div>
 
                     </div>
                 </div>
