@@ -3,264 +3,250 @@
 @section('title', 'Lịch sử mua hàng')
 
 @section('content')
-    <!-- Banner Section -->
-    <section class="pageBannerSection">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="pageBannerContent text-center">
-                        <h2 class="banner-title">Đơn Hàng Của Tôi</h2>
-                        <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}">
-                                <i class="fas fa-home me-1"></i>Trang chủ
-                            </a>
-                            <span class="separator">/</span>
-                            <span class="current">Đơn Hàng</span>
-                        </div>
+<!-- Banner Section -->
+<section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2 class="banner-title">Đơn Hàng Của Tôi</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{ route('client.home') }}">
+                            <i class="fas fa-home me-1"></i>Trang chủ
+                        </a>
+                        <span class="separator">/</span>
+                        <span class="current">Đơn Hàng</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <div class="orderHistorySection py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+<div class="orderHistorySection py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
 
-                    @if (session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
-                        </div>
-                    @endif
+                @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+                @endif
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
 
-                    @if ($orders->isEmpty())
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-shopping-bag"></i>
+                @if ($orders->isEmpty())
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
+                    <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
+                    <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
+                    </a>
+                </div>
+                @else
+                <!-- Filter Tabs -->
+                <div class="order-filters mb-4">
+                    <ul class="nav nav-pills justify-content-center" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active filter-btn" data-filter="all">
+                                <i class="fas fa-list me-2"></i>Tất cả
+                                <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link filter-btn" data-filter="pending">
+                                <i class="fas fa-clock me-2"></i>Chờ xác nhận
+                                <span class="count-badge" id="count-pending">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link filter-btn" data-filter="processing">
+                                <i class="fas fa-box me-2"></i>Đang xử lý
+                                <span class="count-badge" id="count-processing">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link filter-btn" data-filter="completed">
+                                <i class="fas fa-check-circle me-2"></i>Hoàn thành
+                                <span class="count-badge" id="count-completed">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link filter-btn" data-filter="cancelled">
+                                <i class="fas fa-times-circle me-2"></i>Đã hủy
+                                <span class="count-badge" id="count-cancelled">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Search Box -->
+                <div class="search-box mb-4">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="orderSearch" placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Orders List -->
+                <div class="orders-container">
+                    @foreach ($orders as $order)
+                    @php
+                    $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
+                    $statusClass = '';
+
+                    // Phân loại trạng thái
+                    switch ($statusName) {
+                    case 'Chờ xử lý':
+                    case 'Chờ Xác Nhận':
+                    case 'Đang chờ xác nhận':
+                    $statusClass = 'pending';
+                    break;
+                    case 'Đang xử lý':
+                    case 'Đang chuẩn bị':
+                    case 'Đang giao hàng':
+                    case 'Đã xác nhận':
+                    case 'Đã gửi hàng':
+                    $statusClass = 'processing';
+                    break;
+                    case 'Đã hoàn thành':
+                    case 'Hoàn thành':
+                    case 'Đã giao hàng':
+                    $statusClass = 'completed';
+                    break;
+                    case 'Hủy Đơn':
+                    case 'Hủy đơn hàng':
+                    $statusClass = 'cancelled';
+                    break;
+                    default:
+                    $statusClass = 'pending';
+                    }
+                    @endphp
+
+                    <div class="order-card" data-status="{{ $statusClass }}" data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
+                        <!-- Order Header -->
+                        <div class="order-header">
+                            <div class="order-info">
+                                <div class="order-code">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    <span class="fw-bold">#{{ $order->code }}</span>
+                                </div>
+                                <div class="order-date">
+                                    <i class="far fa-calendar-alt me-1"></i>
+                                    {{ $order->created_at->format('d/m/Y H:i') }}
+                                </div>
                             </div>
-                            <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
-                            <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
-                            <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
-                            </a>
-                        </div>
-                    @else
-                        <!-- Filter Tabs -->
-                        <div class="order-filters mb-4">
-                            <ul class="nav nav-pills justify-content-center" role="tablist">
-                                <li class="nav-item">
-                                    <button class="nav-link active filter-btn" data-filter="all">
-                                        <i class="fas fa-list me-2"></i>Tất cả
-                                        <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="pending">
-                                        <i class="fas fa-clock me-2"></i>Chờ xác nhận
-                                        <span class="count-badge" id="count-pending">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="processing">
-                                        <i class="fas fa-box me-2"></i>Đang xử lý
-                                        <span class="count-badge" id="count-processing">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="completed">
-                                        <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                                        <span class="count-badge" id="count-completed">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="cancelled">
-                                        <i class="fas fa-times-circle me-2"></i>Đã hủy
-                                        <span class="count-badge" id="count-cancelled">0</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
 
-                        <!-- Search Box -->
-                        <div class="search-box mb-4">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
+                            <div class="order-status-badges">
+                                <!-- Payment Status -->
+                                @if ($order->is_paid)
+                                <span class="status-badge paid">
+                                    <i class="fas fa-check-circle me-1"></i>Đã thanh toán
                                 </span>
-                                <input type="text" class="form-control" id="orderSearch"
-                                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
-                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                @else
+                                <span class="status-badge unpaid">
+                                    <i class="fas fa-clock me-1"></i>
+                                </span>
+                                @endif
+
+                                <!-- Order Status -->
+                                <span class="status-badge order-status status-{{ $statusClass }}">
+                                    {{ $statusName }}
+                                </span>
                             </div>
                         </div>
 
-                        <!-- Orders List -->
-                        <div class="orders-container">
-                            @foreach ($orders as $order)
-                                @php
-                                    $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
-                                    $statusClass = '';
+                        <!-- Order Items -->
+                        <div class="order-body">
+                            @foreach ($order->items as $item)
+                            @php
+                            $key = $order->id . '-' . ($item->product->id ?? 'null');
+                            $alreadyReviewed = $reviewedMap[$key] ?? false;
+                            $review = $reviewDataMap[$key] ?? null;
+                            @endphp
 
-                                    // Phân loại trạng thái
-                                    switch ($statusName) {
-                                        case 'Chờ xử lý':
-                                        case 'Chờ Xác Nhận':
-                                        case 'Đang chờ xác nhận':
-                                            $statusClass = 'pending';
-                                            break;
-                                        case 'Đang xử lý':
-                                        case 'Đang chuẩn bị':
-                                        case 'Đang giao hàng':
-                                        case 'Đã xác nhận':
-                                        case 'Đã gửi hàng':
-                                            $statusClass = 'processing';
-                                            break;
-                                        case 'Đã hoàn thành':
-                                        case 'Hoàn thành':
-                                        case 'Đã giao hàng':
-                                            $statusClass = 'completed';
-                                            break;
-                                        case 'Hủy Đơn':
-                                        case 'Hủy đơn hàng':
-                                            $statusClass = 'cancelled';
-                                            break;
-                                        default:
-                                            $statusClass = 'pending';
-                                    }
-                                @endphp
-
-                                <div class="order-card" data-status="{{ $statusClass }}"
-                                    data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
-                                    <!-- Order Header -->
-                                    <div class="order-header">
-                                        <div class="order-info">
-                                            <div class="order-code">
-                                                <i class="fas fa-receipt me-2"></i>
-                                                <span class="fw-bold">#{{ $order->code }}</span>
-                                            </div>
-                                            <div class="order-date">
-                                                <i class="far fa-calendar-alt me-1"></i>
-                                                {{ $order->created_at->format('d/m/Y H:i') }}
-                                            </div>
-                                        </div>
-
-                                        <div class="order-status-badges">
-                                            <!-- Payment Status -->
-                                            @if ($order->is_paid)
-                                                <span class="status-badge paid">
-                                                    <i class="fas fa-check-circle me-1"></i>Đã thanh toán
-                                                </span>
-                                            @else
-                                                <span class="status-badge unpaid">
-                                                    <i class="fas fa-clock me-1"></i>
-                                                </span>
-                                            @endif
-
-                                            <!-- Order Status -->
-                                            <span class="status-badge order-status status-{{ $statusClass }}">
-                                                {{ $statusName }}
-                                            </span>
-                                        </div>
+                            <div class="order-item" data-product-name="{{ $item->name ?? '' }}">
+                                <div class="item-image">
+                                    @if ($item->variant && $item->variant->thumbnail)
+                                    <img src="{{ asset('storage/' . $item->variant->thumbnail) }}" alt="{{ $item->variant->name }}" class="product-thumbnail">
+                                    @else
+                                    <div class="product-placeholder">
+                                        <i class="fas fa-image"></i>
                                     </div>
+                                    @endif
+                                </div>
 
-                                    <!-- Order Items -->
-                                    <div class="order-body">
-                                        @foreach ($order->items as $item)
-                                            @php
-                                                $key =
-                                                    $order->id .
-                                                    '-' .
-                                                    ($item->product->id ?? 'null') .
-                                                    '-' .
-                                                    ($item->product_variant_id ?? 0);
-                                            @endphp
+                                <div class="item-details">
+                                    <h6 class="product-name">
+                                        {{ $item->name ?? 'Sản phẩm không tồn tại' }}
+                                    </h6>
+                                    <p class="product-variant">
+                                        <i class="fas fa-tag me-1"></i>
+                                        @if($item->variant)
+                                        @foreach($item->variant->attributeValues as $attrValue)
+                                        {{ $attrValue->value }}
+                                        @endforeach
+                                        @endif
+                                    </p>
+                                    <div class="quantity-badge">
+                                        <i class="fas fa-times me-1"></i>{{ $item->quantity }}
+                                    </div>
+                                </div>
 
-                                            <div class="order-item" data-product-name="{{ $item->product->name ?? '' }}">
-                                                <div class="item-image">
-                                                    @if ($item->product && $item->product->thumbnail)
-                                                        <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
-                                                            alt="{{ $item->product->name }}" class="product-thumbnail">
-                                                    @else
-                                                        <div class="product-placeholder">
-                                                            <i class="fas fa-image"></i>
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                <div class="item-price">
+                                    <span class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                </div>
 
-                                                <div class="item-details">
-                                                    <h6 class="product-name">
-                                                        {{ $item->product->name ?? 'Sản phẩm không tồn tại' }}
-                                                    </h6>
-                                                    <p class="product-variant">
-                                                        <i class="fas fa-tag me-1"></i>
-                                                        @if ($item->variant)
-                                                            @foreach ($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }}
-                                                            @endforeach
-                                                        @endif
-                                                    </p>
-                                                    <div class="quantity-badge">
-                                                        <i class="fas fa-times me-1"></i>{{ $item->quantity }}
-                                                    </div>
-                                                </div>
+                                <div class="item-actions">
+                                    @php
+                                    $pending = $order->refunds->firstWhere('status', 'pending');
+                                    @endphp
 
-                                                <div class="item-price">
-                                                    <span
-                                                        class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
-                                                </div>
+                                    @if ($pending)
+                                    {{-- Form hủy yêu cầu hoàn đơn --}}
+                                    <form id="refund-cancel-{{ $pending->id }}" action="{{ route('refunds.cancel', ['id' => $pending->id]) }}" method="POST" style="display:none">
+                                        @csrf
+                                    </form>
 
-                                                <div class="item-actions">
-                                                    @php
-                                                        $pending = $order->refunds->firstWhere('status', 'pending');
-                                                    @endphp
+                                    <button type="submit" form="refund-cancel-{{ $pending->id }}" class="btn btn-outline-warning btn-sm action-btn" onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                        <i class="fas fa-times me-1"></i>Hủy hoàn
+                                    </button>
+                                    @elseif ($statusName === 'Đã hoàn thành' && $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                    {{-- Nút tạo yêu cầu hoàn đơn --}}
+                                    <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}" class="btn btn-outline-warning btn-sm action-btn">
+                                        <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+                                    </a>
+                                    @endif
 
-                                                    @if ($pending)
-                                                        {{-- Form hủy yêu cầu hoàn đơn --}}
-                                                        <form id="refund-cancel-{{ $pending->id }}"
-                                                            action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-                                                            method="POST" style="display:none">
-                                                            @csrf
-                                                        </form>
+                                   
 
-                                                        <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn"
-                                                            onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-                                                            <i class="fas fa-times me-1"></i>Hủy hoàn
-                                                        </button>
-                                                    @elseif (
-                                                        $statusName === 'Đã hoàn thành' &&
-                                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-                                                        {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                                        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn">
-                                                            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
-                                                        </a>
-                                                    @endif
-
-
-
-                                                    <button class="btn btn-outline-success btn-sm action-btn">
-                                                        <i class="fas fa-comments me-1"></i>Chat
-                                                    </button>
-
-                                                    @if ($statusClass === 'completed')
+                                    <button class="btn btn-outline-success btn-sm action-btn">
+                                        <i class="fas fa-comments me-1"></i>Chat
+                                    </button>
+                                    
+                                     @if ($statusClass === 'completed')
                                                         @php
                                                             $orderId = (int) $order->id;
                                                             $productId = (int) ($item->product->id ?? 0);
@@ -284,115 +270,59 @@
                                                             </button>
                                                         @endif
                                                     @endif
-
-                                                </div>
-                                            </div>
-                                        @endforeach
-
-
-                                    </div>
-
-
-                                    <!-- Order Footer -->
-                                    <div class="order-footer">
-                                        <div class="shop-info">
-                                            <i class="fas fa-store me-2"></i>
-                                            <span class="shop-name">
-                                                <tr>
-
-                                                    <td class="text-end fw-bold pe-4"> <span
-                                                            class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span>
-                                                    </td>
-                                            </span>
-                                        </div>
-
-                                        <div class="order-actions">
-                                            @if ($statusName === 'Chờ Xác Nhận')
-                                                @if ($order->payment_id == 2)
-                                                    <!-- COD -->
-                                                    <a href="{{ route('client.orders.cancel-form', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
-                                                        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-                                                    </a>
-                                                @elseif ($order->payment_id == 3 || $order->payment_id == 4)
-                                                    <!-- Online payment -->
-                                                    <a href="{{ route('client.orders.cancel-online', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
-                                                        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-                                                    </a>
-                                                @endif
-                                            @endif
-
-                                            @if ($statusName === 'Đang giao hàng')
-                                                <form action="{{ route('client.orders.received', $order->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('POST')
-                                                    <button type="submit"
-                                                        class="btn btn-outline-success btn-sm action-btn cancel-order-btn"
-                                                        onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                                        <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            <a href="{{ route('client.orders.show', $order->code) }}"
-                                                class="btn btn-outline-info btn-sm me-2">
-                                                <i class="fas fa-eye me-1"></i>Chi tiết
-                                            </a>
-
-
-                                            <div class="total-amount">
-                                                <span class="total-label">Tổng tiền:</span>
-                                                <span
-                                                    class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
+                            </div>
+                            @endforeach
 
-                                {{-- <div class="item-price">
-                                    <span
-                                        class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
-                                </div> --}}
 
-                                {{-- <div class="item-actions">
-                                    @php
-                                        $pending = $order->refunds->firstWhere('status', 'pending');
-                                    @endphp
+                        </div>
 
-                                    @if ($pending) --}}
-                                {{-- Form hủy yêu cầu hoàn đơn --}}
-                                {{-- <form id="refund-cancel-{{ $pending->id }}"
-                                            action="{{ route('refunds.cancel', ['id' => $pending->id]) }}" method="POST"
-                                            style="display:none">
-                                            @csrf
-                                        </form>
 
-                                        <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                                            class="btn btn-outline-warning btn-sm action-btn"
-                                            onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-                                            <i class="fas fa-times me-1"></i>Hủy hoàn
-                                        </button>
-                                    @elseif (
-                                        $statusName === 'Đã hoàn thành' &&
-                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0) --}}
-                                {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                {{-- <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                            class="btn btn-outline-warning btn-sm action-btn">
-                                            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+                        <!-- Order Footer -->
+                        <div class="order-footer">
+                            <div class="shop-info">
+                                <i class="fas fa-store me-2"></i>
+                                <span class="shop-name"> <tr>
+                                    
+                                    <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
+                                </span>
+                            </div>
+
+                            <div class="order-actions">
+                                 @if ($statusName === 'Chờ Xác Nhận')
+                                    @if ($order->payment_id == 2) <!-- COD -->
+                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                        </a>
+                                    @elseif ($order->payment_id == 3 || $order->payment_id == 4) <!-- Online payment -->
+                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
                                         </a>
                                     @endif
+                                @endif
+
+                                     @if ($statusName === 'Đang giao hàng')
+                                    <form action="{{ route('client.orders.received', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('POST')
+                                        <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
+                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng 
+                                        </button>
+                                    </form>
+                                    @endif
+                                <a href="{{ route('client.orders.show', $order->code) }}" class="btn btn-outline-info btn-sm me-2">
+                                    <i class="fas fa-eye me-1"></i>Chi tiết
+                                </a>
 
 
-
-                                    <button class="btn btn-outline-success btn-sm action-btn">
-                                        <i class="fas fa-comments me-1"></i>Chat
-                                    </button>
-                                        --}}
-
-                                {{-- </div> --}}
+                                <div class="total-amount">
+                                    <span class="total-label">Tổng tiền:</span>
+                                    <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
+                                </div>
+                            </div>
                         </div>
-                                  @endforeach
+                    </div>
+                    @endforeach
                 </div>
 
                 <!-- No Results Message -->
@@ -406,15 +336,15 @@
 
                 <!-- Pagination -->
                 @if ($orders->hasPages())
-                    <div class="pagination-wrapper">
-                        {{ $orders->links() }}
-                    </div>
+                <div class="pagination-wrapper">
+                    {{ $orders->links() }}
+                </div>
                 @endif
                 @endif
             </div>
         </div>
     </div>
-    </div>
+</div>
 
     <style>
         /* Previous styles remain the same... */

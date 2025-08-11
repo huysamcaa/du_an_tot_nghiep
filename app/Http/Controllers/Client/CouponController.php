@@ -99,14 +99,6 @@ public function index()
 
     return view('client.coupons.received', compact('coupons'));
 }
-
-
-
-
-
-
-
-
     public function show($id)
     {
         $user = Auth::user();
