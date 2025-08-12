@@ -202,4 +202,5 @@ public function index()
 
         return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
     }
+    
 }
