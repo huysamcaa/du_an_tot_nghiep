@@ -181,6 +181,44 @@ class RefundController extends Controller
 
             $refund->save();
 
+        // Lấy đơn hàng liên quan từ yêu cầu hoàn tiền
+        $order = $refund->order;
+
+        if ($order) {
+            // Kiểm tra nếu yêu cầu hoàn tiền đạt trạng thái 'completed' và tiền đã được gửi đi
+            if ($refund->status === 'completed' && $refund->is_send_money) {
+                // Cập nhật các trường liên quan trong bảng 'orders'
+                $order->is_refund_cancel = true;
+                $order->is_refund = true;
+                $order->img_send_refund_money = $refund->img_fail_or_completed;
+                $order->save();
+
+                // Cập nhật trạng thái đơn hàng trong bảng 'order_order_status'
+                $refundedStatusId = 6;
+
+                // Nếu tìm thấy ID trạng thái 'Đã hoàn tiền'
+                if ($refundedStatusId) {
+                    // Cập nhật tất cả trạng thái cũ của đơn hàng thành không phải là hiện tại
+                    DB::table('order_order_status')
+                        ->where('order_id', $order->id)
+                        ->where('is_current', true)
+                        ->update(['is_current' => false]);
+
+                    // Thêm một bản ghi mới để đánh dấu đơn hàng đã được hoàn tiền
+                    DB::table('order_order_status')->insert([
+                        'order_id' => $order->id,
+                        'order_status_id' => $refundedStatusId,
+                        'modified_by' => auth()->user()->id,
+                        'is_current' => true,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+        // Gửi thông báo cho người dùng
+        $refund->user->notify(new RefundStatusChanged($refund));
+
             // Gửi thông báo cho người dùng
             $refund->user->notify(new RefundStatusChanged($refund));
 
