@@ -423,9 +423,11 @@ class ProductController extends Controller
 
         // Nếu sản phẩm đã từng có trong đơn hàng, không cho xóa cứng
         if ($product->orderItems()->exists()) {
-            return redirect()->back()->with('error', 'Không thể xóa cứng sản phẩm đã có trong đơn hàng!');
+            return redirect()->back()->with('error', 'Không thể xóa sản phẩm đã có trong đơn hàng!');
         }
-
+        if ($product->stock > 0) {
+            return redirect()->back()->with('error', 'Không thể xóa sản phẩm  vẫn còn trong kho!');
+        }
         // Xóa ảnh chính nếu có
         if ($product->thumbnail) {
             Storage::disk('public')->delete($product->thumbnail);
