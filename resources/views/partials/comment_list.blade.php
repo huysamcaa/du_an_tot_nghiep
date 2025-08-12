@@ -2,15 +2,6 @@
     <ol>
         @foreach ($comments as $index => $comment)
             <li>
-                <div class="postReview d-flex gap-3">
-                
-                    @if ($comment->user?->avatar)
-                        <img src="{{ asset('storage/' . $comment->user->avatar) }}" alt="Avatar"
-                            class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                    @else
-                        <img src="{{ asset('assets/client/images/author/default.jpg') }}" alt="Default Avatar"
-                            class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                    @endif
 
                     <div class="flex-grow-1">
                         <h2 class="h6 mb-1">

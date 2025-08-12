@@ -1,8 +1,34 @@
 @extends('client.layouts.app')
 
 @section('content')
+<<<<<<<<< Temporary merge branch 1
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+</style>
     <div class="checkoutPage">
+        <!-- Banner nhỏ gọn -->
+        <section class="pageBannerSection py-3">
+=========
+
         <section class="pageBannerSection">
+>>>>>>>>> Temporary merge branch 2
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -28,20 +54,36 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
+<<<<<<<<< Temporary merge branch 1
+            <div class="card shadow border-0 rounded-4 p-4">
+                <div class="row align-items-center">
+                    <!-- Avatar -->
+                    <div class="col-md-4 text-center mb-3 mb-md-0">
+                        @if ($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
+                                style="width: 120px; height: 120px; object-fit: cover;">
+                        @else
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow"
+                                style="width: 120px; height: 120px;">
+                                <span class="text-muted">No Avatar</span>
+                            </div>
+                        @endif
+                    </div>
+=========
                 <div class="card shadow-sm p-4">
                     <div class="row align-items-center">
                         <!-- Avatar -->
-                        <div class="col-md-4 text-center mb-3 mb-md-0">
-                            @if ($user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
-                                    style="width: 120px; height: 120px; object-fit: cover;">
-                            @else
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                    style="width: 120px; height: 120px;">
-                                    <span class="text-muted">No Avatar</span>
-                                </div>
-                            @endif
-                        </div>
+<div class="col-md-4 text-center mb-3 mb-md-0">
+    @if ($user->avatar)
+        <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @else
+        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @endif
+</div>
+
+>>>>>>>>> Temporary merge branch 2
 
                         <!-- Thông tin -->
                         <div class="col-md-8">
@@ -92,5 +134,12 @@
                     </div>
 
                 </div>
+<<<<<<<<< Temporary merge branch 1
             </div>
+        </div>
+    </div>
+@endsection
+=========
+            
         @endsection
+>>>>>>>>> Temporary merge branch 2

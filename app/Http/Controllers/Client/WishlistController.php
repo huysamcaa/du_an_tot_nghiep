@@ -62,7 +62,11 @@ class WishlistController extends Controller
     }
     public function index()
     {
-        $wishlists = Wishlist::with('product')
+        $wishlists = Wishlist::with([
+             'product.variants' => function($q) {
+            $q->select('id', 'product_id', 'stock');
+        }
+        ])
                     ->where('user_id', Auth::id())
                     ->get();
         return view('client.wishlists.wishlist',compact('wishlists'));
