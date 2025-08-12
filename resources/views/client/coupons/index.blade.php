@@ -37,18 +37,13 @@
                 </div>
             </div>
         </div>
-<<<<<<<<< Temporary merge branch 1
+
     </div>
 </section>
         <div class="container py-5">
             <h4 class="mb-4 text-center text-dark">🎁 Danh sách mã giảm giá đang hoạt động</h4>
-=========
+
     </section>
-
-
-    <div class="container py-5">
-        <h4 class="mb-4 text-center text-dark">🎁 Danh sách mã giảm giá đang hoạt động</h4>
->>>>>>>>> Temporary merge branch 2
 
         @if (Auth::check())
             <div class="text-center mb-4">
