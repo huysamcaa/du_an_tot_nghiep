@@ -18,20 +18,24 @@ use Illuminate\Support\Facades\Mail;
 class CouponController extends Controller
 {
     public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $perPage = $request->input('perPage', 10); // Mặc định 10 nếu không chọn
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
 
-        $coupons = Coupon::when($search, function ($query, $search) {
-            $query->where('code', 'like', '%' . $search . '%')
-                ->orWhere('title', 'like', '%' . $search . '%');
-        })
-            ->orderByDesc('created_at')
-            ->paginate($perPage) //
-            ->appends(['perPage' => $perPage, 'search' => $search]); // Giữ lại filter khi chuyển trang
+    $query = Coupon::query();
 
-        return view('admin.coupons.index', compact('coupons', 'search', 'perPage'));
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('code', 'like', "%{$search}%")
+              ->orWhere('title', 'like', "%{$search}%");
+        });
     }
+
+    $coupons = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.coupons.index', compact('coupons'));
+}
+
 
 
     public function create()

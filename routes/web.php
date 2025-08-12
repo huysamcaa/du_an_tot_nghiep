@@ -181,6 +181,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
+    
 
 
     // Đánh giá của người dùng

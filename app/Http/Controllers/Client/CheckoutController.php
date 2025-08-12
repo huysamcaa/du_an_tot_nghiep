@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\Admin\Review;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 
 class CheckoutController extends Controller
 {
@@ -40,7 +42,7 @@ class CheckoutController extends Controller
         'vnp_Returnurl'  => 'http://localhost:8000/checkout/vnpay/return',
     ];
 
-    public function index(Request $request)
+   public function index(Request $request)
     {
         Log::info('CheckoutController@index - Starting checkout process', ['user_id' => auth()->id()]);
 
@@ -69,6 +71,13 @@ class CheckoutController extends Controller
         $total = $this->calculateCartTotal($selectedItems);
         $coupons = $this->getAvailableCoupons();
 
+        // Thêm đoạn code đọc file JSON địa chỉ
+        $vnLocationsPath = public_path('assets/Client/js/vn-location.json');
+        $vnLocationsData = [];
+        if (File::exists($vnLocationsPath)) {
+            $vnLocationsData = json_decode(File::get($vnLocationsPath), true);
+        }
+
         return view('client.checkout.checkout', [
             'cartItems' => $cartItems,
             'total' => $total,
@@ -77,8 +86,11 @@ class CheckoutController extends Controller
             'defaultAddress' => UserAddress::where('user_id', $userId)->where('id_default', 1)->first(),
             'coupons' => $coupons,
             'userAddresses' => $userAddresses,
+            // Truyền biến vnLocationsData vào view
+            'vnLocationsData' => $vnLocationsData,
         ]);
     }
+
 
     public function placeOrder(Request $request)
     {
