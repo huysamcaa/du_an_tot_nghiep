@@ -1,18 +1,6 @@
 @extends('client.layouts.app')
 
 @section('content')
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="pageBannerContent text-center">
-                            <h2 >Hồ sơ của tôi</h2>
-                            <div class="pageBannerPath">
-                                <a href="{{ route('client.home') }}" >Trang chủ</a>
-                                &nbsp;&nbsp;&gt;&nbsp;&nbsp;
-                                <span class="text-muted">Hồ sơ của tôi</span>
-                            </div>
-                        </div>
-
 <!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
     <div class="container">
@@ -22,7 +10,6 @@
                     <h2>Thông Tin Cá Nhân</h2>
                     <div class="pageBannerPath">
                         <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thông Tin Cá Nhân</span>
-
                     </div>
                 </div>
             </div>
@@ -39,10 +26,10 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-
                 <div class="card shadow-sm p-4">
                     <div class="row align-items-center">
                         <!-- Avatar -->
+
 <div class="col-md-4 text-center mb-3 mb-md-0">
     @if ($user->avatar)
         <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
@@ -98,3 +85,10 @@
                         <a href="{{ route('client.profile.edit') }}"
                             class="ulinaBTN d-flex align-items-center px-2 py-2 btn-sm">
 
+                            <span class="mx-auto">Chỉnh sửa</span>
+                        </a>
+                    </div>
+
+                </div>
+
+        @endsection
