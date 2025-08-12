@@ -1,14 +1,11 @@
 <header id="header" class="header">
     <div class="top-left">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="./">
-                <img src="https://dynamic.design.com/preview/logodraft/e2c5b120-aaee-4084-b33a-28eeb1d356f7/image/large.png"
-                    alt="Logo" width="60" style="border-radius: 50%;">
-            </a>
+                            <div class="logo">
+                        <a href="index.html">
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="FreshFit" class="logo-img" height="150px"  />
+                        </a>
+                    </div>
 
-            <a class="navbar-brand hidden" href="./"><img src="{{ asset('images/logo2.png') }}" alt="Logo"></a>
-            <a id="menuToggle" class="menutoggle"><i class="fa fa-bars"></i></a>
-        </div>
     </div>
     <div class="top-right">
         <div class="header-menu">
@@ -62,3 +59,8 @@
         </div>
     </div>
 </header>
+<style>
+    .logo-img{
+        margin-top: -45px;
+    }
+</style>

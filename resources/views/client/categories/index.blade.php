@@ -224,117 +224,77 @@
                     <div class="col-lg-12">
                         <div class="tab-content productViewTabContent" id="productViewTabContent">
                             <div class="tab-pane show active" id="grid-tab-pane" role="tabpanel" aria-labelledby="grid-tab" tabindex="0">
-                                <div class="row">
-                                    @forelse($products as $product)
-                                    <div class="col-sm-6 col-xl-4 mb-4">
-                                        <div class="productItem01">
-                                            <div class="pi01Thumb">
-                                                <a href="{{ route('product.detail', $product->id) }}">
-                                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                                                    @if($product->galleries->count() > 0)
-                                                    <img src="{{ asset('storage/' . $product->galleries->first()->path) }}" alt="{{ $product->name }}" />
-                                                    @endif
-                                                </a>
-                                                <div class="pi01Actions">
-                                                    <a href="javascript:void(0);" class="pi01Cart"><i class="fa-solid fa-shopping-cart"></i></a>
-                                                    <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                                    <a href="javascript:void(0);" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
-                                                    <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                                </div>
-                                                @if($product->is_sale)
-                                                <div class="productLabels clearfix">
-                                                    <span class="plDis">-{{ round((1 - $product->sale_price/$product->price)*100) }}%</span>
-                                                    <span class="plSale">Sale</span>
-                                                </div>
-                                                @endif
-                                            </div>
-                                            <div class="pi01Details">
-                                                <div class="productRatings">
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"><span></span></div>
-                                                    </div>
-                                                    <div class="ratingCounts">{{ $product->reviews->count() }} Reviews</div>
-                                                </div>
-                                                <h3>
-                                                    <a href="{{ route('product.detail', $product->id) }}">
-                                                        {{ Str::limit($product->name, 40) }}
-                                                    </a>
-                                                </h3>
-                                                <div class="pi01Price">
-                                                    @if($product->is_sale)
-                                                    <ins>{{ number_format($product->sale_price,0,',','.') }}₫</ins>
-                                                    <del>{{ number_format($product->price,0,',','.') }}₫</del>
-                                                    @else
-                                                    <ins>{{ number_format($product->price,0,',','.') }}₫</ins>
-                                                    @endif
-                                                </div>
-                                                {{-- hiển thị color variants --}}
-                                                @if(optional($product->variantsWithAttributes())->count())
-                                                @php
-                                                // Lấy danh sách màu
-                                                $colors = collect();
-                                                foreach($product->variantsWithAttributes() as $variant) {
-                                                foreach($variant->attributeValues as $attrVal) {
-                                                if($attrVal->attribute->slug === 'color') {
-                                                $colors->push($attrVal);
-                                                }
-                                                }
-                                                }
-                                                $colors = $colors->unique('id');
-
-                                                // Lấy danh sách size
-                                                $sizes = $product->variantsWithAttributes()
-                                                ->flatMap(fn($v) => $v->attributeValues->filter(fn($val) => $val->attribute->slug === 'size'))
-                                                ->unique('id');
-                                                @endphp
-
-                                                <div class="pi01Variations">
-                                                    @if($colors->isNotEmpty())
-                                                    <div class="pi01VColor">
-                                                        @foreach($colors as $color)
-                                                        <div class="colorOptionWrapper">
-                                                            <input
-                                                                type="radio"
-                                                                name="color_{{ $product->id }}"
-                                                                id="color_{{ $product->id }}_{{ $color->id }}"
-                                                                value="{{ $color->value }}"
-                                                                hidden>
-                                                            <label
-                                                                for="color_{{ $product->id }}_{{ $color->id }}"
-                                                                class="customColorCircle"
-                                                                style="background-color: {{ Str::start($color->hex, '#') }};"
-                                                                title="{{ ucfirst($color->value) }}"></label>
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                    @endif
-
-                                                    @if($sizes->count())
-                                                    <div class="pi01VSize">
-                                                        @foreach($sizes as $size)
-                                                        <div class="pi01VSItem">
-                                                            <input
-                                                                type="radio"
-                                                                name="size_{{ $product->id }}"
-                                                                id="size_{{ $product->id }}_{{ $size->id }}"
-                                                                value="{{ $size->value }}">
-                                                            <label for="size_{{ $product->id }}_{{ $size->id }}">
-                                                                {{ strtoupper($size->value) }}
-                                                            </label>
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                    @endif
-                                                </div>
-                                                @endif
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @empty
-                                    <p class="text-center">Chưa có sản phẩm nào.</p>
-                                    @endforelse
+                                        <div class="row">
+            @foreach ($products as $product)
+                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="productItem01">
+                        <div class="pi01Thumb" style="height: auto; overflow: hidden;">
+                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                style="width: 100%; height: auto; object-fit: cover;" />
+                            <div class="pi01Actions" data-product-id="{{ $product->id }}">
+                                <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
+                                <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
+                            </div>
+                            @if ($product->sale_price && $product->price > $product->sale_price)
+                                <div class="productLabels clearfix">
+                                    <span class="plDis">-{{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ</span>
+                                    <span class="plSale">SALE</span>
                                 </div>
+                            @endif
+                        </div>
+                        <div class="pi01Details">
+    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
+        <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
+            {{ $product->name }}
+        </a>
+    </h3>
+
+    <div class="pi01Price">
+        <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
+        @if ($product->sale_price && $product->price > $product->sale_price)
+            <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
+        @endif
+    </div>
+
+    {{-- Hiển thị Size --}}
+    @php
+        $sizes = $product->variants
+            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
+            ->unique()
+            ->values()
+            ->toArray();
+    @endphp
+    @if(count($sizes))
+        <div class="product-sizes mt-1">
+            <strong>Size:</strong>
+            @foreach($sizes as $size)
+                <span class="badge bg-light text-dark border">{{ $size }}</span>
+            @endforeach
+        </div>
+    @endif
+
+    {{-- Hiển thị Màu --}}
+    @php
+        $colors = $product->variants
+            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
+            ->unique()
+            ->values()
+            ->toArray();
+    @endphp
+    @if(count($colors))
+        <div class="product-colors mt-1 d-flex gap-1">
+            <strong class="me-1">Màu:</strong>
+            @foreach($colors as $hex)
+                <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
+            @endforeach
+        </div>
+    @endif
+</div>
+
+                    </div>
+                </div>
+            @endforeach
+        </div>
                             </div>
                         </div>
                     </div>
@@ -404,6 +364,70 @@
         border-radius: 4px;
         font-size: 0.75rem;
     }
+
+    .pi01Thumb {
+    overflow: hidden;
+    position: relative;
+        background: #fff; /* nền trắng trong khung ảnh */
+    padding: 10px;
+}
+
+.pi01Thumb img {
+    position: static !important; /* Không dịch chuyển */
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    transition: none !important;
+        border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+/* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
+.pi01Thumb:hover img,
+.pi01Thumb::before,
+.pi01Thumb::after {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.pi01Actions {
+    display: none !important;
+}
+.productItem01:hover img {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+.productItem01 a:hover img {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+.productItem01 {
+    background: #f9f9f9; /* nền sáng cho từng sản phẩm */
+    border-radius: 10px;
+    overflow: hidden; /* bo góc ảnh */
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid #eee;
+}
+
+.productItem01:hover {
+    transform: translateY(-4px); /* nâng nhẹ sản phẩm khi hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #7b9494;
+}
+.productItem01:hover .pi01Thumb img {
+    transform: scale(1.02); /* phóng nhẹ ảnh khi hover */
+}
+.pi01Details {
+    padding-left: 15px; /* dịch sang phải 10px */
+}
+.color-circle{
+    margin-top: 5px;
+}
+
+    
 </style>
 
 @push('scripts')
