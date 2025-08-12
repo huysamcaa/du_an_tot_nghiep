@@ -106,6 +106,9 @@
 .sub-menu .subtitle {
     display: none !important;
 }
+   .pagination {
+        display: flex !important;
+    }
     </style>
 </head>
 

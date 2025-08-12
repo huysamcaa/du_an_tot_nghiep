@@ -24,15 +24,6 @@
       <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    @if($errors->any())
-      <div class="alert alert-danger">
-        <ul class="mb-0">
-          @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
 
     @if($refunds->count())
     <div class="table-responsive">
@@ -50,9 +41,10 @@
           @foreach($refunds as $refund)
           <tr>
             <td>
-              <a href="{{ route('client.orders.show', $refund->order->code) }}">
-                #{{ $refund->order->code }}
-              </a>
+             <a href="{{ route('client.orders.show', $refund->order->code ?? 'Không xác định') }}">
+                #{{ $refund->order->code ?? 'Không xác định' }}
+            </a>
+
             </td>
             <td>
               <strong>{{ number_format($refund->total_amount) }}₫</strong>

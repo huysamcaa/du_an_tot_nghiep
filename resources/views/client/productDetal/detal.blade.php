@@ -4,161 +4,180 @@
     <!-- BEGIN: Shop Details Section -->
     <section class="shopDetailsPageSection">
         <div class="container">
-           <div class="row">
-    <div class="col-lg-6">
-        <div class="productGalleryWrap">
-            <div class="productGallery">
-                <div class="pgImage">
-                    <img id="main-product-image" src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                </div>
-                @foreach ($product->variants as $variant)
-                    @if ($variant->thumbnail)
-                        <div class="pgImage">
-                            <img src="{{ asset('storage/' . $variant->thumbnail) }}"
-                                alt="{{ $product->name }} - Biến thể" />
-                        </div>
-                    @endif
-                @endforeach
-            </div>
-
-            <div class="productGalleryThumbWrap">
-                <div class="productGalleryThumb">
-                    <div class="pgtImage">
-                        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
-                    </div>
-                    @foreach ($product->variants as $variant)
-                        @if ($variant->thumbnail)
-                            <div class="pgtImage">
-                                <img src="{{ asset('storage/' . $variant->thumbnail) }}"
-                                    alt="{{ $product->name }} - Biến thể" />
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="productGalleryWrap">
+                        <div class="productGallery">
+                            <div class="pgImage">
+                                <img id="main-product-image" src="{{ asset('storage/' . $product->thumbnail) }}"
+                                    alt="{{ $product->name }}" />
                             </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="productContent">
-            <div class="pcCategory">
-                <a href="shop_right_sidebar.html">Fashion</a>, <a href="shop_left_sidebar.html">Sports</a>
-            </div>
-            <h2>{{ $product->name }}</h2>
-
-            {{-- Logic hiển thị giá sản phẩm đã được cập nhật --}}
-            <div class="pi01Price">
-                @php
-                    $prices = $product->variants->pluck('price');
-                    $sale_prices = $product->variants->where('sale_price', '>', 0)->pluck('sale_price');
-
-                    $min_price = $prices->min();
-                    $max_price = $prices->max();
-
-                    $min_sale_price = $sale_prices->min();
-                    $max_sale_price = $sale_prices->max();
-                @endphp
-
-                @if ($sale_prices->count() > 0)
-                    {{-- Hiển thị giá khuyến mãi nếu có --}}
-                    @if ($min_sale_price == $max_sale_price)
-                        <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ</ins>
-                    @else
-                        <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ - {{ number_format($max_sale_price, 0, ',', '.') }} đ</ins>
-                    @endif
-
-                    {{-- Hiển thị giá gốc --}}
-                    @if ($min_price == $max_price)
-                        <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ</del>
-                    @else
-                        <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ - {{ number_format($max_price, 0, ',', '.') }} đ</del>
-                    @endif
-                @else
-                    {{-- Không có giá khuyến mãi, chỉ hiển thị giá gốc --}}
-                    @if ($min_price == $max_price)
-                        <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ</ins>
-                    @else
-                        <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ - {{ number_format($max_price, 0, ',', '.') }} đ</ins>
-                    @endif
-                @endif
-            </div>
-
-            <div class="productRadingsStock clearfix">
-                @php
-                    $avg = $product->avg_rating ?? 0;
-                    $avgPercent = round($avg * 20); // 5 sao = 100%
-                @endphp
-                <div class="productRatingWrap">
-                    <div class="star-rating" aria-label="{{ number_format($avg, 1) }}/5">
-                        <span style="width: {{ $avgPercent }}%"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="pcExcerpt">
-                <p>{{ $product->short_description }}</p>
-            </div>
-            <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                <div class="pcVariations">
-                    <div class="pcVariation">
-                        <span>Màu</span>
-                        <div class="pcvContainer">
-                            @foreach ($colors as $color)
-                                <div class="colorOptionWrapper">
-                                    <input type="radio" name="color" value="{{ $color->id }}"
-                                        id="color_{{ $color->id }}"
-                                        @if (old('color') == $color->id || $loop->first) checked @endif hidden>
-                                    <label for="color_{{ $color->id }}" class="customColorCircle"
-                                        style="background-color: {{ $color->hex }};"></label>
-                                </div>
+                            @foreach ($product->variants as $variant)
+                                @if ($variant->thumbnail)
+                                    <div class="pgImage">
+                                        <img src="{{ asset('storage/' . $variant->thumbnail) }}"
+                                            alt="{{ $product->name }} - Biến thể" />
+                                    </div>
+                                @endif
                             @endforeach
                         </div>
-                    </div>
-                    <div class="pcVariation pcv2">
-                        <span>Size</span>
-                        <div class="pcvContainer">
-                            @foreach ($sizes as $size)
-                                <div class="pswItem">
-                                    <input type="radio" name="size" value="{{ $size->id }}"
-                                        id="size_{{ $size->id }}"
-                                        @if (old('size') == $size->id || $loop->first) checked @endif>
-                                    <label for="size_{{ $size->id }}">{{ $size->value }}</label>
+
+                        <div class="productGalleryThumbWrap">
+                            <div class="productGalleryThumb">
+                                <div class="pgtImage">
+                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
                                 </div>
-                            @endforeach
+                                @foreach ($product->variants as $variant)
+                                    @if ($variant->thumbnail)
+                                        <div class="pgtImage">
+                                            <img src="{{ asset('storage/' . $variant->thumbnail) }}"
+                                                alt="{{ $product->name }} - Biến thể" />
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="productStock mb-3">
-                    <span>Số Lượng: </span>
-                    <span id="stock-quantity">--</span>
-                </div>
-                <div class="pcBtns">
-                    <div class="quantity-product">
-                        <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
-                        <input type="number" class="carqty input-text qty text" name="quantity" value="1"
-                            min="1">
-                        <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
+
+                <div class="col-lg-6">
+                    <div class="productContent">
+                        <div class="pcCategory">
+                            <a href="shop_right_sidebar.html">Fashion</a>, <a href="shop_left_sidebar.html">Sports</a>
+                        </div>
+                        <h2>{{ $product->name }}</h2>
+
+                        {{-- Logic hiển thị giá sản phẩm đã được cập nhật --}}
+                        <div class="pi01Price">
+                            @php
+                                $prices = $product->variants->pluck('price');
+                                $sale_prices = $product->variants->where('sale_price', '>', 0)->pluck('sale_price');
+
+                                $min_price = $prices->min();
+                                $max_price = $prices->max();
+
+                                $min_sale_price = $sale_prices->min();
+                                $max_sale_price = $sale_prices->max();
+                            @endphp
+
+                            @if ($sale_prices->count() > 0)
+                                {{-- Hiển thị giá khuyến mãi nếu có --}}
+                                @if ($min_sale_price == $max_sale_price)
+                                    <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ</ins>
+                                @else
+                                    <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ -
+                                        {{ number_format($max_sale_price, 0, ',', '.') }} đ</ins>
+                                @endif
+
+                                {{-- Hiển thị giá gốc --}}
+                                @if ($min_price == $max_price)
+                                    <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ</del>
+                                @else
+                                    <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ -
+                                        {{ number_format($max_price, 0, ',', '.') }} đ</del>
+                                @endif
+                            @else
+                                {{-- Không có giá khuyến mãi, chỉ hiển thị giá gốc --}}
+                                @if ($min_price == $max_price)
+                                    <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ</ins>
+                                @else
+                                    <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ -
+                                        {{ number_format($max_price, 0, ',', '.') }} đ</ins>
+                                @endif
+                            @endif
+                        </div>
+
+                        @php
+                            $avg = round($allReviews->avg('rating') ?? 0, 1);
+                            $count = $allReviews->count();
+                            $full = floor($avg);
+                            $half = $avg - $full >= 0.5 ? 1 : 0;
+                            $empty = 5 - $full - $half;
+                        @endphp
+
+                        <div class="d-flex align-items-center gap-2">
+                            <div>
+                                @for ($i = 0; $i < $full; $i++)
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                @endfor
+                                @if ($half)
+                                    <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                                @endif
+                                @for ($i = 0; $i < $empty; $i++)
+                                    <i class="fa-regular fa-star text-warning"></i>
+                                @endfor
+                            </div>
+
+                            <strong class="ms-2">{{ $avg }}/5 </strong>
+                            <span class="text-muted ms-1">({{ $count }} đánh giá)</span>
+                        </div>
+
+
+                        <div class="pcExcerpt">
+                            <p>{{ $product->short_description }}</p>
+                        </div>
+                        <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                            <div class="pcVariations">
+                                <div class="pcVariation">
+                                    <span>Màu</span>
+                                    <div class="pcvContainer">
+                                        @foreach ($colors as $color)
+                                            <div class="colorOptionWrapper">
+                                                <input type="radio" name="color" value="{{ $color->id }}"
+                                                    id="color_{{ $color->id }}"
+                                                    @if (old('color') == $color->id || $loop->first) checked @endif hidden>
+                                                <label for="color_{{ $color->id }}" class="customColorCircle"
+                                                    style="background-color: {{ $color->hex }};"></label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="pcVariation pcv2">
+                                    <span>Size</span>
+                                    <div class="pcvContainer">
+                                        @foreach ($sizes as $size)
+                                            <div class="pswItem">
+                                                <input type="radio" name="size" value="{{ $size->id }}"
+                                                    id="size_{{ $size->id }}"
+                                                    @if (old('size') == $size->id || $loop->first) checked @endif>
+                                                <label for="size_{{ $size->id }}">{{ $size->value }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="productStock mb-3">
+                                <span>Số Lượng: </span>
+                                <span id="stock-quantity">--</span>
+                            </div>
+                            <div class="pcBtns">
+                                <div class="quantity-product">
+                                    <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
+                                    <input type="number" class="carqty input-text qty text" name="quantity" value="1"
+                                        min="1">
+                                    <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
+                                </div>
+                                <br>
+                                <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
+                                <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
+                                    <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
+                                <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
+                            </div>
+                        </form>
                     </div>
-                    <br>
-                    <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
-                    <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
-                        <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
-                    <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
+            </div>
 
             <!-- Tab sản phẩm -->
             <div class="row productTabRow">
                 <div class="col-lg-12">
                     <ul class="nav productDetailsTab" id="productDetailsTab" role="tablist">
                         <li role="presentation">
-                            <button class="active" id="description-tab" data-bs-toggle="tab"
-                                data-bs-target="#description" type="button" role="tab" aria-controls="description"
-                                aria-selected="true">Chi tiết sản phẩm</button>
+                            <button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description"
+                                type="button" role="tab" aria-controls="description" aria-selected="true">Chi tiết
+                                sản phẩm</button>
                         </li>
                         <li role="presentation">
                             <button id="additionalinfo-tab" data-bs-toggle="tab" data-bs-target="#additionalinfo"
@@ -644,7 +663,7 @@
                     // Hiển thị ảnh theo variant
                     const mainImgEl = document.getElementById('main-product-image');
 
-                   if (mainImgEl) {
+                    if (mainImgEl) {
                         if (variant && variant.thumbnail) {
                             // Luôn đặt ảnh chính theo variant
                             mainImgEl.src = variant.thumbnail;

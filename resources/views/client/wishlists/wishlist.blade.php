@@ -1,36 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
-<style>
-    .pageBannerSection {
-        background:#ECF5F4;
-        padding: 10px 0;
-    }
-    .pageBannerContent h2 {
-        
-        font-size: 72px;
-        color:#52586D;
-        font-family: 'Jost', sans-serif;
-    }
-    .pageBannerPath a {
-        color: #007bff;
-        text-decoration: none;
-    }
-</style>
+<!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2>Sản phẩm yêu thích</h2>
+                    <h2>Sản Phẩm Yêu Thích</h2>
                     <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Yêu thích</span>
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Sản Phẩm Yêu Thích</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+<!-- END: Page Banner Section -->
 <section class="cartPageSection woocommerce">
     <div class="container">
         <div class="row">

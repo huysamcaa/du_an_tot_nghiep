@@ -9,11 +9,25 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $users = User::latest()->paginate(10); // 10 là số user mỗi trang, bạn có thể đổi tuỳ ý
-        return view('admin.users.index', compact('users'));
+   public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = User::query();
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('phone_number', 'LIKE', "%{$search}%");
+        });
     }
+
+    $users = $query->latest()->paginate($perPage)->withQueryString();
+
+    return view('admin.users.index', compact('users'));
+}
     public function create()
     {
         return view('admin.users.create');
@@ -47,7 +61,7 @@ class UserController extends Controller
         $data['status'] = 'active';
         $data['loyalty_points'] = 0;
         $data['is_change_password'] = false;
-       
+
         // Xử lý upload avatar nếu có
         if ($request->hasFile('avatar')) {
             $avatarPath = $request->file('avatar')->store('avatars', 'public');

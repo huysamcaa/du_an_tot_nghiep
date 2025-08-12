@@ -156,8 +156,8 @@
                             @foreach ($refund->items as $item)
                             <tr>
                                 <td>
-                                    @if(optional($item->product)->thumbnail)
-                                    <img src="{{ asset('storage/' . $item->product->thumbnail) }}" style="width:36px;">
+                                    @if(optional($item->variant)->thumbnail)
+                                    <img src="{{ asset('storage/' . $item->variant->thumbnail) }}" style="width:36px;">
                                     @else
                                     <span class="text-muted">—</span>
                                     @endif
