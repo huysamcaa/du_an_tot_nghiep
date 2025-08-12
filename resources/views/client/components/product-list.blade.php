@@ -160,7 +160,7 @@
             @foreach ($products as $product)
                 <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
                     <div class="productItem01">
-                        <div class="pi01Thumb" style="height: 300px; overflow: hidden;">
+                        <div class="pi01Thumb" style="height: auto; overflow: hidden;">
                             <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
                                 style="width: 100%; height: auto; object-fit: cover;" />
                             <div class="pi01Actions" data-product-id="{{ $product->id }}">
@@ -293,6 +293,69 @@
 .noUi-handle::after {
     display: none;
 }
+
+.pi01Thumb {
+    overflow: hidden;
+    position: relative;
+        background: #fff; /* nền trắng trong khung ảnh */
+    padding: 10px;
+}
+
+.pi01Thumb img {
+    position: static !important; /* Không dịch chuyển */
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    transition: none !important;
+        border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+/* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
+.pi01Thumb:hover img,
+.pi01Thumb::before,
+.pi01Thumb::after {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.pi01Actions {
+    display: none !important;
+}
+.productItem01:hover img {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+.productItem01 a:hover img {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+.productItem01 {
+    background: #f9f9f9; /* nền sáng cho từng sản phẩm */
+    border-radius: 10px;
+    overflow: hidden; /* bo góc ảnh */
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid #eee;
+}
+
+.productItem01:hover {
+    transform: translateY(-4px); /* nâng nhẹ sản phẩm khi hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #7b9494;
+}
+.productItem01:hover .pi01Thumb img {
+    transform: scale(1.02); /* phóng nhẹ ảnh khi hover */
+}
+.pi01Details {
+    padding-left: 15px; /* dịch sang phải 10px */
+}
+.color-circle{
+    margin-top: 5px;
+}
+
 
 </style>
 <script>

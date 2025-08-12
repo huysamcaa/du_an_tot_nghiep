@@ -1,24 +1,48 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+</style>
 
-<!-- BEGIN: Page Banner Section -->
-<section class="pageBannerSection">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pageBannerContent text-center">
-                    <h2>Mã giảm giá</h2>
-                    <div class="pageBannerPath">
-                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Khuyến mãi</span>
+
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2>Khuyến Mãi</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Khuyến
+                                mãi</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+
     </div>
 </section>
-<!-- END: Page Banner Section -->
-<div class="container py-5">
+        <div class="container py-5">
+            <h4 class="mb-4 text-center text-dark">🎁 Danh sách mã giảm giá đang hoạt động</h4>
         @if (Auth::check())
             <div class="text-center mb-4">
                 <a href="{{ route('client.coupons.received') }}" class="btn btn-outline-secondary">
