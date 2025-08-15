@@ -3,14 +3,27 @@
         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="productItem01">
                 <div class="pi01Thumb" style="height: auto; overflow: hidden;">
-                    {{-- Chỉ 1 ảnh duy nhất --}}
                     <img src="{{ asset('storage/' . $product->thumbnail) }}"
                          alt="{{ $product->name }}"
                          style="width: 100%; height: auto; object-fit: cover;" />
-                    
+                    <img src="{{ asset('storage/' . $product->thumbnail) }}"
+                         alt="{{ $product->name }}"
+                         style="width: 100%; height: auto; object-fit: cover;" />
+
+                    <!-- Nút hành động -->
                     <div class="pi01Actions" data-product-id="{{ $product->id }}">
-                        <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                        <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
+    <a href="javascript:void(0)" class="piAddToCart"
+       data-id="{{ $product->id }}">
+        <i class="fa-solid fa-shopping-cart"></i>
+    </a>
+    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    <input type="hidden" name="quantity" value="1">
+</form>
+                        <a href="{{ route('product.detail', $product->id) }}" title="Xem chi tiết">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
                     </div>
 
                     @if ($product->sale_price && $product->price > $product->sale_price)
@@ -85,88 +98,122 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+/* ===== PRODUCT ITEM ===== */
 .pi01Thumb {
+   position: relative;
     overflow: hidden;
-    position: relative;
-        background: #fff; /* nền trắng trong khung ảnh */
-    padding: 10px;
 }
 
 .pi01Thumb img {
-    position: static !important; /* Không dịch chuyển */
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    transition: none !important;
-        border-radius: 8px;
-    transition: transform 0.3s ease;
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease; /* Cho hiệu ứng mượt */
+    position: relative;
+    z-index: 0;
 }
-
-/* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
-.pi01Thumb:hover img,
-.pi01Thumb::before,
-.pi01Thumb::after {
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
+/* Nút hành động */
 .pi01Actions {
-    display: none !important;
-}
-.productItem01:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 2;
 }
 
-.productItem01 a:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+.pi01Actions a {
+    background: #7b9494;
+    color: #fff;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
 }
+
+.pi01Actions a:hover {
+    background: #5d7373;
+}
+
+/* Hover hiện nút và phóng ảnh */
+.pi01Thumb:hover .pi01Actions {
+    opacity: 1;
+    
+}
+.productItem01:hover .pi01Thumb img {
+    opacity: 0.8; /* Mờ nhẹ thôi */
+    transform: scale(1.05);
+}
+
 .productItem01 {
-    background: #f9f9f9; /* nền sáng cho từng sản phẩm */
+    background: #f9f9f9;
     border-radius: 10px;
-    overflow: hidden; /* bo góc ảnh */
+    overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
     border: 1px solid #eee;
 }
-
 .productItem01:hover {
-    transform: translateY(-4px); /* nâng nhẹ sản phẩm khi hover */
+    transform: translateY(-4px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     border-color: #7b9494;
 }
-.productItem01:hover .pi01Thumb img {
-    transform: scale(1.02); /* phóng nhẹ ảnh khi hover */
-}
+
 .pi01Details {
-    padding-left: 15px; /* dịch sang phải 10px */
+    padding-left: 15px;
+}
+.pi01Thumb::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+.pi01Thumb:hover::after {
+    opacity: 1;
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.pi01Thumb').forEach(function(wrapper) {
-        let img = wrapper.querySelector('img');
-        if (!img) return;
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.piAddToCart').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            let productId = this.getAttribute('data-id');
+            let form = document.getElementById('add-to-cart-form-' + productId);
+            let formData = new FormData(form);
 
-        // Hover chỉ phóng to/hiệu ứng, KHÔNG đổi ảnh
-        wrapper.addEventListener('mouseenter', function() {
-            img.style.transform = 'scale(1.05)'; // hoặc bỏ nếu không muốn hiệu ứng
-        });
 
-        wrapper.addEventListener('mouseleave', function() {
-            img.style.transform = 'scale(1)';
+            fetch("{{ route('cart.add') }}", {
+    method: 'POST',
+    body: formData,
+    headers: {
+        'X-CSRF-TOKEN': formData.get('_token'),
+        'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
+    }
+})
+.then(res => res.json())
+.then(data => {
+    if (data.success) {
+        alert('Đã thêm vào giỏ hàng!');
+    } else {
+        alert(data.message || 'Có lỗi xảy ra!');
+    }
+})
+.catch(err => {
+    console.error(err);
+    alert('Không thể thêm sản phẩm vào giỏ!');
+});
         });
     });
 });
+
 </script>
-
-
-
-
-
-
-
-

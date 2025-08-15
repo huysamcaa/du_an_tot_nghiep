@@ -163,8 +163,18 @@
                         <div class="pi01Thumb" style="height: auto; overflow: hidden;">
                             <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
                                 style="width: 100%; height: auto; object-fit: cover;" />
+                                  <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                style="width: 100%; height: auto; object-fit: cover;" />
                             <div class="pi01Actions" data-product-id="{{ $product->id }}">
-                                <a href="javascript:void(0);" class="pi01QuickView"><i class="fa-solid fa-arrows-up-down-left-right"></i></a>
+                                                                   <a href="javascript:void(0)" class="piAddToCart"
+       data-id="{{ $product->id }}">
+        <i class="fa-solid fa-shopping-cart"></i>
+    </a>
+    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    <input type="hidden" name="quantity" value="1">
+</form>
                                 <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
                             </div>
                             @if ($product->sale_price && $product->price > $product->sale_price)
@@ -235,80 +245,55 @@
 </div>
 
 <style>
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-.pagination .page-link {
-    color: #7b9494; 
-    border: 1px solid #c5d0d0; 
-    background-color: transparent;
-    border-radius: 50% !important; 
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    padding: 0;
-    font-size: 22px;
-}
-.pagination .page-link:hover {
-    background-color: #7b9494;
-    color: white;
-    border-color: #7b9494;
-}
-.pagination .active .page-link {
-    background-color: #7b9494;
-    border-color: #7b9494;
-    color: white;
-}
-.pagination .page-item {
-    margin: 0 4px;
-}
-.pagination .disabled .page-link {
-    opacity: 0.5;
-    pointer-events: none;
-}
-#sliderRange {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-/* Thu nhỏ nút kéo */
-.noUi-handle {
-    width: 14px !important;
-    height: 14px !important;
-    border-radius: 50%;
-    top: -5px; /* canh giữa thanh trượt */
-    background: #fff;
-    border: 2px solid #007bff;
-    box-shadow: none;
-    cursor: pointer;
-}
+    /* 1. Cho container wrap xuống hàng */
+    .pi01Variations {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        /* khoảng cách giữa color và size */
+    }
 
-/* Ẩn icon gạch gạch bên trong */
-.noUi-handle::before,
-.noUi-handle::after {
-    display: none;
-}
+    /* 2. Cho nhóm color & size tự wrap và cuộn khi quá cao */
+    .pi01VColor,
+    .pi01VSize {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        /* khoảng cách giữa từng item */
+        max-height: 4rem;
+        /* cao tối đa ~2 hàng */
+        overflow-y: auto;
+        /* cuộn dọc khi vượt */
+    }
 
-.pi01Thumb {
+    /* 3. Giữ kích thước swatch/mỗi label ổn định */
+    .pi01VCItem label {
+        width: 24px;
+        height: 24px;
+        display: block;
+        border-radius: 50%;
+    }
+
+    .pi01VSItem label {
+        padding: 0.1rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+    }
+
+    .pi01Thumb {
+ position: relative;
     overflow: hidden;
-    position: relative;
-        background: #fff; /* nền trắng trong khung ảnh */
-    padding: 10px;
 }
+
 
 .pi01Thumb img {
-    position: static !important; /* Không dịch chuyển */
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    transition: none !important;
-        border-radius: 8px;
-    transition: transform 0.3s ease;
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease; /* Cho hiệu ứng mượt */
+    position: relative;
+    z-index: 0;
 }
 
 /* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
@@ -320,7 +305,34 @@
     visibility: visible !important;
 }
 .pi01Actions {
-    display: none !important;
+      position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 2;
+}
+
+.pi01Actions a {
+    background: #7b9494;
+    color: #fff;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.pi01Actions a:hover {
+    background: #5d7373;
+}
+.pi01Thumb:hover .pi01Actions {
+    opacity: 1;
+    
 }
 .productItem01:hover img {
     filter: none !important;
@@ -334,20 +346,21 @@
     transform: none !important;
 }
 .productItem01 {
-    background: #f9f9f9; /* nền sáng cho từng sản phẩm */
+     background: #f9f9f9;
     border-radius: 10px;
-    overflow: hidden; /* bo góc ảnh */
+    overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
     border: 1px solid #eee;
 }
 
 .productItem01:hover {
-    transform: translateY(-4px); /* nâng nhẹ sản phẩm khi hover */
+    transform: translateY(-4px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     border-color: #7b9494;
 }
 .productItem01:hover .pi01Thumb img {
-    transform: scale(1.02); /* phóng nhẹ ảnh khi hover */
+        opacity: 0.8; /* Mờ nhẹ thôi */
+    transform: scale(1.05);
 }
 .pi01Details {
     padding-left: 15px; /* dịch sang phải 10px */
@@ -355,8 +368,24 @@
 .color-circle{
     margin-top: 5px;
 }
+.pi01Details {
+    padding-left: 15px;
+}
+.pi01Thumb::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+.pi01Thumb:hover::after {
+    opacity: 1;
+}
 
-
+    
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -392,6 +421,39 @@ document.addEventListener('DOMContentLoaded', function () {
         priceMaxInput.value = max;
     });
 });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.piAddToCart').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            let productId = this.getAttribute('data-id');
+            let form = document.getElementById('add-to-cart-form-' + productId);
+            let formData = new FormData(form);
+
+
+            fetch("{{ route('cart.add') }}", {
+    method: 'POST',
+    body: formData,
+    headers: {
+        'X-CSRF-TOKEN': formData.get('_token'),
+        'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
+    }
+})
+.then(res => res.json())
+.then(data => {
+    if (data.success) {
+        alert('Đã thêm vào giỏ hàng!');
+    } else {
+        alert(data.message || 'Có lỗi xảy ra!');
+    }
+})
+.catch(err => {
+    console.error(err);
+    alert('Không thể thêm sản phẩm vào giỏ!');
+});
+        });
+    });
+});
+
 </script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>

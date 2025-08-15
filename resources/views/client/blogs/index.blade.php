@@ -30,6 +30,13 @@
         color: #007bff;
         text-decoration: none;
     }
+    .blog-card-img {
+        height: 250px; 
+        width: 100%;
+        object-fit: cover; 
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+    }
 </style>
 <div class="container pt-5 mt-5" style="min-height: 80vh;">
 
@@ -62,3 +69,4 @@
     </div>
 </div>
 @endsection
+

@@ -23,13 +23,16 @@ class CartController extends Controller
     }
 
     public function add(Request $request)
-    {
-        $userId = Auth::id();
-        $productId = $request->input('product_id');
-        $quantity = (int) $request->input('quantity') ?: 1;
-        $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+{
+    $userId = Auth::id();
+    $productId = $request->input('product_id');
+    $quantity = (int) $request->input('quantity') ?: 1;
+    $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
 
-        // Tìm biến thể phù hợp
+    $variant = null;
+
+    if (!empty($attributeValueIds)) {
+        // Trường hợp có chọn thuộc tính (màu, size...)
         $variant = ProductVariant::where('product_id', $productId)
             ->whereHas('attributeValues', fn($q) =>
                 $q->whereIn('attribute_value_id', $attributeValueIds),
@@ -43,7 +46,7 @@ class CartController extends Controller
             return response()->json(['success' => false, 'message' => 'Biến thể sản phẩm không tồn tại.']);
         }
 
-        // Kiểm tra số lượng hiện có trong giỏ
+        // Kiểm tra tồn kho biến thể
         $existingItem = CartItem::where('user_id', $userId)
             ->where('product_id', $productId)
             ->where('product_variant_id', $variant->id)
@@ -52,7 +55,6 @@ class CartController extends Controller
         $currentQuantityInCart = $existingItem ? $existingItem->quantity : 0;
         $totalAfterAdd = $currentQuantityInCart + $quantity;
 
-        // So sánh với tồn kho
         if ($totalAfterAdd > $variant->stock) {
             return response()->json([
                 'success' => false,
@@ -60,8 +62,7 @@ class CartController extends Controller
             ]);
         }
 
-        // Thêm hoặc cập nhật
-        $item = CartItem::updateOrCreate(
+        CartItem::updateOrCreate(
             [
                 'user_id' => $userId,
                 'product_id' => $productId,
@@ -71,30 +72,52 @@ class CartController extends Controller
                 'quantity' => $totalAfterAdd
             ]
         );
+    } else {
+        // Trường hợp không chọn biến thể → thêm sản phẩm gốc
+        $existingItem = CartItem::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->whereNull('product_variant_id')
+            ->first();
 
-        if ($request->ajax()) {
-            $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
-            $total = $cartItems->sum(function($item) {
-                $variant = $item->variant;
+        $currentQuantityInCart = $existingItem ? $existingItem->quantity : 0;
+        $totalAfterAdd = $currentQuantityInCart + $quantity;
 
-                if ($variant) {
-                    $price = ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
-                        ? $variant->sale_price
-                        : $variant->price;
-                } else {
-                    $price = $item->product->price; // fallback
-                }
-                return $price * $item->quantity;
-            });
-            $totalProduct = $cartItems->sum('quantity');
-            // render phần icon giỏ hàng
-            $cartIcon = view('partials.cart_widget', compact('cartItems','total','totalProduct'))->render();
-
-            return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartIcon' => $cartIcon]);
-        }
-
-        return back()->with('success', 'Đã thêm vào giỏ hàng');
+        CartItem::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'product_id' => $productId,
+                'product_variant_id' => null,
+            ],
+            [
+                'quantity' => $totalAfterAdd
+            ]
+        );
     }
+
+    // Trả kết quả về AJAX hoặc redirect
+    if ($request->ajax()) {
+        $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
+        $total = $cartItems->sum(function($item) {
+            if ($item->variant) {
+                $price = ($item->variant->sale_price > 0 && $item->variant->sale_price < $item->variant->price)
+                    ? $item->variant->sale_price
+                    : $item->variant->price;
+            } else {
+                $price = ($item->product->sale_price > 0 && $item->product->sale_price < $item->product->price)
+                    ? $item->product->sale_price
+                    : $item->product->price;
+            }
+            return $price * $item->quantity;
+        });
+
+        $totalProduct = $cartItems->sum('quantity');
+        $cartIcon = view('partials.cart_widget', compact('cartItems','total','totalProduct'))->render();
+
+        return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartIcon' => $cartIcon]);
+    }
+
+    return back()->with('success', 'Đã thêm vào giỏ hàng');
+}
 
 
     public function update(Request $request)
