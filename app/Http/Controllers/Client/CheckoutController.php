@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers\Client;
+    namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-use App\Models\Admin\CartItem;
+    use App\Http\Controllers\Controller;
+    use App\Models\Admin\CartItem;
 use App\Models\Admin\OrderOrderStatus;
-use App\Models\Admin\Product;
-use App\Models\Admin\ProductVariant;
+    use App\Models\Admin\Product;
+    use App\Models\Admin\ProductVariant;
 use App\Models\Client\UserAddress;
-use App\Models\Coupon;
-use App\Models\CouponRestriction;
+    use App\Models\Coupon;
+    use App\Models\CouponRestriction;
 use App\Models\Shared\Order;
 use App\Models\Shared\OrderItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,26 +23,26 @@ use App\Models\Admin\Review;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
-class CheckoutController extends Controller
-{
-    // Cấu hình MoMo
-    private $momoConfig = [
+    class CheckoutController extends Controller
+    {
+        // Cấu hình MoMo
+        private $momoConfig = [
         'endpoint'    => 'https://test-payment.momo.vn/v2/gateway/api/create',
-        'partnerCode' => 'MOMOBKUN20180529',
+            'partnerCode' => 'MOMOBKUN20180529',
         'accessKey'   => 'klm05TvNBzhg7h7j',
         'secretKey'   => 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa',
         'requestType' => 'payWithATM',
-    ];
+        ];
 
-    // Cấu hình VNPay
-    private $vnpayConfig = [
+        // Cấu hình VNPay
+        private $vnpayConfig = [
         'vnp_Url'        => 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
         'vnp_TmnCode'    => 'PBDJFA7H',
-        'vnp_HashSecret' => 'ANBVL0AXYOROIENQ5A945WKXIATVQ3KL',
+            'vnp_HashSecret' => 'ANBVL0AXYOROIENQ5A945WKXIATVQ3KL',
         'vnp_Returnurl'  => 'http://localhost:8000/checkout/vnpay/return',
-    ];
+        ];
 
-   public function index(Request $request)
+        public function index(Request $request)
     {
         Log::info('CheckoutController@index - Starting checkout process', ['user_id' => auth()->id()]);
 
@@ -57,8 +57,8 @@ class CheckoutController extends Controller
 
         $cartItems = CartItem::with(['product', 'variant'])
             ->where('user_id', $userId)
-            ->whereIn('id', $selectedItems)
-            ->get();
+                    ->whereIn('id', $selectedItems)
+                    ->get();
 
         if ($cartItems->isEmpty()) {
             Log::error('CheckoutController@index - Cart items not found', [
@@ -91,7 +91,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-
+            
     public function placeOrder(Request $request)
     {
         Log::info('CheckoutController@placeOrder - Starting order placement', ['user_id' => auth()->id()]);
@@ -101,12 +101,12 @@ class CheckoutController extends Controller
             return back()->with('error', 'Tài khoản của bạn đã bị khóa, không thể đặt hàng!');
         }
 
-        $request->validate([
-            'field1' => 'required|string|max:255',
-            'field2' => 'required|string|max:255',
-            'field4' => 'required|email|max:255',
-            'field5' => 'required|string|max:20',
-            'field7' => 'required|string|max:255',
+            $request->validate([
+                'field1' => 'required|string|max:255',
+                'field2' => 'required|string|max:255',
+                'field4' => 'required|email|max:255',
+                'field5' => 'required|string|max:20',
+                'field7' => 'required|string|max:255',
             'paymentMethod' => 'required|in:1,2,3,4',
             'selected_items' => 'required|array',
             'coupon_code' => 'nullable|string',
@@ -135,26 +135,26 @@ class CheckoutController extends Controller
     }
 
     protected function prepareOrderData(Request $request, $couponData)
-    {
-        $userId = auth()->id();
+{
+    $userId = auth()->id();
         $cartItems = CartItem::with(['product', 'variant'])
             ->where('user_id', $userId)
             ->whereIn('id', $request->selected_items)
-            ->get();
+                ->get();
 
         $total = $this->calculateCartTotal($request->selected_items);
         $discountedTotal = $total - $couponData['discount'];
         $totalAmount = max($discountedTotal + 30000, 0);
 
         return [
-            'user_id' => $userId,
+                'user_id' => $userId,
             'payment_id' => $request->paymentMethod,
             'phone_number' => $request->field5,
             'email' => $request->field4,
             'fullname' => $request->field1 . ' ' . $request->field2,
             'address' => $request->field7,
             'note' => $request->field14,
-            'total_amount' => $totalAmount,
+                    'total_amount' => $totalAmount,
             'is_paid' => false,
             'coupon_id' => $couponData['coupon']?->id,
             'coupon_code' => $couponData['coupon']?->code,
@@ -162,8 +162,8 @@ class CheckoutController extends Controller
             'coupon_discount_type' => $couponData['coupon']?->discount_type,
             'coupon_discount_value' => $couponData['coupon']?->discount_value,
             'cart_items' => $cartItems->map(function ($item) {
-                return [
-                    'product_id' => $item->product_id,
+                        return [
+                            'product_id' => $item->product_id,
                     'product_variant_id' => $item->product_variant_id,
                     'name' => $item->product->name ?? null,
                     'price' => $item->variant
@@ -217,7 +217,7 @@ class CheckoutController extends Controller
 
             $response = Http::timeout(30)->withHeaders(['Content-Type' => 'application/json'])
                 ->post($this->momoConfig['endpoint'], [
-                    'partnerCode' => $this->momoConfig['partnerCode'],
+                'partnerCode' => $this->momoConfig['partnerCode'],
                     'partnerName' => "Test Merchant",
                     'storeId' => "store001",
                     'requestId' => $requestId,
@@ -226,9 +226,9 @@ class CheckoutController extends Controller
                     'orderInfo' => "Thanh toán đơn hàng #" . $orderCode,
                     'redirectUrl' => route('checkout.momo.return'),
                     'ipnUrl' => route('checkout.momo.ipn'),
-                    'lang' => 'vi',
+                'lang' => 'vi',
                     'extraData' => $extraData,
-                    'requestType' => $this->momoConfig['requestType'],
+                'requestType' => $this->momoConfig['requestType'],
                     'signature' => $signature
                 ]);
 
@@ -331,8 +331,8 @@ class CheckoutController extends Controller
      * MoMo IPN (Instant Payment Notification) - Server to Server
      * Đây là callback từ MoMo server gọi đến server của bạn
      */
-    public function momoIPN(Request $request)
-    {
+        public function momoIPN(Request $request)
+{
         Log::info('MoMo IPN Received', $request->all());
 
         try {
@@ -416,7 +416,7 @@ class CheckoutController extends Controller
 
                 if (!$existingStatus) {
                     OrderOrderStatus::create([
-                        'order_id' => $order->id,
+                'order_id' => $order->id,
                         'order_status_id' => 1,
                         'modified_by' => $order->user_id ?? 5,
                         'notes' => 'Thanh toán qua MoMo thành công',
@@ -452,8 +452,8 @@ class CheckoutController extends Controller
                 ->first();
 
             if (!$existingStatus) {
-                OrderOrderStatus::create([
-                    'order_id' => $order->id,
+        OrderOrderStatus::create([
+            'order_id' => $order->id,
                     'order_status_id' => 1,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua MoMo thành công',
@@ -462,13 +462,13 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            DB::commit();
+        DB::commit();
             Session::forget(['pending_order', 'momo_order_code', 'momo_request_id']);
 
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Thanh toán thành công!');
-        } catch (\Exception $e) {
-            DB::rollBack();
+    } catch (\Exception $e) {
+        DB::rollBack();
             Log::error('MoMo Return Error: ' . $e->getMessage());
             return redirect()->route('cart.index')
                 ->with('error', 'Lỗi xử lý thanh toán: ' . $e->getMessage());
@@ -652,7 +652,7 @@ class CheckoutController extends Controller
 
             DB::commit();
             Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);
-        } catch (\Exception $e) {
+            } catch (\Exception $e) {
             DB::rollBack();
             Log::error('MoMo IPN Processing Error: ' . $e->getMessage());
             throw $e;
@@ -667,9 +667,9 @@ class CheckoutController extends Controller
     }
 
     protected function saveOrderToDatabase($orderData)
-    {
-        DB::beginTransaction();
-        try {
+        {
+            DB::beginTransaction();
+            try {
             $orderCode = 'DH' . strtoupper(Str::random(8));
 
             $order = Order::create([
@@ -718,10 +718,10 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            DB::commit();
+                DB::commit();
             return $order;
-        } catch (\Exception $e) {
-            DB::rollBack();
+            } catch (\Exception $e) {
+                DB::rollBack();
             throw $e;
         }
     }
@@ -800,86 +800,86 @@ class CheckoutController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->get();
-    }
+        }
 
-    protected function processCoupon($couponCode, $total)
-    {
+        protected function processCoupon($couponCode, $total)
+        {
         if (!$couponCode) {
             return ['discount' => 0, 'coupon' => null];
         }
 
-        $coupon = Coupon::where('code', $couponCode)
-            ->where('is_active', 1)
-            ->where(function ($q) {
+            $coupon = Coupon::where('code', $couponCode)
+                ->where('is_active', 1)
+                ->where(function ($q) {
                 $q->where('is_expired', 0)
                     ->orWhere('end_date', '>=', now());
-            })->first();
+                })->first();
 
         if (!$coupon) {
             throw new \Exception('Mã giảm giá không hợp lệ hoặc đã hết hạn');
         }
 
-        $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
+            $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
 
-        if ($restriction && $restriction->min_order_value > $total) {
-            throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng mã giảm giá');
-        }
+            if ($restriction && $restriction->min_order_value > $total) {
+                throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng mã giảm giá');
+            }
 
-        $discount = $coupon->discount_type === 'percent'
-            ? $total * ($coupon->discount_value / 100)
-            : $coupon->discount_value;
+            $discount = $coupon->discount_type === 'percent'
+                ? $total * ($coupon->discount_value / 100)
+                : $coupon->discount_value;
 
-        if ($restriction && $restriction->max_discount_value) {
-            $discount = min($discount, $restriction->max_discount_value);
-        }
+            if ($restriction && $restriction->max_discount_value) {
+                $discount = min($discount, $restriction->max_discount_value);
+            }
 
-        return [
-            'discount' => $discount,
+            return [
+                'discount' => $discount,
             'coupon' => $coupon
-        ];
-    }
+            ];
+        }
 
-    protected function reduceStock($order)
-    {
-        foreach ($order->items as $item) {
-            if ($item->product_variant_id) {
-                ProductVariant::where('id', $item->product_variant_id)
+        protected function reduceStock($order)
+        {
+            foreach ($order->items as $item) {
+                if ($item->product_variant_id) {
+                    ProductVariant::where('id', $item->product_variant_id)
                     ->decrement('stock', $item->quantity);
-            } else {
-                Product::where('id', $item->product_id)
+                } else {
+                    Product::where('id', $item->product_id)
                     ->decrement('stock', $item->quantity);
+                }
             }
         }
-    }
 
     protected function clearCartItems($selectedItems)
     {
         CartItem::whereIn('id', $selectedItems)->delete();
-    }
+        }
 
-    protected function clearCart($userId)
-    {
-        CartItem::where('user_id', $userId)->delete();
-    }
+        protected function clearCart($userId)
+        {
+            CartItem::where('user_id', $userId)->delete();
+        }
 
-    public function orderDetail($code)
-    {
-        $order = Order::where('code', $code)->with('items')->firstOrFail();
-        return view('client.orders.show', compact('order'));
-    }
+        public function orderDetail($code)
+        {
+            $order = Order::where('code', $code)->with('items')->firstOrFail();
+            return view('client.orders.show', compact('order'));
+        }
 
-    public function purchaseHistory()
-    {
-        $userId = auth()->id();
+        public function purchaseHistory()
+        {
+            $userId = auth()->id();
         $coupons = $this->getAvailableCoupons();
-        $orders = Order::where('user_id', $userId)
+            $orders = Order::where('user_id', $userId)
             ->with([
                 'currentStatus.orderStatus',
                 'items.product.reviews.multimedia',
                 'items.variant'
             ])
-            ->orderByDesc('created_at')
-            ->paginate(10);
+                ->orderByDesc('created_at')
+                ->paginate(10);
 
         // Map xác định đã đánh giá hay chưa
         $reviewedMap = [];

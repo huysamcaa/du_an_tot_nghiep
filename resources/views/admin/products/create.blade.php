@@ -53,11 +53,11 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="font-weight-bold">Tên sản phẩm <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" >
                         </div>
                         <div class="col-md-6">
                             <label class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
-                            <select name="category_id" class="form-control" required>
+                            <select name="category_id" class="form-control" >
                                 <option value="">-- Chọn danh mục --</option>
                                 @foreach ($categories as $category)
                                 <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
@@ -72,7 +72,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="font-weight-bold">Nhà sản xuất <span class="text-danger">*</span></label>
-                            <select name="brand_id" class="form-control" required>
+                            <select name="brand_id" class="form-control" >
                                 <option value="">-- Chọn nhà sản xuất --</option>
                                 @foreach ($brands as $brand)
                                 <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
@@ -83,7 +83,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="font-weight-bold">Mô tả ngắn <span class="text-danger">*</span></label>
-                            <textarea name="short_description" rows="2" class="form-control" required>{{ old('short_description') }}</textarea>
+                            <textarea name="short_description" rows="2" class="form-control" >{{ old('short_description') }}</textarea>
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@
                     {{-- <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="font-weight-bold">Giá gốc <span class="text-danger">*</span></label>
-                            <input type="number" name="price" step="0.01" class="form-control" value="{{ old('price') }}" required>
+                            <input type="number" name="price" step="0.01" class="form-control" value="{{ old('price') }}" >
                         </div>
                         <div class="col-md-4">
                             <label class="font-weight-bold">Giá sale</label>
@@ -99,7 +99,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="font-weight-bold">Số lượng <span class="text-danger">*</span></label>
-                            <input type="number" name="stock" min="0" class="form-control" value="{{ old('stock', 0) }}" required>
+                            <input type="number" name="stock" min="0" class="form-control" value="{{ old('stock', 0) }}" >
                         </div>
                     </div> --}}
 
@@ -134,7 +134,7 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label class="font-weight-bold">Mô tả chi tiết <span class="text-danger">*</span></label>
-                            <textarea name="description" rows="5" class="form-control" required>{{ old('description') }}</textarea>
+                            <textarea name="description" rows="5" class="form-control" >{{ old('description') }}</textarea>
                         </div>
                     </div>
 
@@ -142,7 +142,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="font-weight-bold">Ảnh đại diện</label>
-                            <input type="file" name="thumbnail" id="thumbnailInput" class="form-control" accept="image/*" required>
+                            <input type="file" name="thumbnail" id="thumbnailInput" class="form-control" accept="image/*" >
                             <div class="mt-3" id="thumbnailPreviewArea" style="display:none;">
                                 <img id="thumbnailPreview" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
                             </div>
@@ -290,8 +290,8 @@ $attributesData[$attribute->id] = $attribute->attributeValues->map(fn($v) => ['i
                     html += `<input type="hidden" name="variants[${i}][attribute_value_id][]" value="${v.id}">`;
                 });
                 html += `${label}</td>`;
-                html += `<td><input type="number" name="variants[${i}][price]" step="0.01" class="form-control" required></td>`;
-                html += `<td><input type="number" name="variants[${i}][stock]" class="form-control" min="0" value="0" required></td>`;
+                html += `<td><input type="number" name="variants[${i}][price]" step="0.01" class="form-control" ></td>`;
+                html += `<td><input type="number" name="variants[${i}][stock]" class="form-control" min="0" value="0" ></td>`;
                 html += `<td><input type="text" name="variants[${i}][sku]" class="form-control"></td>`;
                 html += `<td><input type="file" name="variants[${i}][thumbnail]" class="form-control" accept="image/*"></td>`;
                 html += `<td><button type="button" class="btn btn-danger btn-sm remove-variant"><i class="fa fa-times"></i></button></td>`;
@@ -315,9 +315,9 @@ $attributesData[$attribute->id] = $attribute->attributeValues->map(fn($v) => ['i
             let tbody = table.find('tbody');
 
             let html = `<tr data-variant-index="manual_${manualVariantIndex}">
-            <td><input type="text" name="manual_variants[${manualVariantIndex}][name]" class="form-control" placeholder="Tên biến thể" required></td>
-            <td><input type="number" name="manual_variants[${manualVariantIndex}][price]" step="0.01" class="form-control" required></td>
-            <td><input type="number" name="manual_variants[${manualVariantIndex}][stock]" class="form-control" min="0" value="0" required></td>
+            <td><input type="text" name="manual_variants[${manualVariantIndex}][name]" class="form-control" placeholder="Tên biến thể" ></td>
+            <td><input type="number" name="manual_variants[${manualVariantIndex}][price]" step="0.01" class="form-control" ></td>
+            <td><input type="number" name="manual_variants[${manualVariantIndex}][stock]" class="form-control" min="0" value="0" ></td>
             <td><input type="text" name="manual_variants[${manualVariantIndex}][sku]" class="form-control"></td>
             <td><input type="file" name="manual_variants[${manualVariantIndex}][thumbnail]" class="form-control" accept="image/*"></td>
             <td><button type="button" class="btn btn-danger btn-sm remove-variant"><i class="fa fa-times"></i></button></td>
