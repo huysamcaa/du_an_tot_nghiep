@@ -14,35 +14,51 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
     {
         // Lấy tham số từ request
         $perPage = $request->input('perPage', 10);
-        $search  = $request->input('search');
+        $search = $request->input('search');
+        $categoryId = $request->input('category_id');
+        $brandId = $request->input('brand_id');
 
         $query = Product::with(['category', 'brand'])
             ->withCount([
                 'variants as total_stock' => function ($q) {
                     $q->select(DB::raw('SUM(stock)'));
-                },
+                }
             ]);
 
         // Áp dụng tìm kiếm nếu có
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('category', function ($cat) use ($search) {
-                        $cat->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('brand', function ($brand) use ($search) {
-                        $brand->where('name', 'like', "%{$search}%");
-                    });
+                  ->orWhereHas('category', function ($cat) use ($search) {
+                      $cat->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('brand', function ($brand) use ($search) {
+                      $brand->where('name', 'like', "%{$search}%");
+                  });
             });
+        }
+
+        // Áp dụng lọc theo danh mục nếu có
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Áp dụng lọc theo thương hiệu nếu có
+        if ($brandId) {
+            $query->where('brand_id', $brandId);
         }
 
         $products = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
-        return view('admin.products.index', compact('products'));
+        // Lấy danh sách danh mục và thương hiệu để truyền sang view
+        $categories = Category::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
+
+        return view('admin.products.index', compact('products', 'categories', 'brands'));
     }
 
     public function create()
