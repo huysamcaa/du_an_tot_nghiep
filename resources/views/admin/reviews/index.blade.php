@@ -1,49 +1,49 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Danh sách đánh giá</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li class="active">Đánh giá</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="content">
+
     <div class="col-md-12">
-        @if (session('success'))
+         <div>
+                <h4 class="mb-0">Danh sách đánh giá</h4>
+                <small class="text-muted">Quản lý đánh giá</small>
+            </div>
+ @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
         @endif
+
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
+        @if (session('warning'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ session('warning') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
         @endif
 
         <div class="card">
-            <div class="card-header">
+            {{-- <div class="card-header">
                 <strong class="card-title">Danh sách đánh giá</strong>
-            </div>
+            </div> --}}
             <div class="card-body">
                 {{-- Bộ lọc --}}
                 <div class="d-flex justify-content-between align-items-center mb-3">

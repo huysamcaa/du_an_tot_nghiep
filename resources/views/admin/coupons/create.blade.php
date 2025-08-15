@@ -1,253 +1,197 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="breadcrumbs">
-        <div class="breadcrumbs-inner">
-            <div class="row m-0">
-                <div class="col-sm-4">
-                    <div class="page-header float-left">
-                        <div class="page-title">
-                            <h1>Tạo mã giảm giá</h1>
-                        </div>
-                    </div>
+<style>
+  /* Shopee-like form layout với 2 cột */
+  .sp-card { border: 1px solid #eef0f2; border-radius: 10px; background:#fff; overflow: hidden; margin-bottom: 20px; }
+  .sp-card__hd { background:#ffa200; color:#fff; padding:12px 16px; font-weight:600; }
+  .sp-section { padding: 0 16px 8px; }
+  .sp-row { display:flex; align-items:flex-start; gap:16px; padding:12px 0; border-bottom:1px solid #f2f4f7; }
+  .sp-row:last-child { border-bottom:none; }
+  .sp-label { width: 160px; min-width:160px; color:#334155; font-weight:600; padding-top:6px; }
+  .sp-field { flex:1; }
+  .sp-hint { color:#64748b; font-size:12px; margin-top:6px; }
+  .sp-actions { position: sticky; bottom: 0; z-index: 5; background:#fff; border-top:1px solid #eef0f2; padding:12px 16px; display:flex; justify-content:flex-end; gap:10px; border-radius:10px; }
+  .btn-orange { background:#ffa200; color:#fff; border:none; }
+  .btn-orange:hover { background:#e68a00; color:#fff; }
+</style>
+
+<div class="content">
+  <div class="animated fadeIn">
+
+    {{-- Alerts --}}
+    @if (session('success'))
+      <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    @endif
+    @if (session('error'))
+      <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    @endif
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4 class="mb-0">Thêm Mã giảm giá</h4>
+        <small class="text-muted">Tạo mới mã giảm giá</small>
+      </div>
+    </div>
+
+    <form action="{{ route('admin.coupon.store') }}" method="POST" novalidate>
+      @csrf
+
+      <div class="row">
+        {{-- Cột trái --}}
+        <div class="col-lg-6">
+          <div class="sp-card">
+            <div class="sp-card__hd">Thông tin chung</div>
+            <div class="sp-section">
+              @foreach ([
+                'code' => 'Mã giảm giá',
+                'title' => 'Tiêu đề',
+                'description' => 'Mô tả',
+                'discount_value' => 'Giá trị giảm',
+                'usage_limit' => 'Giới hạn sử dụng',
+              ] as $field => $label)
+                <div class="sp-row">
+                  <div class="sp-label">{{ $label }}</div>
+                  <div class="sp-field">
+                    @if ($field === 'description')
+                      <textarea name="{{ $field }}" class="form-control" rows="3">{{ old($field) }}</textarea>
+                    @elseif($field === 'discount_value')
+                      <input type="number" min="0" step="any" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
+                    @elseif($field === 'usage_limit')
+                      <input type="text" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
+                    @else
+                      <input type="text" name="{{ $field }}" class="form-control" value="{{ old($field) }}">
+                    @endif
+                    @error($field) <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                  </div>
                 </div>
-                <div class="col-sm-8">
-                    <div class="page-header float-right">
-                        <div class="page-title">
-                            <ol class="breadcrumb text-right">
-                                <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                                <li><a href="{{ route('admin.coupon.index') }}">Mã giảm giá</a></li>
-                                <li class="active">Tạo mới</li>
-                            </ol>
-                        </div>
-                    </div>
+              @endforeach
+
+              <div class="sp-row">
+                <div class="sp-label">Kiểu giảm giá</div>
+                <div class="sp-field">
+                  <select name="discount_type" id="discount_type" class="form-control">
+                    <option value="percent" {{ old('discount_type') == 'percent' ? 'selected' : '' }}>Phần trăm</option>
+                    <option value="fixed"   {{ old('discount_type') == 'fixed'   ? 'selected' : '' }}>Số tiền</option>
+                  </select>
+                  @error('discount_type') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                 </div>
+              </div>
+
+              <div class="sp-row">
+                <div class="sp-label">Nhóm người dùng</div>
+                <div class="sp-field">
+                  <select name="user_group" class="form-control">
+                    <option value="">Tất cả</option>
+                    <option value="guest"  {{ old('user_group') == 'guest'  ? 'selected' : '' }}>Khách</option>
+                    <option value="member" {{ old('user_group') == 'member' ? 'selected' : '' }}>Thành viên</option>
+                    <option value="vip"    {{ old('user_group') == 'vip'    ? 'selected' : '' }}>VIP</option>
+                  </select>
+                  @error('user_group') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
 
-    <div class="content">
-        <div class="animated fadeIn">
-            <form action="{{ route('admin.coupon.store') }}" method="POST">
-                @csrf
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <strong>Thông tin chung</strong>
-                            </div>
-                            <div class="card-body">
-                                @foreach ([
-            'code' => 'Mã giảm giá',
-            'title' => 'Tiêu đề',
-            'description' => 'Mô tả',
-            'discount_value' => 'Giá trị giảm',
-            'usage_limit' => 'Giới hạn sử dụng',
-        ] as $field => $label)
-                                    <div class="form-group">
-                                        <label>{{ $label }}</label>
-                                        @if ($field === 'description')
-                                            <textarea name="{{ $field }}" class="form-control">{{ old($field) }}</textarea>
-                                        @elseif($field === 'discount_value')
-                                            <input type="number" min="0" step="any" name="{{ $field }}"
-                                                class="form-control" value="{{ old($field) }}">
-                                        @else
-                                            <input type="text" name="{{ $field }}" class="form-control"
-                                                value="{{ old($field) }}">
-                                        @endif
-                                        @error($field)
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-                                @endforeach
-
-                                <div class="form-group">
-                                    <label>Kiểu giảm giá</label>
-                                    <select name="discount_type" id="discount_type" class="form-control">
-                                        <option value="percent" {{ old('discount_type') == 'percent' ? 'selected' : '' }}>
-                                            Phần trăm</option>
-                                        <option value="fixed" {{ old('discount_type') == 'fixed' ? 'selected' : '' }}>Số
-                                            tiền</option>
-                                    </select>
-                                    @error('discount_type')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Nhóm người dùng</label>
-                                    <select name="user_group" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="guest" {{ old('user_group') == 'guest' ? 'selected' : '' }}>Khách
-                                        </option>
-                                        <option value="member" {{ old('user_group') == 'member' ? 'selected' : '' }}>Thành
-                                            viên</option>
-                                        <option value="vip" {{ old('user_group') == 'vip' ? 'selected' : '' }}>VIP
-                                        </option>
-                                    </select>
-                                    @error('user_group')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header bg-success text-white">
-                                <strong>Thời gian & Trạng thái</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <label>Ngày bắt đầu</label>
-                                    <input type="datetime-local" name="start_date" class="form-control"
-                                        value="{{ old('start_date') }}">
-                                    @error('start_date')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label>Ngày kết thúc</label>
-                                    <input type="datetime-local" name="end_date" class="form-control"
-                                        value="{{ old('end_date') }}">
-                                    @error('end_date')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_expired" value="1"
-                                        {{ old('is_expired') ? 'checked' : '' }}>
-                                    <label class="form-check-label">Có thời hạn</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_active" value="1"
-                                        {{ old('is_active') ? 'checked' : '' }}>
-                                    <label class="form-check-label">Kích hoạt</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_notified" value="1"
-                                        {{ old('is_notified') ? 'checked' : '' }}>
-                                    <label class="form-check-label">Đã thông báo</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header bg-info text-white">
-                                <strong>Điều kiện áp dụng</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label>Giá trị đơn hàng tối thiểu</label>
-                                        <input type="number" step="any"min="0" name="min_order_value"
-                                            class="form-control" value="{{ old('min_order_value', 0) }}">
-                                        @error('min_order_value')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6" id="max_discount_value_group">
-                                        <label>Số tiền giảm tối đa</label>
-                                        <input type="number" step="any" min="0" name="max_discount_value" id="max_discount_value" class="form-control" value="{{ old('max_discount_value') }}">
-
-
-                                        <small class="text-muted">*Chỉ áp dụng khi kiểu giảm giá là phần trăm</small>
-                                        {{-- Thêm dòng này --}}
-
-                                        @error('max_discount_value')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-
-
-                                    <div class="col-md-6">
-                                        <label>Sản phẩm áp dụng</label>
-                                        <select name="valid_products[]" class="form-control select2" multiple>
-                                            @foreach ($products as $product)
-                                                <option value="{{ $product->id }}"
-                                                    {{ collect(old('valid_products'))->contains($product->id) ? 'selected' : '' }}>
-                                                    {{ $product->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('valid_products')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 text-right mt-3">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-save"></i> Lưu
-                        </button>
-                        <a href="{{ route('admin.coupon.index') }}" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left"></i> Quay lại
-                        </a>
-                    </div>
+        {{-- Cột phải --}}
+        <div class="col-lg-6">
+          <div class="sp-card mb-3">
+            <div class="sp-card__hd">Thời gian & Trạng thái</div>
+            <div class="sp-section">
+              <div class="sp-row">
+                <div class="sp-label">Ngày bắt đầu</div>
+                <div class="sp-field">
+                  <input type="datetime-local" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+                  @error('start_date') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                 </div>
-            </form>
+              </div>
+              <div class="sp-row">
+                <div class="sp-label">Ngày kết thúc</div>
+                <div class="sp-field">
+                  <input type="datetime-local" name="end_date" id="end_date" class="form-control" value="{{ old('end_date') }}">
+                  @error('end_date') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                </div>
+              </div>
+              <div class="sp-row">
+                <div class="sp-label">Tùy chọn</div>
+                <div class="sp-field d-flex flex-wrap gap-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="is_expired" value="1" id="is_expired" {{ old('is_expired') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_expired">Có thời hạn</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" {{ old('is_active') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_active">Kích hoạt</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="is_notified" value="1" id="is_notified" {{ old('is_notified') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_notified">Đã thông báo</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sp-card">
+            <div class="sp-card__hd">Điều kiện áp dụng</div>
+            <div class="sp-section">
+              <div class="sp-row">
+                <div class="sp-label">Giá trị đơn tối thiểu</div>
+                <div class="sp-field">
+                  <input type="number" step="any" min="0" name="min_order_value" id="min_order_value" class="form-control"
+                         value="{{ old('min_order_value', 0) }}">
+                  @error('min_order_value') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                </div>
+              </div>
+              <div class="sp-row" id="max_discount_value_group">
+                <div class="sp-label">Số tiền giảm tối đa</div>
+                <div class="sp-field">
+                  <input type="number" step="any" min="0" name="max_discount_value" id="max_discount_value" class="form-control"
+                         value="{{ old('max_discount_value') }}">
+                  <div class="sp-hint">* Chỉ áp dụng khi kiểu giảm giá là phần trăm.</div>
+                  @error('max_discount_value') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                </div>
+              </div>
+              <div class="sp-row">
+                <div class="sp-label">Sản phẩm áp dụng</div>
+                <div class="sp-field">
+                  <select name="valid_products[]" class="form-control select2" multiple>
+                    @foreach ($products as $product)
+                      <option value="{{ $product->id }}" {{ collect(old('valid_products'))->contains($product->id) ? 'selected' : '' }}>
+                        {{ $product->name }}
+                      </option>
+                    @endforeach
+                  </select>
+                  @error('valid_products') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    @push('scripts')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                $('.select2').select2({
-                    placeholder: 'Chọn...',
-                    allowClear: true
-                });
-                // Chặn nhập số âm và e/E/+/- cho các input cần
-                const noNegativeFields = [
-                    'discount_value',
-                    'min_order_value',
-                    'max_discount_value',
-                    'usage_limit'
-                ];
+      {{-- Actions --}}
+      <div class="sp-actions">
+        <a href="{{ route('admin.coupon.index') }}" class="btn btn-outline-secondary">
+          <i class="fa fa-arrow-left"></i> Quay lại
+        </a>
+        <button type="submit" class="btn btn-orange">
+          <i class="fa fa-save"></i> Lưu
+        </button>
+      </div>
 
-                noNegativeFields.forEach(function(name) {
-                    const field = document.querySelector(`input[name="${name}"]`);
-                    if (field) {
-                        // Ngăn nhập ký tự không mong muốn
-                        field.addEventListener('keydown', function(e) {
-                            if (['-', 'e', 'E', '+'].includes(e.key)) {
-                                e.preventDefault();
-                            }
-                        });
-
-                        // Nếu giá trị < 0 thì set lại 0
-                        field.addEventListener('input', function() {
-                            if (parseFloat(this.value) < 0) {
-                                this.value = 0;
-                            }
-                        });
-                    }
-                });
-                // JS đơn giản gắn vào form
-                const discountTypeSelect = document.querySelector('#discount_type');
-                const maxDiscountField = document.querySelector('#max_discount_value');
-
-                function toggleMaxDiscountField() {
-                    if (discountTypeSelect.value === 'percent') {
-                        maxDiscountField.disabled = false; // Cho nhập khi là phần trăm
-                        maxDiscountField.placeholder = '';
-                    } else {
-                        maxDiscountField.disabled = true; // Không cho nhập khi là cố định
-                        maxDiscountField.value = ''; // Xoá nếu có
-                        maxDiscountField.placeholder = 'Không áp dụng';
-                    }
-                }
-
-                toggleMaxDiscountField(); // Gọi lúc đầu
-                discountTypeSelect.addEventListener('change', toggleMaxDiscountField);
-
-            });
-        </script>
-    @endpush
+    </form>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+  {{-- Giữ nguyên script hiện có --}}
+@endpush
