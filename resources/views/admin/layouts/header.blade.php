@@ -1,3 +1,4 @@
+
 <div class="header">
 
     <div class="header-left active">
@@ -9,6 +10,7 @@
         </a>
         <a id="toggle_btn" href="javascript:void(0);">
         </a>
+
     </div>
 
     <a id="mobile_btn" class="mobile_btn" href="#sidebar">
@@ -160,4 +162,3 @@
             </div>
         </div>
 
-</div>
