@@ -391,4 +391,29 @@ class CouponController extends Controller
             );
         }
     }
+    public function bulkRestore(Request $request)
+{
+    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
+    if (empty($ids)) return back()->with('success', 'Không có mục nào được chọn.');
+
+    $restored = Coupon::onlyTrashed()->whereIn('id', $ids)->restore();
+    return back()->with('success', "Đã khôi phục {$restored} mã.");
+}
+
+public function bulkDestroy(Request $request)
+{
+    // Lấy danh sách id hợp lệ
+    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
+
+    if (empty($ids)) {
+        return back()->with('warning', 'Không có mục nào được chọn.');
+    }
+
+    // Soft delete hàng loạt
+    $deleted = Coupon::whereIn('id', $ids)->delete();
+
+    return back()->with('success', "Đã xóa (mềm) {$deleted} mã giảm giá.");
+}
+
+
 }
