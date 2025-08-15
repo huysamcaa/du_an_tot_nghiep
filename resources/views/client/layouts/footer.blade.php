@@ -46,7 +46,7 @@
                     <ul>
                         <li><a href="{{ route('client.coupons.index') }}">Mã giảm giá</a></li>
                         <li><a href="{{ route('client.blogs.index') }}">Về chúng tôi</a></li>
-                        <li><a href="javascript:void(0);">Tuyển dụng</a></li>
+                        <li><a href="{{ route('wishlist.index') }}">Sản phẩm yêu thích</a></li>
                         <li><a href="{{ route('client.notifications.index') }}">Thông Báo</a></li>
                     </ul>
                 </aside>
@@ -72,20 +72,9 @@
         <div class="row footerAccessRow">
             <div class="col-md-6">
                 <div class="footerSocial">
-                    <a href="javascript:void(0);"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="javascript:void(0);"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="javascript:void(0);"><i class="fa-brands fa-linkedin-in"></i></a>
-                    <a href="javascript:void(0);"><i class="fa-brands fa-instagram"></i></a>
-                </div>
             </div>
             <div class="col-md-6">
                 <div class="footerPayments">
-    <a href="#"><i class="fa-brands fa-steam"></i></a>
-    <a href="#"><i class="fa-brands fa-xbox"></i></a>
-    <a href="#"><i class="fa-brands fa-playstation"></i></a>
-    <a href="#"><i class="fa-brands fa-battle-net"></i></a>
-    <a href="#"><i class="fa-brands fa-twitch"></i></a>
-    <a href="#"><i class="fa-brands fa-discord"></i></a>
 </div>
             </div>
         </div>

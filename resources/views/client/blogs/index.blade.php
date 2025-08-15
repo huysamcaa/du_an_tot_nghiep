@@ -54,6 +54,7 @@
                     <p class="card-text text-muted" style="font-size: 14px;">
                         {{ \Illuminate\Support\Str::limit(strip_tags($blog->content), 100) }}
                     </p>
+
                 </div>
             </div>
         </div>
