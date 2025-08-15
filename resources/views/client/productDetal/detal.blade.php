@@ -49,42 +49,24 @@
 
                         {{-- Logic hiển thị giá sản phẩm đã được cập nhật --}}
                         <div class="pi01Price">
-                            @php
-                                $prices = $product->variants->pluck('price');
-                                $sale_prices = $product->variants->where('sale_price', '>', 0)->pluck('sale_price');
+                          @php
+    if ($product->variants->count() > 0) {
+        $first_variant = $product->variants->first();
+        $display_price = $first_variant->sale_price > 0 ? $first_variant->sale_price : $first_variant->price;
+        $original_price = $first_variant->sale_price > 0 ? $first_variant->price : null;
+    } else {
+        $display_price = $product->sale_price > 0 ? $product->sale_price : $product->price;
+        $original_price = $product->sale_price > 0 ? $product->price : null;
+    }
+@endphp
 
-                                $min_price = $prices->min();
-                                $max_price = $prices->max();
+<div class="pi01Price">
+    <ins id="sale-price">{{ number_format($display_price, 0, ',', '.') }} đ</ins>
+    @if($original_price)
+        <del id="original-price">{{ number_format($original_price, 0, ',', '.') }} đ</del>
+    @endif
+</div>
 
-                                $min_sale_price = $sale_prices->min();
-                                $max_sale_price = $sale_prices->max();
-                            @endphp
-
-                            @if ($sale_prices->count() > 0)
-                                {{-- Hiển thị giá khuyến mãi nếu có --}}
-                                @if ($min_sale_price == $max_sale_price)
-                                    <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ</ins>
-                                @else
-                                    <ins id="sale-price">{{ number_format($min_sale_price, 0, ',', '.') }} đ -
-                                        {{ number_format($max_sale_price, 0, ',', '.') }} đ</ins>
-                                @endif
-
-                                {{-- Hiển thị giá gốc --}}
-                                @if ($min_price == $max_price)
-                                    <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ</del>
-                                @else
-                                    <del id="original-price">{{ number_format($min_price, 0, ',', '.') }} đ -
-                                        {{ number_format($max_price, 0, ',', '.') }} đ</del>
-                                @endif
-                            @else
-                                {{-- Không có giá khuyến mãi, chỉ hiển thị giá gốc --}}
-                                @if ($min_price == $max_price)
-                                    <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ</ins>
-                                @else
-                                    <ins id="sale-price">{{ number_format($min_price, 0, ',', '.') }} đ -
-                                        {{ number_format($max_price, 0, ',', '.') }} đ</ins>
-                                @endif
-                            @endif
                         </div>
 
                         @php
