@@ -48,26 +48,26 @@ class CouponUser extends Pivot
         'updated_at' => 'datetime',
     ];
     // App\Models\CouponUser.php
-public const SNAPSHOT_COLUMNS = [
-    'code',
-    'title',
-    'discount_type',
-    'discount_value',
-    'min_order_value',
-    'max_discount_value',
-    'valid_categories',
-    'valid_products',
-    'start_date',
-    'end_date',
-    'user_group',
-    'usage_limit',
-    'amount',
-    'used_at',
-    'order_id',
-    'discount_applied',
-    'created_at',
-    'updated_at',
-];
+        public const SNAPSHOT_COLUMNS = [
+            'code',
+            'title',
+            'discount_type',
+            'discount_value',
+            'min_order_value',
+            'max_discount_value',
+            'valid_categories',
+            'valid_products',
+            'start_date',
+            'end_date',
+            'user_group',
+            'usage_limit',
+            'amount',
+            'used_at',
+            'order_id',
+            'discount_applied',
+            'created_at',
+            'updated_at',
+        ];
 
 
     public function coupon(): BelongsTo

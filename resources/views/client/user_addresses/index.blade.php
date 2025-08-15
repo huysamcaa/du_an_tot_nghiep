@@ -17,6 +17,59 @@
         color: #007bff;
         text-decoration: none;
     }
+    button,
+.btn {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 6px 18px; /* Giảm kích thước nút */
+    font-weight: bold;
+    font-size: 14px; /* Chữ nhỏ hơn */
+    text-transform: uppercase;
+    min-width: 110px; /* Đảm bảo nút đều nhau */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Khoảng cách icon và chữ */
+    transition: all 0.3s ease;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #82a1a3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary,
+.btn-outline-danger,
+.btn-outline-secondary {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+    background-color: #82a1a3;
+    color: white;
+}
+
+    .text-end {
+    text-align: center !important; /* Căn giữa nút */
+}
+
+.text-end form,
+.text-end button {
+    display: inline-block;
+}
+
+.text-end .btn {
+    margin: 4px; /* Tạo khoảng cách đều giữa các nút */
+}
+
 </style>
 <section class="pageBannerSection">
     <div class="container">

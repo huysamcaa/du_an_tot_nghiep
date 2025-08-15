@@ -212,12 +212,12 @@ public function getOrderStatusStats()
 protected function getStatusLabel($status)
 {
     $labels = [
-        'pending' => 'Chờ xử lý',
-        'processing' => 'Đang xử lý',
-        'shipped' => 'Đã giao hàng',
-        'completed' => 'Hoàn thành',
-        'cancelled' => 'Đã hủy',
-        'returned' => 'Trả hàng'
+        '1' => 'Chờ xử lý',
+        '2' => 'Đang xử lý',
+        '3' => 'Đã giao hàng',
+        '4' => 'Hoàn thành',
+        '5' => 'Đã hủy',
+        '6' => 'Trả hàng'
     ];
 
     return $labels[strtolower($status)] ?? $status;

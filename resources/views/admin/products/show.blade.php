@@ -181,13 +181,13 @@
                                         </td>
                                         <td>
                                             <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                                                {{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}
+                                                {{ $orderItem->order->customer->name ?? 'Đỗ Quang Huy' }}
                                             </span>
                                         </td>
                                         <td class="text-end">{{ $orderItem->quantity }}</td>
                                         <td class="text-end fw-semibold">{{ number_format($orderItem->price * $orderItem->quantity, 0, ',', '.') }} đ</td>
                                         <td>
-                                            @switch($orderItem->order->status)
+                                            {{-- @switch($orderStats->order_order_status->order_status_id )
                                                 @case(1)
                                                     <span class="badge bg-warning text-dark">
                                                         <i class="bi bi-hourglass me-1"></i>Chờ xử lý
@@ -210,7 +210,7 @@
                                                     @break
                                                 @default
                                                     <span class="badge bg-secondary">{{ $orderItem->order->status }}</span>
-                                            @endswitch
+                                            @endswitch --}}
                                         </td>
                                     </tr>
                                     @endforeach

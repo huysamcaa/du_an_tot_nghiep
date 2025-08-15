@@ -2,177 +2,21 @@
 
 @section('content')
 <style>
-    /* Dark Green Theme */
     .pageBannerSection {
-        background: #1a5d1a; /* Dark green background */
+        background:#ECF5F4;
         padding: 10px 0;
     }
     .pageBannerContent h2 {
+
         font-size: 72px;
-        color: #ffffff; /* White text */
+        color:#52586D;
         font-family: 'Jost', sans-serif;
     }
     .pageBannerPath a {
-        color: #a8df65; /* Light green link */
+        color: #007bff;
         text-decoration: none;
     }
-    .pageBannerPath span {
-        color: #ffffff; /* White text */
-    }
-    
-    /* Green Buttons */
-    .ulinaBTN, .placeOrderBTN {
-        background-color: #2e8b57; /* Dark green button */
-        color: white;
-        border: none;
-        transition: all 0.3s;
-    }
-    .ulinaBTN:hover, .placeOrderBTN:hover {
-        background-color: #3cb371; /* Lighter green on hover */
-        color: white;
-    }
-    
-    /* Coupon Button */
-    .coupon-button {
-        background-color: #2e8b57;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-bottom: 15px;
-        transition: all 0.3s;
-    }
-    .coupon-button:hover {
-        background-color: #3cb371;
-    }
-    
-    /* Coupon Modal */
-    .coupon-modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-    }
-    .coupon-modal-content {
-        background-color: #f8f9fa;
-        margin: 5% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 80%;
-        max-width: 600px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-    .close-coupon-modal {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .close-coupon-modal:hover {
-        color: black;
-    }
-    
-    /* Coupon Items */
-    .coupon-item {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        margin-bottom: 10px;
-        border: 1px dashed #ddd;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    .coupon-item:hover {
-        border-color: #2e8b57;
-    }
-    .coupon-item.selected {
-        border: 1px solid #2e8b57;
-        background-color: #e8f5e9;
-    }
-    .coupon-left {
-        position: relative;
-        padding: 0 15px;
-        color: #2e8b57;
-        font-weight: bold;
-        text-align: center;
-        border-right: 1px dashed #ddd;
-    }
-    .coupon-left:before, .coupon-left:after {
-        content: "";
-        position: absolute;
-        right: -6px;
-        width: 10px;
-        height: 10px;
-        background-color: #f8f9fa;
-        border-radius: 50%;
-        border: 1px dashed #ddd;
-    }
-    .coupon-left:before {
-        top: -10px;
-    }
-    .coupon-left:after {
-        bottom: -10px;
-    }
-    .coupon-right {
-        padding-left: 15px;
-    }
-    .coupon-code {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    .coupon-desc {
-        font-size: 12px;
-        color: #666;
-    }
-    .coupon-expiry {
-        font-size: 11px;
-        color: #999;
-        margin-top: 5px;
-    }
-    .no-coupon {
-        color: #999;
-        font-style: italic;
-        padding: 15px 0;
-    }
-    
-    /* Form styling */
-    input, select, textarea {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px;
-        width: 100%;
-    }
-    input:focus, select:focus, textarea:focus {
-        border-color: #2e8b57;
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(46, 139, 87, 0.2);
-    }
-    
-    /* Payment methods */
-    .wc_payment_methods li {
-        margin-bottom: 15px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    .wc_payment_methods li:hover {
-        border-color: #2e8b57;
-    }
-    .paymentDesc {
-        font-size: 13px;
-        color: #666;
-        margin-top: 5px;
-    }
 </style>
-
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -196,7 +40,7 @@
                 <div class="col-lg-6">
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" name="field1" placeholder="Họ *" required>
@@ -216,16 +60,16 @@
                                     <option value="VN" selected>Việt Nam</option>
                                 </select>
                             </div>
-                            
+
                             <div class="col-lg-12">
                                 <select name="field7" class="form-control address-select" id="addressSelect" required>
                                     <option value="">Chọn địa chỉ *</option>
                                     @foreach($userAddresses as $address)
-                                        <option value="{{ $address->address }}"  
+                                        <option value="{{ $address->address }}"
                                             {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
                                             data-phone="{{ $address->phone_number }}"
                                             data-fullname="{{ $address->fullname }}">
-                                            {{ $address->address }} 
+                                            {{ $address->address }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -238,7 +82,7 @@
                                 <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
                             <div class="col-md-6">
-                                <button type="button" id="showAddressForm" class="placeOrderBTN ulinaBTN">
+                                <button type="button" class="placeOrderBTN ulinaBTN" data-bs-toggle="modal" data-bs-target="#addAddressModal">
                                     <span>+ Thêm địa chỉ mới</span>
                                 </button>
                             </div>
@@ -246,130 +90,38 @@
 
                         <!-- Form thêm địa chỉ mới (ẩn ban đầu) -->
                         <div id="newAddressForm" class="mt-4" style="display: none;">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Thêm địa chỉ mới</h5>
-                                    <button type="button" id="hideAddressForm" class="btn btn-sm btn-secondary">×</button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_fullname">Họ tên *</label>
-                                                <input type="text" id="new_fullname" name="new_fullname" class="form-control" placeholder="Nhập họ tên">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_phone">Số điện thoại *</label>
-                                                <input type="text" id="new_phone" name="new_phone" class="form-control" placeholder="09xxxxxxxx hoặc 03xxxxxxxx">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_area">Khu vực *</label>
-                                                <input type="text" id="new_area" name="new_area" class="form-control" placeholder="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_address">Địa chỉ cụ thể *</label>
-                                                <input type="text" id="new_address" name="new_address" class="form-control" placeholder="Số nhà, tên đường">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-check mb-3">
-                                                <input type="checkbox" class="form-check-input" id="new_id_default" name="new_id_default">
-                                                <label class="form-check-label" for="new_id_default">
-                                                    Đặt làm địa chỉ mặc định
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <button type="button" id="saveNewAddress" class="btn btn-primary">
-                                                <span id="saveButtonText">Lưu địa chỉ</span>
-                                                <span id="saveButtonSpinner" class="spinner-border spinner-border-sm" style="display: none;"></span>
-                                            </button>
-                                            <button type="button" id="cancelAddressForm" class="btn btn-secondary ms-2">Hủy</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-6">
-                    <!-- Coupon Button -->
-                    <button type="button" class="coupon-button" id="showCouponModal">
-                        <i class="fas fa-tag"></i> Chọn mã giảm giá
-                    </button>
-                    
-                    <!-- Selected Coupon Display -->
-                    <div id="selectedCouponDisplay" style="display: none; margin-bottom: 15px; padding: 10px; background-color: #e8f5e9; border-radius: 4px;">
-                        <strong>Mã đã chọn: </strong>
-                        <span id="selectedCouponCode"></span>
-                        <button type="button" id="removeCoupon" style="background: none; border: none; color: #dc3545; margin-left: 10px; cursor: pointer;">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <div class="shippingCoupons">
+                        <h3>Mã giảm giá</h3>
+                        <select id="coupon_code" name="coupon_code" class="form-control">
+                            <option value="">-- Chọn mã giảm giá --</option>
+                            @foreach($coupons as $coupon)
+                                <option
+                                    value="{{ $coupon->code }}"
+                                    data-discount-type="{{ $coupon->discount_type }}"
+                                    data-discount-value="{{ $coupon->discount_value }}"
+                                    data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}"
+                                >
+                                    {{ $coupon->code }} -
+                                    @if($coupon->discount_type == 'percent')
+                                        Giảm {{ $coupon->discount_value }}%
+                                    @else
+                                        Giảm {{ number_format($coupon->discount_value) }}₫
+                                    @endif
+                                    @isset($coupon->end_date)
+                                        (HSD: {{ $coupon->end_date->format('d/m/Y') }})
+                                    @else
+                                        (HSD: Không xác định)
+                                    @endisset
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                    
-                    <!-- Coupon Modal -->
-                    <div id="couponModal" class="coupon-modal">
-                        <div class="coupon-modal-content">
-                            <span class="close-coupon-modal">&times;</span>
-                            <h3>Chọn mã giảm giá</h3>
-                            <div class="coupon-container">
-                                @if(count($coupons) > 0)
-                                    @foreach($coupons as $coupon)
-                                        <div class="coupon-item" 
-                                             data-code="{{ $coupon->code }}"
-                                             data-discount-type="{{ $coupon->discount_type }}"
-                                             data-discount-value="{{ $coupon->discount_value }}"
-                                             data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}">
-                                            <div class="coupon-left">
-                                                @if($coupon->discount_type == 'percent')
-                                                    {{ $coupon->discount_value }}%
-                                                @else
-                                                    {{ number_format($coupon->discount_value) }}₫
-                                                @endif
-                                            </div>
-                                            <div class="coupon-right">
-                                                <div class="coupon-code">{{ $coupon->code }}</div>
-                                                <div class="coupon-desc">
-                                                    @if($coupon->discount_type == 'percent')
-                                                        Giảm {{ $coupon->discount_value }}% tối đa 
-                                                        @if(isset($coupon->restriction->max_discount_value))
-                                                            {{ number_format($coupon->restriction->max_discount_value) }}đ
-                                                        @else
-                                                            không giới hạn
-                                                        @endif
-                                                    @else
-                                                        Giảm {{ number_format($coupon->discount_value) }}đ
-                                                    @endif
-                                                </div>
-                                                <div class="coupon-expiry">
-                                                    HSD: @isset($coupon->end_date))
-                                                        {{ $coupon->end_date->format('d/m/Y') }}
-                                                    @else
-                                                        Không xác định
-                                                    @endisset
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="no-coupon">Không có mã giảm giá khả dụng</div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <input type="hidden" id="selected_coupon_code" name="coupon_code" value="">
 
                     <div class="orderReviewWrap">
                         <h3>Đơn hàng của bạn</h3>
@@ -477,131 +229,154 @@
     </div>
 </section>
 
+{{-- Modal Thêm Địa chỉ --}}
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Địa chỉ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="fullname" class="form-control" placeholder="Họ và tên" value="{{ old('fullname') }}" required>
+                            @error('fullname')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="tel" name="phone_number" class="form-control" placeholder="Số điện thoại" value="{{ old('phone_number') }}" pattern="^0[0-9]{9}$" required>
+                            @error('phone_number')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <select id="province-add" name="province" class="form-select" required>
+                                <option value="">Chọn Tỉnh/Thành phố</option>
+                                @foreach($vnLocationsData as $province)
+                                    <option value="{{ $province['Name'] }}" {{ old('province') == $province['Name'] ? 'selected' : '' }}>
+                                        {{ $province['Name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('province')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <select id="ward-add" name="ward" class="form-select" required>
+                                <option value="">Chọn Phường/Xã</option>
+                                @if(old('province') && $selectedProvince = collect($vnLocationsData)->firstWhere('Name', old('province')))
+                                    @foreach(collect($selectedProvince['Districts'])->flatMap(fn($d) => $d['Wards']) as $ward)
+                                        <option value="{{ $ward['Name'] }}" {{ old('ward') == $ward['Name'] ? 'selected' : '' }}>
+                                            {{ $ward['Name'] }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('ward')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <input type="text" name="address" id="addressInput-add" class="form-control" placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="{{ old('address') }}" required>
+                            @error('address')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="id_default" id="id_default" value="1" class="form-check-input" {{ old('id_default') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="id_default">Đặt làm địa chỉ mặc định</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                        <button type="submit" class="btn btn-danger">Hoàn thành</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+        const vnLocationsData = @json($vnLocationsData);
+
+        // Logic cho modal Thêm Địa chỉ
+        const provinceSelectAdd = document.getElementById("province-add");
+        const wardSelectAdd = document.getElementById("ward-add");
+
+        provinceSelectAdd.addEventListener("change", function () {
+            const selectedProvinceName = this.value;
+            wardSelectAdd.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            if (selectedProvinceName) {
+                const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
+                if (selectedProvince) {
+                    const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
+                    allWards.forEach(ward => {
+                        wardSelectAdd.add(new Option(ward.Name, ward.Name));
+                    });
+                }
+            }
+        });
+
+        // Logic cho các modal Sửa Địa chỉ
+        document.querySelectorAll(".province-edit").forEach(provinceSelect => {
+            const id = provinceSelect.dataset.id;
+            const wardSelect = document.querySelector(`.ward-edit[data-id='${id}']`);
+
+            provinceSelect.addEventListener("change", function () {
+                const selectedProvinceName = this.value;
+                wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+                if (selectedProvinceName) {
+                    const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
+                    if (selectedProvince) {
+                        const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
+                        allWards.forEach(ward => {
+                            wardSelect.add(new Option(ward.Name, ward.Name));
+                        });
+                    }
+                }
+            });
+        });
+    });
+
 $(document).ready(function() {
     const subtotal = {{ $total }};
     const shippingFee = 30000;
-    
-    // Coupon Modal Functionality
-    const couponModal = document.getElementById("couponModal");
-    const showCouponBtn = document.getElementById("showCouponModal");
-    const closeCouponModal = document.getElementsByClassName("close-coupon-modal")[0];
-    
-    showCouponBtn.onclick = function() {
-        couponModal.style.display = "block";
-    }
-    
-    closeCouponModal.onclick = function() {
-        couponModal.style.display = "none";
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == couponModal) {
-            couponModal.style.display = "none";
-        }
-    }
-    
-    // Coupon Selection
-    $('.coupon-item').on('click', function() {
-        const coupon = $(this);
-        
-        // Nếu coupon đã được chọn, bỏ chọn
-        if (coupon.hasClass('selected')) {
-            coupon.removeClass('selected');
-            $('#selected_coupon_code').val('');
-            $('#selectedCouponDisplay').hide();
-            calculateFinalTotal(null);
-            return;
-        }
-        
-        // Bỏ chọn tất cả coupon khác
-        $('.coupon-item').removeClass('selected');
-        
-        // Chọn coupon này
-        coupon.addClass('selected');
-        
-        // Lưu mã coupon vào hidden input
-        $('#selected_coupon_code').val(coupon.data('code'));
-        
-        // Hiển thị coupon đã chọn
-        $('#selectedCouponCode').text(coupon.data('code'));
-        $('#selectedCouponDisplay').show();
-        
-        // Đóng modal
-        couponModal.style.display = "none";
-        
-        // Tính toán tổng tiền
-        calculateFinalTotal({
-            code: coupon.data('code'),
-            discount_type: coupon.data('discount-type'),
-            discount_value: parseFloat(coupon.data('discount-value')),
-            max_discount: parseFloat(coupon.data('max-discount')) || 0
-        });
-    });
-    
-    // Xóa coupon đã chọn
-    $('#removeCoupon').on('click', function() {
-        $('.coupon-item').removeClass('selected');
-        $('#selected_coupon_code').val('');
-        $('#selectedCouponDisplay').hide();
-        calculateFinalTotal(null);
-    });
-    
-    // Tính toán tổng tiền cuối cùng
-    function calculateFinalTotal(coupon) {
-        let discount = 0;
-        
-        if (coupon) {
-            if (coupon.discount_type === 'percent') {
-                discount = (subtotal * coupon.discount_value) / 100;
-                if (coupon.max_discount > 0 && discount > coupon.max_discount) {
-                    discount = coupon.max_discount;
-                }
-            } else if (coupon.discount_type === 'fixed') {
-                discount = coupon.discount_value;
-            }
-            
-            if (discount > subtotal) {
-                discount = subtotal;
-            }
-            
-            $('#discount-row').show();
-            $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
-        } else {
-            $('#discount-row').hide();
-            discount = 0;
-        }
-        
-        const finalTotal = subtotal + shippingFee - discount;
-        $('#final-total').text(Math.round(finalTotal).toLocaleString('vi-VN') + 'đ');
-        
-        $('#final-total').css('color', '#2e8b57').animate({fontSize: '1.1em'}, 200).animate({fontSize: '1em'}, 200);
-        setTimeout(function() {
-            $('#final-total').css('color', '');
-        }, 1000);
-    }
-    
+
     // Hiển thị/ẩn form thêm địa chỉ
     $('#showAddressForm').on('click', function() {
         $('#newAddressForm').slideDown(300);
         $(this).hide();
     });
-    
+
     $('#hideAddressForm, #cancelAddressForm').on('click', function() {
         $('#newAddressForm').slideUp(300);
         $('#showAddressForm').show();
         clearAddressForm();
     });
-    
+
     // Xóa dữ liệu form
     function clearAddressForm() {
         $('#newAddressForm input').val('').removeClass('is-invalid');
         $('#newAddressForm .invalid-feedback').text('');
         $('#new_id_default').prop('checked', false);
     }
-    
+
     // Validation
     function validateAddressForm() {
         let isValid = true;
@@ -611,12 +386,12 @@ $(document).ready(function() {
             { id: 'new_area', message: 'Vui lòng nhập khu vực' },
             { id: 'new_address', message: 'Vui lòng nhập địa chỉ cụ thể' }
         ];
-        
+
         fields.forEach(field => {
             const input = $('#' + field.id);
             const value = input.val().trim();
             const feedback = input.siblings('.invalid-feedback');
-            
+
             if (!value) {
                 input.addClass('is-invalid');
                 feedback.text(field.message);
@@ -630,25 +405,25 @@ $(document).ready(function() {
                 feedback.text('');
             }
         });
-        
+
         return isValid;
     }
-    
+
     // Lưu địa chỉ mới
     $('#saveNewAddress').on('click', function() {
         if (!validateAddressForm()) {
             return;
         }
-        
+
         const button = $(this);
         const buttonText = $('#saveButtonText');
         const spinner = $('#saveButtonSpinner');
-        
+
         // Hiển thị loading
         button.prop('disabled', true);
         buttonText.hide();
         spinner.show();
-        
+
         const formData = {
             fullname: $('#new_fullname').val().trim(),
             phone_number: $('#new_phone').val().trim(),
@@ -657,7 +432,7 @@ $(document).ready(function() {
             id_default: $('#new_id_default').is(':checked') ? 1 : 0,
             _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
         };
-        
+
         $.ajax({
             url: "{{ route('user.addresses.store') }}",
             type: 'POST',
@@ -665,7 +440,7 @@ $(document).ready(function() {
             success: function(response) {
                 // Tạo địa chỉ đầy đủ
                 const fullAddress = formData.address + ', ' + formData.area;
-                
+
                 // Thêm option mới vào select
                 const newOption = new Option(fullAddress, fullAddress, false, true);
                 $(newOption).attr({
@@ -673,20 +448,20 @@ $(document).ready(function() {
                     'data-fullname': formData.fullname
                 });
                 $('#addressSelect').append(newOption);
-                
+
                 // Cập nhật thông tin form chính
                 const nameParts = formData.fullname.split(' ');
                 $('input[name="field1"]').val(nameParts[0] || '');
                 $('input[name="field2"]').val(nameParts.slice(1).join(' ') || '');
                 $('input[name="field5"]').val(formData.phone_number);
-                
+
                 // Ẩn form và hiện thông báo thành công
                 $('#newAddressForm').slideUp(300);
                 $('#showAddressForm').show();
-                
+
                 // Hiển thị thông báo thành công
                 showSuccessMessage('Thêm địa chỉ thành công!');
-                
+
                 clearAddressForm();
             },
             error: function(xhr) {
@@ -710,7 +485,7 @@ $(document).ready(function() {
             }
         });
     });
-    
+
     // Hiển thị thông báo
     function showSuccessMessage(message) {
         const alert = $(`
@@ -722,7 +497,7 @@ $(document).ready(function() {
         $('#newAddressForm').before(alert);
         setTimeout(() => alert.fadeOut(), 3000);
     }
-    
+
     function showErrorMessage(message) {
         const alert = $(`
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -733,14 +508,14 @@ $(document).ready(function() {
         $('#newAddressForm').before(alert);
         setTimeout(() => alert.fadeOut(), 3000);
     }
-    
+
     // Xóa validation khi người dùng nhập
     $('#newAddressForm input').on('input', function() {
         $(this).removeClass('is-invalid');
         $(this).siblings('.invalid-feedback').text('');
     });
-    
-    // Code cũ cho address selection
+
+    // Code cũ cho coupon và address selection
     $('.address-select').change(function() {
         const selectedOption = $(this).find('option:selected');
         $('input[name="field5"]').val(selectedOption.data('phone') || '');
@@ -749,9 +524,117 @@ $(document).ready(function() {
         $('input[name="field1"]').val(nameParts[0] || '');
         $('input[name="field2"]').val(nameParts.slice(1).join(' ') || '');
     });
-    
+
+    $('#coupon_code').on('change', function() {
+        let discount = 0;
+        const selectedCoupon = $(this).find('option:selected');
+        const couponValue = selectedCoupon.val();
+
+        if (couponValue && couponValue !== '') {
+            const discountType = selectedCoupon.data('discount-type');
+            const discountValue = parseFloat(selectedCoupon.data('discount-value'));
+            const maxDiscount = parseFloat(selectedCoupon.data('max-discount')) || 0;
+
+            if (discountType === 'percent') {
+                discount = (subtotal * discountValue) / 100;
+                if (maxDiscount > 0 && discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+            } else if (discountType === 'fixed') {
+                discount = discountValue;
+            }
+
+            if (discount > subtotal) {
+                discount = subtotal;
+            }
+
+            $('#discount-row').show();
+            $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
+
+        } else {
+            $('#discount-row').hide();
+            discount = 0;
+        }
+
+        const finalTotal = subtotal + shippingFee - discount;
+        $('#final-total').text(Math.round(finalTotal).toLocaleString('vi-VN') + 'đ');
+
+        $('#final-total').css('color', '#28a745').animate({fontSize: '1.1em'}, 200).animate({fontSize: '1em'}, 200);
+        setTimeout(function() {
+            $('#final-total').css('color', '');
+        }, 1000);
+    });
+
     const initialTotal = subtotal + shippingFee;
     $('#final-total').text(initialTotal.toLocaleString('vi-VN') + 'đ');
 });
 </script>
+
+<style>
+#newAddressForm .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#newAddressForm .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 1rem;
+}
+
+#newAddressForm .form-group label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+#newAddressForm .form-control {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    transition: border-color 0.15s ease-in-out;
+}
+
+#newAddressForm .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+#newAddressForm .form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+#newAddressForm .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.alert {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+</style>
 @endsection
