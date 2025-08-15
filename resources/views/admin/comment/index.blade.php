@@ -27,7 +27,8 @@
     <div class="content">
         <div class="page-header">
             <div class="page-title">
-                <h1>Bình luận</h1>
+                <h2>Bình luận</h2>
+                <small class="text-muted">Danh sách bình luận</small>
             </div>
         </div>
         <div class="col-md-12">

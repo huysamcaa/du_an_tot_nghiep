@@ -26,7 +26,8 @@
 <div class="content">
                     <div class="page-header float-left">
                     <div class="page-title">
-                        <h1>Phản hồi bình luận</h1>
+                        <h2>Phản hồi bình luận</h2>
+                        <small class="text-muted">Danh sách phản hồi bình luận</small>
                     </div>
                 </div>
     <div class="animated fadeIn">
