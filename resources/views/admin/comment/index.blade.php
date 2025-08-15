@@ -3,15 +3,11 @@
 @section('content')
 
     {{-- Breadcrumb --}}
-    <div class="breadcrumbs">
+    {{-- <div class="breadcrumbs">
         <div class="breadcrumbs-inner">
             <div class="row m-0">
                 <div class="col-sm-4">
-                    <div class="page-header float-left">
-                        <div class="page-title">
-                            <h1>Bình luận</h1>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="col-sm-8">
                     <div class="page-header float-right">
@@ -25,10 +21,15 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Nội dung --}}
     <div class="content">
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Bình luận</h1>
+            </div>
+        </div>
         <div class="col-md-12">
 
             {{-- Thông báo --}}
@@ -58,6 +59,7 @@
 
                     {{-- Bộ lọc --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex">
                         <form method="GET" action="{{ route('admin.comments.index') }}" class="d-flex align-items-center" style="gap: 12px;">
                             <div>
                                 <label for="per_page" style="font-weight:600;">Hiển thị:</label>
@@ -67,11 +69,16 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </form>
 
-                        <form method="GET" action="{{ route('admin.comments.index') }}" class="w-50">
-                            <div class="d-flex">
+                        </div>
+                            <div class="d-flex w-75 gap-3">
                                 <input type="text" name="keyword" class="form-control" placeholder="Tìm sản phẩm, người dùng, nội dung..." value="{{ request('keyword') }}">
+                                <div class="w-25">
+                        <select name="is_active" class="form-select">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="1" {{request('is_active') === '1' ? 'selected' : ''}}>Hiển thị</option>
+                            <option value="0" {{request('is_active') === '0' ? 'selected' : ''}}>Ẩn</option>
+                        </select></div>
                                 <button class="btn btn-primary ml-1" type="submit">Tìm</button>
                                 @if (request('keyword'))
                                     <a href="{{ route('admin.comments.index') }}" class="btn btn-outline-secondary ml-1">Xóa</a>
@@ -84,6 +91,9 @@
                     <table id="comment-table" class="table table-striped table-bordered text-center align-middle">
                         <thead>
                             <tr>
+                                {{-- <th style="width:3%;">
+                                    <input type="checkbox" id="check-all">
+                                </th> --}}
                                 <th style="width:5%;">ID</th>
                                 <th>Sản phẩm</th>
                                 <th>Người dùng</th>
@@ -96,20 +106,24 @@
                         <tbody>
                             @forelse($comments as $comment)
                                 <tr>
+                                    {{-- <td>
+                                        <input type="checkbox" class="row-check" value="{{ $comment->id }}">
+                                    </td> --}}
                                     <td>{{ $comment->id }}</td>
                                     <td>{{ $comment->product->name ?? '[Sản phẩm đã xóa]' }}</td>
                                     <td>{{ $comment->user->name ?? '[Người dùng không tồn tại]' }}</td>
                                     <td class="text-start">{{ $comment->content }}</td>
                                     <td>
                                         @if($comment->is_active)
-                                            <span class="badge badge-success">✔ Hiển thị</span>
+                                            <span class="badge badge-info text-green">✔ Hiển thị</span>
                                         @else
-                                            <span class="badge badge-danger">✘ Ẩn</span>
+                                            <span class="badge badge-danger text-danger">✘ Ẩn</span>
                                         @endif
                                     </td>
                                     <td>{{ $comment->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
-                                        <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-outline-primary" title="{{ $comment->is_active ? 'Ẩn bình luận' : 'Hiển thị bình luận' }}">
+                                        <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-outline-primary"
+                                            title="{{ $comment->is_active ? 'Ẩn bình luận' : 'Hiển thị bình luận' }}">
                                             @if($comment->is_active)
                                                 <i class="fa fa-eye-slash text-danger"></i>
                                             @else
@@ -155,7 +169,7 @@
         $(document).ready(function() {
             $('#comment-table').DataTable({
                 "order": [[ 5, "desc" ]],
-                "paging": false,
+                "paging": false
                 "searching": false,
                 "info": false,
                 "columnDefs": [
@@ -166,6 +180,13 @@
                     "zeroRecords": "Không tìm thấy bình luận nào phù hợp"
                 }
             });
+            $('#check-all').on('click', function () {
+                $('.row-check').prop('checked', this.checked);
+            });
+
+            $('.row-check').on('change', function () {
+                $('#check-all').prop('checked', $('.row-check:checked').length === $('.row-check').length);
+            });
         });
-    </script>
+        <script>
 @endsection
