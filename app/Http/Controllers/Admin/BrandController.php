@@ -13,21 +13,27 @@ use Illuminate\Validation\Rule;
 
 class BrandController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $perPage = $request->input('perPage', 10);
+   public function index(Request $request)
+{
+    // Lấy tham số từ request
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
 
-        $brands = Brand::when($search, function ($query, $search) {
-                $query->where('name', 'like', "%$search%")
-                      ->orWhere('slug', 'like', "%$search%");
-            })
-            ->orderByDesc('created_at')
-            ->paginate($perPage)
-            ->appends($request->all());
+    $query = Brand::query();
 
-        return view('admin.brands.index', compact('brands', 'search', 'perPage'));
+    // Áp dụng bộ lọc tìm kiếm
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('slug', 'LIKE', "%{$search}%");
+        });
     }
+
+    $brands = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.brands.index', compact('brands'));
+}
+
 
     public function create()
     {
@@ -48,7 +54,8 @@ class BrandController extends Controller
     $data = [
         'name' => $request->name,
         'slug' => $request->slug,
-        'is_active' => (int) $request->input('is_active', 0),
+        'is_active' => $request->boolean('is_active') ? 1 : 0,
+
 
     ];
 
@@ -81,7 +88,7 @@ class BrandController extends Controller
         $data = [
             'name' => $request->name,
             'slug' => $slug,
-            'is_active' => (int) $request->input('is_active', 0),
+            'is_active' => $request->boolean('is_active') ? 1 : 0,
 
         ];
 
@@ -138,6 +145,24 @@ class BrandController extends Controller
         return view('admin.brands.trash', compact('brands'));
     }
 
+    private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name, '-', 'vi'); // bỏ dấu tiếng Việt
+        $slug = $base;
+        $i = 2;
+
+        while (
+            Brand::withTrashed()
+                ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = "{$base}-{$i}";
+            $i++;
+        }
+
+        return $slug;
+    }
     public function restore($id)
     {
         $brand = Brand::onlyTrashed()->findOrFail($id);
@@ -164,8 +189,8 @@ class BrandController extends Controller
             'max:100',
             Rule::unique('brands', 'slug')->ignore($id)
         ],
-        'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        'is_active' => 'required|boolean',
+        'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+        'is_active' => 'nullable|boolean',
 
     ];
 
@@ -178,7 +203,7 @@ class BrandController extends Controller
         'slug.unique' => 'Slug này đã tồn tại.',
         'logo.image' => 'Logo phải là hình ảnh.',
         'logo.mimes' => 'Logo chỉ chấp nhận: jpg, jpeg, png, webp.',
-        'logo.max' => 'Logo không được vượt quá 2MB.',
+
         'is_active.boolean' => 'Trạng thái hiển thị không hợp lệ.',
     ];
 

@@ -6,7 +6,7 @@
  Description: Ulina - Fashion Ecommerce Responsive HTML Template
  Version: 1.0
  License:
- License URI: 
+ License URI:
 */
 
 /*==================================
@@ -36,14 +36,14 @@
     22. Mobile Menu
 */
 
-(function () {
+(function() {
     'use strict';
     /*------------------------------------------------------
     /  01. Variables
     /------------------------------------------------------*/
-    var $anSelect = $('.anSelect select'), 
-        $sortNavSelect = $('.sortNav select'), 
-        $singleVariationSelect = $('.singleVariation select'), 
+    var $anSelect = $('.anSelect select'),
+        $sortNavSelect = $('.sortNav select'),
+        $singleVariationSelect = $('.singleVariation select'),
         $productCarousel = $('.productCarousel'),
         $ulinaCountDown = $('.ulinaCountDown'),
         $masonryGrid = $('#masonryGrid'),
@@ -64,32 +64,32 @@
         $shippingFormElementsSelect = $('.shippingFormElements select'),
         $checkoutForm = $('.checkoutForm select'),
         $teamCarousel = $('.teamCarousel');
-    
+
     /*------------------------------------------------------
     /  02. Nice Selects
     /------------------------------------------------------*/
-    if($anSelect.length > 0){
+    if ($anSelect.length > 0) {
         $anSelect.niceSelect();
     };
-    if($sortNavSelect.length > 0){
+    if ($sortNavSelect.length > 0) {
         $sortNavSelect.niceSelect();
     };
-    if($singleVariationSelect.length > 0){
+    if ($singleVariationSelect.length > 0) {
         $singleVariationSelect.niceSelect();
     };
-    if($shippingFormElementsSelect.length > 0){
+    if ($shippingFormElementsSelect.length > 0) {
         $shippingFormElementsSelect.niceSelect();
     };
-    if($checkoutForm.length > 0){
+    if ($checkoutForm.length > 0) {
         $checkoutForm.niceSelect();
     };
-    
+
     /*------------------------------------------------------
     /  03. Owl Carousels and Slick
     /------------------------------------------------------*/
 
     // Owl Carousel For teamCarousel
-    if($teamCarousel.length > 0){
+    if ($teamCarousel.length > 0) {
         var $teamCarousel_obj = $teamCarousel.owlCarousel({
             autoplay: false,
             margin: 24,
@@ -120,7 +120,7 @@
     };
 
     // Owl Carousel For productCarousel
-    if($productCarousel.length > 0){
+    if ($productCarousel.length > 0) {
         var $productCarousel_obj = $productCarousel.owlCarousel({
             autoplay: false,
             margin: 24,
@@ -151,7 +151,7 @@
     };
 
     // Owl Carousel For categoryCarousel
-    if($categoryCarousel.length > 0){
+    if ($categoryCarousel.length > 0) {
         var $categoryCarousel_obj = $categoryCarousel.owlCarousel({
             autoplay: false,
             margin: 24,
@@ -182,7 +182,7 @@
     };
 
     // Owl Carousel For categoryCarousel2
-    if($categoryCarousel2.length > 0){
+    if ($categoryCarousel2.length > 0) {
         var $categoryCarousel2_obj = $categoryCarousel2.owlCarousel({
             autoplay: false,
             margin: 24,
@@ -211,9 +211,9 @@
             }
         });
     };
-    
+
     // Owl Carousel For testimonialCarousel2
-    if($testimonialCarousel2.length > 0){
+    if ($testimonialCarousel2.length > 0) {
         var $testimonialCarousel2_obj = $testimonialCarousel2.owlCarousel({
             autoplay: false,
             margin: 24,
@@ -243,7 +243,7 @@
             }
         });
     };
-    
+
     // Owl Carousel For testimonialCarousel
     if ($testimonialCarousel.length > 0) {
         var $testimonialCarousel_obj = $testimonialCarousel.owlCarousel({
@@ -279,7 +279,7 @@
     }
 
     // Owl Carousel For instagramSlider
-    if($instagramSlider.length > 0){
+    if ($instagramSlider.length > 0) {
         var $instagramSlider_obj = $instagramSlider.owlCarousel({
             autoplay: false,
             margin: 0,
@@ -309,7 +309,7 @@
     };
 
     // Owl Carousel For clientLogoSlider
-    if($clientLogoSlider.length > 0){
+    if ($clientLogoSlider.length > 0) {
         var $clientLogoSlider_obj = $clientLogoSlider.owlCarousel({
             autoplay: false,
             margin: 0,
@@ -337,7 +337,7 @@
             }
         });
     };
-    
+
     // Slick For productGallery
     $productGallery.slick({
         slidesToShow: 1,
@@ -359,7 +359,7 @@
         prevArrow: '<button type="button" class="slick-prev"><i class="fa-solid fa-angle-left"></i></button>',
         nextArrow: '<button type="button" class="slick-next"><i class="fa-solid fa-angle-right"></i></button>'
     });
-    
+
     // Slick For productGallery2
     $productGallery2.slick({
         slidesToShow: 1,
@@ -378,18 +378,16 @@
         arrows: false,
         vertical: true,
         focusOnSelect: true,
-        verticalSwiping:true,
-        responsive: [
-            {
-                breakpoint: 575,
-                settings: {
-                    vertical: false,
-                    slidesToShow: 3
-                }
+        verticalSwiping: true,
+        responsive: [{
+            breakpoint: 575,
+            settings: {
+                vertical: false,
+                slidesToShow: 3
             }
-        ]
+        }]
     });
-    
+
     /*--------------------------------------------------------
     / 04. Masonry Grid
     /---------------------------------------------------------*/
@@ -417,7 +415,7 @@
             sizer: sizer
         });
     }
-    
+
     /*--------------------------------------------------------
     / 05. Count Down
     /----------------------------------------------------------*/
@@ -432,7 +430,7 @@
             labels: ['Yrs', 'Mths', 'Weks', 'Days', 'Hrs', 'Mins', 'Secs']
         });
     }
-    
+
     /*--------------------------------------------------------
     / 06. Image Popup
     /----------------------------------------------------------*/
@@ -448,36 +446,36 @@
             controls: true
         });
     }
-    
-   /*--------------------------------------------------------
-    /   07. Back To Top
-    /--------------------------------------------------------*/
+
+    /*--------------------------------------------------------
+     /   07. Back To Top
+     /--------------------------------------------------------*/
     var back = $("#backtotop"),
         body = $("body, html");
-    $(window).on('scroll', function () {
+    $(window).on('scroll', function() {
         if ($(window).scrollTop() > $(window).height()) {
             back.css({ bottom: '30px', opacity: '1', visibility: 'visible' });
         } else {
             back.css({ bottom: '-30px', opacity: '0', visibility: 'hidden' });
         }
     });
-    body.on("click", "#backtotop", function (e) {
+    body.on("click", "#backtotop", function(e) {
         e.preventDefault();
         body.animate({ scrollTop: 0 });
         return false;
     });
-    
-   /*--------------------------------------------------------
-    /   08. Pointer Image
-    /--------------------------------------------------------*/
-    $pointerImage.each(function(){
+
+    /*--------------------------------------------------------
+     /   08. Pointer Image
+     /--------------------------------------------------------*/
+    $pointerImage.each(function() {
         let $pointerWrap = $(this);
-        $('.cpAchor', $pointerWrap).on('click', function(e){
+        $('.cpAchor', $pointerWrap).on('click', function(e) {
             e.preventDefault();
             let $cpAchor = $(this);
-            if($cpAchor.parent('.clickPoint').hasClass('active')){
+            if ($cpAchor.parent('.clickPoint').hasClass('active')) {
                 $('.clickPoint', $pointerWrap).removeClass('active');
-            }else{
+            } else {
                 $('.clickPoint', $pointerWrap).removeClass('active');
                 $cpAchor.parent('.clickPoint').addClass('active');
             }
@@ -490,12 +488,12 @@
     if ($('.sliderSection01').length > 0) {
         var revapi1 = jQuery('#rev_slider_1').show().revolution({
             delay: 9000,
-            responsiveLevels: [1400, 1399, 991, 767],
-            gridwidth: [1320, 1140, 720],
+            responsiveLevels: [1400, 1200, 992, 576],
+            gridwidth: [1320, 1140, 960, 540],
             jsFileLocation: "js/",
             sliderLayout: "fullwidth",
-            gridheight:[1080, 1080, 768, 550],
-            minHeight: '550',
+            gridheight: [360, 300, 240, 180], // ↓ chiều cao theo từng mốc
+            minHeight: 180, // tối thiểu trên mobile
             navigation: {
                 keyboardNavigation: "off",
                 keyboard_direction: "horizontal",
@@ -528,12 +526,12 @@
                     direction: 'horizontal',
                     rtl: false,
 
-                    container: 'layergrid',
-                    h_align: 'left',
+                    container: 'slider',
+                    h_align: 'center',
                     v_align: 'bottom',
                     h_offset: 0,
-                    v_offset: 60,
-                    space: 20,
+                    v_offset: 10,
+                    space: 8,
 
                     hide_onleave: false,
                     hide_onmobile: true,
@@ -548,7 +546,8 @@
                 origo: 'slidercenter',
                 speed: 900,
                 levels: [5, 10, 15, 20, 25, 30, 35, 40,
-                    45, 46, 47, 48, 49, 50, 51, 55],
+                    45, 46, 47, 48, 49, 50, 51, 55
+                ],
                 disable_onmobile: 'on'
             }
         });
@@ -556,12 +555,12 @@
     if ($('.sliderSection02').length > 0) {
         var revapi1 = jQuery('#rev_slider_2').show().revolution({
             delay: 9000,
-            responsiveLevels: [1400, 1399, 991, 767],
-            gridwidth: [1320, 1140, 720],
+            responsiveLevels: [1400, 1200, 992, 576],
+            gridwidth: [1320, 1140, 960, 540],
             jsFileLocation: "js/",
             sliderLayout: "fullwidth",
-            gridheight:[940, 940, 768, 550],
-            minHeight: '550',
+            gridheight: [480, 400, 320, 240],
+            minHeight: 160,
             navigation: {
                 keyboardNavigation: "off",
                 keyboard_direction: "horizontal",
@@ -594,12 +593,12 @@
                     direction: 'horizontal',
                     rtl: false,
 
-                    container: 'layergrid',
+                    container: 'slider',
                     h_align: 'center',
                     v_align: 'bottom',
                     h_offset: 0,
-                    v_offset: 60,
-                    space: 20,
+                    v_offset: 10,
+                    space: 8,
 
                     hide_onleave: false,
                     hide_onmobile: false,
@@ -614,16 +613,17 @@
                 origo: 'slidercenter',
                 speed: 900,
                 levels: [5, 10, 15, 20, 25, 30, 35, 40,
-                    45, 46, 47, 48, 49, 50, 51, 55],
+                    45, 46, 47, 48, 49, 50, 51, 55
+                ],
                 disable_onmobile: 'on'
             }
         });
     }
-    
+
     /*--------------------------------------------------------
     /   10. Sidebar Toggle
     /--------------------------------------------------------*/
-    $('.shopSidebar ul li.menu-item-has-children > a').on('click', function(e){
+    $('.shopSidebar ul li.menu-item-has-children > a').on('click', function(e) {
         e.preventDefault();
         $(this).siblings('ul').slideToggle();
         $(this).parent('li.menu-item-has-children').toggleClass('active');
@@ -638,49 +638,49 @@
             min: 0,
             max: 10000,
             values: [0, 2000],
-            slide: function (event, ui) {
-                $("#amount").html("$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ]);
+            slide: function(event, ui) {
+                $("#amount").html("$" + ui.values[0] + " - $" + ui.values[1]);
             }
         });
         $("#amount").html("$" + $sliderRange.slider("values", 0) + " - $" + $sliderRange.slider("values", 1));
     }
-    
+
     /*--------------------------------------------------------
     / 12. Payment Method Toggle
     /----------------------------------------------------------*/
-    $('.wc_payment_methods li > label').on('click', function(){
-       if(!$(this).parent('li').hasClass('active')){
-           $('.wc_payment_methods li').removeClass('active');
-           $('.wc_payment_methods li .paymentDesc').slideUp();
-           $(this).parent('li').addClass('active');
-           $(this).siblings('.paymentDesc').slideDown();
-       }
+    $('.wc_payment_methods li > label').on('click', function() {
+        if (!$(this).parent('li').hasClass('active')) {
+            $('.wc_payment_methods li').removeClass('active');
+            $('.wc_payment_methods li .paymentDesc').slideUp();
+            $(this).parent('li').addClass('active');
+            $(this).siblings('.paymentDesc').slideDown();
+        }
     });
-    
+
     /*------------------------------------------------------
     /  13. Cirle Progress
     /------------------------------------------------------*/
     if ($(".circleProgress").length > 0) {
         var ast1 = true;
         $('.circleProgress').appear();
-        $('.circleProgress').on('appear', function () {
+        $('.circleProgress').on('appear', function() {
             if (ast1 == true) {
-                $(".circleProgress").each(function () {
+                $(".circleProgress").each(function() {
                     var pint = $(this).attr('data-skills');
                     var decs = pint * 100;
                     var efill = $(this).attr('data-emptyfill');
                     var fill = $(this).attr('data-fills');
-                    
+
                     $(this).circleProgress({
                         value: pint,
                         startAngle: -Math.PI / 2 * 1,
                         fill: { color: fill },
                         lineCap: 'square',
                         thickness: 6,
-                        animation: {duration: 1800},
+                        animation: { duration: 1800 },
                         size: 96,
                         emptyFill: efill
-                    }).on('circle-animation-progress', function (event, progress) {
+                    }).on('circle-animation-progress', function(event, progress) {
                         $(this).find('h3').html(parseInt(decs * progress) + '%');
                     });
                 });
@@ -688,7 +688,7 @@
             }
         });
     }
-    
+
     /*--------------------------------------------------------
     / 14. Skill Bar
     /----------------------------------------------------------*/
@@ -697,17 +697,18 @@
         $('.singleSkill').on('appear', loadSkills);
     }
     var coun = true;
+
     function loadSkills() {
-        $(".singleSkill").each(function () {
+        $(".singleSkill").each(function() {
             var datacount = $(this).attr("data-skill");
             $(".skill", this).animate({ 'width': datacount + '%' }, 2000);
             if (coun) {
-                $(this).find('span').each(function () {
+                $(this).find('span').each(function() {
                     var $this = $(this);
                     $({ Counter: 0 }).animate({ Counter: datacount }, {
                         duration: 2000,
                         easing: 'swing',
-                        step: function () {
+                        step: function() {
                             $this.text(Math.ceil(this.Counter) + '%');
                         }
                     });
@@ -723,11 +724,11 @@
     $(document.body).on('appear', '.timer', function(e, $affected) {
         $affected.each(function() {
             var $this = $(this);
-            if(!$this.hasClass('appeared')){
-                jQuery({Counter: 0}).animate({Counter: $this.attr('data-count')}, {
+            if (!$this.hasClass('appeared')) {
+                jQuery({ Counter: 0 }).animate({ Counter: $this.attr('data-count') }, {
                     duration: 3000,
                     easing: 'swing',
-                    step: function () {
+                    step: function() {
                         var num = Math.ceil(this.Counter).toString();
                         $this.html(num);
                     }
@@ -736,41 +737,41 @@
             }
         });
     });
-    
+
     /*--------------------------------------------------------
     /  16. Sticky Header
     /---------------------------------------------------------*/
-    $(window).on('scroll', function () {
+    $(window).on('scroll', function() {
         var heights = $(window).height();
         var header_height = $(".isSticky").height();
         if ($(window).scrollTop() > heights) {
-            if($(".isSticky").hasClass('h01Mode2')){
+            if ($(".isSticky").hasClass('h01Mode2')) {
                 $('.blanks').css('height', header_height);
             }
             $(".isSticky").addClass('fixedHeader animated slideInDown');
         } else {
-            if($(".isSticky").hasClass('h01Mode2')){
+            if ($(".isSticky").hasClass('h01Mode2')) {
                 $('.blanks').css('height', '0');
             }
             $(".isSticky").removeClass('fixedHeader animated slideInDown');
         }
     });
-    
+
     /*--------------------------------------------------------
     / 17. Popup Search
     /----------------------------------------------------------*/
-    $('.anSearch > a').on('click', function (e) {
+    $('.anSearch > a').on('click', function(e) {
         e.preventDefault();
         $('.popup_search_sec').toggleClass('active');
     });
-    $('.popup_search_overlay, #search_Closer').on('click', function () {
+    $('.popup_search_overlay, #search_Closer').on('click', function() {
         $('.popup_search_sec').removeClass('active');
     });
-    
+
     /*--------------------------------------------------------
     /  18. Preloader
     /---------------------------------------------------------*/
-    $(window).on('load', function () {
+    $(window).on('load', function() {
         var preload = $('#preloader');
         if (preload.length > 0) {
             preload.delay(500).fadeOut('slow');
@@ -780,23 +781,21 @@
     /*----------------------------------------------------------
     / 19. Contact Form Submission
     /----------------------------------------------------------*/
-    $('#contact_form').on('submit', function (e) {
+    $('#contact_form').on('submit', function(e) {
         e.preventDefault();
         var $this = $(this);
 
         $('button[type="submit"]', this).attr('disabled', 'disabled').val('Processing...');
         var form_data = $this.serialize();
         var required = 0;
-        $(".required", this).each(function () {
-            if ($(this).val() === ''){
+        $(".required", this).each(function() {
+            if ($(this).val() === '') {
                 $(this).addClass('reqError');
                 required += 1;
-            } else{
-                if ($(this).hasClass('reqError'))
-                {
+            } else {
+                if ($(this).hasClass('reqError')) {
                     $(this).removeClass('reqError');
-                    if (required > 0)
-                    {
+                    if (required > 0) {
                         required -= 1;
                     }
                 }
@@ -806,12 +805,12 @@
             $.ajax({
                 type: 'POST',
                 url: 'ajax/mail.php',
-                data: {form_data: form_data},
-                success: function (data) {
+                data: { form_data: form_data },
+                success: function(data) {
                     $('button[type="submit"]', $this).removeAttr('disabled').val('Message');
 
                     $('.con_message', $this).fadeIn().html('<strong>Congratulations!</strong> Your query successfully sent to site admin.').removeClass('alert-warning').addClass('alert-success');
-                    setTimeout(function () {
+                    setTimeout(function() {
                         $('.con_message', $this).fadeOut().html('').removeClass('alert-success alert-warning');
                     }, 5000);
                 }
@@ -819,19 +818,19 @@
         } else {
             $('button[type="submit"]', $this).removeAttr('disabled').val('Message');
             $('.con_message', $this).fadeIn().html('<strong>Opps!</strong> Errpr found. Please fix those and re submit.').removeClass('alert-success').addClass('alert-warning');
-            setTimeout(function () {
+            setTimeout(function() {
                 $('.con_message', $this).fadeOut().html('').removeClass('alert-success alert-warning');
             }, 5000);
         }
     });
-    $(".required").on('keyup', function () {
+    $(".required").on('keyup', function() {
         $(this).removeClass('reqError');
     });
-    
+
     /*--------------------------------------------------------
     / 20. Google Maps
     /----------------------------------------------------------*/
-    if ($("#googleMap").length > 0){
+    if ($("#googleMap").length > 0) {
         var map;
         map = new GMaps({
             el: "#googleMap",
@@ -849,38 +848,37 @@
             horizontalAlign: "center",
             backgroundColor: "#d3cfcf"
         });
-        var styles = [
-            {
+        var styles = [{
                 "featureType": "road",
                 "stylers": [
-                    {"color": "#898989"}
+                    { "color": "#898989" }
                 ]
             }, {
                 "featureType": "water",
                 "stylers": [
-                    {"color": "#cad9be"}
+                    { "color": "#cad9be" }
                 ]
             }, {
                 "featureType": "landscape",
                 "stylers": [
-                    {"color": "#edeae2"}
+                    { "color": "#edeae2" }
                 ]
             }, {
                 "elementType": "labels.text.fill",
                 "stylers": [
-                    {"color": "#121212"}
+                    { "color": "#121212" }
                 ]
             }, {
                 "featureType": "poi",
                 "stylers": [
-                    {"color": "#99b3cc"}
+                    { "color": "#99b3cc" }
                 ]
             }, {
                 "elementType": "labels.text",
                 "stylers": [
-                    {"saturation": 1},
-                    {"weight": 0.1},
-                    {"color": "#121212"}
+                    { "saturation": 1 },
+                    { "weight": 0.1 },
+                    { "color": "#121212" }
                 ]
             }
 
@@ -897,20 +895,20 @@
     /*--------------------------------------------------------
     /  21. Social Toggle Menu
     /---------------------------------------------------------*/
-    $('.anSocial a.tog').on('click', function(){
+    $('.anSocial a.tog').on('click', function() {
         $(this).parent('.anSocial').toggleClass('active');
     });
 
     /*--------------------------------------------------------
     /  22. Mobile Menu
     /---------------------------------------------------------*/
-    $('.mainMenu ul li.menu-item-has-children > a').on('click', function(e){
+    $('.mainMenu ul li.menu-item-has-children > a').on('click', function(e) {
         e.preventDefault();
-        if($(window).width() < 1366){
+        if ($(window).width() < 1366) {
             $(this).siblings('ul, .megaMenu').slideToggle();
         }
     });
-    $('.menuToggler').on('click', function(e){
+    $('.menuToggler').on('click', function(e) {
         e.preventDefault();
         $('.mainMenu').slideToggle();
         $(this).toggleClass('active');
@@ -919,12 +917,12 @@
     /*--------------------------------------------------------
     /  23. Product QuickView
     /---------------------------------------------------------*/
-    $('.pi01QuickView').on('click', function(e){
+    $('.pi01QuickView').on('click', function(e) {
         e.preventDefault();
         const myModal = new bootstrap.Modal('#productQuickView', {
             keyboard: false
         })
-        const productQuickView = document.getElementById('productQuickView'); 
+        const productQuickView = document.getElementById('productQuickView');
         myModal.show(productQuickView);
         productQuickView.addEventListener('shown.bs.modal', event => {
             // Slick For productGallery
@@ -950,5 +948,5 @@
             });
         })
     })
-    
+
 })(jQuery)

@@ -1,21 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
-<div class="checkoutPage">
-    <section class="pageBannerSection">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="pageBannerContent text-center">
-                        <h2 class="display-4 ">Chỉnh sửa thông tin cá nhân</h2>
-                        <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}" class="text-decoration-none text-dark">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span class="text-muted">Chỉnh sửa thông tin cá nhân</span>
-                        </div>
+<!-- BEGIN: Page Banner Section -->
+<section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Chỉnh Sửa Thông Tin</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Chỉnh sửa thông tin</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+<!-- END: Page Banner Section -->
 <div class="container py-5">
     <h4 class="mb-1 fw-bold">Chỉnh sửa thông tin cá nhân</h4>
     <p class="text-muted mb-4">Cập nhật thông tin để bảo vệ tài khoản và nhận ưu đãi phù hợp</p>

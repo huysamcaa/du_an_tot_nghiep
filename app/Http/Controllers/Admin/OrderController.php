@@ -13,36 +13,58 @@ use Exception;
 class OrderController extends Controller
 {
     // Danh sách đơn hàng COD
-    public function index()
-    {
-        $orders = Order::whereIn('payment_id', [2, 3, 4])->orderByDesc('created_at')->paginate(100);
-        return view('admin.orders.index', compact('orders'));
+   public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = Order::with('currentStatus.orderStatus')
+        ->whereIn('payment_id', [2, 3, 4]);
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('code', 'LIKE', "%{$search}%")
+              ->orWhere('fullname', 'LIKE', "%{$search}%");
+        });
     }
+
+    $orders = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+
+    return view('admin.orders.index', compact('orders'));
+}
+
 
     // Xem chi tiết đơn hàng
     public function show($id)
     {
-        $order = Order::with(['items', 'currentStatus.orderStatus', 'orderOrderStatuses'])->findOrFail($id);
+        $order = Order::with([
+            'user',
+            'items.product',
+            'items.variant.attributeValues.attribute',
+            'orderOrderStatuses.orderStatus',
+            'currentStatus.orderStatus'
+        ])->findOrFail($id);
 
         $usedStatusIds = $order->orderOrderStatuses->pluck('order_status_id')->toArray();
         $statuses = OrderStatus::orderBy('id')->get();
 
-        // Lấy trạng thái hiện tại (lớn nhất trong lịch sử)
+        // Lấy trạng thái hiện tại
         $currentStatusId = $order->currentStatus?->order_status_id ?? 1;
+
         // Trạng thái tiếp theo
-        $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null; // 5 là trạng thái cuối cùng hợp lệ
+        $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null;
 
         return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
     }
-    protected function handleCancelOrder($orderId)
-    {
-        // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
-        $order = Order::find($orderId);
-        if ($order) {
-            $order->is_paid = false; // hoặc các hành động khác
-            $order->save();
-        }
-    }
+    // protected function handleCancelOrder($orderId)
+    // {
+    //     // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
+    //     $order = Order::find($orderId);
+    //     if ($order) {
+    //         $order->is_paid = false; // hoặc các hành động khác
+    //         $order->save();
+    //     }
+    // }
     // Xác nhận đã thanh toán COD
     public function confirm($id)
     {
@@ -118,7 +140,7 @@ class OrderController extends Controller
 
             if ($request->order_status_id == 2) {
             $order = Order::with('items.variant')->findOrFail($orderId);
-            
+
             // Kiểm tra payment_id = 1 (COD)
             if ($order->payment_id == 1) {
                 foreach ($order->items as $item) {
@@ -139,7 +161,7 @@ class OrderController extends Controller
         }
         if ($request->order_status_id == 6) {
             $order = Order::with('items.variant')->findOrFail($orderId);
-            
+
             // Kiểm tra payment_id = 1 (COD)
             if ($order->payment_id == 3 || $order->payment_id == 4) {
                 foreach ($order->items as $item) {
@@ -196,7 +218,7 @@ class OrderController extends Controller
  public function cancel(Request $request, $orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -289,8 +311,8 @@ class OrderController extends Controller
         }
 
         // Xử lý lý do hủy
-        $cancelReason = $request->cancel_reason === 'other' 
-            ? $request->other_reason 
+        $cancelReason = $request->cancel_reason === 'other'
+            ? $request->other_reason
             : $request->cancel_reason;
 
         // 1. Cập nhật trạng thái cũ
@@ -327,16 +349,16 @@ class OrderController extends Controller
         }
 
         // 3. Cập nhật đơn hàng
-        
+
         $order->is_refund_cancel = 1; // 1 Nếu hủy hàng, 0 Nếu không hủy hàng
-        
-        
+
+
         if (!$order->save()) {
             return redirect()->route('client.orders.purchase.history')
                 ->with('error', 'Không thể cập nhật đơn hàng');
         }
-        
-        
+
+
         if (!$order->save()) {
             return redirect()->route('client.orders.purchase.history')
                 ->with('error', 'Không thể cập nhật đơn hàng');
@@ -421,7 +443,7 @@ protected function handleCancelOrder($orderId)
 public function showCancelForm($orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -438,7 +460,7 @@ public function showCancelForm($orderId)
 public function showCancelForm2($orderId)
 {
     $order = Order::findOrFail($orderId);
-    
+
     // Kiểm tra quyền sở hữu đơn hàng
     if ($order->user_id !== Auth::id()) {
         return redirect()->back()->with('error', 'Bạn không có quyền hủy đơn hàng này.');
@@ -452,60 +474,72 @@ public function showCancelForm2($orderId)
 
     return view('client.orders.cancel-online', compact('order'));
 }
+public function showConfirmRefund(Order $order)
+    {
 
+
+
+
+        // Load các quan hệ cần thiết với select tối ưu
+        $order->load([
+            'user:id,name',
+            'currentStatus:order_id,cancel_reason,bank_name,account_name,account_number,phone_number'
+        ]);
+
+        return view('admin.orders.confirm-refund', compact('order'));
+    }
 public function confirmRefund(Request $request, $orderId)
 {
     try {
-        $order = Order::with(['currentStatus', 'paymentMethod'])->findOrFail($orderId);
-        
-        // Validate only online payment orders can be processed
-        if ($order->paymentMethod->type !== 'online') {
-            return redirect()->back()->with('error', 'Chỉ áp dụng cho đơn hàng thanh toán online');
+
+        // 1. Kiểm tra đơn hàng tồn tại
+        $order = Order::find($orderId);
+        if (!$order) {
+            return redirect()->back()->with('error', 'Không tìm thấy đơn hàng');
+
         }
 
-        // Validate order is cancelled
-        if ($order->status !== 'cancelled') {
-            return redirect()->back()->with('error', 'Đơn hàng chưa ở trạng thái hủy');
+        // 2. Kiểm tra nếu đã hoàn tiền trước đó
+        if ($order->check_refund_cancel == 1) {
+            return redirect()->back()->with('error', 'Đơn hàng đã được hoàn tiền trước đó');
         }
 
-        // Validate data
-        $request->validate([
-            'evidence_images' => 'required|array',
+        // 3. Validate dữ liệu đầu vào
+        $validated = $request->validate([
+            'evidence_images' => 'required|array|min:1',
             'evidence_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'notes' => 'nullable|string|max:255',
         ]);
 
-        // Get current order status
-        $currentStatus = $order->currentStatus;
+        // 4. Xử lý upload ảnh
+        $uploadedImages = [];
+        foreach ($request->file('evidence_images') as $image) {
+            $path = $image->store('refund_evidences', 'public');
+            $uploadedImages[] = $path;
+        }
 
-        // Update order status record
-        $updateData = [
-            'modified_by' => Auth::id(),
-            'notes' => $request->notes ?? 'Admin đã xác nhận hoàn tiền',
-            'employee_evidence' => $this->processEvidenceImages($request->evidence_images),
-            'customer_confirmation' => null, // Reset customer confirmation
-            'updated_at' => now(),
-        ];
+        // 5. CHỈ CẬP NHẬT 2 TRƯỜNG THEO YÊU CẦU
+        $order->img_send_refund_money = json_encode($uploadedImages);
+        $order->check_refund_cancel = 1;
+        $order->save();
 
-        // Update the current status record
-        OrderOrderStatus::where('order_id', $order->id)
-            ->where('is_current', 1)
-            ->update($updateData);
+        // 6. Trả về kết quả
+        return redirect()
+            ->back()
+            ->with('success', 'Đã xác nhận hoàn tiền thành công')
+            ->with('images', $uploadedImages);
 
-        // Update order
-        $order->update([
-            'check_refund_cancel' => 1,
-            'img_send_refund_money' => $this->storeEvidenceImages($request->evidence_images),
-            'updated_at' => now(),
-        ]);
-
-        // Send notification to customer
-        $this->sendRefundConfirmationNotification($order);
-
-        return redirect()->back()->with('success', 'Đã xác nhận hoàn tiền cho đơn hàng #' . $order->code);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()
+            ->back()
+            ->withErrors($e->errors())
+            ->withInput();
 
     } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Lỗi khi xác nhận hoàn tiền: ' . $e->getMessage());
+        // Ghi log lỗi
+
+        return redirect()
+            ->back()
+            ->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
     }
 }
 

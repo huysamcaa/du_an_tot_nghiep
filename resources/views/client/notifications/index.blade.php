@@ -1,21 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
+<!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2 class="fw-bold text-dark">Thông báo của bạn</h2>
+                    <h2>Thông báo </h2>
                     <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span>Thông báo</span>
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thông báo</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
+<!-- END: Page Banner Section -->
 <div class="container py-5">
     @if (session('success'))
         <div class="alert alert-success text-center">{{ session('success') }}</div>

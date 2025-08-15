@@ -1,6 +1,22 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+</style>
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -49,17 +65,24 @@
                                 $total += $price * $item->quantity;
                                 $totalQuantity += $item->quantity;
                                 $isOutOfStock = $item->variant->stock == 0;
+                                $isNotAvailable = !$item->product || !$item->product->is_active;
+                                $disableItem = $isOutOfStock || $isNotAvailable;
                             @endphp
-                            <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}" class="{{$isOutOfStock ? 'out-of-stock' : ''}}">
+                            <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}" class="{{$disableItem ? 'out-of-stock' : ''}}">
+
                                 <td class="product-select">
-                                    <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item"{{$isOutOfStock ? 'disabled' : ''}}>
+                                    <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item"{{$disableItem ? 'disabled' : ''}}>
                                 </td>
                                 <td class="product-thumbnail">
                                     <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}" style="height:100%; width:auto" alt="Cart Item"></a>
                                 </td>
                                 <td class="product-name">
                                     <a href="{{ route('product.detail', $item->product->id) }}">{{ $item->product->name }}</a>
-                                    @if ($isOutOfStock)
+                                    @if (!$item->product || !$item->product->is_active)
+                                    <div class="cart-item disabled text-danger">
+                                        Sản phẩm không tồn tại
+                                    </div>
+                                    @elseif($isOutOfStock)
                                         <span class="badge bg-danger small">Hết hàng</span>
                                     @endif
                                 </td>

@@ -7,10 +7,10 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="productGalleryWrap">
-                        <!-- Slider ảnh lớn -->
                         <div class="productGallery">
                             <div class="pgImage">
-                                <img id="main-product-image" src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                                <img id="main-product-image" src="{{ asset('storage/' . $product->thumbnail) }}"
+                                    alt="{{ $product->name }}" />
                             </div>
                             @foreach ($product->variants as $variant)
                                 @if ($variant->thumbnail)
@@ -22,11 +22,10 @@
                             @endforeach
                         </div>
 
-                        <!-- Slider thumbnail -->
                         <div class="productGalleryThumbWrap">
                             <div class="productGalleryThumb">
                                 <div class="pgtImage">
-                                    <img  src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
+                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" />
                                 </div>
                                 @foreach ($product->variants as $variant)
                                     @if ($variant->thumbnail)
@@ -47,33 +46,61 @@
                             <a href="shop_right_sidebar.html">Fashion</a>, <a href="shop_left_sidebar.html">Sports</a>
                         </div>
                         <h2>{{ $product->name }}</h2>
+
+                        {{-- Logic hiển thị giá sản phẩm đã được cập nhật --}}
                         <div class="pi01Price">
-                            @if ($product->sale_price > 0 && $product->sale_price < $product->price)
-                                <ins id="sale-price">{{ number_format($product->sale_price, 0, ',', '.') }} đ</ins>
-                                <del id="original-price">{{ number_format($product->price, 0, ',', '.') }} đ</del>
-                            @else
-                                <ins id="sale-price">{{ number_format($product->price, 0, ',', '.') }} đ</ins>
-                            @endif
-                        </div>
-                        <div class="productRadingsStock clearfix">
-                            @php
-                                $avg = $product->avg_rating ?? 0;
-                                $avgPercent = round($avg * 20); // 5 sao = 100%
-                            @endphp
-                            <div class="productRatingWrap">
-                                <div class="star-rating" aria-label="{{ number_format($avg, 1) }}/5">
-                                    <span style="width: {{ $avgPercent }}%"></span>
-                                </div>
-                            </div>
+                          @php
+    if ($product->variants->count() > 0) {
+        $first_variant = $product->variants->first();
+        $display_price = $first_variant->sale_price > 0 ? $first_variant->sale_price : $first_variant->price;
+        $original_price = $first_variant->sale_price > 0 ? $first_variant->price : null;
+    } else {
+        $display_price = $product->sale_price > 0 ? $product->sale_price : $product->price;
+        $original_price = $product->sale_price > 0 ? $product->price : null;
+    }
+@endphp
+
+<div class="pi01Price">
+    <ins id="sale-price">{{ number_format($display_price, 0, ',', '.') }} đ</ins>
+    @if($original_price)
+        <del id="original-price">{{ number_format($original_price, 0, ',', '.') }} đ</del>
+    @endif
+</div>
 
                         </div>
+
+                        @php
+                            $avg = round($allReviews->avg('rating') ?? 0, 1);
+                            $count = $allReviews->count();
+                            $full = floor($avg);
+                            $half = $avg - $full >= 0.5 ? 1 : 0;
+                            $empty = 5 - $full - $half;
+                        @endphp
+
+                        <div class="d-flex align-items-center gap-2">
+                            <div>
+                                @for ($i = 0; $i < $full; $i++)
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                @endfor
+                                @if ($half)
+                                    <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                                @endif
+                                @for ($i = 0; $i < $empty; $i++)
+                                    <i class="fa-regular fa-star text-warning"></i>
+                                @endfor
+                            </div>
+
+                            <strong class="ms-2">{{ $avg }}/5 </strong>
+                            <span class="text-muted ms-1">({{ $count }} đánh giá)</span>
+                        </div>
+
+
                         <div class="pcExcerpt">
                             <p>{{ $product->short_description }}</p>
                         </div>
                         <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                            <!-- Check biến thể -->
                             <div class="pcVariations">
                                 <div class="pcVariation">
                                     <span>Màu</span>
@@ -85,7 +112,6 @@
                                                     @if (old('color') == $color->id || $loop->first) checked @endif hidden>
                                                 <label for="color_{{ $color->id }}" class="customColorCircle"
                                                     style="background-color: {{ $color->hex }};"></label>
-                                                {{-- <p>{{ $color->value }}</p> --}}
                                             </div>
                                         @endforeach
                                     </div>
@@ -104,12 +130,10 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="productStock mb-3">
                                 <span>Số Lượng: </span>
                                 <span id="stock-quantity">--</span>
                             </div>
-                            <!-- //////// -->
                             <div class="pcBtns">
                                 <div class="quantity-product">
                                     <button type="button" name="btnMinus" class="qtyBtn btnMinus">-</button>
@@ -121,10 +145,9 @@
                                 <button type="submit" id="add-to-cart" class="ulinaBTN"><span>Thêm vào giỏ</span></button>
                                 <a href="javascript:void(0);" data-product-id = "{{ $product->id }}" class="pcWishlist">
                                     <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
-                                {{-- <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a> --}}
+                                <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
                             </div>
                         </form>
-
                     </div>
                 </div>
             </div>
@@ -134,9 +157,9 @@
                 <div class="col-lg-12">
                     <ul class="nav productDetailsTab" id="productDetailsTab" role="tablist">
                         <li role="presentation">
-                            <button class="active" id="description-tab" data-bs-toggle="tab"
-                                data-bs-target="#description" type="button" role="tab" aria-controls="description"
-                                aria-selected="true">Chi tiết sản phẩm</button>
+                            <button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description"
+                                type="button" role="tab" aria-controls="description" aria-selected="true">Chi tiết
+                                sản phẩm</button>
                         </li>
                         <li role="presentation">
                             <button id="additionalinfo-tab" data-bs-toggle="tab" data-bs-target="#additionalinfo"
@@ -622,7 +645,7 @@
                     // Hiển thị ảnh theo variant
                     const mainImgEl = document.getElementById('main-product-image');
 
-                   if (mainImgEl) {
+                    if (mainImgEl) {
                         if (variant && variant.thumbnail) {
                             // Luôn đặt ảnh chính theo variant
                             mainImgEl.src = variant.thumbnail;

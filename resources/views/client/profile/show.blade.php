@@ -1,22 +1,35 @@
 @extends('client.layouts.app')
 
 @section('content')
-    <div class="checkoutPage">
-        <section class="pageBannerSection">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="pageBannerContent text-center">
-                            <h2 class="display-4 ">Hồ sơ của tôi</h2>
+                            <h2 >Hồ sơ của tôi</h2>
                             <div class="pageBannerPath">
-                                <a href="{{ route('client.home') }}" class="text-decoration-none text-dark">Trang
-                                    chủ</a>&nbsp;&nbsp;&gt;&nbsp;&nbsp;<span class="text-muted">Hồ sơ của tôi</span>
+                                <a href="{{ route('client.home') }}" >Trang chủ</a>
+                                &nbsp;&nbsp;&gt;&nbsp;&nbsp;
+                                <span class="text-muted">Hồ sơ của tôi</span>
                             </div>
                         </div>
+
+<!-- BEGIN: Page Banner Section -->
+<section class="pageBannerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="pageBannerContent text-center">
+                    <h2>Thông Tin Cá Nhân</h2>
+                    <div class="pageBannerPath">
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thông Tin Cá Nhân</span>
+
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
+<!-- END: Page Banner Section -->
         <div class="container py-5">
             <div class="container py-5">
                 <h4 class="mb-1 fw-bold">Hồ Sơ Của Tôi</h4>
@@ -26,20 +39,20 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
+
                 <div class="card shadow-sm p-4">
                     <div class="row align-items-center">
                         <!-- Avatar -->
-                        <div class="col-md-4 text-center mb-3 mb-md-0">
-                            @if ($user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
-                                    style="width: 120px; height: 120px; object-fit: cover;">
-                            @else
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                    style="width: 120px; height: 120px;">
-                                    <span class="text-muted">No Avatar</span>
-                                </div>
-                            @endif
-                        </div>
+<div class="col-md-4 text-center mb-3 mb-md-0">
+    @if ($user->avatar)
+        <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @else
+        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle img-fluid shadow"
+            style="width: 120px; height: 120px; object-fit: cover;">
+    @endif
+</div>
+
 
                         <!-- Thông tin -->
                         <div class="col-md-8">
@@ -85,10 +98,3 @@
                         <a href="{{ route('client.profile.edit') }}"
                             class="ulinaBTN d-flex align-items-center px-2 py-2 btn-sm">
 
-                            <span class="mx-auto">Chỉnh sửa</span>
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-        @endsection

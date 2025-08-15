@@ -7,11 +7,24 @@ use Illuminate\Http\Request;
 
 class AttributeController extends Controller
 {
-    public function index()
-    {
-        $attributes = Attribute::all();
-        return view('admin.attributes.index', compact('attributes'));
+ public function index(Request $request)
+{
+    $perPage = $request->input('perPage', 10);
+    $search = $request->input('search');
+
+    $query = Attribute::query();
+
+    if ($search) {
+        $query->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('slug', 'LIKE', "%{$search}%");
     }
+
+    $attributes = $query->orderBy('id', 'asc')
+                        ->paginate($perPage)
+                        ->withQueryString();
+
+    return view('admin.attributes.index', compact('attributes'));
+}
 
     public function create()
     {
@@ -60,7 +73,7 @@ class AttributeController extends Controller
         foreach ($request->values as $value) {
             if (!empty($value['id'])) {
                 // Cập nhật giá trị cũ
-                
+
                 $attrValue = $attribute->attributeValues()->find($value['id']);
                 if ($attrValue) {
                     $attrValue->update([
@@ -75,11 +88,11 @@ class AttributeController extends Controller
                     'hex' => $value['hex'] ?? null,
                     'is_active' => 1,
                 ]);
-                 
+
             }
-            
+
         }
-        
+
     }
     return redirect()->route('admin.attributes.index')->with('success', 'Cập nhật thuộc tính thành công!');
 }
