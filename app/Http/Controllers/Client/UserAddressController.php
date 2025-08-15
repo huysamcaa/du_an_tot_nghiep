@@ -56,7 +56,8 @@ class UserAddressController extends Controller
             'address.max'            => 'Địa chỉ không được vượt quá 255 ký tự.',
         ]);
 
-        $fullAddress = sprintf('%s, %s, %s',
+        $fullAddress = sprintf(
+            '%s, %s, %s',
             $request->address,
             $request->ward,
             $request->province
@@ -68,7 +69,7 @@ class UserAddressController extends Controller
             Auth::user()->addresses()->update(['id_default' => 0]);
         }
 
-        UserAddress::create([
+        $newAddress = UserAddress::create([
             'user_id'      => Auth::id(),
             'fullname'     => $request->fullname,
             'phone_number' => $request->phone_number,
@@ -78,7 +79,9 @@ class UserAddressController extends Controller
             'id_default'   => $request->has('id_default') ? 1 : 0,
         ]);
 
-        return redirect()->route('user.addresses.index')->with('success', 'Thêm địa chỉ thành công!');
+        // Bây giờ, biến $newAddress đã tồn tại và có thể sử dụng
+        return back()->with('success_address', 'Đã thêm địa chỉ mới thành công!')
+            ->with('new_address_id', $newAddress->id);
     }
 
     /**
@@ -125,7 +128,8 @@ class UserAddressController extends Controller
             $data['id_default'] = 0;
         }
 
-        $data['address'] = sprintf('%s, %s, %s',
+        $data['address'] = sprintf(
+            '%s, %s, %s',
             $data['address'],
             $data['ward'],
             $data['province']

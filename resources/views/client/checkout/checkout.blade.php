@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -40,7 +40,7 @@
                 <div class="col-lg-6">
                     <div class="checkoutForm">
                         <h3>Địa chỉ thanh toán</h3>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" name="field1" placeholder="Họ *" required>
@@ -60,16 +60,16 @@
                                     <option value="VN" selected>Việt Nam</option>
                                 </select>
                             </div>
-                            
+
                             <div class="col-lg-12">
                                 <select name="field7" class="form-control address-select" id="addressSelect" required>
                                     <option value="">Chọn địa chỉ *</option>
                                     @foreach($userAddresses as $address)
-                                        <option value="{{ $address->address }}"  
+                                        <option value="{{ $address->address }}"
                                             {{ old('field7', $defaultAddress->address ?? '') == $address->address ? 'selected' : '' }}
                                             data-phone="{{ $address->phone_number }}"
                                             data-fullname="{{ $address->fullname }}">
-                                            {{ $address->address }} 
+                                            {{ $address->address }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -82,7 +82,7 @@
                                 <textarea name="field14" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
                             <div class="col-md-6">
-                                <button type="button" id="showAddressForm" class="placeOrderBTN ulinaBTN">
+                                <button type="button" class="placeOrderBTN ulinaBTN" data-bs-toggle="modal" data-bs-target="#addAddressModal">
                                     <span>+ Thêm địa chỉ mới</span>
                                 </button>
                             </div>
@@ -90,59 +90,7 @@
 
                         <!-- Form thêm địa chỉ mới (ẩn ban đầu) -->
                         <div id="newAddressForm" class="mt-4" style="display: none;">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Thêm địa chỉ mới</h5>
-                                    <button type="button" id="hideAddressForm" class="btn btn-sm btn-secondary">×</button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_fullname">Họ tên *</label>
-                                                <input type="text" id="new_fullname" name="new_fullname" class="form-control" placeholder="Nhập họ tên">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_phone">Số điện thoại *</label>
-                                                <input type="text" id="new_phone" name="new_phone" class="form-control" placeholder="09xxxxxxxx hoặc 03xxxxxxxx">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_area">Khu vực *</label>
-                                                <input type="text" id="new_area" name="new_area" class="form-control" placeholder="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group mb-3">
-                                                <label for="new_address">Địa chỉ cụ thể *</label>
-                                                <input type="text" id="new_address" name="new_address" class="form-control" placeholder="Số nhà, tên đường">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-check mb-3">
-                                                <input type="checkbox" class="form-check-input" id="new_id_default" name="new_id_default">
-                                                <label class="form-check-label" for="new_id_default">
-                                                    Đặt làm địa chỉ mặc định
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <button type="button" id="saveNewAddress" class="btn btn-primary">
-                                                <span id="saveButtonText">Lưu địa chỉ</span>
-                                                <span id="saveButtonSpinner" class="spinner-border spinner-border-sm" style="display: none;"></span>
-                                            </button>
-                                            <button type="button" id="cancelAddressForm" class="btn btn-secondary ms-2">Hủy</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -281,31 +229,154 @@
     </div>
 </section>
 
+{{-- Modal Thêm Địa chỉ --}}
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Địa chỉ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="fullname" class="form-control" placeholder="Họ và tên" value="{{ old('fullname') }}" required>
+                            @error('fullname')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="tel" name="phone_number" class="form-control" placeholder="Số điện thoại" value="{{ old('phone_number') }}" pattern="^0[0-9]{9}$" required>
+                            @error('phone_number')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <select id="province-add" name="province" class="form-select" required>
+                                <option value="">Chọn Tỉnh/Thành phố</option>
+                                @foreach($vnLocationsData as $province)
+                                    <option value="{{ $province['Name'] }}" {{ old('province') == $province['Name'] ? 'selected' : '' }}>
+                                        {{ $province['Name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('province')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <select id="ward-add" name="ward" class="form-select" required>
+                                <option value="">Chọn Phường/Xã</option>
+                                @if(old('province') && $selectedProvince = collect($vnLocationsData)->firstWhere('Name', old('province')))
+                                    @foreach(collect($selectedProvince['Districts'])->flatMap(fn($d) => $d['Wards']) as $ward)
+                                        <option value="{{ $ward['Name'] }}" {{ old('ward') == $ward['Name'] ? 'selected' : '' }}>
+                                            {{ $ward['Name'] }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('ward')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <input type="text" name="address" id="addressInput-add" class="form-control" placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="{{ old('address') }}" required>
+                            @error('address')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="id_default" id="id_default" value="1" class="form-check-input" {{ old('id_default') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="id_default">Đặt làm địa chỉ mặc định</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                        <button type="submit" class="btn btn-danger">Hoàn thành</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+        const vnLocationsData = @json($vnLocationsData);
+
+        // Logic cho modal Thêm Địa chỉ
+        const provinceSelectAdd = document.getElementById("province-add");
+        const wardSelectAdd = document.getElementById("ward-add");
+
+        provinceSelectAdd.addEventListener("change", function () {
+            const selectedProvinceName = this.value;
+            wardSelectAdd.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            if (selectedProvinceName) {
+                const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
+                if (selectedProvince) {
+                    const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
+                    allWards.forEach(ward => {
+                        wardSelectAdd.add(new Option(ward.Name, ward.Name));
+                    });
+                }
+            }
+        });
+
+        // Logic cho các modal Sửa Địa chỉ
+        document.querySelectorAll(".province-edit").forEach(provinceSelect => {
+            const id = provinceSelect.dataset.id;
+            const wardSelect = document.querySelector(`.ward-edit[data-id='${id}']`);
+
+            provinceSelect.addEventListener("change", function () {
+                const selectedProvinceName = this.value;
+                wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+                if (selectedProvinceName) {
+                    const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
+                    if (selectedProvince) {
+                        const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
+                        allWards.forEach(ward => {
+                            wardSelect.add(new Option(ward.Name, ward.Name));
+                        });
+                    }
+                }
+            });
+        });
+    });
+
 $(document).ready(function() {
     const subtotal = {{ $total }};
     const shippingFee = 30000;
-    
+
     // Hiển thị/ẩn form thêm địa chỉ
     $('#showAddressForm').on('click', function() {
         $('#newAddressForm').slideDown(300);
         $(this).hide();
     });
-    
+
     $('#hideAddressForm, #cancelAddressForm').on('click', function() {
         $('#newAddressForm').slideUp(300);
         $('#showAddressForm').show();
         clearAddressForm();
     });
-    
+
     // Xóa dữ liệu form
     function clearAddressForm() {
         $('#newAddressForm input').val('').removeClass('is-invalid');
         $('#newAddressForm .invalid-feedback').text('');
         $('#new_id_default').prop('checked', false);
     }
-    
+
     // Validation
     function validateAddressForm() {
         let isValid = true;
@@ -315,12 +386,12 @@ $(document).ready(function() {
             { id: 'new_area', message: 'Vui lòng nhập khu vực' },
             { id: 'new_address', message: 'Vui lòng nhập địa chỉ cụ thể' }
         ];
-        
+
         fields.forEach(field => {
             const input = $('#' + field.id);
             const value = input.val().trim();
             const feedback = input.siblings('.invalid-feedback');
-            
+
             if (!value) {
                 input.addClass('is-invalid');
                 feedback.text(field.message);
@@ -334,25 +405,25 @@ $(document).ready(function() {
                 feedback.text('');
             }
         });
-        
+
         return isValid;
     }
-    
+
     // Lưu địa chỉ mới
     $('#saveNewAddress').on('click', function() {
         if (!validateAddressForm()) {
             return;
         }
-        
+
         const button = $(this);
         const buttonText = $('#saveButtonText');
         const spinner = $('#saveButtonSpinner');
-        
+
         // Hiển thị loading
         button.prop('disabled', true);
         buttonText.hide();
         spinner.show();
-        
+
         const formData = {
             fullname: $('#new_fullname').val().trim(),
             phone_number: $('#new_phone').val().trim(),
@@ -361,7 +432,7 @@ $(document).ready(function() {
             id_default: $('#new_id_default').is(':checked') ? 1 : 0,
             _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
         };
-        
+
         $.ajax({
             url: "{{ route('user.addresses.store') }}",
             type: 'POST',
@@ -369,7 +440,7 @@ $(document).ready(function() {
             success: function(response) {
                 // Tạo địa chỉ đầy đủ
                 const fullAddress = formData.address + ', ' + formData.area;
-                
+
                 // Thêm option mới vào select
                 const newOption = new Option(fullAddress, fullAddress, false, true);
                 $(newOption).attr({
@@ -377,20 +448,20 @@ $(document).ready(function() {
                     'data-fullname': formData.fullname
                 });
                 $('#addressSelect').append(newOption);
-                
+
                 // Cập nhật thông tin form chính
                 const nameParts = formData.fullname.split(' ');
                 $('input[name="field1"]').val(nameParts[0] || '');
                 $('input[name="field2"]').val(nameParts.slice(1).join(' ') || '');
                 $('input[name="field5"]').val(formData.phone_number);
-                
+
                 // Ẩn form và hiện thông báo thành công
                 $('#newAddressForm').slideUp(300);
                 $('#showAddressForm').show();
-                
+
                 // Hiển thị thông báo thành công
                 showSuccessMessage('Thêm địa chỉ thành công!');
-                
+
                 clearAddressForm();
             },
             error: function(xhr) {
@@ -414,7 +485,7 @@ $(document).ready(function() {
             }
         });
     });
-    
+
     // Hiển thị thông báo
     function showSuccessMessage(message) {
         const alert = $(`
@@ -426,7 +497,7 @@ $(document).ready(function() {
         $('#newAddressForm').before(alert);
         setTimeout(() => alert.fadeOut(), 3000);
     }
-    
+
     function showErrorMessage(message) {
         const alert = $(`
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -437,13 +508,13 @@ $(document).ready(function() {
         $('#newAddressForm').before(alert);
         setTimeout(() => alert.fadeOut(), 3000);
     }
-    
+
     // Xóa validation khi người dùng nhập
     $('#newAddressForm input').on('input', function() {
         $(this).removeClass('is-invalid');
         $(this).siblings('.invalid-feedback').text('');
     });
-    
+
     // Code cũ cho coupon và address selection
     $('.address-select').change(function() {
         const selectedOption = $(this).find('option:selected');
@@ -458,12 +529,12 @@ $(document).ready(function() {
         let discount = 0;
         const selectedCoupon = $(this).find('option:selected');
         const couponValue = selectedCoupon.val();
-        
+
         if (couponValue && couponValue !== '') {
             const discountType = selectedCoupon.data('discount-type');
             const discountValue = parseFloat(selectedCoupon.data('discount-value'));
             const maxDiscount = parseFloat(selectedCoupon.data('max-discount')) || 0;
-            
+
             if (discountType === 'percent') {
                 discount = (subtotal * discountValue) / 100;
                 if (maxDiscount > 0 && discount > maxDiscount) {
@@ -472,28 +543,28 @@ $(document).ready(function() {
             } else if (discountType === 'fixed') {
                 discount = discountValue;
             }
-            
+
             if (discount > subtotal) {
                 discount = subtotal;
             }
-            
+
             $('#discount-row').show();
             $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
-            
+
         } else {
             $('#discount-row').hide();
             discount = 0;
         }
-        
+
         const finalTotal = subtotal + shippingFee - discount;
         $('#final-total').text(Math.round(finalTotal).toLocaleString('vi-VN') + 'đ');
-        
+
         $('#final-total').css('color', '#28a745').animate({fontSize: '1.1em'}, 200).animate({fontSize: '1em'}, 200);
         setTimeout(function() {
             $('#final-total').css('color', '');
         }, 1000);
     });
-    
+
     const initialTotal = subtotal + shippingFee;
     $('#final-total').text(initialTotal.toLocaleString('vi-VN') + 'đ');
 });
