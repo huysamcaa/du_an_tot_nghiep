@@ -323,7 +323,8 @@ public function index(Request $request)
             'galleries',
             // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
         ]);
-
+        
+        
         // Lấy tất cả order items của sản phẩm
         $orderItems = $product->orderItems;
 

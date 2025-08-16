@@ -216,13 +216,14 @@
                                             <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}</span></td>
                                             <td class="text-end">{{ $orderItem->quantity }}</td>
                                             <td>
-                                                @switch($orderItem->order->status)
+                                                
+                                                {{-- @switch($orderItem->order->status)
                                                     @case(1) <span class="badge bg-warning text-dark">Chờ xử lý</span> @break
                                                     @case(2) <span class="badge bg-info text-dark">Đang xử lý</span> @break
                                                     @case(3) <span class="badge bg-success">Hoàn thành</span> @break
                                                     @case(4) <span class="badge bg-danger">Đã hủy</span> @break
                                                     @default <span class="badge bg-secondary">{{ $orderItem->order->status }}</span>
-                                                @endswitch
+                                                @endswitch --}}
                                             </td>
                                         </tr>
                                         @endforeach
