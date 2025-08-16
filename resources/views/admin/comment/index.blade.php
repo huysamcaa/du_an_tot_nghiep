@@ -1,28 +1,6 @@
 @extends('admin.layouts.app')
 
 @section('content')
-
-    {{-- Breadcrumb --}}
-    {{-- <div class="breadcrumbs">
-        <div class="breadcrumbs-inner">
-            <div class="row m-0">
-                <div class="col-sm-4">
-
-                </div>
-                <div class="col-sm-8">
-                    <div class="page-header float-right">
-                        <div class="page-title">
-                            <ol class="breadcrumb text-right">
-                                <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                                <li class="active">Bình luận</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
     {{-- Nội dung --}}
     <div class="content">
         <div class="page-header">
@@ -37,17 +15,11 @@
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Đóng">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
             @endif
             @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Đóng">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
             @endif
 
@@ -92,9 +64,6 @@
                     <table id="comment-table" class="table table-striped table-bordered text-center align-middle">
                         <thead>
                             <tr>
-                                {{-- <th style="width:3%;">
-                                    <input type="checkbox" id="check-all">
-                                </th> --}}
                                 <th style="width:5%;">ID</th>
                                 <th>Sản phẩm</th>
                                 <th>Người dùng</th>
@@ -107,13 +76,39 @@
                         <tbody>
                             @forelse($comments as $comment)
                                 <tr>
-                                    {{-- <td>
-                                        <input type="checkbox" class="row-check" value="{{ $comment->id }}">
-                                    </td> --}}
                                     <td>{{ $comment->id }}</td>
                                     <td>{{ $comment->product->name ?? '[Sản phẩm đã xóa]' }}</td>
                                     <td>{{ $comment->user->name ?? '[Người dùng không tồn tại]' }}</td>
-                                    <td class="text-start">{{ $comment->content }}</td>
+                                    <td class="text-start">
+                                        <div class="comment-content">
+                                            <div class="original-comment mb-2">
+                                                {{ $comment->content }}
+                                            </div>
+
+                                            {{-- Form trả lời sẽ hiển thị ngay dưới nội dung --}}
+                                            <div class="reply-form-{{$comment->id}}" style="display: none;">
+                                                <div class="reply-divider"></div>
+                                                <div class="reply-section">
+                                                    <div class="reply-header mb-2">
+                                                        <i class="fa fa-reply text-success"></i>
+                                                        <small class="text-muted">Trả lời khách hàng:</small>
+                                                    </div>
+                                                    <form action="{{ route('admin.comments.reply', $comment->id) }}" method="post" class="reply-form">
+                                                        @csrf
+                                                        <textarea name="content" class="form-control mb-2" rows="3" placeholder="Nhập nội dung trả lời..."></textarea>
+                                                        <div class="reply-actions">
+                                                            <button type="submit" class="btn btn-success btn-sm">
+                                                                <i class="fa fa-paper-plane"></i> Gửi
+                                                            </button>
+                                                            <button type="button" class="btn btn-secondary btn-sm cancel-reply" data-comment-id="{{$comment->id}}">
+                                                                <i class="fa fa-times"></i> Hủy
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td>
                                         @if($comment->is_active)
                                             <span class="badge badge-info text-green">✔ Hiển thị</span>
@@ -123,14 +118,24 @@
                                     </td>
                                     <td>{{ $comment->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
-                                        <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-outline-primary"
-                                            title="{{ $comment->is_active ? 'Ẩn bình luận' : 'Hiển thị bình luận' }}">
-                                            @if($comment->is_active)
-                                                <i class="fa fa-eye-slash text-danger"></i>
-                                            @else
-                                                <i class="fa fa-eye text-success"></i>
+                                        <div class="d-flex flex-column gap-2">
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.comments.toggle', $comment->id) }}" class="btn btn-sm btn-outline-primary"
+                                                    title="{{ $comment->is_active ? 'Ẩn bình luận' : 'Hiển thị bình luận' }}">
+                                                    @if($comment->is_active)
+                                                        <i class="fa fa-eye-slash text-danger"></i>
+                                                    @else
+                                                        <i class="fa fa-eye text-success"></i>
+                                                    @endif
+                                                </a>
+
+                                            @if($comment->replies->where('user_id', auth()->id())->count() == 0)
+                                                <button type="button" class="btn btn-sm btn-outline-success reply-btn" data-comment-id="{{$comment->id}}">
+                                                    <i class="fa fa-reply"></i> Trả lời
+                                                </button>
                                             @endif
-                                        </a>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -170,7 +175,7 @@
         $(document).ready(function() {
             $('#comment-table').DataTable({
                 "order": [[ 5, "desc" ]],
-                "paging": false
+                "paging": false,
                 "searching": false,
                 "info": false,
                 "columnDefs": [
@@ -181,13 +186,6 @@
                     "zeroRecords": "Không tìm thấy bình luận nào phù hợp"
                 }
             });
-            $('#check-all').on('click', function () {
-                $('.row-check').prop('checked', this.checked);
-            });
-
-            $('.row-check').on('change', function () {
-                $('#check-all').prop('checked', $('.row-check:checked').length === $('.row-check').length);
-            });
         });
-        <script>
+    </script>
 @endsection

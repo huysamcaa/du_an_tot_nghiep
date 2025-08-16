@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Comment;
 use App\Models\Admin\CommentReply;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -64,7 +66,7 @@ public function toggleReply($id)
         if ($request->filled('keyword')) {
             $query->where(function($q) use ($request) {
                 $q->where('content', 'like', '%'.$request->keyword.'%')
-                ->orWhereHas('product', function($p) use ($request) {
+                ->orWhereHas('comment.product', function($p) use ($request) {
                     $p->where('name', 'like', '%'.$request->keyword.'%');
                 })
                 ->orWhereHas('user', function($u) use ($request) {
@@ -77,4 +79,25 @@ public function toggleReply($id)
         $replies = $query->paginate($perPage);
         return view('admin.comment.reply', compact('replies'));
     }
+
+    public function storeReply(Request $request, $commentId)
+    {
+        $request->validate([
+            'content' => 'required|string'
+        ]);
+
+        $comment = Comment::findOrFail($commentId);
+        // dd($request->all());
+
+        CommentReply::create([
+            'comment_id' => $comment->id,
+            'user_id' => Auth::id(),
+            'reply_user_id' => $comment->user_id,
+            'content' => $request->content,
+            'is_active' => 1
+        ]);
+
+        return redirect()->back()->with('success','Phản hồi đã được gửi');
+    }
+
 }
