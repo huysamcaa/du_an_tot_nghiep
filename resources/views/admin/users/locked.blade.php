@@ -3,32 +3,27 @@
 @section('title', 'Tài khoản bị khóa')
 
 @section('content')
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Tài khoản bị khóa</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li class="active">Tài khoản bị khóa</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div class="content">
+
     <div class="animated fadeIn">
+         <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="mb-0">Tài khoản bị khóa</h4>
+                <small class="text-muted">Danh sách tài khoản bị khóa</small>
+            </div>
+            <div class="mb-3 d-flex" style="gap: 10px;">
+                <a href="{{ route('admin.brands.create') }}"
+                    style="background-color: #ffa200; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;"
+                    onmouseover="this.style.backgroundColor='#e68a00'" onmouseout="this.style.backgroundColor='#ffa200'">
+                    <i class="fa fa-plus"></i> Thêm tài khoản
+                </a>
+
+            </div>
+
+
+        </div>
         <div class="row">
             <div class="col-md-12">
 
