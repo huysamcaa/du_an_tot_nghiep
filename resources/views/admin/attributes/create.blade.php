@@ -1,102 +1,109 @@
 @extends('admin.layouts.app')
+
+@section('title', 'Thêm thuộc tính')
+
 @section('content')
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <h1>Thêm thuộc tính</h1>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <ol class="breadcrumb text-right">
-                        <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                        <li><a href="{{ route('admin.attributes.index') }}">Thuộc tính</a></li>
-                        <li class="active">Thêm mới</li>
-                    </ol>
-                </div>
-            </div>
+<div class="content">
+    <div class="page-header">
+        <div class="page-title">
+            <h4>Thêm thuộc tính</h4>
+            <h6>Tạo mới thông tin thuộc tính</h6>
+        </div>
+        <div class="page-btn">
+            <a href="{{ route('admin.attributes.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Quay lại
+            </a>
         </div>
     </div>
-</div>
 
-<div class="content">
-    <div class="card mx-auto" style="max-width:600px">
-        <div class="card-header px-3 py-2">
-            <strong> Thêm thuộc tính</strong>
-        </div>
+    <div class="card">
         <div class="card-body">
             @if($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             @endif
 
             <form action="{{ route('admin.attributes.store') }}" method="POST">
                 @csrf
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="attribute-name">Tên thuộc tính</label>
-                        <input type="text" name="name" id="attribute-name" class="form-control" value="{{ old('name') }}">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tên thuộc tính <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="attribute-name" class="form-control" 
+                               value="{{ old('name') }}" required>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="attribute-slug">Slug</label>
-                        <input type="text" name="slug" id="attribute-slug" class="form-control" value="{{ old('slug') }}">
+                    <div class="col-md-6">
+                        <label class="form-label">Slug <span class="text-danger">*</span></label>
+                        <input type="text" name="slug" class="form-control" 
+                               value="{{ old('slug') }}" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="is-variant">Biến thể?</label>
-                        <select name="is_variant" id="is-variant" class="form-control">
-                            <option value="1" {{ old('is_variant',1)==1?'selected':'' }}>Có</option>
-                            <option value="0" {{ old('is_variant',1)==0?'selected':'' }}>Không</option>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Biến thể?</label>
+                        <select name="is_variant" class="form-select">
+                            <option value="1" {{ old('is_variant', 1) == 1 ? 'selected' : '' }}>Có</option>
+                            <option value="0" {{ old('is_variant', 1) == 0 ? 'selected' : '' }}>Không</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="is-active">Hiển thị?</label>
-                        <select name="is_active" id="is-active" class="form-control">
-                            <option value="1" {{ old('is_active',1)==1?'selected':'' }}>Có</option>
-                            <option value="0" {{ old('is_active',1)==0?'selected':'' }}>Không</option>
+                    <div class="col-md-6">
+                        <label class="form-label">Hiển thị?</label>
+                        <select name="is_active" class="form-select">
+                            <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Có</option>
+                            <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Không</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Giá trị thuộc tính</label>
-                    <div id="color-values-list">
-                        <div class="d-flex mb-2 align-items-center color-value-row">
-                            <input type="text" name="values[0][name]" class="form-control mr-2" placeholder="Tên">
-                            <input type="color" name="values[0][hex]" class="form-control mr-2 color-picker-group" value="#000000">
-                            <button type="button" class="btn btn-danger remove-color-value">X</button>
+                <div class="mb-4">
+                    <label class="form-label">Giá trị thuộc tính</label>
+                    
+                    <div id="values-list" class="mb-2">
+                        <div class="row mb-2 value-row">
+                            <div class="col-md-6">
+                                <input type="text" name="values[0][name]" class="form-control" placeholder="Tên giá trị" required>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center color-picker-group" style="display: none!important;">
+                                <input type="color" name="values[0][hex]" class="form-control form-control-color color-picker" value="#000000">
+                                <span class="hex-value ms-2">#000000</span>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <button type="button" class="btn btn-danger remove-value">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-success btn-sm mt-1" id="add-color-value">
-                        <i class="fa fa-plus"></i> Thêm giá trị
+                    
+                    <button type="button" class="btn btn-success" id="add-value">
+                        <i class="fas fa-plus me-2"></i> Thêm giá trị
                     </button>
                 </div>
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between border-top pt-3">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save"></i> Lưu lại
+                        <i class="fas fa-save me-2"></i> Lưu lại
                     </button>
-                    <a href="{{ route('admin.attributes.index') }}" class="btn btn-outline-secondary btn-sm align-self-center">
-                        Hủy
+                    <a href="{{ route('admin.attributes.index') }}" class="btn btn-outline-secondary">
+                        Hủy bỏ
                     </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-    let colorIndex = 1;
+    let valueIndex = 1;
     const nameInput = document.getElementById('attribute-name');
 
     function isColorAttribute() {
@@ -105,29 +112,74 @@
     }
 
     function toggleColorInputs() {
-        document.querySelectorAll('.color-picker-group').forEach(el => el.style.display = isColorAttribute() ? '' : 'none');
+        const showColor = isColorAttribute();
+        document.querySelectorAll('.color-picker-group').forEach(el => {
+            el.style.display = showColor ? '' : 'none';
+        });
+        
+        const addButton = document.getElementById('add-value');
+        if (addButton) {
+            addButton.innerHTML = `<i class="fas fa-plus me-2"></i> Thêm ${showColor ? 'màu' : 'giá trị'}`;
+        }
     }
+
     nameInput.addEventListener('input', toggleColorInputs);
     toggleColorInputs();
 
-    document.getElementById('add-color-value').addEventListener('click', () => {
+    // Thêm giá trị mới
+    document.getElementById('add-value').addEventListener('click', function() {
         const isColor = isColorAttribute();
-        const wrapper = document.createElement('div');
-        wrapper.className = 'd-flex mb-2 align-items-center color-value-row';
-        wrapper.innerHTML = `
-        <input type="text" name="values[${colorIndex}][name]" class="form-control mr-2" placeholder="Tên" >
-        <input type="color" name="values[${colorIndex}][hex]" class="form-control mr-2 color-picker-group" style="${isColor?'':'display:none;'}" value="#000000">
-        <button type="button" class="btn btn-danger remove-color-value">X</button>
-    `;
-        document.getElementById('color-values-list').appendChild(wrapper);
-        colorIndex++;
+        const colorPickerHtml = isColor ? `
+            <div class="col-md-4 d-flex align-items-center color-picker-group">
+                <input type="color" name="values[${valueIndex}][hex]" 
+                       class="form-control form-control-color color-picker" value="#000000">
+                <span class="hex-value ms-2">#000000</span>
+            </div>
+        ` : '<div class="col-md-4 d-flex align-items-center color-picker-group" style="display: none!important;"></div>';
+        
+        const html = `
+        <div class="row mb-2 value-row">
+            <div class="col-md-6">
+                <input type="text" name="values[${valueIndex}][name]" class="form-control" placeholder="Tên giá trị" required>
+            </div>
+            ${colorPickerHtml}
+            <div class="col-md-2 d-flex align-items-center">
+                <button type="button" class="btn btn-danger remove-value">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>`;
+        
+        document.getElementById('values-list').insertAdjacentHTML('beforeend', html);
+        valueIndex++;
     });
 
-    document.addEventListener('click', e => {
-        if (e.target.classList.contains('remove-color-value')) {
-            e.target.closest('.color-value-row').remove();
+    // Xóa giá trị
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-value')) {
+            e.target.closest('.value-row').remove();
+        }
+    });
+
+    // Cập nhật hiển thị mã màu
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('color-picker')) {
+            const span = e.target.parentElement.querySelector('.hex-value');
+            if (span) span.textContent = e.target.value;
         }
     });
 </script>
 @endpush
-@endsection
+
+@push('styles')
+<style>
+    .form-control-color {
+        width: 40px;
+        height: 40px;
+        padding: 2px;
+    }
+    .hex-value {
+        font-family: monospace;
+    }
+</style>
+@endpush

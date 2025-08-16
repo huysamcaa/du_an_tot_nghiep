@@ -71,11 +71,13 @@
 
         <div class="row footerAccessRow">
             <div class="col-md-6">
+
                 <div class="footerSocial">
             </div>
             <div class="col-md-6">
                 <div class="footerPayments">
 </div>
+
             </div>
         </div>
 

@@ -14,7 +14,7 @@
                                 <a href="{{ route('client.home') }}">Trang Chủ</a>
                             </li>
                             <li class="menu-item">
-                                <a href="{{ route('client.categories.index') }}">Danh mục</a>
+                                <a  href="{{ route('client.categories.index') }}">Danh mục</a>
                             </li>
                             {{-- <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>

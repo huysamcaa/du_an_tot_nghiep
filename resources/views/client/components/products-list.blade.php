@@ -3,6 +3,7 @@
         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="productItem01">
                 <div class="pi01Thumb" style="height: auto; overflow: hidden;">
+
                     <img src="{{ asset('storage/' . $product->thumbnail) }}"
                          alt="{{ $product->name }}"
                          style="width: 100%; height: auto; object-fit: cover;" />
@@ -11,6 +12,8 @@
                          style="width: 100%; height: auto; object-fit: cover;" />
 
                     <!-- Nút hành động -->
+
+
                     <div class="pi01Actions" data-product-id="{{ $product->id }}">
                         <a href="javascript:void(0)" class="piAddToCart"
                            data-id="{{ $product->id }}">

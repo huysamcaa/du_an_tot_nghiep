@@ -181,7 +181,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
-    
+
 
 
     // Đánh giá của người dùng
@@ -210,7 +210,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::post('/orders/{id}/received', [OrderController::class, 'markAsReceived'])
      ->name('client.orders.received')
      ->middleware('auth');
-     
+
     // Xem danh sách yêu cầu của user
     Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
 
@@ -262,12 +262,17 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
 
+    Route::delete('coupon/bulk-destroy', [CouponController::class, 'bulkDestroy'])->name('coupon.bulkDestroy');
+    Route::post('coupon/bulk-restore',  [CouponController::class, 'bulkRestore'])->name('coupon.bulkRestore');
+    Route::get('coupon/trashed',        [CouponController::class, 'trashed'])->name('coupon.trashed');
+    Route::post('coupon/{id}/restore',  [CouponController::class, 'restore'])->whereNumber('id')->name('coupon.restore');
+    Route::get('coupon/{id}/show',      [CouponController::class, 'show'])->whereNumber('id')->name('coupon.show');
 
+    // Cuối cùng mới đến resource
     Route::resource('coupon', CouponController::class)->except(['show']);
 
-    Route::get('coupon/trashed', [CouponController::class, 'trashed'])->name('coupon.trashed');
-    Route::post('coupon/{id}/restore', [CouponController::class, 'restore'])->name('coupon.restore');
-    Route::get('coupon/{id}/show', [CouponController::class, 'show'])->name('coupon.show');
+    Route::delete('brands/bulk-destroy', [BrandController::class, 'bulkDestroy'])->name('brands.bulkDestroy');
+      Route::post('brands/bulk-restore',  [BrandController::class, 'bulkRestore'])->name('brands.bulkRestore'); 
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);
@@ -287,12 +292,12 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    
+
    Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function() {
     // Route xác nhận hoàn tiền
     Route::get('orders/{order}/confirm-refund', [OrderController::class, 'showConfirmRefund'])
          ->name('orders.confirm-refund');
-         
+
     Route::post('orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
      ->name('admin.orders.confirm-refund');
 

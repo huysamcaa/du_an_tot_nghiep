@@ -27,7 +27,7 @@
                 <!-- Danh mục -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/category.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/purchase1.svg') }}" alt="img">
                         <span> Danh mục</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -51,7 +51,7 @@
                 <!-- Biến thể -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/attributes.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Biến thể</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -63,7 +63,7 @@
                 <!-- Đơn hàng -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/sales.svg') }}" alt="img">
+                         <img src="{{ asset('assets/admin/img/icons/wallet1.svg') }}" alt="img">
                         <span> Thanh toán</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
