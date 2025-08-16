@@ -208,7 +208,7 @@
                             </div>
 
                             {{-- hết user --}}
-                            <div class="anCart">
+                            <div class="anCart" id="cart-widget">
 
                                 <a href="javascript:void(0);"><i
                                         class="fa-solid fa-shopping-cart"></i><span>{{ $totalProduct }}</span></a>

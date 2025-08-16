@@ -12,15 +12,15 @@
 
                     <!-- Nút hành động -->
                     <div class="pi01Actions" data-product-id="{{ $product->id }}">
-    <a href="javascript:void(0)" class="piAddToCart"
-       data-id="{{ $product->id }}">
-        <i class="fa-solid fa-shopping-cart"></i>
-    </a>
-    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <input type="hidden" name="quantity" value="1">
-</form>
+                        <a href="javascript:void(0)" class="piAddToCart"
+                           data-id="{{ $product->id }}">
+                            <i class="fa-solid fa-shopping-cart"></i>
+                        </a>
+                        <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                        </form>
                         <a href="{{ route('product.detail', $product->id) }}" title="Xem chi tiết">
                             <i class="fa-solid fa-eye"></i>
                         </a>
@@ -43,21 +43,79 @@
                         </a>
                     </h3>
 
+
                     <div class="pi01Price">
-                        <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
-                        @if ($product->sale_price && $product->price > $product->sale_price)
-                            <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
-                        @endif
-                    </div>
+    @php
+        // Lấy toàn bộ giá (ưu tiên sale_price nếu có)
+        $prices = $product->variants->map(function($variant) {
+            return ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                ? $variant->sale_price
+                : $variant->price;
+        });
+
+        $minPrice = $prices->min();
+        $maxPrice = $prices->max();
+    @endphp
+
+    @if ($minPrice != $maxPrice)
+        <ins>{{ number_format($minPrice, 0, ',', '.') }}đ - {{ number_format($maxPrice, 0, ',', '.') }}đ</ins>
+    @else
+        <ins>{{ number_format($minPrice, 0, ',', '.') }}đ</ins>
+    @endif
+</div>
+
+
+                    {{-- Size options --}}
+                    @php
+                        $sizeValues = $product->variants
+                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size'))
+                            ->unique('id')
+                            ->values();
+                    @endphp
+                    @if($sizeValues->count())
+                        <div class="product-sizes mt-1">
+                            <strong>Size:</strong>
+                            @foreach($sizeValues as $av)
+                                <span class="badge bg-light text-dark border size-option"
+                                      data-id="{{ $av->id }}"
+                                      data-size="{{ $av->value }}">
+                                    {{ $av->value }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Color options --}}
+                    @php
+                        $colorValues = $product->variants
+                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color'))
+                            ->unique('id')
+                            ->values();
+                    @endphp
+                    @if($colorValues->count())
+                        <div class="product-colors mt-1 d-flex gap-1">
+                            <strong class="me-1">Màu:</strong>
+                            @foreach($colorValues as $av)
+                                <span class="color-circle color-option"
+                                      data-id="{{ $av->id }}"
+                                      data-color="{{ \Illuminate\Support\Str::start($av->hex, '#') }}"
+                                      style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($av->hex, '#') }}; border:1px solid #ccc; cursor:pointer;">
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>
     @endforeach
 </div>
 
+
 <div class="d-flex justify-content-center mt-4">
     {{ $products->links() }}
 </div>
+
 
 <style>
 /* ===== PAGINATION ===== */
@@ -181,39 +239,89 @@
 .pi01Thumb:hover::after {
     opacity: 1;
 }
+.size-option.selected {
+    background: #7b9494 !important;
+    color: #fff !important;
+}
+
+.color-option.selected {
+    border: 2px solid #7b9494 !important;
+}
+.color-circle{
+    margin-top: 5px;
+}
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ===== Chọn size =====
+    document.querySelectorAll('.size-option').forEach(function (el) {
+        el.addEventListener('click', function () {
+            let parent = this.closest('.product-sizes');
+            parent.querySelectorAll('.size-option').forEach(e => e.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // ===== Chọn màu =====
+    document.querySelectorAll('.color-option').forEach(function (el) {
+        el.addEventListener('click', function () {
+            let parent = this.closest('.product-colors');
+            parent.querySelectorAll('.color-option').forEach(e => e.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // ===== Thêm vào giỏ =====
     document.querySelectorAll('.piAddToCart').forEach(function (btn) {
         btn.addEventListener('click', function () {
             let productId = this.getAttribute('data-id');
+            let productCard = this.closest('.productItem01');
+
+            // Lấy id của size và màu đã chọn
+            let selectedSize = productCard.querySelector('.size-option.selected')?.dataset.id || '';
+            let selectedColor = productCard.querySelector('.color-option.selected')?.dataset.id || '';
+
+            if (!selectedSize || !selectedColor) {
+                alert('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng!');
+                return;
+            }
+
             let form = document.getElementById('add-to-cart-form-' + productId);
             let formData = new FormData(form);
 
+            // Gửi id của attribute value
+            formData.append('size', selectedSize);
+            formData.append('color', selectedColor);
 
             fetch("{{ route('cart.add') }}", {
-    method: 'POST',
-    body: formData,
-    headers: {
-        'X-CSRF-TOKEN': formData.get('_token'),
-        'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
-    }
-})
-.then(res => res.json())
-.then(data => {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': formData.get('_token'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
     if (data.success) {
-        alert('Đã thêm vào giỏ hàng!');
+        let cartDropdown = document.querySelector('#cart-widget .dropdown-menu');
+        if (cartDropdown) {
+            cartDropdown.innerHTML = data.cartWidget;
+        }
+        alert('Đã thêm sản phẩm vào giỏ hàng!');
     } else {
         alert(data.message || 'Có lỗi xảy ra!');
     }
 })
-.catch(err => {
-    console.error(err);
-    alert('Không thể thêm sản phẩm vào giỏ!');
-});
+            .catch(err => {
+                console.error(err);
+                alert('Không thể thêm sản phẩm vào giỏ!');
+            });
         });
     });
+
 });
 
 </script>
