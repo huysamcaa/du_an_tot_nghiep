@@ -37,6 +37,8 @@ use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 
 use App\Http\Controllers\Client\BlogController as ClientBlogController;
 
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Client\ContactController as ClientContactController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ChangePasswordController;
@@ -80,6 +82,18 @@ Route::get('/categories', [ClientCategoryController::class, 'index'])
 // show theo slug
 Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
     ->name('category.show');
+    // liên hệ
+Route::get('/contact', [ClientContactController::class, 'index'])
+    ->name('client.contact.index');
+
+    Route::post('/contact', [ClientContactController::class, 'submit'])
+    ->name('client.contact.submit');
+
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::get('/contact', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contact.index');
+    Route::get('/contact/{id}', [ContactController::class, 'show'])->name('contact.show'); 
+    Route::patch('/contact/{id}/mark-contacted', [ContactController::class, 'markContacted'])->name('contact.markContacted');
+});
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
