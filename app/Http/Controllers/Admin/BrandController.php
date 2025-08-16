@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\DB;
 class BrandController extends Controller
 {
    public function index(Request $request)
@@ -28,6 +28,11 @@ class BrandController extends Controller
               ->orWhere('slug', 'LIKE', "%{$search}%");
         });
     }
+    $brands = $query->withCount('products') // thêm đếm sản phẩm
+                ->orderByDesc('created_at')
+                ->paginate($perPage)
+                ->withQueryString();
+
 
     $brands = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
@@ -113,9 +118,9 @@ class BrandController extends Controller
             return back()->with('error', 'Không thể xóa thương hiệu vì vẫn còn sản phẩm liên quan.');
         }
 
-        if ($brand->logo && Storage::disk('public')->exists($brand->logo)) {
-            Storage::disk('public')->delete($brand->logo);
-        }
+        // if ($brand->logo && Storage::disk('public')->exists($brand->logo)) {
+        //     Storage::disk('public')->delete($brand->logo);
+        // }
 
         $brand->delete();
 
@@ -208,6 +213,55 @@ class BrandController extends Controller
     ];
 
     Validator::make($request->all(), $rules, $messages)->validate();
+}
+public function bulkDestroy(Request $request)
+{
+    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
+
+    if (empty($ids)) {
+        return back()->with('success', 'Không có mục nào được chọn.');
+    }
+
+    // Lấy danh sách brand kèm số sản phẩm
+    $brands = Brand::withCount('products')
+        ->whereIn('id', $ids)
+        ->get();
+
+    // Bị chặn nếu còn sản phẩm
+    $blocked = $brands->where('products_count', '>', 0);
+    // Được phép xóa nếu không còn sản phẩm
+    $allowedIds = $brands->where('products_count', 0)->pluck('id')->all();
+
+    if (!empty($allowedIds)) {
+        DB::transaction(function () use ($allowedIds) {
+            Brand::whereIn('id', $allowedIds)->delete(); // soft delete
+        });
+    }
+
+    // Thông báo gộp
+    $messages = [];
+    if (!empty($allowedIds)) {
+        $messages[] = 'Đã xóa  ' . count($allowedIds) . ' thương hiệu.';
+    }
+    if ($blocked->isNotEmpty()) {
+        $names = $blocked->pluck('name')->implode(', ');
+        $messages[] = 'Không thể xóa các thương hiệu còn sản phẩm: ' . $names . '.';
+    }
+
+    return back()->with('success', $messages ? implode(' ', $messages) : 'Không có thay đổi.');
+}
+public function bulkRestore(Request $request)
+{
+    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
+
+    if (empty($ids)) {
+        return back()->with('warning', 'Không có mục nào được chọn.');
+    }
+
+    // Chỉ restore các bản ghi đang ở trạng thái deleted
+    $restored = Brand::onlyTrashed()->whereIn('id', $ids)->restore();
+
+    return back()->with('success', "Đã khôi phục {$restored} thương hiệu.");
 }
 
 }

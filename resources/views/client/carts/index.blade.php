@@ -55,19 +55,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $total = 0;
-                                $totalQuantity = 0;
-                            @endphp
-                            @foreach($cartItems as $item)
-                            @php
-                                $price = $item->variant->sale_price > 0 ? $item->variant->sale_price : $item->variant->price;
-                                $total += $price * $item->quantity;
-                                $totalQuantity += $item->quantity;
-                                $isOutOfStock = $item->variant->stock == 0;
-                                $isNotAvailable = !$item->product || !$item->product->is_active;
-                                $disableItem = $isOutOfStock || $isNotAvailable;
-                            @endphp
+@php
+    $total = 0;
+    $totalQuantity = 0;
+@endphp
+
+@foreach($cartItems as $item)
+    @php
+        if ($item->variant) {
+            // Nếu có biến thể
+            $price = ($item->variant->sale_price > 0 && $item->variant->sale_price < $item->variant->price)
+                ? $item->variant->sale_price
+                : $item->variant->price;
+
+            $isOutOfStock = $item->variant->stock == 0;
+        } else {
+            // Nếu không có biến thể
+            $price = ($item->product->sale_price > 0 && $item->product->sale_price < $item->product->price)
+                ? $item->product->sale_price
+                : $item->product->price;
+
+            // Nếu bảng products có cột stock thì dùng, không thì để false
+            $isOutOfStock = property_exists($item->product, 'stock') 
+                ? $item->product->stock == 0 
+                : false;
+        }
+
+        $total += $price * $item->quantity;
+        $totalQuantity += $item->quantity;
+
+        $isNotAvailable = !$item->product || !$item->product->is_active;
+        $disableItem = $isOutOfStock || $isNotAvailable;
+    @endphp
+
+   
+
+
                             <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}" class="{{$disableItem ? 'out-of-stock' : ''}}">
 
                                 <td class="product-select">

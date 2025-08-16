@@ -2569,7 +2569,8 @@
                                 <div class="categoryItem01 text-center">
                                     <div class="ci01Thumb">
                                         {{-- nếu có trường thumbnail trong DB --}}
-                                        <img src="{{ asset('storage/' . $category->thumbnail) }}"
+                                        {{-- <img src="{{ asset('storage/' . $category->thumbnail) }}" --}}
+                                        <img src="https://aoxuanhe.com/upload/product/axh-149/ao-thun-nam-trang-cao-cap-dep.jpg"
                                             alt="{{ $category->name }}"
                                             style="width:100%; height:auto; object-fit:cover;" />
                                     </div>

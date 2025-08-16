@@ -1118,6 +1118,47 @@ use Illuminate\Support\Facades\File;
                 ->with('error', 'Có lỗi xảy ra khi hủy thanh toán');
         }
     }
+    public function applyCoupon(Request $request)
+{
+    $request->validate([
+        'coupon_code' => 'required|string',
+        'subtotal' => 'required|numeric'
+    ]);
+
+    $coupon = Coupon::where('code', $request->coupon_code)
+        ->where('start_date', '<=', now())
+        ->where(function($query) {
+            $query->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now());
+        })
+        ->first();
+
+    if (!$coupon) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Mã giảm giá không hợp lệ hoặc đã hết hạn'
+        ]);
+    }
+
+    // Tính toán discount amount
+    $discountAmount = $coupon->discount_type === 'percent' 
+        ? ($request->subtotal * $coupon->discount_value / 100)
+        : $coupon->discount_value;
+
+    // Áp dụng giới hạn tối đa nếu có
+    if ($coupon->discount_type === 'percent' && $coupon->max_discount_value) {
+        $discountAmount = min($discountAmount, $coupon->max_discount_value);
+    }
+
+    return response()->json([
+        'success' => true,
+        'coupon' => $coupon,
+        'discount_amount' => $discountAmount,
+        'message' => 'Áp dụng mã giảm giá thành công'
+    ]);
+}
+    
+    
 
 
 }

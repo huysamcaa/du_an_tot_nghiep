@@ -13,18 +13,74 @@ use Exception;
 class OrderController extends Controller
 {
     // Danh sách đơn hàng COD
-   public function index(Request $request)
+ public function index(Request $request)
 {
     $perPage = $request->input('perPage', 10);
-    $search = $request->input('search');
 
-    $query = Order::with('currentStatus.orderStatus')
+    $query = Order::with(['currentStatus.orderStatus', 'items.product', 'user'])
         ->whereIn('payment_id', [2, 3, 4]);
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('code', 'LIKE', "%{$search}%")
-              ->orWhere('fullname', 'LIKE', "%{$search}%");
+    // Filter by status
+    if ($request->has('status') && $request->status != '') {
+        $query->whereHas('currentStatus', function($q) use ($request) {
+            $q->where('order_status_id', $request->status);
+        });
+    }
+
+    // Filter by date range
+    if ($request->has('from_date') && $request->from_date != '') {
+        $query->whereDate('created_at', '>=', $request->from_date);
+    }
+    if ($request->has('to_date') && $request->to_date != '') {
+        $query->whereDate('created_at', '<=', $request->to_date);
+    }
+
+    // Filter by customer (name or phone)
+    if ($request->has('customer') && $request->customer != '') {
+        $query->where(function($q) use ($request) {
+            $q->where('fullname', 'LIKE', '%'.$request->customer.'%')
+              ->orWhere('phone_number', 'LIKE', '%'.$request->customer.'%');
+        });
+    }
+
+    // Filter by order code
+    if ($request->has('order_code') && $request->order_code != '') {
+        $query->where('code', 'LIKE', '%'.$request->order_code.'%');
+    }
+
+    // Filter by payment method
+    if ($request->has('payment_method') && $request->payment_method != '') {
+        $paymentMethods = [
+            'COD' => 1,
+            'transfer' => 2,
+            'wallet' => 3,
+            'credit_card' => 4
+        ];
+        if (isset($paymentMethods[$request->payment_method])) {
+            $query->where('payment_id', $paymentMethods[$request->payment_method]);
+        }
+    }
+
+    // Filter by amount range
+    if ($request->has('min_amount') && $request->min_amount != '') {
+        $query->where('total_amount', '>=', $request->min_amount);
+    }
+    if ($request->has('max_amount') && $request->max_amount != '') {
+        $query->where('total_amount', '<=', $request->max_amount);
+    }
+
+    // Filter by city
+    if ($request->has('city') && $request->city != '') {
+        $query->where('address', 'LIKE', '%'.$request->city.'%');
+    }
+
+    // Filter by product
+    if ($request->has('product') && $request->product != '') {
+        $query->whereHas('items', function($q) use ($request) {
+            $q->whereHas('product', function($q2) use ($request) {
+                $q2->where('name', 'LIKE', '%'.$request->product.'%')
+                   ->orWhere('code', 'LIKE', '%'.$request->product.'%');
+            });
         });
     }
 

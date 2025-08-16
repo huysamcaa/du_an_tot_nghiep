@@ -92,16 +92,16 @@
                                                 </form>
 
                                                 {{-- Xóa vĩnh viễn --}}
-                                                <form action="{{ route('admin.products.forceDelete', $product->id) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Xóa vĩnh viễn sản phẩm này?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        title="Xóa vĩnh viễn">
-                                                        <i class="fa fa-times"></i>
-                                                    </button>
-                                                </form>
+                                                    <form action="{{ route('admin.products.forceDelete', $product->id) }}"
+                                                        method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Xóa vĩnh viễn sản phẩm này?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            title="Xóa vĩnh viễn">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </form>
                                             </td>
                                         </tr>
                                     @empty
