@@ -323,8 +323,8 @@ public function index(Request $request)
             'galleries',
             // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
         ]);
-        
-        
+
+
         // Lấy tất cả order items của sản phẩm
         $orderItems = $product->orderItems;
 
@@ -432,8 +432,9 @@ public function index(Request $request)
 
         // Nếu sản phẩm đã từng có trong đơn hàng, không cho xóa cứng
         if ($product->orderItems()->exists()) {
-            return redirect()->back()->with('error', 'Không thể xóa cứng sản phẩm đã có trong đơn hàng!');
+            return redirect()->back()->with('error', 'Không thể xóa sản phẩm đã có trong đơn hàng!');
         }
+
         if ($product->stock > 0) {
             return redirect()->back()->with('error', 'Không thể xóa sản phẩm  vẫn còn số lượng!');
         }

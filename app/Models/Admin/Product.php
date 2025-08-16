@@ -22,33 +22,16 @@ class Product extends Model
         'brand_id',
         'category_id',
         'name',
-        'slug',
         'views',
         'short_description',
         'description',
-        // 'stock',
         'thumbnail',
         'type',
-        'sku',
-        'price',
-        'sale_price',
-        'sale_price_start_at',
-        'sale_price_end_at',
-        'is_sale',
-        'is_featured',
-        'is_trending',
         'is_active',
     ];
 
     protected $casts = [
         'views' => 'integer',
-        'price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'sale_price_start_at' => 'datetime',
-        'sale_price_end_at' => 'datetime',
-        'is_sale' => 'boolean',
-        'is_featured' => 'boolean',
-        'is_trending' => 'boolean',
         'is_active' => 'boolean',
     ];
 
