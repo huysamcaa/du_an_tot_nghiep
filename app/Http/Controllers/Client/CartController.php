@@ -22,6 +22,9 @@ class CartController extends Controller
         return view('client.carts.index', compact('cartItems'));
     }
 
+ 
+
+
     public function add(Request $request)
     {
         $userId = Auth::id();

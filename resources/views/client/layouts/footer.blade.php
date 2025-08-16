@@ -46,7 +46,7 @@
                     <ul>
                         <li><a href="{{ route('client.coupons.index') }}">Mã giảm giá</a></li>
                         <li><a href="{{ route('client.blogs.index') }}">Về chúng tôi</a></li>
-                        <li><a href="javascript:void(0);">Tuyển dụng</a></li>
+                        <li><a href="{{ route('wishlist.index') }}">Sản phẩm yêu thích</a></li>
                         <li><a href="{{ route('client.notifications.index') }}">Thông Báo</a></li>
                     </ul>
                 </aside>
@@ -71,10 +71,13 @@
 
         <div class="row footerAccessRow">
             <div class="col-md-6">
-                
+
+                <div class="footerSocial">
             </div>
             <div class="col-md-6">
-                
+                <div class="footerPayments">
+</div>
+
             </div>
         </div>
 

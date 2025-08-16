@@ -2,75 +2,7 @@
 @section('title', 'Địa chỉ của bạn')
 
 @section('content')
-<style>
-    .pageBannerSection {
-        background:#ECF5F4;
-        padding: 10px 0;
-    }
-    .pageBannerContent h2 {
-        
-        font-size: 72px;
-        color:#52586D;
-        font-family: 'Jost', sans-serif;
-    }
-    .pageBannerPath a {
-        color: #007bff;
-        text-decoration: none;
-    }
-    button,
-.btn {
-    background-color: #96b6b8;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 6px 18px; /* Giảm kích thước nút */
-    font-weight: bold;
-    font-size: 14px; /* Chữ nhỏ hơn */
-    text-transform: uppercase;
-    min-width: 110px; /* Đảm bảo nút đều nhau */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px; /* Khoảng cách icon và chữ */
-    transition: all 0.3s ease;
-}
 
-button:hover,
-.btn:hover {
-    background-color: #82a1a3;
-    color: white;
-    transform: translateY(-1px);
-}
-
-.btn-outline-primary,
-.btn-outline-danger,
-.btn-outline-secondary {
-    background-color: #96b6b8;
-    color: white;
-    border: none;
-}
-
-.btn-outline-primary:hover,
-.btn-outline-danger:hover,
-.btn-outline-secondary:hover {
-    background-color: #82a1a3;
-    color: white;
-}
-
-    .text-end {
-    text-align: center !important; /* Căn giữa nút */
-}
-
-.text-end form,
-.text-end button {
-    display: inline-block;
-}
-
-.text-end .btn {
-    margin: 4px; /* Tạo khoảng cách đều giữa các nút */
-}
-
-</style>
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -96,62 +28,60 @@ button:hover,
         </a>
     </div>
 
-    <div class="row">
-        @forelse ($addresses as $address)
-            <div class="col-md-6 col-lg-4 mb-4" id="address-{{ $address->id }}">
-                <div class="p-4 border rounded-4 shadow-sm bg-white position-relative" style="font-size:16px; line-height:1.8;">
-                    <div class="d-flex justify-content-between flex-wrap align-items-start">
-                        <div class="mb-2">
-                            <h5 class="fw-bold mb-1">
-                                <i class="bi bi-person-circle me-2 text-primary"></i>{{ $address->fullname }}
-                            </h5>
-                            <p class="mb-1 text-muted">
-                                <i class="bi bi-telephone me-2 text-success"></i>{{ $address->phone_number }}
-                            </p>
-                            <p class="mb-0">
-                                <i class="bi bi-geo-alt-fill me-2 text-danger"></i>{{ $address->address }}
-                            </p>
-                            @if($address->id_default)
-                                <span class="badge bg-primary mt-2">Mặc định</span>
-                            @endif
-                        </div>
-                        <div class="text-end">
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm mb-1"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editAddressModal-{{ $address->id }}">
-                                <i class="bi bi-pencil-square me-1"></i> Cập nhật
-                            </button>
+<div class="row">
+    @forelse ($addresses as $address)
+        <div class="col-12 mb-3" id="address-{{ $address->id }}">
+            <div class="border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1 pe-3">
+                    <div class="fw-bold mb-1">{{ $address->fullname }}</div>
+                    <div class="text-muted small mb-1">{{ $address->phone_number }}</div>
+                    <div class="small text-wrap">{{ $address->address }}</div>
+                    @if($address->id_default)
+                        <span class="badge bg-primary mt-2">Mặc định</span>
+                    @endif
+                </div>
+                <div class="text-end">
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm mb-1"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editAddressModal-{{ $address->id }}">
+                        <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                    </button>
 
-                            @if(! $address->id_default)
-                                <form action="{{ route('user.addresses.destroy', $address->id) }}"
-                                      method="POST"
-                                      class="d-inline-block"
-                                      onsubmit="return confirm('Bạn có chắc muốn xoá địa chỉ này?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger btn-sm mb-1">
-                                        <i class="bi bi-trash3 me-1"></i> Xoá
-                                    </button>
-                                </form>
-                                <form action="{{ route('user.addresses.set_default', $address->id) }}"
-                                      method="POST"
-                                      class="mt-2 d-inline-block">
-                                    @csrf
-                                    <button class="btn btn-outline-secondary btn-sm">
-                                        <i class="bi bi-star me-1"></i> Thiết lập mặc định
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
+                    @if(! $address->id_default)
+                        <form action="{{ route('user.addresses.destroy', $address->id) }}"
+                              method="POST"
+                              class="d-inline-block"
+                              onsubmit="return confirm('Bạn có chắc muốn xoá địa chỉ này?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm mb-1">
+                                <i class="bi bi-trash3 me-1"></i> Xoá
+                            </button>
+                        </form>
+                        <form action="{{ route('user.addresses.set_default', $address->id) }}"
+                              method="POST"
+                              class="d-inline-block">
+                            @csrf
+                            <button class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-star me-1"></i> Thiết lập mặc định
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
-        @empty
-            <p class="text-muted fs-6">Hiện tại bạn chưa có địa chỉ nào.</p>
-        @endforelse
-    </div>
+        </div>
+    @empty
+        <p class="text-muted fs-6">Hiện tại bạn chưa có địa chỉ nào.</p>
+    @endforelse
 </div>
+</div>
+
+
+
+
+<br>
+<br>
 
 {{-- Modal Thêm Địa chỉ --}}
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
@@ -365,4 +295,72 @@ button:hover,
         });
     });
 </script>
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    button,
+.btn {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 6px 18px; 
+    font-weight: bold;
+    font-size: 14px; 
+    text-transform: uppercase;
+    min-width: 110px; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; 
+    transition: all 0.3s ease;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #82a1a3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary,
+.btn-outline-danger,
+.btn-outline-secondary {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+    background-color: #82a1a3;
+    color: white;
+}
+
+    .text-end {
+    text-align: center !important; 
+}
+
+.text-end form,
+.text-end button {
+    display: inline-block;
+}
+
+.text-end .btn {
+    margin: 4px; 
+}
+</style>
 @endsection
