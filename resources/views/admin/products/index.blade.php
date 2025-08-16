@@ -1,82 +1,91 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Sản phẩm</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li class="active">Sản phẩm</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
+<div class="content">
+    <div class="page-header">
+        <div class="page-title">
+            <h4>Danh sách sản phẩm</h4>
+            <h6>Xem / Tìm kiếm / Lọc sản phẩm</h6>
+        </div>
+        <div class="page-btn d-flex" style="gap: 10px;">
+            <a href="{{ route('admin.products.create') }}" class="btn btn-added">
+                <img src="{{ asset('assets/admin/img/icons/plus.svg') }}" class="me-2" alt="img"> Thêm sản phẩm
+            </a>
+            <a href="{{ route('admin.products.trashed') }}" class="btn btn-secondary">
+             Sản phẩm đã xóa
+            </a>
         </div>
     </div>
-</div>
 
-<div class="content">
-    <div class="col-md-12">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Đóng">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
+    {{-- Thông báo thành công --}}
+    @if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
 
-        {{-- Nút thêm và sản phẩm đã xóa --}}
-        <div class="mb-3 d-flex" style="gap: 10px;">
-            <a href="{{ route('admin.products.create') }}" class="btn btn-success" title="Thêm sản phẩm">
-                <i class="fa fa-plus"></i> Thêm sản phẩm
-            </a>
-            <a href="{{ route('admin.products.trashed') }}" class="btn btn-secondary" title="Sản phẩm đã xóa">
-                <i class="fa fa-trash"></i> Sản phẩm đã xóa
-            </a>
-        </div>
+    <div class="card">
+        <div class="card-body">
 
-        <div class="card">
-            <div class="card-header">
-                <strong class="card-title">Danh sách sản phẩm</strong>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex align-items-center" style="gap: 12px;">
-                        <div>
-                            <label for="perPage" style="font-weight:600;">Hiển thị:</label>
-                            <select name="perPage" id="perPage" class="form-control d-inline-block" style="width:auto;" onchange="this.form.submit()">
-                                <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-                            </select>
-                        </div>
-                    </form>
+            {{-- Form tìm kiếm & lọc --}}
+            <form method="GET" action="{{ route('admin.products.index') }}" class="row g-2 align-items-center mb-3">
 
-                    <form method="GET" action="{{ route('admin.products.index') }}" class="w-50">
-                        <div class="d-flex">
-                            <input type="text" name="search" class="form-control" placeholder="Tìm tên, danh mục, thương hiệu..." value="{{ request('search') }}">
-                            <button class="btn btn-primary ml-1" type="submit">Tìm</button>
-                            @if (request('search'))
-                                <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary ml-1">Xóa</a>
-                            @endif
-                        </div>
-                    </form>
+                {{-- Tìm kiếm --}}
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Tìm tên, danh mục, thương hiệu..."
+                        value="{{ request('search') }}">
                 </div>
 
-                <table id="product-table" class="table table-striped table-bordered text-center align-middle">
-                    <thead>
+                {{-- Danh mục --}}
+                <div class="col-md-2">
+                    <select name="category_id" class="form-control" onchange="this.form.submit()">
+                        <option value="">Tất cả danh mục</option>
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Thương hiệu --}}
+                <div class="col-md-2">
+                    <select name="brand_id" class="form-control" onchange="this.form.submit()">
+                        <option value="">Tất cả thương hiệu</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand->id }}" {{ request('brand_id') == $brand->id ? 'selected' : '' }}>
+                            {{ $brand->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Số lượng hiển thị --}}
+                <div class="col-md-1">
+                    <select name="perPage" class="form-control" onchange="this.form.submit()">
+                        @foreach([10,25,50,100] as $size)
+                        <option value="{{ $size }}" {{ request('perPage', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Nút tìm kiếm & xóa lọc --}}
+                <div class="col-md-2 d-flex" style="gap: 6px;">
+                    <button class="btn btn-primary" type="submit"> Tìm kiếm</button>
+                    @if (request()->hasAny(['search','category_id','brand_id','perPage']))
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">Xóa</a>
+                    @endif
+                </div>
+            </form>
+
+            {{-- Bảng sản phẩm --}}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-light">
                         <tr>
                             <th>STT</th>
                             <th>Ảnh</th>
@@ -86,90 +95,68 @@
                             <th>Số lượng</th>
                             <th>Tổng giá</th>
                             <th>Trạng thái</th>
-                            <th>Hành động</th>
+                            <th class="text-center">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($products as $product)
-                            <tr>
-                                <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
-                                <td>
-                                    @if ($product->thumbnail)
-                                        <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60">
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ $product->category->name ?? '-' }}</td>
-                                <td>{{ $product->brand->name ?? '-' }}</td>
-                                <td>{{ $product->total_stock ?? 0 }}</td>
-                                <td class="text-right">{{ number_format($product->price, 0, ',', '.') }} đ</td>
-                                <td>
-                                    @if ($product->is_active)
-                                        <span class="badge badge-success">Hiển thị</span>
-                                    @else
-                                        <span class="badge badge-danger">Ẩn</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.products.show', $product) }}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
-                                        <i class="fa fa-eye"></i>
+                        <tr>
+                            <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
+                            <td>
+                                <img src="{{ $product->thumbnail
+                                ? asset('storage/' . $product->thumbnail)
+                                : asset('assets/admin/img/product/no-image.png') }}"
+                                    width="60" alt="Ảnh sản phẩm">
+                            </td>
+                            <td>{{ $product->name }}</td>
+                            <td>{{ $product->category->name ?? '-' }}</td>
+                            <td>{{ $product->brand->name ?? '-' }}</td>
+                            <td>{{ $product->total_stock ?? 0 }}</td>
+                            <td class="text-end">{{ number_format($product->price, 0, ',', '.') }} đ</td>
+                            <td>
+                                <span class="badge {{ $product->is_active ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $product->is_active ? 'Hiển thị' : 'Ẩn' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center" style="gap: 10px;">
+                                    <a href="{{ route('admin.products.show', $product->id) }}" title="Xem">
+                                        <img src="{{ asset('assets/admin/img/icons/eye.svg') }}" alt="Xem">
                                     </a>
-                                    <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-outline-warning" title="Sửa">
-                                        <i class="fa fa-edit"></i>
+                                    <a href="{{ route('admin.products.edit', $product->id) }}" title="Sửa">
+                                        <img src="{{ asset('assets/admin/img/icons/edit.svg') }}" alt="Sửa">
                                     </a>
-                                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                    <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
-                                            <i class="fa fa-trash"></i>
+                                        <button type="submit" class="btn btn-link p-0" title="Xóa">
+                                            <img src="{{ asset('assets/admin/img/icons/delete.svg') }}" alt="Xóa">
                                         </button>
                                     </form>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">Chưa có sản phẩm nào.</td>
-                            </tr>
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">Chưa có sản phẩm nào.</td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <div class="text-muted">
-                        Hiển thị từ {{ $products->firstItem() ?? 0 }} đến {{ $products->lastItem() ?? 0 }} trên tổng số {{ $products->total() }} sản phẩm
-                    </div>
-                    <div>
-                        {!! $products->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
-                    </div>
+
+
+            {{-- Phân trang --}}
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted">
+                    Hiển thị từ {{ $products->firstItem() ?? 0 }} đến {{ $products->lastItem() ?? 0 }} trên tổng số {{ $products->total() }} sản phẩm
+                </div>
+                <div>
+                    {!! $products->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#product-table').DataTable({
-            "order": [[ 0, "asc" ]],
-            "paging": false,
-            "searching": false,
-            "info": false,
-            "columnDefs": [
-                { "orderable": false, "targets": [1,8] }
-            ],
-            "language": {
-                "emptyTable": "Không có sản phẩm nào trong bảng",
-                "zeroRecords": "Không tìm thấy sản phẩm nào phù hợp"
-            }
-        });
-    });
-</script>
 @endsection

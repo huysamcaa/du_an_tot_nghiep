@@ -41,6 +41,8 @@ class RegisterController extends Controller
 
         // event(new Registered($user = $this->create($request->all())));
         $user = $this->create($request->all());
+        $user->code_verified_at = now();
+        $user->save();
         Mail::to($user->email)->send(new VerifyOtpEmail($user));
         return redirect()->route('verification.otp.form', ['email' => $user->email])
             ->with('success', 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
@@ -99,7 +101,7 @@ class RegisterController extends Controller
             'status' => 'active', // Mặc định là 'active'
 
             'code_verified_email' => rand(100000, 999999), // OTP 6 số
-            'code_verified_at' => now(),
+            'code_verified_at' => null,
 
         ]);
     }
@@ -169,7 +171,6 @@ class RegisterController extends Controller
         $user->code_verified_email = $newOtp;
         $user->code_verified_at = now();
         $user->save();
-
         // Gửi email chứa mã OTP mới
         Mail::to($user->email)->send(new VerifyOtpEmail($user));
         return back()->with('success', 'Đã gửi lại mã xác thực mới. Vui lòng kiểm tra email của bạn.');
