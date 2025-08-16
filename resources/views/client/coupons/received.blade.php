@@ -70,14 +70,7 @@
                                     </h5>
                                     <p class="text-muted small mb-2">
                                         {{ $coupon->pivot->title }}
-                                    </p>
-
-                                    {{-- <pre class="text-muted small">
-    CODE: {{ $coupon->pivot->code }}
-    TITLE: {{ $coupon->pivot->title }}
-</pre> --}}
-
-
+                                    </p>                              
                                     <span class="badge bg-info text-white fs-6 px-3 py-2">
                                         {{ $coupon->pivot->discount_type === 'percent'
                                             ? rtrim(rtrim(number_format($coupon->pivot->discount_value, 2, '.', ''), '0'), '.') . '%'
