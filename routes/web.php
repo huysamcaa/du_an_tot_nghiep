@@ -181,7 +181,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::get('/coupons/received', [ClientCouponController::class, 'received'])->name('client.coupons.received');
     Route::get('/coupons/{id}', [ClientCouponController::class, 'show'])->name('client.coupons.show');
     Route::post('/coupons/{id}/claim', [ClientCouponController::class, 'claim'])->name('client.coupons.claim');
-    
+
 
 
     // Đánh giá của người dùng
@@ -210,7 +210,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::post('/orders/{id}/received', [OrderController::class, 'markAsReceived'])
      ->name('client.orders.received')
      ->middleware('auth');
-     
+
     // Xem danh sách yêu cầu của user
     Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
 
@@ -287,12 +287,12 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::post('orders/{id}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    
+
    Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function() {
     // Route xác nhận hoàn tiền
     Route::get('orders/{order}/confirm-refund', [OrderController::class, 'showConfirmRefund'])
          ->name('orders.confirm-refund');
-         
+
     Route::post('orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
      ->name('admin.orders.confirm-refund');
 
