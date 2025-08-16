@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Shared\Order;
+use App\Models\Shared\OrderItem;
 use App\Models\Admin\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\OrderOrderStatus;
@@ -101,6 +102,9 @@ class AdminController extends Controller
         $revenueToday = Order::whereIn('id', $completedOrderIds)
             ->whereDate('created_at', now()->toDateString())
             ->sum('total_amount');
+        $revenueYesterday = Order::whereIn('id', $completedOrderIds)
+            ->whereDate('created_at', now()->subDay()->toDateString())
+            ->sum('total_amount');
         $revenueMonth = Order::whereIn('id', $completedOrderIds)
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
@@ -117,7 +121,6 @@ class AdminController extends Controller
         // Các thống kê khác
         $revenue = Order::whereIn('id', $completedOrderIds)->sum('total_amount');
         $orderCount = Order::whereIn('id', $completedOrderIds)->count();
-        $productCount = Product::count();
         $userCount = User::count();
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
@@ -155,27 +158,75 @@ class AdminController extends Controller
 
                 return $order;
             });
-        $topProductsByFavorites = DB::table('wishlists')
-            ->join('products', 'wishlists.product_id', '=', 'products.id')
-            ->select('products.id', 'products.name', DB::raw('COUNT(wishlists.id) as total'))
-            ->groupBy('products.id', 'products.name')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get();
         $topProductsBySales = DB::table('orders')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->whereIn('orders.id', $completedOrderIds) // phải thêm "orders.id"
-            ->select('products.id', 'products.name', DB::raw('SUM(order_items.quantity) as total'))
-            ->groupBy('products.id', 'products.name')
+            ->whereIn('orders.id', $completedOrderIds)
+            ->select('products.id', 'products.name', 'products.thumbnail', DB::raw('SUM(order_items.quantity) as total'))
+            ->groupBy('products.id', 'products.name', 'products.thumbnail')
             ->orderByDesc('total')
             ->limit(5)
             ->get();
 
+        $topProductsByFavorites = DB::table('wishlists')
+            ->join('products', 'wishlists.product_id', '=', 'products.id')
+            ->select('products.id', 'products.name', 'products.thumbnail', DB::raw('COUNT(wishlists.id) as total'))
+            ->groupBy('products.id', 'products.name', 'products.thumbnail')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+        // So sánh doanh thu hôm nay và hôm qua
+        $revenueChange = $revenueYesterday > 0
+            ? (($revenueToday - $revenueYesterday) / $revenueYesterday) * 100
+            : ($revenueToday > 0 ? 100 : 0);
+
+        // So sánh số đơn hàng hôm nay và hôm qua
+        $orderToday = Order::whereIn('id', $completedOrderIds)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+        $orderYesterday = Order::whereIn('id', $completedOrderIds)
+            ->whereDate('created_at', now()->subDay()->toDateString())
+            ->count();
+        $orderChange = $orderYesterday > 0
+            ? (($orderToday - $orderYesterday) / $orderYesterday) * 100
+            : ($orderToday > 0 ? 100 : 0);
+
+        // So sánh sản phẩm tháng này và tháng trước
+        $productThisMonth = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('orders.id', $completedOrderIds)
+            ->whereMonth('orders.created_at', date('m'))
+            ->whereYear('orders.created_at', date('Y'))
+            ->sum('order_items.quantity');
+
+        $productLastMonth = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('orders.id', $completedOrderIds)
+            ->whereMonth('orders.created_at', date('m', strtotime('-1 month')))
+            ->whereYear('orders.created_at', date('Y', strtotime('-1 month')))
+            ->sum('order_items.quantity');
+
+        // % thay đổi sản phẩm bán ra
+        $productChange = $productLastMonth > 0
+            ? (($productThisMonth - $productLastMonth) / $productLastMonth) * 100
+            : ($productThisMonth > 0 ? 100 : 0);
+        $productCount = OrderItem::whereIn('order_id', $completedOrderIds)
+            ->distinct('order_id')  // đếm số order khác nhau
+            ->count('order_id');
+
+
+        // So sánh khách hàng tháng này và tháng trước
+        $userLastMonth = User::whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->count();
+        $userThisMonth = User::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+        $userChange = $userLastMonth > 0
+            ? (($userThisMonth - $userLastMonth) / $userLastMonth) * 100
+            : ($userThisMonth > 0 ? 100 : 0);
+
         return view('admin.dashboard', compact(
             'revenue',
             'orderCount',
-            'productCount',
             'userCount',
             'revenueByPeriod',
             'orderStatusStats',
@@ -190,7 +241,14 @@ class AdminController extends Controller
             'fromDate',
             'toDate',
             'revenueToday',
-            'revenueMonth'
+            'revenueMonth',
+            'revenueYesterday',
+            'revenueChange',
+            'orderChange',
+            'productChange',
+            'userChange',
+            'productCount',
+            'productChange'
         ));
     }
 

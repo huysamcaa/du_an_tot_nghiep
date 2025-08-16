@@ -15,7 +15,7 @@
                 <!-- Thương hiệu -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/brand.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/purchase1.svg') }}" alt="img">
                         <span> Thương hiệu</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -74,7 +74,7 @@
                 <!-- Trạng thái đơn hàng -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/order-status.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Trạng thái đơn hàng</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -86,7 +86,7 @@
                 <!-- Khuyến mãi -->
                 <li>
                     <a href="{{ route('admin.coupon.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/coupons.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Khuyến mãi</span>
                     </a>
                 </li>
@@ -94,7 +94,7 @@
                 <!-- Hoàn hàng -->
                 <li>
                     <a href="{{ route('admin.refunds.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/return1.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Hoàn hàng</span>
                     </a>
                 </li>
@@ -102,7 +102,7 @@
                 <!-- Đánh giá -->
                 <li>
                     <a href="{{ route('admin.reviews.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/review.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Đánh giá</span>
                     </a>
                 </li>
@@ -110,7 +110,7 @@
                 <!-- Bình luận -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/comment.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Bình luận</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -135,7 +135,7 @@
                 <!-- Bài viết -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/blog.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Bài viết</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>

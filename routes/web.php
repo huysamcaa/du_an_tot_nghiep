@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 
 // Đăng ký & đăng nhập
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

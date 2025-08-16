@@ -56,8 +56,10 @@
     <script src="{{ asset('assets/admin/plugins/apexchart/chart-data.js') }}"></script>
     <script src="{{ asset('assets/admin/js/script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="{{ asset('assets/admin/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
     @stack('scripts')
+
 
 </body>
 

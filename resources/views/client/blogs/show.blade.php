@@ -73,4 +73,58 @@
         @endforeach
     </div>
 </div>
+<style>
+        button,
+.btn {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 6px 18px; 
+    font-weight: bold;
+    font-size: 14px; 
+    text-transform: uppercase;
+    min-width: 110px; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; 
+    transition: all 0.3s ease;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #82a1a3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary,
+.btn-outline-danger,
+.btn-outline-secondary {
+    background-color: #96b6b8;
+    color: white;
+    border: none;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+    background-color: #82a1a3;
+    color: white;
+}
+
+    .text-end {
+    text-align: center !important; 
+}
+
+.text-end form,
+.text-end button {
+    display: inline-block;
+}
+
+.text-end .btn {
+    margin: 4px; 
+}
+</style>
 @endsection

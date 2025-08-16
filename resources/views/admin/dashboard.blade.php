@@ -19,11 +19,16 @@
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                            <div class="stat-heading">
+                                                <a href="javascript:void(0);" onclick="toggleRevenue()">Tổng doanh thu</a>
+                                                <span
+                                                    style="font-size: 12px; color: {{ $revenueChange >= 0 ? 'green' : 'red' }}">
+                                                    {!! $revenueChange >= 0 ? '↑' : '↓' !!}
+                                                    {{ number_format(abs($revenueChange), 1) }}%
+                                                </span>
+                                            </div>
                                             <div class="stat-text"><span
                                                     class="revenue-value">{{ number_format($revenue, 0, ',', '.') }}đ</span>
-                                            </div>
-                                            <div class="stat-heading">
-                                                <a href="javascript:void(0);" onclick="toggleRevenue()">Doanh thu</a>
                                             </div>
                                         </div>
                                     </div>
@@ -40,8 +45,15 @@
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                            <div class="stat-heading">
+                                                Tổng đơn hàng
+                                                <span
+                                                    style="font-size: 12px; color: {{ $orderChange >= 0 ? 'green' : 'red' }}">
+                                                    {!! $orderChange >= 0 ? '↑' : '↓' !!}
+                                                    {{ number_format(abs($orderChange), 1) }}%
+                                                </span>
+                                            </div>
                                             <div class="stat-text"><span class="count">{{ $orderCount }}</span></div>
-                                            <div class="stat-heading">Số đơn hàng</div>
                                         </div>
                                     </div>
                                 </div>
@@ -57,8 +69,16 @@
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                            <div class="stat-heading">
+                                                Tổng sản phẩm bán ra
+                                                <span
+                                                    style="font-size: 12px; color: {{ $productChange >= 0 ? 'green' : 'red' }}">
+                                                    {!! $productChange >= 0 ? '↑' : '↓' !!}
+                                                    {{ number_format(abs($productChange), 1) }}%
+                                                </span>
+                                            </div>
                                             <div class="stat-text"><span class="count">{{ $productCount }}</span></div>
-                                            <div class="stat-heading">Số sản phẩm</div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -74,8 +94,16 @@
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                            <div class="stat-heading">
+                                                Tổng khách hàng
+                                                <span
+                                                    style="font-size: 12px; color: {{ $userChange >= 0 ? 'green' : 'red' }}">
+                                                    {!! $userChange >= 0 ? '↑' : '↓' !!}
+                                                    {{ number_format(abs($userChange), 1) }}%
+                                                </span>
+                                            </div>
                                             <div class="stat-text"><span class="count">{{ $userCount }}</span></div>
-                                            <div class="stat-heading">Số khách hàng</div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -83,25 +111,9 @@
                         </div>
                     </div>
                 </div>
-                <div id="revenue-detail" style="display: none;" class="mt-4">
-                    <h4>Chi tiết doanh thu</h4>
-                    <p><strong>Tổng doanh thu:</strong> {{ number_format($revenue, 0, ',', '.') }} đ</p>
-                    <div class="bg-white p-4 rounded shadow mb-4">
-                        <h2 class="text-xl font-bold mb-2">Thống kê nhanh</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="p-4 border rounded bg-blue-50">
-                                <p class="text-sm text-gray-600">Doanh thu hôm nay</p>
-                                <p class="text-2xl font-semibold text-blue-700">{{ number_format($revenueToday) }}đ</p>
-                            </div>
-                            <div class="p-4 border rounded bg-green-50">
-                                <p class="text-sm text-gray-600">Doanh thu tháng này</p>
-                                <p class="text-2xl font-semibold text-green-700">{{ number_format($revenueMonth) }}đ</p>
-                            </div>
-
-                        </div>
-                    </div>
+                <div>
+                    <h4>Tổng doanh thu hôm nay: {{ number_format($revenueToday, 0, ',', '.') }}đ</h4>
                 </div>
-
                 <div class="row">
                     <!-- Bên trái -->
                     <div class="col-lg-8">
@@ -158,22 +170,34 @@
                                         <button type="submit" class="btn btn-primary btn-sm">Xem</button>
                                     </div> --}}
                                 </form>
+
                             </div>
+
                             <div class="card-body">
                                 <canvas id="revenueChart" height="150"></canvas>
                             </div>
                         </div>
+                        <div class="col-lg-8">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h4>So sánh doanh thu hôm nay và hôm qua</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="compareRevenueChart" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
                         <!-- Orders -->
                         <div class="card-body">
-                            <h4 class="box-title">Orders </h4>
+                            <h4 class="box-title">Top khách hàng </h4>
                         </div>
                         <div class="card-body--">
                             <div class="table-stats order-table ov-h">
                                 <table class="table ">
                                     <thead>
                                         <tr>
-                                            <th class="serial">#</th>
-                                            <th class="avatar">Avatar</th>
+                                            <th>Stt</th>
+                                            <th>Avatar</th>
                                             <th>ID</th>
                                             <th>Name</th>
                                             <th>Giá</th>
@@ -225,8 +249,9 @@
                                     <table class="table table-sm table-bordered mb-0">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
+                                                <th>Stt</th>
                                                 <th>Tên sản phẩm</th>
+                                                <th>Ảnh</th>
                                                 <th>Số lượng bán</th>
                                             </tr>
                                         </thead>
@@ -235,6 +260,10 @@
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $item->name ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <img src="{{ asset($item->thumbnail) }}"
+                                                            style="width:20px; height:20px; object-fit:cover;">
+                                                    </td>
                                                     <td>{{ $item->total }}</td>
                                                 </tr>
                                             @empty
@@ -247,7 +276,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h5>Sản phẩm được yêu thích nhất</h5>
@@ -257,8 +285,9 @@
                                     <table class="table table-sm table-bordered mb-0">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
+                                                <th>Stt</th>
                                                 <th>Tên sản phẩm</th>
+                                                <th>Ảnh</th>
                                                 <th>Lượt yêu thích</th>
                                             </tr>
                                         </thead>
@@ -267,6 +296,11 @@
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $item->name ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                                            style="width:20px; height:20px; object-fit:cover;">
+
+                                                    </td>
                                                     <td>{{ $item->total }}</td>
                                                 </tr>
                                             @empty
@@ -304,6 +338,7 @@
                             this.form.submit();
                         });
                     });
+
                     // Biểu đồ doanh thu theo tháng
                     new Chart(document.getElementById('revenueChart').getContext('2d'), {
                         type: 'line',
@@ -361,16 +396,36 @@
                             }
                         }
                     });
+                    new Chart(document.getElementById('compareRevenueChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Hôm qua', 'Hôm nay'],
+                            datasets: [{
+                                label: 'Doanh thu (VND)',
+                                data: [{{ $revenueYesterday }}, {{ $revenueToday }}],
+                                backgroundColor: ['#FF9F40', '#36A2EB']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString('vi-VN') + ' đ';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                 });
-
-                function toggleRevenue() {
-                    var detail = document.getElementById("revenue-detail");
-                    if (detail.style.display === "none") {
-                        detail.style.display = "block";
-                    } else {
-                        detail.style.display = "none";
-                    }
-                }
             </script>
         @endpush
     @endsection
