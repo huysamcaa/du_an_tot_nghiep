@@ -17,24 +17,58 @@ use Illuminate\Support\Facades\Mail;
 
 class CouponController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
 {
-    $perPage = $request->input('perPage', 10);
-    $search = $request->input('search');
+    $perPage      = max(1, (int) $request->input('perPage', 10));
+    $search       = trim((string) $request->input('search'));
+    $isActive     = $request->input('is_active');        // '', '1', '0'
+    $discountType = $request->input('discount_type');    // '', 'percent', 'fixed'
+    $startDate    = $request->input('start_date');       // YYYY-MM-DD
+    $endDate      = $request->input('end_date');         // YYYY-MM-DD
 
     $query = Coupon::query();
 
-    if ($search) {
+    // Tìm kiếm theo mã / tiêu đề
+    if ($search !== '') {
         $query->where(function ($q) use ($search) {
             $q->where('code', 'like', "%{$search}%")
               ->orWhere('title', 'like', "%{$search}%");
         });
     }
 
-    $coupons = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+    // Trạng thái hoạt động
+    if ($isActive === '1') {
+        $query->where('is_active', 1);
+    } elseif ($isActive === '0') {
+        $query->where('is_active', 0);
+    }
+
+    // Loại mã
+    if (in_array($discountType, ['percent', 'fixed'], true)) {
+        $query->where('discount_type', $discountType);
+    }
+
+    // Lọc theo ngày bắt đầu/kết thúc (đã rút gọn)
+    if ($startDate && $endDate && $endDate < $startDate) {
+        // Hoán đổi nếu nhập ngược
+        [$startDate, $endDate] = [$endDate, $startDate];
+    }
+    if ($startDate) {
+        $query->whereDate('start_date', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->whereDate('end_date', '<=', $endDate);
+    }
+
+    $coupons = $query
+        ->orderByDesc('created_at')
+        ->paginate($perPage)
+        ->appends($request->query());
 
     return view('admin.coupons.index', compact('coupons'));
 }
+
+
 
 
 

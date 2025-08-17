@@ -54,13 +54,13 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group col-md-6">
+                    {{-- <div class="form-group col-md-6">
                         <label>Biến thể?</label>
                         <select name="is_variant" class="form-control">
                             <option value="1" {{ old('is_variant', $attribute->is_variant)==1 ? 'selected' : '' }}>Có</option>
                             <option value="0" {{ old('is_variant', $attribute->is_variant)==0 ? 'selected' : '' }}>Không</option>
                         </select>
-                    </div>
+                    </div> --}}
                     <div class="form-group col-md-6">
                         <label>Hiển thị?</label>
                         <select name="is_active" class="form-control">

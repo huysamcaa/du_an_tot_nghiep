@@ -1,6 +1,6 @@
 @foreach ($cartItems as $item)
     <div class="cartWidgetProduct">
-        <img src="{{ asset('storage/' . $item->product->thumbnail) }}"
+        <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}"
             alt="{{ $item->product->name }}" />
         <a
             href="{{ route('product.detail', ['id' => $item->product->id]) }}">{{ $item->product->name }}</a>

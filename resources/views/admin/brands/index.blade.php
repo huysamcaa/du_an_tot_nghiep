@@ -62,15 +62,60 @@
         </div>
 
 
+<div class="card">
+          <div class="card-body">
+       <form method="GET" action="{{ route('admin.brands.index') }}" class="row g-2 mb-3">
+    @foreach (request()->except(['page']) as $k => $v)
+        @continue(in_array($k, ['search','perPage','is_active','has_products','start_date','end_date']))
+        <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
 
-        {{-- FORM BULK: icon xóa góc trái + bảng --}}
-        {{-- Form GET rời cho bộ lọc (không hiển thị) --}}
-        <form id="brandFilters" method="GET" action="{{ route('admin.brands.index') }}" class="d-none">
-            {{-- Giữ các tham số khác (nếu có) khi submit --}}
-            @foreach (request()->except(['search', 'perPage', 'page']) as $k => $v)
-                <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-            @endforeach
-        </form>
+    <div class="col-md-3">
+        <label class="form-label mb-1">Tìm kiếm</label>
+        <input type="text" name="search" class="form-control" placeholder="Tên hoặc slug..."
+               value="{{ request('search') }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Trạng thái</label>
+        <select name="is_active" class="form-control">
+            <option value="">-- Tất cả --</option>
+            <option value="1" {{ request('is_active')==='1' ? 'selected' : '' }}>Hiển thị</option>
+            <option value="0" {{ request('is_active')==='0' ? 'selected' : '' }}>Ẩn</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Sản phẩm</label>
+        <select name="has_products" class="form-control">
+            <option value="">-- Tất cả --</option>
+            <option value="yes" {{ request('has_products')==='yes' ? 'selected' : '' }}>Có sản phẩm</option>
+            <option value="no"  {{ request('has_products')==='no'  ? 'selected' : '' }}>Chưa có</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Ngày bắt đầu</label>
+        <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label mb-1">Ngày kết thúc</label>
+        <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+    </div>
+
+    <div class="col-md-1 d-flex align-items-end">
+        <button type="submit" class="btn w-100" style="background:#ffa200;color:#fff;">Lọc</button>
+    </div>
+
+    @if (request()->hasAny(['search','is_active','has_products','start_date','end_date']))
+        <div class="col-md-1 d-flex align-items-end">
+            <a href="{{ route('admin.brands.index') }}" class="btn btn-outline-secondary w-100">Xóa Lọc</a>
+        </div>
+    @endif
+</form>
+ </div>
+  </div>
 
         {{-- BULK FORM: chỉ dùng để xoá hàng loạt --}}
         <form id="bulk-delete-form" method="POST" action="{{ route('admin.brands.bulkDestroy') }}">
@@ -100,28 +145,7 @@
                                                 <i class="fa fa-trash"></i> Xóa đã chọn
                                             </button>
                                         </div>
-                                        {{-- Bên trái: tìm kiếm --}}
-                                        <div class="d-flex align-items-center"
-                                            style="gap:8px; min-width:320px; margin-left:auto;">
-                                            <div class="position-relative flex-grow-1">
-                                                <i class="fa fa-search"
-                                                    style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;"></i>
-                                                <input form="brandFilters" type="text" name="search"
-                                                    class="form-control" placeholder="Tìm tên hoặc slug thương hiệu..."
-                                                    value="{{ request('search') }}"
-                                                    style="padding-left:36px;border-radius:4px;">
-                                            </div>
 
-                                            <button form="brandFilters" type="submit" class="btn"
-                                                style="background:#ffa200;color:#fff;font-weight:600;border:none;border-radius:4px;padding:8px 14px;">
-                                                Tìm
-                                            </button>
-
-                                            @if (request('search') || request('perPage'))
-                                                <a href="{{ route('admin.brands.index') }}"
-                                                    class="btn btn-outline-secondary">Xóa</a>
-                                            @endif
-                                        </div>
 
                                     </div>
 
@@ -243,7 +267,7 @@
             </nav>
 
             {{-- Tới trang nhanh --}}
-           
+
         </div>
     </div>
 
