@@ -4,31 +4,24 @@
 
 @section('content')
 
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Danh sách tài khoản</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li class="active">Tài khoản</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="mb-0"> Quản lý tài khoản</h4>
+                <small class="text-muted">Danh sách tài khoản</small>
+            </div>
+            <div class="mb-3 d-flex" style="gap: 10px;">
+                <a href="{{ route('admin.brands.create') }}"
+                    style="background-color: #ffa200; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;"
+                    onmouseover="this.style.backgroundColor='#e68a00'" onmouseout="this.style.backgroundColor='#ffa200'">
+                    <i class="fa fa-plus"></i> Thêm tài khoản
+                </a>
+
+            </div>
+
+
+        </div>
     <div class="col-md-12">
 
         {{-- Flash messages --}}
@@ -48,46 +41,90 @@
                 </button>
             </div>
         @endif
+<div class="card">
+          <div class="card-body">
+<form method="GET" action="{{ route('admin.users.index') }}" class="row g-2 align-items-end mb-3">
 
-        {{-- Nút thêm tài khoản --}}
-        <div class="mb-3 d-flex justify-content-start align-items-center">
-            <a href="{{ route('admin.users.create') }}" class="btn btn-success">
-                <i class="fa fa-plus mr-1"></i> Thêm tài khoản
-            </a>
-        </div>
+  <div class="col-md-3">
+    <label class="form-label mb-1">Tìm kiếm</label>
+    <input type="text" name="search" class="form-control" placeholder="Tên / email / SĐT" value="{{ request('search') }}">
+  </div>
 
+  <div class="col-md-2">
+    <label class="form-label mb-1">Trạng thái</label>
+    <select name="status" class="form-control">
+      <option value="">-- Tất cả --</option>
+      <option value="active" {{ request('status')==='active' ? 'selected' : '' }}>Hoạt động</option>
+      <option value="locked" {{ request('status')==='locked' ? 'selected' : '' }}>Bị khóa</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label mb-1">Vai trò</label>
+    <select name="role" class="form-control">
+      <option value="">-- Tất cả --</option>
+      <option value="user"  {{ request('role')==='user'  ? 'selected' : '' }}>User</option>
+      <option value="admin" {{ request('role')==='admin' ? 'selected' : '' }}>Admin</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label mb-1">Nhóm</label>
+    <select name="user_group" class="form-control">
+      <option value="">-- Tất cả --</option>
+      <option value="guest"  {{ request('user_group')==='guest'  ? 'selected' : '' }}>Guest</option>
+      <option value="member" {{ request('user_group')==='member' ? 'selected' : '' }}>Member</option>
+      <option value="vip"    {{ request('user_group')==='vip'    ? 'selected' : '' }}>VIP</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label mb-1">Giới tính</label>
+    <select name="gender" class="form-control">
+      <option value="">-- Tất cả --</option>
+      <option value="male"   {{ request('gender')==='male'   ? 'selected' : '' }}>Nam</option>
+      <option value="female" {{ request('gender')==='female' ? 'selected' : '' }}>Nữ</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label mb-1">Ngày tạo bắt đầu</label>
+    <input type="date" name="created_from" class="form-control" value="{{ request('created_from') }}">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label mb-1">Ngày tạo kết thúc</label>
+    <input type="date" name="created_to" class="form-control" value="{{ request('created_to') }}">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label mb-1">Ngày sinh bắt đầu</label>
+    <input type="date" name="birthday_from" class="form-control" value="{{ request('birthday_from') }}">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label mb-1">Ngày sinh kết thúc</label>
+    <input type="date" name="birthday_to" class="form-control" value="{{ request('birthday_to') }}">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label mb-1">Sắp xếp</label>
+    <select name="sort" class="form-control">
+      <option value="created_desc" {{ request('sort')==='created_desc' ? 'selected' : '' }}>Mới nhất</option>
+      <option value="created_asc"  {{ request('sort')==='created_asc'  ? 'selected' : '' }}>Cũ nhất</option>
+      <option value="name_asc"     {{ request('sort')==='name_asc'     ? 'selected' : '' }}>Tên A→Z</option>
+      <option value="name_desc"    {{ request('sort')==='name_desc'    ? 'selected' : '' }}>Tên Z→A</option>
+    </select>
+  </div>
+
+  <div class="col-md-2 d-flex" style="gap:8px;">
+    <button class="btn btn-primary w-100" type="submit">Lọc</button>
+    <a class="btn btn-outline-secondary w-100" href="{{ route('admin.users.index') }}">Xóa Lọc</a>
+  </div>
+</form>
+  </div>
+</div>
         <div class="card">
-            <div class="card-header">
-                <strong class="card-title">Danh sách tài khoản</strong>
-            </div>
 
             <div class="card-body">
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    {{-- Form chọn số dòng hiển thị --}}
-                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center" style="gap: 12px;">
-                        <div>
-                            <label for="perPage" style="font-weight:600;">Hiển thị:</label>
-                            <select name="perPage" id="perPage" class="form-control d-inline-block" style="width:auto;" onchange="this.form.submit()">
-                                <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-                            </select>
-                        </div>
-                    </form>
-
-                    {{-- Form tìm kiếm --}}
-                    <form method="GET" action="{{ route('admin.users.index') }}" class="w-50">
-                        <div class="d-flex">
-                            <input type="text" name="search" class="form-control" placeholder="Tìm tên, email, số điện thoại..." value="{{ request('search') }}">
-                            <button class="btn btn-primary ml-1" type="submit">Tìm</button>
-                            @if (request('search'))
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary ml-1">Xóa</a>
-                            @endif
-                        </div>
-                    </form>
-                </div>
 
                 <table id="users-table" class="table table-striped table-bordered text-center align-middle">
                     <thead>
@@ -149,8 +186,18 @@
                             </tr>
                         @endforelse
                     </tbody>
-                </table>
-
+                </table><br>
+                  <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center" style="gap: 12px;">
+                        <div>
+                            <label for="perPage" style="font-weight:600;">Hiển thị:</label>
+                            <select name="perPage" id="perPage" class="form-control d-inline-block" style="width:auto;" onchange="this.form.submit()">
+                                <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
+                                <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
+                    </form>
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <div class="text-muted">
                         Hiển thị từ {{ $users->firstItem() ?? 0 }} đến {{ $users->lastItem() ?? 0 }} trên tổng số {{ $users->total() }} tài khoản

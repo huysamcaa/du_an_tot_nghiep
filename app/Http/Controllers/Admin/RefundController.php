@@ -14,34 +14,70 @@ class RefundController extends Controller
     /**
      * Hiển thị danh sách yêu cầu hoàn tiền
      */
-    public function index(Request $request)
+     public function index(Request $request)
     {
-        // Lấy các tham số từ request
+        // Lấy các tham số lọc từ request
         $perPage = $request->input('perPage', 10);
         $search = $request->input('search');
+        $status = $request->input('status');
+        $dateRange = $request->input('date_range');
 
-        $query = Refund::with(['user', 'items', 'order']);
+        $query = Refund::with(['user', 'order']);
 
-        // Áp dụng bộ lọc tìm kiếm nếu có
+        // Áp dụng bộ lọc tìm kiếm
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // Tìm kiếm theo mã đơn hàng
                 $q->whereHas('order', function ($orderQuery) use ($search) {
                     $orderQuery->where('code', 'LIKE', "%{$search}%");
                 })
-                // Tìm kiếm theo tên khách hàng
                 ->orWhereHas('user', function ($userQuery) use ($search) {
                     $userQuery->where('name', 'LIKE', "%{$search}%");
                 })
-                // Tìm kiếm theo ID của yêu cầu hoàn tiền
                 ->orWhere('id', 'LIKE', "%{$search}%");
             });
         }
 
-        $refunds = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+        // Áp dụng lọc theo trạng thái
+        if ($status && $status != 'all') {
+            $query->where('status', $status);
+        }
 
-        return view('admin.refunds.index', compact('refunds'));
+        // Áp dụng lọc theo thời gian và sắp xếp
+        switch ($dateRange) {
+            case 'last_month':
+                $query->where('created_at', '>=', now()->subMonth())->orderByDesc('created_at');
+                break;
+            case '7_days_ago':
+                $query->where('created_at', '>=', now()->subDays(7))->orderByDesc('created_at');
+                break;
+            case 'newest_first':
+                $query->orderByDesc('created_at');
+                break;
+            case 'oldest_first':
+                $query->orderBy('created_at');
+                break;
+            default:
+                // Sắp xếp mặc định là mới nhất
+                $query->orderByDesc('created_at');
+                break;
+        }
+
+        $refunds = $query->paginate($perPage)->withQueryString();
+
+        // Danh sách trạng thái để truyền vào view cho dropdown
+        $statuses = [
+            'all' => 'Tất cả trạng thái',
+            'pending' => 'Chờ xử lý',
+            'receiving' => 'Đang tiếp nhận',
+            'completed' => 'Hoàn thành',
+            'rejected' => 'Đã từ chối',
+            'failed' => 'Thất bại',
+            'cancel' => 'Đã hủy',
+        ];
+
+        return view('admin.refunds.index', compact('refunds', 'statuses'));
     }
+
 
     /**
      * Hiển thị chi tiết yêu cầu hoàn tiền
