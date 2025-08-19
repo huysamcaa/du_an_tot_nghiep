@@ -14,13 +14,6 @@
       </div>
       <div class="col-sm-8">
         <div class="page-header float-right">
-          <div class="page-title">
-            <ol class="breadcrumb text-right">
-              <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-              <li><a href="{{ route('admin.blogs.index') }}">Bài viết</a></li>
-              <li class="active">{{ isset($blog) ? 'Sửa' : 'Thêm mới' }}</li>
-            </ol>
-          </div>
         </div>
       </div>
     </div>
