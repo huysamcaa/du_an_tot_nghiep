@@ -10,6 +10,10 @@ class ProductVariant extends Model
         'stock',
         'price',
         'thumbnail',
+        'sale_price',
+        'sale_price_start_at',
+        'sale_price_end_at',
+        'is_sale',
     ];
 
 
