@@ -110,7 +110,7 @@
                 <!-- Bình luận -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
+                        <img width="50" height="50" src="https://img.icons8.com/ios/50/chat-message.png" alt="chat-message"/>
                         <span> Bình luận</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>

@@ -45,7 +45,7 @@
 
                         </div>
                             <div class="d-flex w-75 gap-3">
-                                <input type="text" name="keyword" class="form-control" placeholder="Tìm sản phẩm, người dùng, nội dung..." value="{{ request('keyword') }}">
+                                <input type="text" name="keyword" class="form-control" placeholder="Tìm sản phẩm, người dùng, nội dung" value="{{ request('keyword') }}">
                                 <div class="w-25">
                         <select name="is_active" class="form-select">
                             <option value="">-- Trạng thái --</option>
@@ -174,7 +174,7 @@
     <script>
         $(document).ready(function() {
             $('#comment-table').DataTable({
-                "order": [[ 5, "desc" ]],
+                "order": [[ 0, "desc" ]],
                 "paging": false,
                 "searching": false,
                 "info": false,
