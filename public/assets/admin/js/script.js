@@ -149,5 +149,60 @@ $(document).ready(function() {
             }
         });
     });
+    // Event delegation cho nút trả lời - sử dụng document để tránh conflict với DataTables
+            $(document).on('click', '.reply-btn', function(e) {
+                e.preventDefault();
+                console.log('Reply button clicked'); // Debug log
+
+                let commentId = $(this).data('comment-id');
+                let replyFormRow = $('.reply-form-' + commentId);
+
+                console.log('Comment ID:', commentId); // Debug log
+                console.log('Reply form found:', replyFormRow.length); // Debug log
+
+                // Toggle hiển thị form
+                if (replyFormRow.is(':visible')) {
+                    replyFormRow.fadeOut();
+                    $(this).removeClass('active');
+                } else {
+                    // Ẩn tất cả form trả lời khác
+                    $('.reply-form-row').fadeOut();
+                    $('.reply-btn').removeClass('active');
+
+                    // Hiển thị form của comment này
+                    replyFormRow.fadeIn();
+                    $(this).addClass('active');
+
+                    // Focus vào textarea sau khi animation hoàn tất
+                    setTimeout(function() {
+                        replyFormRow.find('textarea').focus();
+                    }, 300);
+                }
+            });
+
+            // Event delegation cho nút hủy
+            $(document).on('click', '.cancel-reply', function(e) {
+                e.preventDefault();
+                console.log('Cancel button clicked'); // Debug log
+
+                let commentId = $(this).data('comment-id');
+                let replyFormRow = $('.reply-form-' + commentId);
+
+                // Ẩn form và reset
+                replyFormRow.fadeOut();
+                replyFormRow.find('textarea').val(''); // Clear textarea
+                $('.reply-btn[data-comment-id="' + commentId + '"]').removeClass('active');
+            });
+
+            // Xử lý submit form trả lời
+            $(document).on('submit', '[action*="comments/reply"]', function(e) {
+                let textarea = $(this).find('textarea[name="content"]');
+                if (textarea.val().trim() === '') {
+                    e.preventDefault();
+                    alert('Vui lòng nhập nội dung trả lời!');
+                    textarea.focus();
+                    return false;
+                }
+            });
 });
 

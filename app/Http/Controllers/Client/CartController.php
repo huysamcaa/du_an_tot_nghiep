@@ -22,8 +22,6 @@ class CartController extends Controller
         return view('client.carts.index', compact('cartItems'));
     }
 
- 
-
 
     public function add(Request $request)
     {
@@ -55,11 +53,12 @@ class CartController extends Controller
         $currentQuantityInCart = $existingItem ? $existingItem->quantity : 0;
         $totalAfterAdd = $currentQuantityInCart + $quantity;
 
-        // So sánh với tồn kho
-        if ($totalAfterAdd > $variant->stock) {
+        $availableStock = $variant->stock - $currentQuantityInCart;
+
+        if ($quantity > $availableStock) {
             return response()->json([
                 'success' => false,
-                'message' => 'Chỉ còn ' . $variant->stock . ' sản phẩm'
+                'message' => 'Chỉ còn ' . $availableStock . ' sản phẩm'
             ]);
         }
 

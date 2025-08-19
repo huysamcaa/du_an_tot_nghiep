@@ -275,6 +275,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::resource('comments', AdminCommentController::class);
 
     // Thêm route cho toggleVisibility
+    Route::post('comments/{comment}/reply', [AdminCommentController::class, 'storeReply'])->name('comments.reply');
     Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleComment'])->name('comments.toggle');
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
