@@ -174,4 +174,43 @@ public function index(Request $request)
 
         return redirect()->route('admin.users.index')->with('success', 'Tài khoản đã bị khóa.');
     }
+ public function show(User $user)
+    {
+        $ordersQuery = $user->orders();
+
+        // Tổng số đơn
+        $ordersTotal = (clone $ordersQuery)->count();
+
+        // Đơn hoàn tất = đã thanh toán & không hoàn
+        $completedFilter = function ($q) {
+            $q->where('is_paid', 1)
+              ->where(function ($qq) {
+                  $qq->whereNull('is_refund')->orWhere('is_refund', 0);
+              });
+        };
+
+        $ordersCompleted = (clone $ordersQuery)->where($completedFilter)->count();
+
+        // Tổng chi tiêu từ user này
+        $spentTotal = (clone $ordersQuery)->where($completedFilter)->sum('total_amount');
+
+        // 5 đơn gần nhất (không lọc, chỉ để hiển thị lịch sử)
+        $recentOrders = (clone $ordersQuery)->latest('created_at')->limit(5)->get();
+
+        // Coupon: tổng & đã dùng (pivot.used_at)
+        $user->load(['coupons' => function ($q) { $q->withTrashed(); }]);
+        $couponsTotal = $user->coupons->count();
+        $couponsUsed  = $user->coupons()->wherePivotNotNull('used_at')->count();
+
+        $stats = [
+            'orders_total'     => $ordersTotal,
+            'orders_completed' => $ordersCompleted,
+            'spent_total'      => $spentTotal,
+            'coupons_total'    => $couponsTotal,
+            'coupons_used'     => $couponsUsed,
+        ];
+
+        return view('admin.users.show', compact('user', 'stats', 'recentOrders'));
+    }
+
 }

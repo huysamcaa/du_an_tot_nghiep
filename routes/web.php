@@ -113,12 +113,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.history');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
     Route::post('/orders/{order}/cancel2', [OrderController::class, 'cancel2'])
-    ->name('client.orders.cancel2')
-    ->middleware('auth');
+        ->name('client.orders.cancel2')
+        ->middleware('auth');
     Route::get('/orders/{order}/cancel-form', [OrderController::class, 'showCancelForm'])
-    ->name('client.orders.cancel-form');
+        ->name('client.orders.cancel-form');
     Route::get('/orders/{order}/cancel-online', [OrderController::class, 'showCancelForm2'])
-    ->name('client.orders.cancel-online');
+        ->name('client.orders.cancel-online');
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
@@ -209,8 +209,8 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
     Route::post('/refunds/store', [ClientRefundController::class, 'store'])->name('refunds.store');
     Route::post('/refunds/{id}/cancel', [ClientRefundController::class, 'cancel'])->name('refunds.cancel');
     Route::post('/orders/{id}/received', [OrderController::class, 'markAsReceived'])
-     ->name('client.orders.received')
-     ->middleware('auth');
+        ->name('client.orders.received')
+        ->middleware('auth');
 
     // Xem danh sách yêu cầu của user
     Route::get('/refunds', [ClientRefundController::class, 'index'])->name('refunds.index');
@@ -268,12 +268,15 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::get('coupon/trashed',        [CouponController::class, 'trashed'])->name('coupon.trashed');
     Route::post('coupon/{id}/restore',  [CouponController::class, 'restore'])->whereNumber('id')->name('coupon.restore');
     Route::get('coupon/{id}/show',      [CouponController::class, 'show'])->whereNumber('id')->name('coupon.show');
+// routes/web.php (trong group 'admin' -> name('admin.'), đã có coupon.show)
+Route::get('coupon/{id}/claims', [CouponController::class, 'claims'])->name('coupon.claims');   // danh sách đã nhận
+Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('coupon.usages');   // danh sách đã dùng
 
     // Cuối cùng mới đến resource
     Route::resource('coupon', CouponController::class)->except(['show']);
 
     Route::delete('brands/bulk-destroy', [BrandController::class, 'bulkDestroy'])->name('brands.bulkDestroy');
-      Route::post('brands/bulk-restore',  [BrandController::class, 'bulkRestore'])->name('brands.bulkRestore'); 
+    Route::post('brands/bulk-restore',  [BrandController::class, 'bulkRestore'])->name('brands.bulkRestore');
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);
@@ -294,18 +297,18 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::delete('orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-   Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function() {
-    // Route xác nhận hoàn tiền
-    Route::get('orders/{order}/confirm-refund', [OrderController::class, 'showConfirmRefund'])
-         ->name('orders.confirm-refund');
+    Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function () {
+        // Route xác nhận hoàn tiền
+        Route::get('orders/{order}/confirm-refund', [OrderController::class, 'showConfirmRefund'])
+            ->name('orders.confirm-refund');
 
-    Route::post('orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
-     ->name('admin.orders.confirm-refund');
+        Route::post('orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
+            ->name('admin.orders.confirm-refund');
 
-    // Route danh sách đơn hàng đã hủy
-    Route::get('orders/cancelled', [OrderController::class, 'listCancelledOrders'])
-         ->name('orders.cancelled');
-});
+        // Route danh sách đơn hàng đã hủy
+        Route::get('orders/cancelled', [OrderController::class, 'listCancelledOrders'])
+            ->name('orders.cancelled');
+    });
 
 
     // Quản lý người dùng
@@ -313,7 +316,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::patch('/users/{user}/lock', [UserController::class, 'lock'])->name('users.lock');
     Route::get('/users/locked', [UserController::class, 'locked'])->name('users.locked');
     Route::patch('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
-
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     // Quản lí đánh giá
 
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');

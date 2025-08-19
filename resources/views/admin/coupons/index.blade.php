@@ -120,121 +120,116 @@
             @csrf
             @method('DELETE')
 
-            <div class="card">
-                <div class="card-body p-0">
-                    <table id="coupon-table" class="table table-striped table-bordered text-center align-middle mb-0">
-                        <thead>
-                            {{-- Thanh công cụ trong thead --}}
-                            <tr>
-                                {{-- BẢNG 12 CỘT → colspan=12 --}}
-                                <th colspan="12" class="p-3">
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap"
-                                        style="gap:12px;">
+           <div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table id="coupon-table" class="table table-bordered table-hover align-middle text-center mb-0">
+                <thead class="table-light">
+                    {{-- Thanh công cụ trong thead --}}
+                    <tr>
+                        {{-- BẢNG 12 CỘT → colspan=12 --}}
+                        <th colspan="12" class="p-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap:12px;">
+                                {{-- Nút xóa đã chọn (ẩn lúc đầu) --}}
+                                <div>
+                                    <button type="submit" id="btn-bulk-delete"
+                                            class="btn btn-outline-danger btn-sm" title="Xóa đã chọn">
+                                        <i class="fa fa-trash"></i> Xóa đã chọn
+                                    </button>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
 
-                                        {{-- Nút xóa đã chọn (ẩn lúc đầu) --}}
-                                        <div>
-                                            <button type="submit" id="btn-bulk-delete"
-                                                class="btn btn-outline-danger btn-sm " title="Xóa đã chọn">
-                                                <i class="fa fa-trash"></i> Xóa đã chọn
-                                            </button>
-                                        </div>
+                    {{-- Header cột --}}
+                    <tr>
+                        <th style="width:48px;"><input type="checkbox" id="select-all"></th>
+                        <th>STT</th>
+                        <th>Mã</th>
+                        <th>Tiêu đề</th>
+                        <th>Giảm</th>
+                        <th>Nhóm</th>
+                        <th>Sử dụng</th>
+                        <th>Thời hạn</th>
+                        <th>Kích hoạt</th>
+                        <th>Bắt đầu</th>
+                        <th>Kết thúc</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
 
+                <tbody>
+                    @php
+                        $groupLabel = [
+                            'guest' => 'Khách',
+                            'member' => 'Thành viên',
+                            'vip' => 'VIP',
+                            null => 'Tất cả',
+                        ];
+                    @endphp
 
-                                    </div>
-                                </th>
-                            </tr>
+                    @forelse ($coupons as $coupon)
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="row-check" name="ids[]" value="{{ $coupon->id }}">
+                            </td>
 
-                            {{-- Header cột --}}
-                            <tr>
-                                <th style="width:48px;"><input type="checkbox" id="select-all"></th>
-                                <th>STT</th>
-                                <th>Mã</th>
-                                <th>Tiêu đề</th>
-                                <th>Giảm</th>
-                                <th>Nhóm</th>
-                                <th>Sử dụng</th>
-                                <th>Thời hạn</th>
-                                <th>Kích hoạt</th>
-                                <th>Bắt đầu</th>
-                                <th>Kết thúc</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
+                            <td>{{ $loop->iteration + ($coupons->currentPage() - 1) * $coupons->perPage() }}</td>
+                            <td class="fw-semibold">{{ $coupon->code }}</td>
+                            <td class="text-start">{{ $coupon->title }}</td>
+                            <td>
+                                @if ($coupon->discount_type === 'percent')
+                                    {{ (int) $coupon->discount_value }}%
+                                @else
+                                    {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
+                                @endif
+                            </td>
+                            <td>{{ $groupLabel[$coupon->user_group] ?? 'Tất cả' }}</td>
+                            <td>{{ $coupon->usage_count ?? 0 }}/{{ $coupon->usage_limit ?? '∞' }}</td>
+                            <td>
+                                @if ($coupon->is_expired)
+                                    <span class="badge bg-warning text-dark">Có hạn</span>
+                                @else
+                                    <span class="badge bg-secondary">Vô hạn</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($coupon->is_active)
+                                    <span class="badge bg-success">Bật</span>
+                                @else
+                                    <span class="badge bg-secondary">Tắt</span>
+                                @endif
+                            </td>
+                            <td>{{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->format('d/m/Y H:i') : '--' }}</td>
+                            <td>{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->format('d/m/Y H:i') : '--' }}</td>
+                            <td>
+                                <a href="{{ route('admin.coupon.show', $coupon->id) }}"
+                                   class="btn btn-sm btn-outline-info" title="Xem">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                <a href="{{ route('admin.coupon.edit', $coupon->id) }}"
+                                   class="btn btn-sm btn-outline-warning" title="Sửa">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                {{-- Xóa đơn lẻ (form ẩn bên ngoài) --}}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                        form="delete-coupon-{{ $coupon->id }}"
+                                        onclick="return confirm('Xác nhận xóa mã này?')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="12" class="text-center text-muted">Không có mã giảm giá nào.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-                        <tbody>
-                            @php
-                                $groupLabel = [
-                                    'guest' => 'Khách',
-                                    'member' => 'Thành viên',
-                                    'vip' => 'VIP',
-                                    null => 'Tất cả',
-                                ];
-                            @endphp
-
-                            @forelse ($coupons as $coupon)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="row-check" name="ids[]"
-                                            value="{{ $coupon->id }}">
-                                    </td>
-
-                                    <td>{{ $loop->iteration + ($coupons->currentPage() - 1) * $coupons->perPage() }}</td>
-                                    <td class="fw-semibold">{{ $coupon->code }}</td>
-                                    <td class="text-start">{{ $coupon->title }}</td>
-                                    <td>
-                                        @if ($coupon->discount_type === 'percent')
-                                            {{ (int) $coupon->discount_value }}%
-                                        @else
-                                            {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
-                                        @endif
-                                    </td>
-                                    <td>{{ $groupLabel[$coupon->user_group] ?? 'Tất cả' }}</td>
-                                    <td>{{ $coupon->usage_count ?? 0 }}/{{ $coupon->usage_limit ?? '∞' }}</td>
-                                    <td>
-                                        @if ($coupon->is_expired)
-                                            <span class="badge bg-warning text-dark">Có hạn</span>
-                                        @else
-                                            <span class="badge bg-secondary">Vô hạn</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($coupon->is_active)
-                                            <span class="badge bg-success">Bật</span>
-                                        @else
-                                            <span class="badge bg-secondary">Tắt</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->format('d/m/Y H:i') : '--' }}
-                                    </td>
-                                    <td>{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->format('d/m/Y H:i') : '--' }}
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('admin.coupon.show', $coupon->id) }}"
-                                            class="btn btn-sm btn-outline-info" title="Xem">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('admin.coupon.edit', $coupon->id) }}"
-                                            class="btn btn-sm btn-outline-warning" title="Sửa">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-
-                                        {{-- Nút xóa ĐƠN LẺ: dùng form ẩn bên ngoài, tránh lồng form --}}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
-                                            form="delete-coupon-{{ $coupon->id }}"
-                                            onclick="return confirm('Xác nhận xóa mã này?')">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="12" class="text-center text-muted">Không có mã giảm giá nào.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
             {{-- FOOTER CONTROLS --}}
             <div id="brand-footer-controls" class="d-flex justify-content-between align-items-center px-3 py-3"
