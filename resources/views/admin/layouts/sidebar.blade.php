@@ -110,7 +110,7 @@
                 <!-- Bình luận -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
+                        <img width="50" height="50" src="https://img.icons8.com/ios/50/chat-message.png" alt="chat-message"/>
                         <span> Bình luận</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -143,6 +143,17 @@
                         <li><a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a></li>
                     </ul>
                 </li>
+                <!-- Liên hệ -->
+                        <li class="submenu">
+                            <a href="javascript:void(0);">
+                                <img src="{{ asset('assets/admin/img/icons/contact.jpg') }}" alt="img">
+                                <span> Liên hệ</span> <span class="menu-arrow"></span>
+                            </a>
+                            <ul>
+                                <li><a href="{{ route('admin.contact.index') }}">Trang liên hệ</a></li>
+                            </ul>
+                        </li>
+
             </ul>
         </div>
     </div>

@@ -6,27 +6,35 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Comment;
 use App\Models\Admin\CommentReply;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
     public function index(Request $request)
     {
-        $keyword = $request->input('keyword');
-        $comments = Comment::with('user', 'product')
-                ->when($keyword, function($query, $keyword){
-                    $query->where(function($q) use ($keyword){
-                        $q->whereHas('product', function($q2) use ($keyword){
-                            $q2->where('name', 'like' ,"%$keyword%");
-                        })
-                        ->orWhereHas('user', function($q3) use ($keyword){
-                            $q3->where('name', 'like',"%$keyword%");
-                        })
-                        ->orWhere('content','like',"%$keyword%");
-                    });
-                })
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+        $perPage = $request->get('per_page', 10);
 
+        $query = Comment::query();
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        if ($request->filled('keyword')) {
+            $query->where(function($q) use ($request) {
+                $q->where('content', 'like', '%'.$request->keyword.'%')
+                ->orWhereHas('product', function($p) use ($request) {
+                    $p->where('name', 'like', '%'.$request->keyword.'%');
+                })
+                ->orWhereHas('user', function($u) use ($request) {
+                    $u->where('name', 'like', '%'.$request->keyword.'%');
+                })
+                ->orderBy('created_at', 'desc');
+            });
+        }
+        $query->orderBy('created_at', 'desc');
+        $comments = $query->paginate($perPage);
         return view('admin.comment.index',compact('comments'));
     }
 public function toggleComment($id)
@@ -47,21 +55,49 @@ public function toggleReply($id)
 
     public function indexReplies(Request $request)
     {
-        $keyword = $request->input('keyword');
-        $replies = CommentReply::with('comment.product', 'user', 'replyUser')
-                ->when($keyword, function($query, $keyword){
-                    $query->where(function($q) use ($keyword){
-                        $q->whereHas('comment.product', function($q2) use ($keyword){
-                            $q2->where('name', 'like' ,"%$keyword%");
-                        })
-                        ->orWhereHas('user', function($q3) use ($keyword){
-                            $q3->where('name', 'like',"%$keyword%");
-                        })
-                        ->orWhere('content','like',"%$keyword%");
-                    });
+        $perPage = $request->get('per_page', 10);
+
+        $query = CommentReply::query();
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        if ($request->filled('keyword')) {
+            $query->where(function($q) use ($request) {
+                $q->where('content', 'like', '%'.$request->keyword.'%')
+                ->orWhereHas('comment.product', function($p) use ($request) {
+                    $p->where('name', 'like', '%'.$request->keyword.'%');
                 })
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);;
+                ->orWhereHas('user', function($u) use ($request) {
+                    $u->where('name', 'like', '%'.$request->keyword.'%');
+                })
+                ->orderBy('created_at', 'desc');
+            });
+        }
+        $query->orderBy('created_at', 'desc');
+        $replies = $query->paginate($perPage);
         return view('admin.comment.reply', compact('replies'));
     }
+
+    public function storeReply(Request $request, $commentId)
+    {
+        $request->validate([
+            'content' => 'required|string'
+        ]);
+
+        $comment = Comment::findOrFail($commentId);
+        // dd($request->all());
+
+        CommentReply::create([
+            'comment_id' => $comment->id,
+            'user_id' => Auth::id(),
+            'reply_user_id' => $comment->user_id,
+            'content' => $request->content,
+            'is_active' => 1
+        ]);
+
+        return redirect()->back()->with('success','Phản hồi đã được gửi');
+    }
+
 }

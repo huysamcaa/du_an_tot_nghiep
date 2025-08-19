@@ -1,33 +1,14 @@
 @extends('admin.layouts.app')
 
 @section('content')
-{{-- Breadcrumb --}}
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Phản hồi bình luận</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li class="active">Phản hồi bình luận</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 {{-- Nội dung chính --}}
 <div class="content">
+    <div class="page-header float-left">
+        <div class="page-title">
+            <h4>Phản hồi bình luận</h4>
+            <small class="text-muted">Danh sách phản hồi bình luận</small>
+        </div>
+    </div>
     <div class="animated fadeIn">
         <div class="row">
             <div class="col-md-12">
@@ -47,25 +28,36 @@
                     </div>
                     <div class="card-body">
                         {{-- Bộ lọc --}}
-                        <div class="mb-3 d-flex justify-content-between flex-wrap" style="gap: 12px;">
-                            <form method="GET" action="{{ route('admin.replies.index') }}" class="d-flex align-items-center" style="gap: 8px;">
-                                <label for="per_page" class="mb-0 fw-bold">Hiển thị:</label>
-                                <select name="per_page" id="per_page" class="form-control" style="width:auto;" onchange="this.form.submit()">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex">
+                        <form method="GET" action="{{ route('admin.replies.index') }}" class="d-flex align-items-center" style="gap: 12px;">
+                            <div>
+                                <label for="per_page" style="font-weight:600;">Hiển thị:</label>
+                                <select name="per_page" id="per_page" class="form-control d-inline-block" style="width:auto;" onchange="this.form.submit()">
                                     @foreach([10,25,50,100] as $size)
-                                        <option value="{{ $size }}" {{ request('per_page') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                        <option value="{{ $size }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>{{ $size }}</option>
                                     @endforeach
                                 </select>
-                            </form>
+                            </div>
 
-                            <form method="GET" action="{{ route('admin.replies.index') }}" style="max-width:350px;">
-                                <div class="input-group">
-                                    <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm tên, nội dung,..." value="{{ request('keyword') }}">
-                                    <button class="btn btn-primary" type="submit">Tìm</button>
-                                </div>
-                            </form>
                         </div>
+                            <div class="d-flex w-75 gap-3">
+                                <input type="text" name="keyword" class="form-control" placeholder="Tìm sản phẩm, người dùng, nội dung" value="{{ request('keyword') }}">
+                            <div class="w-25">
+                        <select name="is_active" class="form-select">
+                            <option value="">--Trạng thái--</option>
+                            <option value="1" {{request('is_active') === '1' ? 'selected' : ''}}>Hiển thị</option>
+                            <option value="0" {{request('is_active') === '0' ? 'selected' : ''}}>Ẩn</option>
+                        </select></div>
+                                <button class="btn btn-primary ml-1" type="submit">Tìm</button>
+                                @if (request('keyword'))
+                                    <a href="{{ route('admin.replies.index') }}" class="btn btn-outline-secondary ml-1">Xóa</a>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
 
-                        <table id="bootstrap-data" class="table table-striped table-bordered text-center">
+                        <table id="bootstrap-data" class="table table-bordered table-hover align-middle text-center">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -89,9 +81,9 @@
                                         <td class="text-start">{{ $reply->content }}</td>
                                         <td>
                                             @if($reply->is_active)
-                                                <span class="badge badge-success">✔ Hiển thị</span>
+                                                <span class="badge badge-success text-success">✔ Hiển thị</span>
                                             @else
-                                                <span class="badge badge-danger">✘ Ẩn</span>
+                                                <span class="badge badge-danger text-danger">✘ Ẩn</span>
                                             @endif
                                         </td>
                                         <td>
@@ -111,9 +103,14 @@
                         </table>
 
                         {{-- Phân trang --}}
-                        <div class="mt-3">
-                            {{ $replies->appends(request()->query())->links() }}
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted">
+                            Hiển thị từ {{ $replies->firstItem() ?? 0 }} đến {{ $replies->lastItem() ?? 0 }} trên tổng số {{ $replies->total() }} bình luận
                         </div>
+                        <div>
+                            {!! $replies->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
+                        </div>
+                    </div>
                     </div>
                 </div>
 
