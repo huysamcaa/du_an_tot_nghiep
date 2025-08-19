@@ -46,13 +46,13 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6">
                         <label class="form-label">Biến thể?</label>
                         <select name="is_variant" class="form-select">
                             <option value="1" {{ old('is_variant', 1) == 1 ? 'selected' : '' }}>Có</option>
                             <option value="0" {{ old('is_variant', 1) == 0 ? 'selected' : '' }}>Không</option>
                         </select>
-                    </div>
+                    </div> --}}
                     <div class="col-md-6">
                         <label class="form-label">Hiển thị?</label>
                         <select name="is_active" class="form-select">

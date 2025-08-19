@@ -60,7 +60,7 @@
     <script src="{{ asset('assets/admin/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
     @stack('scripts')
 
-
+    
 </body>
 
 </html>
