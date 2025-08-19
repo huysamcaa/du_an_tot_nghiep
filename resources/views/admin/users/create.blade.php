@@ -1,37 +1,21 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="breadcrumbs">
-    <div class="breadcrumbs-inner">
-        <div class="row m-0">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Thêm người dùng</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                            <li><a href="{{ route('admin.users.index') }}">Người dùng</a></li>
-                            <li class="active">Thêm mới</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div class="content">
     <div class="animated fadeIn">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Thêm tài khoản người dùng</h5>
+         <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="mb-0">Thêm mới tài khoản</h4>
+                <small class="text-muted">Tạo mới tài khoản</small>
             </div>
+
+
+
+        </div>
+        <div class="card mb-4 shadow-sm">
+
             <div class="card-body">
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -113,7 +97,7 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-plus"></i> Thêm mới
+                            <i class="fa fa-plus"></i> Lưu
                         </button>
                         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                             <i class="fa fa-arrow-left"></i> Quay lại
