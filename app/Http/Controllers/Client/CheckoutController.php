@@ -103,7 +103,7 @@ use Illuminate\Support\Facades\File;
         ]);
     }
 
-            
+
     public function placeOrder(Request $request)
     {
         Log::info('CheckoutController@placeOrder - Starting order placement', ['user_id' => auth()->id()]);
@@ -1153,7 +1153,7 @@ use Illuminate\Support\Facades\File;
     }
 
     // Tính toán discount amount
-    $discountAmount = $coupon->discount_type === 'percent' 
+    $discountAmount = $coupon->discount_type === 'percent'
         ? ($request->subtotal * $coupon->discount_value / 100)
         : $coupon->discount_value;
 
@@ -1169,8 +1169,8 @@ use Illuminate\Support\Facades\File;
         'message' => 'Áp dụng mã giảm giá thành công'
     ]);
 }
-    
-    
+
+
 
 
 }
