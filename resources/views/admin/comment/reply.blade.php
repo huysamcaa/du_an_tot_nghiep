@@ -5,7 +5,7 @@
 <div class="content">
     <div class="page-header float-left">
         <div class="page-title">
-            <h2>Phản hồi bình luận</h2>
+            <h4>Phản hồi bình luận</h4>
             <small class="text-muted">Danh sách phản hồi bình luận</small>
         </div>
     </div>
@@ -57,7 +57,7 @@
                         </form>
                     </div>
 
-                        <table id="bootstrap-data" class="table table-striped table-bordered text-center">
+                        <table id="bootstrap-data" class="table table-bordered table-hover align-middle text-center">
                             <thead>
                                 <tr>
                                     <th>ID</th>

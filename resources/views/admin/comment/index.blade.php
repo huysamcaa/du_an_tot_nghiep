@@ -5,7 +5,7 @@
     <div class="content">
         <div class="page-header">
             <div class="page-title">
-                <h2>Bình luận</h2>
+                <h4>Bình luận</h4>
                 <small class="text-muted">Danh sách bình luận</small>
             </div>
         </div>
@@ -61,7 +61,7 @@
                     </div>
 
                     {{-- Bảng --}}
-                    <table id="comment-table" class="table table-striped table-bordered text-center align-middle">
+                    <table id="comment-table" class="table table-bordered table-hover align-middle text-center">
                         <thead>
                             <tr>
                                 <th style="width:5%;">ID</th>
