@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
         // Lấy tham số từ request
         $perPage = $request->input('perPage', 10);
@@ -33,12 +34,12 @@ public function index(Request $request)
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('category', function ($cat) use ($search) {
-                      $cat->where('name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('brand', function ($brand) use ($search) {
-                      $brand->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('category', function ($cat) use ($search) {
+                        $cat->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('brand', function ($brand) use ($search) {
+                        $brand->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
