@@ -77,8 +77,20 @@ use Illuminate\Support\Facades\File;
         if (File::exists($vnLocationsPath)) {
             $vnLocationsData = json_decode(File::get($vnLocationsPath), true);
         }
+        // Lấy các mã giảm giá đã nhận (còn hiệu lực)
+        $claimedCoupons = auth()->user()
+            ->coupons()
+            ->where(function ($q) {
+                $q->whereNull('coupon_user.start_date')
+                ->orWhere('coupon_user.start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('coupon_user.end_date')
+                ->orWhere('coupon_user.end_date', '>=', now());
+            })
+            ->get();
 
-        return view('client.checkout.checkout', [
+                return view('client.checkout.checkout', [
             'cartItems' => $cartItems,
             'total' => $total,
             'user' => auth()->user(),
@@ -86,12 +98,12 @@ use Illuminate\Support\Facades\File;
             'defaultAddress' => UserAddress::where('user_id', $userId)->where('id_default', 1)->first(),
             'coupons' => $coupons,
             'userAddresses' => $userAddresses,
-            // Truyền biến vnLocationsData vào view
             'vnLocationsData' => $vnLocationsData,
+            'claimedCoupons' => $claimedCoupons, // <-- truyền sang view
         ]);
     }
 
-            
+
     public function placeOrder(Request $request)
     {
         Log::info('CheckoutController@placeOrder - Starting order placement', ['user_id' => auth()->id()]);
@@ -1141,7 +1153,7 @@ use Illuminate\Support\Facades\File;
     }
 
     // Tính toán discount amount
-    $discountAmount = $coupon->discount_type === 'percent' 
+    $discountAmount = $coupon->discount_type === 'percent'
         ? ($request->subtotal * $coupon->discount_value / 100)
         : $coupon->discount_value;
 
@@ -1157,8 +1169,8 @@ use Illuminate\Support\Facades\File;
         'message' => 'Áp dụng mã giảm giá thành công'
     ]);
 }
-    
-    
+
+
 
 
 }

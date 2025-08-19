@@ -43,6 +43,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                 </div>
             @endif
+            <div class="card">
+          <div class="card-body">
             <form method="GET" action="{{ route('admin.reviews.index') }}" class="row g-2 align-items-end mb-3">
                 {{-- Tìm kiếm --}}
                 <div class="col-md-3">
@@ -114,146 +116,159 @@
                     <a class="btn btn-outline-secondary w-100" href="{{ route('admin.reviews.index') }}">Xóa Lọc</a>
                 </div>
             </form>
-
+    </div>    </div>
             <div class="card">
                 {{-- <div class="card-header">
                 <strong class="card-title">Danh sách đánh giá</strong>
             </div> --}}
 
-                <div class="card-body">
-                    {{-- Bộ lọc --}}
+               <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Media</th>
+                <th>Người dùng</th>
+                <th>Sản phẩm</th>
+                <th>Đánh giá</th>
+                <th>Nội dung</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($reviews as $index => $review)
+                <tr>
+                    <td>{{ $reviews->firstItem() + $index }}</td>
 
-
-                    {{-- Bảng dữ liệu --}}
-                    <table class="table table-striped table-bordered text-center align-middle">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Media</th>
-                                <th>Người dùng</th>
-                                <th>Sản phẩm</th>
-                                <th>Đánh giá</th>
-                                <th>Nội dung</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($reviews as $index => $review)
-                                <tr>
-                                    <td>{{ $reviews->firstItem() + $index }}</td>
-                                    <td>
-                                        <div class="d-flex flex-wrap justify-content-center gap-1">
-                                            @foreach ($review->multimedia as $media)
-                                                @php $src = asset('storage/' . $media->file); @endphp
-                                                @if (str_starts_with($media->mime_type, 'image/'))
-                                                    <img src="{{ $src }}" width="60" height="60"
-                                                        class="rounded border review-media-item"
-                                                        data-type="{{ $media->mime_type }}" data-src="{{ $src }}"
-                                                        style="object-fit: cover; cursor: pointer;">
-                                                @elseif (str_starts_with($media->mime_type, 'video/'))
-                                                    <video width="60" height="60" muted
-                                                        class="rounded border review-media-item"
-                                                        data-type="{{ $media->mime_type }}"
-                                                        data-src="{{ $src }}"
-                                                        style="object-fit: cover; cursor: pointer;">
-                                                        <source src="{{ $src }}"
-                                                            type="{{ $media->mime_type }}">
-                                                    </video>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td>{{ $review->reviewer_name }}</td>
-                                    <td>{{ $review->product->name ?? '—' }}</td>
-                                    <td>{{ $review->rating }} ⭐</td>
-                                    <td>{{ Str::limit($review->review_text, 60) }}</td>
-                                    <td>
-                                        @if (is_null($review->is_active))
-                                            <span class="badge badge-warning text-dark">Chờ duyệt</span>
-                                        @elseif ($review->is_active === 1)
-                                            <span class="badge badge-success">Đã duyệt</span>
-                                        @elseif ($review->is_active === 0)
-                                            <span class="badge badge-danger">Từ chối</span>
-                                            @if (!empty($review->reason))
-                                                <br><small>Lý do: {{ $review->reason }}</small>
-                                            @endif
-                                        @else
-                                            <span class="badge badge-secondary">Không xác định</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if (is_null($review->is_active))
-                                            <form action="{{ route('admin.reviews.approve', $review->id) }}"
-                                                method="POST" class="d-inline-block mb-1">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-success"
-                                                    title="Duyệt đánh giá">
-                                                    <i class="fa fa-check"></i>
-                                                </button>
-                                            </form>
-                                            <form action="{{ route('admin.reviews.reject', $review->id) }}"
-                                                method="POST" class="d-inline-block">
-                                                @csrf
-                                                @method('PATCH')
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <input type="text" name="reason" class="form-control"
-                                                        placeholder="Lý do từ chối" >
-                                                    <div class="input-group-append">
-                                                        <button type="submit" class="btn btn-danger"
-                                                            title="Từ chối đánh giá">
-                                                            <i class="fa fa-times"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                @if (session('reject_id') == $review->id)
-                                                    @error('reason')
-                                                        <small class="text-danger d-block mt-1">{{ $message }}</small>
-                                                    @enderror
-                                                @endif
-
-                                            </form>
-                                        @else
-                                            <span class="text-muted">—</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-muted text-center py-4">Không có đánh giá nào.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table><br>
-                    <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex align-items-center"
-                        style="gap: 12px;">
-                        <div>
-                            <label for="perPage" style="font-weight:600;">Hiển thị:</label>
-                            <select name="perPage" id="perPage" class="form-control d-inline-block"
-                                style="width:auto;" onchange="this.form.submit()">
-                                <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-                            </select>
+                    <td>
+                        <div class="d-flex flex-wrap justify-content-center gap-1">
+                            @foreach ($review->multimedia as $media)
+                                @php $src = asset('storage/' . $media->file); @endphp
+                                @if (str_starts_with($media->mime_type, 'image/'))
+                                    <img src="{{ $src }}" width="60" height="60"
+                                         class="rounded border review-media-item"
+                                         data-type="{{ $media->mime_type }}" data-src="{{ $src }}"
+                                         style="object-fit: cover; cursor: pointer;">
+                                @elseif (str_starts_with($media->mime_type, 'video/'))
+                                    <video width="60" height="60" muted
+                                           class="rounded border review-media-item"
+                                           data-type="{{ $media->mime_type }}" data-src="{{ $src }}"
+                                           style="object-fit: cover; cursor: pointer;">
+                                        <source src="{{ $src }}" type="{{ $media->mime_type }}">
+                                    </video>
+                                @endif
+                            @endforeach
                         </div>
-                    </form>
+                    </td>
 
-                    {{-- Pagination --}}
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div class="text-muted">
-                            Hiển thị từ {{ $reviews->firstItem() ?? 0 }} đến {{ $reviews->lastItem() ?? 0 }} trên tổng số
-                            {{ $reviews->total() }} đánh giá
-                        </div>
-                        <div>
-                            {{ $reviews->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') }}
-                        </div>
-                    </div>
-                </div>
+                    <td>{{ $review->reviewer_name }}</td>
+                    <td>
+                        <span class="d-inline-block text-truncate" style="max-width:180px;">
+                            {{ $review->product->name ?? '—' }}
+                        </span>
+                    </td>
+                    <td>{{ $review->rating }} ⭐</td>
+                    <td>
+                        <span class="d-inline-block text-truncate" style="max-width:260px;">
+                            {{ Str::limit($review->review_text, 120) }}
+                        </span>
+                    </td>
+
+                    <td>
+                        @if (is_null($review->is_active))
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        @elseif ($review->is_active === 1)
+                            <span class="badge bg-success">Đã duyệt</span>
+                        @elseif ($review->is_active === 0)
+                            <span class="badge bg-danger">Từ chối</span>
+                            @if (!empty($review->reason))
+                                <br><small class="text-muted">Lý do: {{ $review->reason }}</small>
+                            @endif
+                        @else
+                            <span class="badge bg-secondary">Không xác định</span>
+                        @endif
+                    </td>
+
+                    <td>
+                        @if (is_null($review->is_active))
+                            <form action="{{ route('admin.reviews.approve', $review->id) }}"
+                                  method="POST" class="d-inline-block mb-1">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="btn btn-sm btn-success" title="Duyệt đánh giá">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </form>
+
+                            <form action="{{ route('admin.reviews.reject', $review->id) }}"
+                                  method="POST" class="d-inline-block">
+                                @csrf @method('PATCH')
+                                <div class="input-group input-group-sm mb-1" style="max-width:260px;">
+                                    <input type="text" name="reason" class="form-control" placeholder="Lý do từ chối">
+                                    <button type="submit" class="btn btn-danger" title="Từ chối đánh giá">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                                @if (session('reject_id') == $review->id)
+                                    @error('reason')
+                                        <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                    @enderror
+                                @endif
+                            </form>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8" class="text-muted text-center py-4">Không có đánh giá nào.</td>
+                </tr>
+            @endforelse
+
+        </tbody>
+    </table>
+</div>
+
             </div>
         </div>
     </div>
+{{-- FOOTER CONTROLS (sticky) --}}
+<div id="reviews-footer-controls"
+     class="d-flex justify-content-between align-items-center px-3 py-3"
+     style="position:sticky; bottom:0; background:#fff; border-top:1px solid #eef0f2; z-index:5; gap:12px; flex-wrap:wrap;">
+
+    {{-- Trái: chọn số hiển thị --}}
+    <form method="GET" action="{{ route('admin.reviews.index') }}"
+          class="d-flex align-items-center" style="gap:8px; margin:0;">
+        @foreach (request()->except(['perPage','page']) as $k => $v)
+            <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+        @endforeach
+
+        <label for="perPage" class="mb-0" style="font-weight:600;">Hiển thị:</label>
+        <select name="perPage" id="perPage" class="form-control"
+                style="width:90px; border:1px solid #cfd4da; border-radius:8px; padding:6px 10px; background:#f9fafb;"
+                onchange="this.form.submit()">
+            @foreach ([10, 25, 50, 100] as $n)
+                <option value="{{ $n }}" {{ request('perPage') == (string) $n ? 'selected' : '' }}>{{ $n }}</option>
+            @endforeach
+        </select>
+    </form>
+
+    {{-- Phải: thống kê + phân trang --}}
+    <div class="d-flex align-items-center flex-wrap" style="gap:10px; margin-left:auto;">
+        <small class="text-muted me-2">
+            Hiển thị từ {{ $reviews->firstItem() ?? 0 }}
+            đến {{ $reviews->lastItem() ?? 0 }} / {{ $reviews->total() }} mục
+        </small>
+
+        <nav aria-label="Pagination">
+            <div class="pagination pagination-sm mb-0">
+                {!! $reviews->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
+            </div>
+        </nav>
+    </div>
+</div>
 
     {{-- Modal hiển thị ảnh/video --}}
     <div id="mediaModal" class="modal fade" tabindex="-1" aria-hidden="true">

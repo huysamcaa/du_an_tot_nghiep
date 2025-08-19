@@ -12,16 +12,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-8">
-                    <div class="page-header float-right">
-                        <div class="page-title">
-                            <ol class="breadcrumb text-right">
-                                <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                                <li class="active">Bài viết</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -144,12 +134,12 @@
     <script>
         $(document).ready(function() {
             $('#blogs-table').DataTable({
-                "order": [[ 0, "asc" ]], // Sắp xếp theo cột Tiêu đề tăng dần
+                "order": [[ 0, "asc" ]], 
                 "paging": false,
                 "searching": false,
                 "info": false,
                 "columnDefs": [
-                    { "orderable": false, "targets": [1, 2] } // Vô hiệu hóa sắp xếp cột Ảnh và Thao tác
+                    { "orderable": false, "targets": [1, 2] } 
                 ],
                 "language": {
                     "emptyTable": "Không có bài viết nào trong bảng",
@@ -159,4 +149,6 @@
         });
     </script>
 @endsection
+
+
 

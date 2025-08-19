@@ -122,116 +122,110 @@
             @csrf
             @method('DELETE')
 
-            <div class="card">
-                {{-- Header card: tiêu đề + nút Xóa đã chọn --}}
-
-
-
-                <div class="card-body p-0">
-                    <table id="brand-table" class="table table-striped table-bordered text-center align-middle mb-0">
-                        <thead>
-                            {{-- Hàng “tool bar” nhìn như trong bảng --}}
-                            <tr>
-                                <th colspan="9" class="p-3">
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap"
-                                        style="gap:12px;">
-                                        {{-- Ô tìm kiếm + nút --}}
-                                        {{-- <div class="d-flex justify-content-between align-items-center" style="gap:12px; flex-wrap:wrap;"> --}}
-
-                                        <div>
-
-                                            <button type="submit" id="btn-bulk-delete"
-                                                class="btn btn-outline-danger btn-sm" title="Xóa đã chọn">
-                                                <i class="fa fa-trash"></i> Xóa đã chọn
-                                            </button>
-                                        </div>
-
-
-                                    </div>
-
-                </div>
-
-
-            </div>
-
-            </th>
-            </tr>
-
-            {{-- Hàng tiêu đề cột thật --}}
-            <tr>
-                <th style="width:48px;"><input type="checkbox" id="select-all"></th>
-                <th>Ảnh</th>
-                <th>Tên</th>
-                <th>Slug</th>
-                <th>Số lượng sản phẩm</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
-                <th>Ngày sửa</th>
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-
-            <tbody>
-                @forelse($brands as $brand)
+       <div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table id="brand-table" class="table table-bordered table-hover align-middle text-center mb-0">
+                <thead class="table-light">
+                    {{-- Hàng toolbar --}}
                     <tr>
-                        <td>
-                            <input type="checkbox" class="row-check" name="ids[]" value="{{ $brand->id }}"
-                                data-products-count="{{ $brand->products_count }}"
-                                {{ $brand->products_count > 0 ? 'disabled title=Không thể xóa: còn sản phẩm' : '' }}>
-                        </td>
-                        <td>
-                            @if ($brand->logo)
-                                <img src="{{ asset('storage/' . $brand->logo) }}" width="60" class="img-thumbnail"
-                                    alt="Logo">
-                            @else
-                                <span class="text-muted">Không có ảnh</span>
-                            @endif
-                        </td>
-                        <td class="text-start">{{ $brand->name }}</td>
-                        <td class="text-muted">{{ $brand->slug }}</td>
-                        <td>{{ $brand->products_count }}</td>
-                        <td>
-                            @if ($brand->is_active)
-                                <span class="badge bg-info text-dark">Hiển Thị</span>
-                            @else
-                                <span class="badge bg-warning text-dark">Ẩn</span>
-                            @endif
-                        </td>
-                        <td>{{ $brand->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
-                            @if ($brand->updated_at != $brand->created_at)
-                                {{ $brand->updated_at->format('d/m/Y H:i') }}
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('admin.brands.show', $brand->id) }}" class="btn btn-sm btn-outline-info"
-                                title="Xem">
-                                <i class="fa fa-eye"></i>
-                            </a>
-                            <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-sm btn-outline-warning"
-                                title="Sửa">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST"
-                                class="d-inline" onsubmit="return confirm('Xóa thương hiệu này?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
+                        <th colspan="9" class="p-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap:12px;">
+                                <div>
+                                    <button type="submit" id="btn-bulk-delete" class="btn btn-outline-danger btn-sm" title="Xóa đã chọn">
+                                        <i class="fa fa-trash"></i> Xóa đã chọn
+                                    </button>
+                                </div>
+                            </div>
+                        </th>
                     </tr>
-                @empty
+
+                    {{-- Hàng tiêu đề cột --}}
                     <tr>
-                        <td colspan="9" class="text-center text-muted">Chưa có thương hiệu nào.</td>
+                        <th style="width:48px;">
+                            <input type="checkbox" id="select-all">
+                        </th>
+                        <th>Ảnh</th>
+                        <th>Tên</th>
+                        <th>Slug</th>
+                        <th>Số lượng sản phẩm</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày sửa</th>
+                        <th class="text-center">Thao tác</th>
                     </tr>
-                @endforelse
-            </tbody>
+                </thead>
 
+                <tbody>
+                    @forelse($brands as $brand)
+                        <tr>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    class="row-check"
+                                    name="ids[]"
+                                    value="{{ $brand->id }}"
+                                    data-products-count="{{ $brand->products_count }}"
+                                    {{ $brand->products_count > 0 ? 'disabled' : '' }}
+                                    title="{{ $brand->products_count > 0 ? 'Không thể xóa: còn sản phẩm' : '' }}"
+                                >
+                            </td>
 
+                            <td>
+                                @if ($brand->logo)
+                                    <img src="{{ asset('storage/' . $brand->logo) }}" width="60" class="img-thumbnail" alt="Logo">
+                                @else
+                                    <span class="text-muted">Không có ảnh</span>
+                                @endif
+                            </td>
+
+                            <td class="text-start">{{ $brand->name }}</td>
+                            <td class="text-muted">{{ $brand->slug }}</td>
+                            <td>{{ $brand->products_count }}</td>
+
+                            <td>
+                                @if ($brand->is_active)
+                                    <span class="badge bg-success">Hiển thị</span>
+                                @else
+                                    <span class="badge bg-secondary">Ẩn</span>
+                                @endif
+                            </td>
+
+                            <td>{{ $brand->created_at->format('d/m/Y H:i') }}</td>
+                            <td>
+                                @if ($brand->updated_at != $brand->created_at)
+                                    {{ $brand->updated_at->format('d/m/Y H:i') }}
+                                @endif
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center" style="gap:10px;">
+                                    <a href="{{ route('admin.brands.show', $brand->id) }}" class="btn btn-sm btn-outline-info" title="Xem">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-sm btn-outline-warning" title="Sửa">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa thương hiệu này?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">Chưa có thương hiệu nào.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
+        </div>
     </div>
+</div>
+
     {{-- FOOTER CONTROLS (sticky) --}}
     <div id="brand-footer-controls" class="d-flex justify-content-between align-items-center px-3 py-3"
         style="position:sticky; bottom:0; background:#fff; border-top:1px solid #eef0f2; z-index:5;">

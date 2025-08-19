@@ -331,33 +331,30 @@
                         </div>
                     </div>
                     
-                    <!-- Phần voucher -->
-                    <div class="checkout-card">
-                        <div class="checkout-card-header">
-                            <i class="fas fa-tag icon"></i>
-                            <h3>Mã Giảm Giá</h3>
-                        </div>
-                        <div class="checkout-card-body">
-                            <select id="coupon_code" name="coupon_code" class="coupon-select">
-                                <option value="">-- Chọn mã giảm giá --</option>
-                                @foreach($coupons as $coupon)
-                                    <option
-                                        value="{{ $coupon->code }}"
-                                        data-discount-type="{{ $coupon->discount_type }}"
-                                        data-discount-value="{{ $coupon->discount_value }}"
-                                        data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}"
-                                    >
-                                        {{ $coupon->code }} -
-                                        @if($coupon->discount_type == 'percent')
-                                            Giảm {{ $coupon->discount_value }}%
-                                        @else
-                                            Giảm {{ number_format($coupon->discount_value) }}₫
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                    <select id="coupon_code" name="coupon_code" class="coupon-select">
+                        <option value="">-- Chọn mã giảm giá đã nhận --</option>
+                        @foreach($claimedCoupons as $coupon)
+                            <option
+                                value="{{ $coupon->code }}"
+                                data-discount-type="{{ $coupon->discount_type }}"
+                                data-discount-value="{{ $coupon->discount_value }}"
+                                data-max-discount="{{ $coupon->restriction->max_discount_value ?? '' }}"
+                                @if($coupon->pivot->used_at) disabled @endif
+                            >
+                                {{ $coupon->code }} -
+                                @if($coupon->discount_type == 'percent')
+                                    Giảm {{ $coupon->discount_value }}%
+                                @else
+                                    Giảm {{ number_format($coupon->discount_value) }}₫
+                                @endif
+                                @if($coupon->pivot->used_at)
+                                    (Đã dùng)
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+
+                    
                     
                     <!-- Phần ghi chú -->
                     <div class="checkout-card">

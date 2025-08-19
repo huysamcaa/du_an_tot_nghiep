@@ -13,31 +13,55 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 class BrandController extends Controller
 {
-   public function index(Request $request)
+public function index(Request $request)
 {
-    // Lấy tham số từ request
-    $perPage = $request->input('perPage', 10);
-    $search = $request->input('search');
+    $perPage     = (int) $request->input('perPage', 10);
+    $search      = trim((string) $request->input('search'));
+    $isActive    = $request->input('is_active');       // '', '1', '0'
+    $hasProducts = $request->input('has_products');    // '', 'yes', 'no'
+    $startDate   = $request->input('start_date');      // YYYY-MM-DD
+    $endDate     = $request->input('end_date');        // YYYY-MM-DD
 
-    $query = Brand::query();
+    $query = Brand::query()->withCount('products');
 
-    // Áp dụng bộ lọc tìm kiếm
-    if ($search) {
+    // Tìm kiếm
+    if ($search !== '') {
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', "%{$search}%")
               ->orWhere('slug', 'LIKE', "%{$search}%");
         });
     }
-    $brands = $query->withCount('products') // thêm đếm sản phẩm
-                ->orderByDesc('created_at')
-                ->paginate($perPage)
-                ->withQueryString();
 
+    // Trạng thái
+    if ($isActive === '1') {
+        $query->where('is_active', 1);
+    } elseif ($isActive === '0') {
+        $query->where('is_active', 0);
+    }
 
-    $brands = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+    // Có sản phẩm / không có
+    if ($hasProducts === 'yes') {
+        $query->having('products_count', '>', 0);
+    } elseif ($hasProducts === 'no') {
+        $query->having('products_count', '=', 0);
+    }
+
+    // Khoảng ngày tạo
+    if ($startDate) {
+        $query->whereDate('created_at', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->whereDate('created_at', '<=', $endDate);
+    }
+
+    $brands = $query
+        ->orderByDesc('created_at')
+        ->paginate($perPage)
+        ->withQueryString();
 
     return view('admin.brands.index', compact('brands'));
 }
+
 
 
     public function create()
