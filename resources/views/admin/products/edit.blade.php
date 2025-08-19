@@ -126,10 +126,14 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Tên biến thể</th>
-                                                        <th>Giá</th>
+                                                        <th>Giá gốc</th>
+                                                        <th>Giá sale</th>
+                                                        <th>Bắt đầu</th>
+                                                        <th>Kết thúc</th>
                                                         <th>Số lượng</th>
                                                         <th>SKU</th>
                                                         <th>Ảnh</th>
+                                                        <th>Đang sale</th>
                                                         <th>Trạng thái</th>
                                                         <th>Hành động</th>
                                                     </tr>
@@ -146,6 +150,15 @@
                                                             <input type="number" name="variants[{{ $variant->id }}][price]" step="0.01" class="form-control" value="{{ old("variants.{$variant->id}.price", $variant->price) }}" required>
                                                         </td>
                                                         <td>
+                                                            <input type="number" name="variants[{{ $variant->id }}][sale_price]" step="0.01" class="form-control" value="{{ old("variants.{$variant->id}.sale_price", $variant->sale_price) }}">
+                                                        </td>
+                                                        <td>
+                                                            <input type="datetime-local" name="variants[{{ $variant->id }}][sale_price_start_at]" class="form-control" value="{{ old("variants.{$variant->id}.sale_price_start_at", $variant->sale_price_start_at ? \Carbon\Carbon::parse($variant->sale_price_start_at)->format('Y-m-d\TH:i') : '') }}">
+                                                        </td>
+                                                        <td>
+                                                            <input type="datetime-local" name="variants[{{ $variant->id }}][sale_price_end_at]" class="form-control" value="{{ old("variants.{$variant->id}.sale_price_end_at", $variant->sale_price_end_at ? \Carbon\Carbon::parse($variant->sale_price_end_at)->format('Y-m-d\TH:i') : '') }}">
+                                                        </td>
+                                                        <td>
                                                             <input type="number" name="variants[{{ $variant->id }}][stock]" class="form-control" min="0" value="{{ old("variants.{$variant->id}.stock", $variant->stock) }}" required>
                                                         </td>
                                                         <td>
@@ -156,6 +169,11 @@
                                                             @if ($variant->thumbnail)
                                                                 <img src="{{ asset('storage/' . $variant->thumbnail) }}" width="60" class="img-thumbnail mt-1" alt="Variant Image">
                                                             @endif
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" name="variants[{{ $variant->id }}][is_sale]" value="1" {{ old("variants.{$variant->id}.is_sale", $variant->is_sale) ? 'checked' : '' }}>
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <div class="form-check form-switch">
@@ -242,11 +260,11 @@
 
 {{-- Template cho biến thể mới --}}
 <template id="new-variant-template">
-    <div class="row new-variant-row mb-3 align-items-center">
-        <div class="col-md-3">
+    <div class="row new-variant-row mb-3 align-items-center border-bottom pb-3">
+        <div class="col-md-3 mb-2">
             <div class="form-group mb-0">
                 <label>Màu sắc</label>
-                <select name="new_variants[0][color_id]" class="form-control select2">
+                <select name="new_variants[0][color_id]" class="form-control select2-variant">
                     <option value="">-- Chọn màu --</option>
                     @foreach($colors as $color)
                         <option value="{{ $color->id }}">{{ $color->value }}</option>
@@ -254,10 +272,10 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-2">
             <div class="form-group mb-0">
                 <label>Kích thước</label>
-                <select name="new_variants[0][size_id]" class="form-control select2">
+                <select name="new_variants[0][size_id]" class="form-control select2-variant">
                     <option value="">-- Chọn size --</option>
                     @foreach($sizes as $size)
                         <option value="{{ $size->id }}">{{ $size->value }}</option>
@@ -265,20 +283,43 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 mb-2">
             <div class="form-group mb-0">
-                <label>Giá</label>
+                <label>Giá gốc</label>
                 <input type="number" name="new_variants[0][price]" class="form-control" step="0.01" min="0" required>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 mb-2">
+            <div class="form-group mb-0">
+                <label>Giá sale</label>
+                <input type="number" name="new_variants[0][sale_price]" class="form-control" step="0.01" min="0">
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="form-group mb-0">
+                <label>Bắt đầu sale</label>
+                <input type="datetime-local" name="new_variants[0][sale_price_start_at]" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="form-group mb-0">
+                <label>Kết thúc sale</label>
+                <input type="datetime-local" name="new_variants[0][sale_price_end_at]" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
             <div class="form-group mb-0">
                 <label>Số lượng</label>
                 <input type="number" name="new_variants[0][stock]" class="form-control" min="0" required>
             </div>
         </div>
-        {{-- THÊM MỚI: Trường ảnh biến thể --}}
-        <div class="col-md-2">
+        <div class="col-md-2 mb-2">
+            <div class="form-group mb-0">
+                <label>SKU</label>
+                <input type="text" name="new_variants[0][sku]" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
             <div class="form-group mb-0">
                 <label>Ảnh</label>
                 <input type="file" name="new_variants[0][thumbnail]" class="form-control new-variant-image-input" accept="image/*">
@@ -287,8 +328,24 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-1 text-center">
-            <button type="button" class="btn btn-danger btn-sm remove-new-variant mt-4">&times;</button>
+        <div class="col-md-1 mb-2">
+            <div class="form-group mb-0">
+                <label>Sale?</label>
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="new_variants[0][is_sale]" value="1">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1 mb-2">
+            <div class="form-group mb-0">
+                <label>Ẩn/Hiện</label>
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="new_variants[0][is_active]" value="1" checked>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1 text-center d-flex align-items-end mb-2">
+            <button type="button" class="btn btn-danger btn-sm remove-new-variant w-100"><i class="fa fa-times"></i></button>
         </div>
     </div>
 </template>
@@ -297,49 +354,76 @@
 <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{-- Cần thêm thư viện Toastr để hiển thị thông báo thành công/thất bại --}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
     $(function() {
+        // Khởi tạo CKEditor cho mô tả chi tiết
         CKEDITOR.replace('editor');
+        // Khởi tạo Select2 cho danh mục và nhà sản xuất
         $('.select2').select2();
 
-        // Thumbnail Preview
+        // Cấu hình Toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+        };
+
+        // Xử lý xem trước ảnh đại diện (thumbnail)
         $('#thumbnailInput').on('change', function(e) {
             const file = e.target.files[0];
             const previewArea = $('#thumbnailPreviewArea');
             const previewImg = $('#thumbnailPreview');
+            const uploadWrapper = $('.image-uploads');
+
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.attr('src', e.target.result);
                     previewArea.show();
-                    $('.image-uploads').hide();
+                    uploadWrapper.hide();
                 };
                 reader.readAsDataURL(file);
             } else {
                 previewArea.hide();
-                $('.image-uploads').show();
+                uploadWrapper.show();
                 previewImg.attr('src', '');
             }
         });
 
+        // Xóa ảnh đại diện
         $('#removeThumbnail').on('click', function() {
-            $('#thumbnailInput').val('');
-            $('#thumbnailPreviewArea').hide();
-            $('.image-uploads').show();
-            $('#thumbnailPreview').attr('src', '');
+            $('#thumbnailInput').val(''); // Xóa giá trị input file
+            $('#thumbnailPreviewArea').hide(); // Ẩn phần xem trước
+            $('.image-uploads').show(); // Hiển thị lại khu vực tải ảnh
+            $('#thumbnailPreview').attr('src', ''); // Xóa src ảnh
+            // Có thể cần thêm logic để gửi yêu cầu AJAX xóa ảnh trên server nếu ảnh đã được lưu
         });
 
-        // Image Gallery Preview (for new images)
+        // Xử lý xem trước bộ sưu tập ảnh (cho ảnh mới)
         $('#imagesInput').on('change', function(e) {
+            // Xóa các ảnh xem trước mới cũ trước khi thêm ảnh mới
             $('#imagesPreviewArea .new-image-preview').remove();
             Array.from(e.target.files).forEach(file => {
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const img = $('<img>').attr('src', e.target.result).addClass('img-thumbnail');
-                        const imgContainer = $('<div>').addClass('image-container new-image-preview');
-                        imgContainer.append(img);
+                        const img = $('<img>').attr('src', e.target.result).addClass('img-thumbnail')
+                                              .css({width: '100%', height: '100%', 'object-fit': 'cover'});
+                        const imgContainer = $('<div>')
+                            .addClass('image-container new-image-preview position-relative')
+                            .css({width: '100px', height: '100px', 'object-fit': 'cover'}); // Đảm bảo kích thước cố định
+                        const removeButton = $('<button>')
+                            .attr('type', 'button')
+                            .addClass('btn btn-danger btn-sm remove-added-image')
+                            .css({position: 'absolute', top: '-5px', right: '5px', 'border-radius': '50%', padding: '0.1rem 0.4rem'})
+                            .html('&times;');
+                        
+                        imgContainer.append(img, removeButton);
                         $('#imagesPreviewArea').append(imgContainer);
                     };
                     reader.readAsDataURL(file);
@@ -347,7 +431,16 @@
             });
         });
 
-        // Remove existing gallery image (AJAX)
+        // Xóa ảnh mới được thêm vào từ bộ sưu tập ảnh (trên client-side)
+        $(document).on('click', '.remove-added-image', function() {
+            $(this).closest('.new-image-preview').remove();
+            // Cần cập nhật lại input file nếu muốn loại bỏ file đã chọn (phức tạp hơn)
+            // Trong trường hợp này, khi submit form, Laravel sẽ chỉ nhận các file mới được chọn.
+            // Nếu muốn xóa file đã chọn khỏi input, cần tạo lại DataTransfer object.
+        });
+
+
+        // Xóa ảnh hiện có trong bộ sưu tập (AJAX)
         $(document).on('click', '.remove-existing-image', function() {
             if (!confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
                 return;
@@ -372,12 +465,12 @@
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('Lỗi server: ' + xhr.responseJSON.message);
+                    toastr.error('Lỗi server: ' + (xhr.responseJSON.message || 'Có lỗi xảy ra.'));
                 }
             });
         });
 
-        // Remove existing variant row (AJAX)
+        // Xóa biến thể hiện có (AJAX)
         $(document).on('click', '.remove-existing-variant', function() {
             if (!confirm('Bạn có chắc chắn muốn xóa biến thể này?')) {
                 return;
@@ -402,29 +495,34 @@
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('Lỗi server: ' + xhr.responseJSON.message);
+                    toastr.error('Lỗi server: ' + (xhr.responseJSON.message || 'Có lỗi xảy ra.'));
                 }
             });
         });
 
-        // Biến thể mới
+        // Thêm biến thể mới
         let newVariantCount = 0;
         $('#add-new-variant').on('click', function() {
             const template = $('#new-variant-template').html();
-            const newRow = $(template.replace(/\[0\]/g, `[${newVariantCount}]`));
+            // Thay thế tất cả các [0] bằng chỉ số mới
+            const newRowHtml = template.replace(/new_variants\[0\]/g, `new_variants[${newVariantCount}]`);
+            const newRow = $(newRowHtml);
             $('#new-variants-container').append(newRow);
 
-            // Khởi tạo lại select2 cho biến thể mới
-            newRow.find('.select2').select2();
+            // Khởi tạo lại select2 cho các selectbox trong hàng biến thể mới
+            newRow.find('.select2-variant').select2({
+                dropdownParent: newRow // Đảm bảo dropdown hiển thị đúng vị trí
+            });
 
             newVariantCount++;
         });
 
+        // Xóa biến thể mới (chỉ trên client-side)
         $(document).on('click', '.remove-new-variant', function() {
             $(this).closest('.new-variant-row').remove();
         });
 
-        // THÊM MỚI: Xử lý xem trước ảnh cho biến thể mới
+        // Xử lý xem trước ảnh cho biến thể mới được thêm
         $(document).on('change', '.new-variant-image-input', function(e) {
             const file = e.target.files[0];
             const container = $(this).closest('.form-group');
@@ -465,6 +563,7 @@
         height: 100%;
         opacity: 0;
         cursor: pointer;
+        z-index: 10; /* Đảm bảo input nằm trên để có thể click */
     }
     .image-uploads {
         padding: 20px;
@@ -488,6 +587,7 @@
         width: 100px;
         height: 100px;
         position: relative;
+        overflow: hidden; /* Đảm bảo ảnh không tràn ra ngoài container */
     }
     #imagesPreviewArea img {
         width: 100%;
@@ -496,6 +596,27 @@
     }
     .select2-container .select2-selection--multiple {
         border: 1px solid #e9ecef !important;
+    }
+    /* Style cho các trường trong biến thể mới để hiển thị tốt hơn */
+    .new-variant-row .form-group label {
+        font-size: 0.85em; /* Giảm kích thước label cho hàng biến thể */
+        margin-bottom: 0.25rem;
+    }
+    .new-variant-row .form-control {
+        font-size: 0.9em; /* Giảm kích thước font của input */
+        padding: 0.375rem 0.75rem; /* Giảm padding */
+    }
+    .new-variant-row .select2-container .select2-selection--single {
+        height: calc(1.8rem + 2px); /* Điều chỉnh chiều cao cho select2 */
+    }
+    .new-variant-row .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.8rem;
+    }
+    .new-variant-row .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 1.8rem;
+    }
+    .new-variant-row .form-check-input {
+        margin-top: 0.5rem; /* Căn chỉnh checkbox/switch */
     }
 </style>
 @endsection

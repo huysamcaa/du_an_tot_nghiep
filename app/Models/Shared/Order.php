@@ -115,5 +115,6 @@ public function getStatusClassAttribute()
     {
         return $this->hasMany(UserAddress::class);
     }
+    
 
 }
