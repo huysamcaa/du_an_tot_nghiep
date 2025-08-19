@@ -243,6 +243,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     // Categories với chức năng thùng rác
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
     Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
@@ -273,7 +274,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::resource('coupon', CouponController::class)->except(['show']);
 
     Route::delete('brands/bulk-destroy', [BrandController::class, 'bulkDestroy'])->name('brands.bulkDestroy');
-      Route::post('brands/bulk-restore',  [BrandController::class, 'bulkRestore'])->name('brands.bulkRestore'); 
+      Route::post('brands/bulk-restore',  [BrandController::class, 'bulkRestore'])->name('brands.bulkRestore');
     Route::get('brands/trash', [BrandController::class, 'trash'])->name('brands.trash');
     Route::post('brands/restore/{id}', [BrandController::class, 'restore'])->name('brands.restore');
     Route::resource('brands', BrandController::class);
