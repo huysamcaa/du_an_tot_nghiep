@@ -88,7 +88,7 @@
                                 data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_1.png') }}"
                                     alt="Slider Shape"   data-ww="['auto','auto','auto','auto']"  data-hh="['300px','240px','200px','160px']" /></div>
                             <div class="tp-caption jost theSubTitle" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['-24','-22','-20','-20']" data-fontsize="['16','15','14','13']"
                                 data-fontweight="['500','500','500','500']" data-lineheight="['24','22','20','18']"
                                 data-width="['auto','auto','auto','100%']" data-height="none" data-whitespace="nowrap"
@@ -100,7 +100,7 @@
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','10','10','0']">Giảm Giá Hôm
                                 Nay</div>
                             <div class="tp-caption jost textLayer theTitles" data-x="['left','left','left','center']"
-                                data-hoffset="['-5','-5','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['16','16','14','12']" data-fontsize="['30','26','22','18']"
                                 data-fontweight="['400','400','400','400']" data-lineheight="['38','34','28','24']"
                                 data-width="['480','420','360','100%']" data-height="none" data-whitespace="normal"
@@ -111,7 +111,7 @@
                                 data-paddingright="['0','0','0','0']" data-paddingbottom="['0','0','0','0']"
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','0','0','0']">Áo Nam & Nữ Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['96','88','76','64']" data-fontsize="['14','14','13','12']"
                                 data-fontweight="500" data-lineheight="['42','40','38','36']"
                                 data-width="['auto','auto','auto','100%']" data-height="auto" data-whitesapce="normal"
@@ -150,7 +150,7 @@
                                 data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_2.png') }}"
                                     alt="Slider Shape" data-ww="['auto','auto','auto','auto']"  data-hh="['300px','240px','200px','160px']" /></div>
                             <div class="tp-caption jost theSubTitle" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['-24','-22','-20','-20']" data-fontsize="['16','15','14','13']"
                                 data-fontweight="['500','500','500','500']" data-lineheight="['24','22','20','18']"
                                 data-width="['auto','auto','auto','100%']" data-height="none" data-whitespace="nowrap"
@@ -162,7 +162,7 @@
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','10','10','0']">Giảm Giá Hôm
                                 Nay</div>
                             <div class="tp-caption jost textLayer theTitles" data-x="['left','left','left','center']"
-                                data-hoffset="['-5','-5','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['16','16','14','12']" data-fontsize="['30','26','22','18']"
                                 data-fontweight="['400','400','400','400']" data-lineheight="['38','34','28','24']"
                                 data-width="['480','420','360','100%']" data-height="none" data-whitespace="normal"
@@ -173,7 +173,7 @@
                                 data-paddingright="['0','0','0','0']" data-paddingbottom="['0','0','0','0']"
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','0','0','0']">Áo Nam & Nữ Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['96','88','76','64']" data-fontsize="['14','14','13','12']"
                                 data-fontweight="500"data-lineheight="['42','40','38','36']"
                                 data-width="['auto','auto','auto','100%']" data-height="auto" data-whitesapce="normal"
@@ -212,7 +212,7 @@
                                 data-basealign="slide"><img src="{{ asset('assets/Client/images/slider/person_3.png') }}"
                                     alt="Slider Shape" data-ww="['auto','auto','auto','auto']" data-hh="['300px','240px','200px','160px']"  /></div>
                             <div class="tp-caption jost theSubTitle" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['-24','-22','-20','-20']" data-fontsize="['16','15','14','13']"
                                 data-fontweight="['500','500','500','500']" data-lineheight="['24','22','20','18']"
                                 data-width="['36%','42%','50%','60%']" data-height="auto" data-whitespace="nowrap"
@@ -224,7 +224,7 @@
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','10','10','0']">Giảm Giá Hôm
                                 Nay</div>
                             <div class="tp-caption jost textLayer theTitles" data-x="['left','left','left','center']"
-                                data-hoffset="['-5','-5','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['16','16','14','12']" data-fontsize="['30','26','22','18']"
                                 data-fontweight="['400','400','400','400']" data-lineheight="['38','34','28','24']"
                                 data-width="['480','420','360','100%']" data-height="none" data-whitespace="normal"
@@ -235,7 +235,7 @@
                                 data-paddingright="['0','0','0','0']" data-paddingbottom="['0','0','0','0']"
                                 data-paddingleft="['0','0','0','0']" data-marginleft="['0','0','0','0']">Áo Nam & Nữ Thời Thượng</div>
                             <div class="tp-caption ws_nowrap textLayer theBTNS" data-x="['left','left','left','center']"
-                                data-hoffset="['0','0','0','0']" data-y="['middle','middle','middle','middle']"
+                                data-hoffset="['50','40','30','20']" data-y="['middle','middle','middle','middle']"
                                 data-voffset="['96','88','76','64']" data-fontsize="['14','14','13','12']"
                                 data-fontweight="500" data-lineheight="['42','40','38','36']"
                                 data-width="['auto','auto','auto','100%']" data-height="auto" data-whitesapce="normal"
@@ -2600,9 +2600,8 @@
                     <div class="row">
                         <div class="col-lg-4 col-xl-3">
                             <div class="testimoniLeft">
-                                <h2 class="secTitle">Khách hàng nói gì về chúng tôi</h2>
-                                <p class="secDesc">Và nỗi đau to lớn. Để giảm thiểu điều đó, ai đó đã cố gắng thực hiện
-                                    công việc một cách nghiêm túc.</p>
+                                <h2 class="secTitle">Những đánh giá sản phẩm nổi bật</h2>
+                                <p class="secDesc">Chúng tôi cam kết chất lượng của từng sản phẩm</p>
                                 <div class="testimonalNav">
                                     <button class="tprev"><i class="fa-solid fa-angle-left"></i></button>
                                     <button class="tnext"><i class="fa-solid fa-angle-right"></i></button>
@@ -2612,150 +2611,30 @@
                         <div class="col-lg-8 col-xl-9">
                             <div class="testimonialSliderWrap">
                                 <div class="testimonialCarousel owl-carousel">
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            FreshFit gây ấn tượng với thiết kế áo năng động, hiện đại và rất dễ phối đồ. Vải
-                                            co giãn nhẹ nhưng vẫn giữ form cực tốt sau nhiều lần giặt. Nhân viên tư vấn tận
-                                            tình và không gian cửa hàng gọn gàng, dễ chọn sản phẩm. Giá cả cũng khá hợp lý
-                                            cho chất lượng nhận được.
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/1.jpg') }}"
-                                                alt="Sanjida Ema" />
-                                            <h3>Sanjida Ema</h3>
-                                            <span>Journalist</span>
-                                        </div>
-                                    </div>
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            Mua áo tại FreshFit khiến mình khá hài lòng – từ kiểu dáng trẻ trung đến chất
-                                            liệu thoáng mát, thích hợp cả đi làm lẫn đi chơi. Cửa hàng bày trí tinh tế và
-                                            dịch vụ chăm sóc khách hàng rất chuyên nghiệp. Chắc chắn sẽ quay lại lần sau!
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/2.jpg') }}"
-                                                alt="Mike Anderson" />
-                                            <h3>Mike Anderson</h3>
-                                            <span>Web Developer</span>
-                                        </div>
-                                    </div>
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed
-                                            tempor incididunt ut labore et doleore magna
-                                            aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris
-                                            nisi ut aliquip.
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/3.png') }}"
-                                                alt="Nelson Rich" />
-                                            <h3>Nelson Rich</h3>
-                                            <span>Designer</span>
-                                        </div>
-                                    </div>
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed
-                                            tempor incididunt ut labore et doleore magna
-                                            aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris
-                                            nisi ut aliquip.
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/4.png') }}"
-                                                alt="Nelson Rich" />
-                                            <h3>Mark Smith</h3>
-                                            <span>Marketer</span>
-                                        </div>
-                                    </div>
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed
-                                            tempor incididunt ut labore et doleore magna
-                                            aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris
-                                            nisi ut aliquip.
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/5.png') }}"
-                                                alt="Sarah Jones" />
-                                            <h3>Sarah Jones</h3>
-                                            <span>Researcher</span>
-                                        </div>
-                                    </div>
-                                    <div class="testimonialItem01">
-                                        <div class="ti01Header clearfix">
-                                            <i class="ulina-quote"></i>
-                                            <div class="ti01Rating float-end">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star-half-alt"></i>
-                                            </div>
-                                        </div>
-                                        <div class="ti01Content">
-                                            Lorem ipsum dolor sit amet, conseet eotur adipisicing elit, sed do eiusmoed
-                                            tempor incididunt ut labore et doleore magna
-                                            aliqua. Ut enim ad mire oknim veniam, quis nostrud exercitation ull mco laboris
-                                            nisi ut aliquip.
-                                        </div>
-                                        <div class="ti01Author">
-                                            <img src="{{ asset('assets/Client/images/author/6.png') }}"
-                                                alt="Sarah Jones" />
-                                            <h3>John Anderson</h3>
-                                            <span>Blogger</span>
-                                        </div>
-                                    </div>
-                                </div>
+    @foreach($reviews as $review)
+        <div class="testimonialItem01">
+            <div class="ti01Header clearfix">
+                <i class="ulina-quote"></i>
+                <div class="ti01Rating float-end">
+                    @for($i = 1; $i <= 5; $i++)
+                        @if($i <= $review->rating)
+                            <i class="fa-solid fa-star"></i>
+                        @else
+                            <i class="fa-regular fa-star"></i>
+                        @endif
+                    @endfor
+                </div>
+            </div>
+             <div class="ti01Author">
+                <h3>{{ $review->reviewer_name }}</h3>
+            </div>
+            <div class="ti01Content">
+                {{ $review->review_text }}
+            </div>
+           
+        </div>
+    @endforeach
+</div>
                             </div>
                         </div>
                     </div>

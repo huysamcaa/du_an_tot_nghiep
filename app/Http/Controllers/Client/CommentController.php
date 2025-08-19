@@ -50,26 +50,34 @@ class CommentController extends Controller
         return response()->json(['message' => 'Bình luận đã được gửi']);
     }
 
-    public function reply(Request $request)
-    {
-        $request->validate([
-            'comment_id' => 'required|exists:comments,id',
-            'content' => 'required|string|min:10|max:300',
-        ]);
+     public function reply(Request $request)
+{
+    $request->validate([
+        'comment_id' => 'required|exists:comments,id',
+        'content' => 'required|string|min:10|max:300',
+    ]);
 
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Bạn cần đăng nhập để trả lời'], 401);
-        }
-
-        CommentReply::create([
-            'comment_id' => $request->comment_id,
-            'user_id' => Auth::id(),
-            'reply_user_id' => $request->reply_user_id ?? null,
-            'content' => $request->content,
-        ]);
-
-        return response()->json(['message' => 'Đã trả lời bình luận']);
+    if (!Auth::check()) {
+        return response()->json(['message' => 'Bạn cần đăng nhập để trả lời'], 401);
     }
+
+    $user = Auth::user();
+    $comment = Comment::findOrFail($request->comment_id);
+
+    // Chỉ cho phép admin hoặc chính chủ comment được trả lời
+    if ($user->role !== 'admin' && $comment->user_id !== $user->id) {
+        return response()->json(['message' => 'Bạn không có quyền trả lời bình luận này'], 403);
+    }
+
+    CommentReply::create([
+        'comment_id' => $request->comment_id,
+        'user_id' => $user->id,
+        'reply_user_id' => $request->reply_user_id ?? null,
+        'content' => $request->content,
+    ]);
+
+    return response()->json(['message' => 'Đã trả lời bình luận']);
+}
 
     public function list(Request $request)
     {

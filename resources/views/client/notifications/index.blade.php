@@ -39,7 +39,7 @@
                     @csrf
                     @method('PATCH')
                     <div id="bulkReadInputs"></div>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="custom-btn">
                         <i class="fas fa-eye me-1"></i> Đánh dấu đã đọc
                     </button>
                 </form>
@@ -49,7 +49,7 @@
                     @csrf
                     @method('DELETE')
                     <div id="bulkDeleteInputs"></div>
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="custom-btn">
                         <i class="fas fa-trash-alt me-1"></i> Xoá đã chọn (<span id="selectedCount">0</span>)
                     </button>
                 </form>
@@ -57,55 +57,53 @@
         </div>
 
         {{-- DANH SÁCH THÔNG BÁO --}}
-        <div class="row g-4">
+        <div class="list-group">
             @foreach ($notifications as $notification)
-                <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm h-100 border-0 rounded-4 {{ $notification->read == 0 ? 'bg-light border-primary' : 'bg-white border' }}">
-                        <div class="card-body position-relative">
-                            {{-- Checkbox --}}
-                            <div class="form-check position-absolute top-0 end-0 m-2">
-                                <input class="form-check-input checkbox-item" type="checkbox" value="{{ $notification->id }}">
-                            </div>
+                <div class="list-group-item d-flex align-items-center justify-content-between gap-3 rounded-4 shadow-sm mb-2 
+                    {{ $notification->read == 0 ? 'bg-light border-primary' : 'bg-white border' }}">
+                    
+                    {{-- Checkbox --}}
+                    <div class="form-check me-2">
+                        <input class="form-check-input checkbox-item" type="checkbox" value="{{ $notification->id }}">
+                    </div>
 
-                            {{-- Nội dung --}}
-                            <div class="d-flex align-items-start gap-2 mb-3">
-                                <i class="fas fa-bell text-warning fa-lg"></i>
-                                <div>
-                                    <h6 class="fw-semibold mb-1 text-wrap text-dark" style="min-height: 3rem;">
-                                        {{ \Illuminate\Support\Str::limit($notification->message, 100) }}
-                                    </h6>
-                                    <div class="text-muted small">
-                                        <i class="far fa-clock me-1"></i>
-                                        {{ \Carbon\Carbon::parse($notification->created_at)->format('d/m/Y H:i') }}
-                                    </div>
-                                </div>
-                            </div>
+                    {{-- Icon chuông --}}
+                    <i class="fas fa-bell text-warning fa-lg"></i>
 
-                            {{-- Các nút --}}
-                            <div class="d-flex gap-2">
-                                @if ($notification->read == 0)
-                                    <a href="{{ route('client.notifications.markAsRead', $notification->id) }}" class="btn btn-outline-primary btn-sm flex-fill">
-                                        <i class="fas fa-eye me-1"></i> Đánh dấu đã đọc
-                                    </a>
-                                @else
-                                    <button type="button" class="btn btn-success btn-sm flex-fill" disabled>
-                                        <i class="fas fa-check-circle me-1"></i> Đã đọc
-                                    </button>
-                                @endif
-
-                                <a href="{{ route('client.notifications.show', $notification->id) }}" class="btn btn-outline-info btn-sm flex-fill">
-                                    <i class="fas fa-info-circle me-1"></i> Xem chi tiết
-                                </a>
-
-                                <form action="{{ route('client.notifications.destroy', $notification->id) }}" method="POST" class="flex-fill">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" onclick="return confirm('Bạn có chắc muốn xóa thông báo này?')">
-                                        <i class="fas fa-trash me-1"></i> Xóa
-                                    </button>
-                                </form>
-                            </div>
+                    {{-- Nội dung --}}
+                    <div class="flex-grow-1">
+                        <h6 class="fw-semibold mb-1 text-dark">
+                            {{ \Illuminate\Support\Str::limit($notification->message, 100) }}
+                        </h6>
+                        <div class="text-muted small">
+                            <i class="far fa-clock me-1"></i>
+                            {{ \Carbon\Carbon::parse($notification->created_at)->format('d/m/Y H:i') }}
                         </div>
+                    </div>
+
+                    {{-- Các nút --}}
+                    <div class="d-flex gap-2" style="flex-shrink:0;">
+                        @if ($notification->read == 0)
+                            <a href="{{ route('client.notifications.markAsRead', $notification->id) }}" class="custom-btn">
+                                <i class="fas fa-eye me-1"></i> Đọc
+                            </a>
+                        @else
+                            <button type="button" class="custom-btn" disabled>
+                                <i class="fas fa-check-circle me-1"></i> Đã đọc
+                            </button>
+                        @endif
+
+                        <a href="{{ route('client.notifications.show', $notification->id) }}" class="custom-btn">
+                            <i class="fas fa-info-circle me-1"></i> Chi tiết
+                        </a>
+
+                        <form action="{{ route('client.notifications.destroy', $notification->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa thông báo này?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="custom-btn">
+                                <i class="fas fa-trash me-1"></i> Xóa
+                            </button>
+                        </form>
                     </div>
                 </div>
             @endforeach
@@ -155,3 +153,37 @@
     });
 </script>
 @endpush
+
+<style>
+.custom-btn {
+    background-color: #94B7B9;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+
+    min-width: 120px;   /* 👈 đồng bộ chiều rộng */
+    height: 40px;       /* 👈 đồng bộ chiều cao */
+    text-align: center;
+}
+
+.custom-btn i {
+    color: #fff;
+}
+
+.custom-btn:hover {
+    background-color: #7fa1a3;
+}
+
+.custom-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
