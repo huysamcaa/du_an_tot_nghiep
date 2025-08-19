@@ -243,6 +243,7 @@ Route::middleware(['auth', 'check.user.status'])->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     // Categories với chức năng thùng rác
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
     Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
