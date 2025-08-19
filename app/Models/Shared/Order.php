@@ -44,14 +44,14 @@ class Order extends Model
     if (!$this->currentStatus || !$this->currentStatus->orderStatus) {
         return 'Không xác định';
     }
-    
+
     return $this->currentStatus->orderStatus->name;
 }
 
 public function getStatusClassAttribute()
 {
     $statusId = $this->currentStatus->order_status_id ?? 0;
-    
+
     $classMap = [
         1 => 'badge-secondary',  // Chờ Xác Nhận
         2 => 'badge-primary',    // Đã Xác Nhận
@@ -64,7 +64,7 @@ public function getStatusClassAttribute()
         9 => 'badge-success',    // Đã Thanh Toán
         10 => 'badge-secondary'  // Chờ Thanh Toán
     ];
-    
+
     return $classMap[$statusId] ?? 'badge-dark';
 }
     public function items()
