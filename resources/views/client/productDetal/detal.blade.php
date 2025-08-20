@@ -131,7 +131,6 @@
                     </div>
 
 
-
                     <div class="pcExcerpt">
                         <p>{{ $product->short_description }}</p>
                     </div>
@@ -149,11 +148,9 @@
                                             {{ old('color') == $color->id ? 'checked' : '' }} hidden>
                                         <label for="color_{{ $color->id }}" class="customColorCircle"
                                             style="background-color: {{ $color->hex }};"></label>
-
                                     </div>
                                     @endforeach
                                 </div>
-
                             </div>
                             <div class="pcVariation pcv2">
                                 <span>Size</span>
@@ -164,7 +161,6 @@
                                             id="size_{{ $size->id }}"
                                             {{ old('size') == $size->id ? 'checked' : '' }}>
                                         <label for="size_{{ $size->id }}">{{ $size->value }}</label>
-
                                     </div>
                                     @endforeach
                                 </div>

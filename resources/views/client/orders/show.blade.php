@@ -65,7 +65,7 @@
                                                        
                                                             <small class="d-block text-muted-darker animate__animated animate__fadeIn">
                                                                 @if($order->currentStatus->created_at)
-                                                                    {{ $order->currentStatus->created_at->format('H:i d/m/Y') }}
+                                                                    {{-- {{ $order->currentStatus->created_at->format('H:i d/m/Y') }} --}}
                                                                 
                                                             </small>
                                                         @endif

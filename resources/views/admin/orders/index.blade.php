@@ -16,90 +16,90 @@
         </div>
     </div>
     <!-- Bộ lọc -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="mb-3 fw-bold">Bộ Lọc Đơn Hàng</h6>
-        <form method="GET" action="{{ route('admin.orders.index') }}">
-            <div class="row g-3">
-                <!-- 1. Theo trạng thái đơn hàng -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Trạng thái</label>
-                    <select class="form-select" name="status">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Chờ xác nhận</option>
-                        <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>Đang xử lý</option>
-                        <option value="4" {{ request('status') == '4' ? 'selected' : '' }}>Đang giao</option>
-                        <option value="5" {{ request('status') == '5' ? 'selected' : '' }}>Đã hoàn thành</option>
-                        <option value="7" {{ request('status') == '7' ? 'selected' : '' }}>Đã hủy</option>
-                        <option value="6" {{ request('status') == '6' ? 'selected' : '' }}>Hoàn hàng</option>
-                    </select>
-                </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="mb-3 fw-bold">Bộ Lọc Đơn Hàng</h6>
+            <form method="GET" action="{{ route('admin.orders.index') }}">
+                <div class="row g-3">
+                    <!-- 1. Theo trạng thái đơn hàng -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Trạng thái</label>
+                        <select class="form-select" name="status">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Chờ xác nhận</option>
+                            <option value="3" {{ request('status') == '3' ? 'selected' : '' }}>Đang xử lý</option>
+                            <option value="4" {{ request('status') == '4' ? 'selected' : '' }}>Đang giao</option>
+                            <option value="5" {{ request('status') == '5' ? 'selected' : '' }}>Đã hoàn thành</option>
+                            <option value="7" {{ request('status') == '7' ? 'selected' : '' }}>Đã hủy</option>
+                            <option value="6" {{ request('status') == '6' ? 'selected' : '' }}>Hoàn hàng</option>
+                        </select>
+                    </div>
 
-                <!-- 2. Theo thời gian -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Từ ngày</label>
-                    <input type="date" class="form-control" name="from_date" value="{{ request('from_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Đến ngày</label>
-                    <input type="date" class="form-control" name="to_date" value="{{ request('to_date') }}">
-                </div>
+                    <!-- 2. Theo thời gian -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Từ ngày</label>
+                        <input type="date" class="form-control" name="from_date" value="{{ request('from_date') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Đến ngày</label>
+                        <input type="date" class="form-control" name="to_date" value="{{ request('to_date') }}">
+                    </div>
 
-                <!-- 3. Theo khách hàng -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Tên KH/SĐT</label>
-                    <input type="text" class="form-control" name="customer" placeholder="Tên hoặc SĐT" value="{{ request('customer') }}">
-                </div>
+                    <!-- 3. Theo khách hàng -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Tên KH/SĐT</label>
+                        <input type="text" class="form-control" name="customer" placeholder="Tên hoặc SĐT" value="{{ request('customer') }}">
+                    </div>
 
-                <!-- 4. Theo mã đơn hàng -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Mã đơn hàng</label>
-                    <input type="text" class="form-control" name="order_code" placeholder="Nhập mã đơn" value="{{ request('order_code') }}">
-                </div>
+                    <!-- 4. Theo mã đơn hàng -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Mã đơn hàng</label>
+                        <input type="text" class="form-control" name="order_code" placeholder="Nhập mã đơn" value="{{ request('order_code') }}">
+                    </div>
 
-                <!-- 5. Theo phương thức thanh toán -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Thanh toán</label>
-                    <select class="form-select" name="payment_method">
-                        <option value="">Tất cả</option>
-                        <option value="transfer" {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>COD</option>
-                        <option value="wallet" {{ request('payment_method') == 'wallet' ? 'selected' : '' }}>Ví điện tử Momo</option>
-                        <option value="credit_card" {{ request('payment_method') == 'credit_card' ? 'selected' : '' }}>Ví điện tử VnPay</option>
-                    </select>
-                </div>
+                    <!-- 5. Theo phương thức thanh toán -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Thanh toán</label>
+                        <select class="form-select" name="payment_method">
+                            <option value="">Tất cả</option>
+                            <option value="transfer" {{ request('payment_method') == 'transfer' ? 'selected' : '' }}>COD</option>
+                            <option value="wallet" {{ request('payment_method') == 'wallet' ? 'selected' : '' }}>Ví điện tử Momo</option>
+                            <option value="credit_card" {{ request('payment_method') == 'credit_card' ? 'selected' : '' }}>Ví điện tử VnPay</option>
+                        </select>
+                    </div>
 
-                <!-- 6. Theo tổng giá trị đơn hàng -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Giá từ (đ)</label>
-                    <input type="number" class="form-control" name="min_amount" placeholder="Tối thiểu" value="{{ request('min_amount') }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Giá đến (đ)</label>
-                    <input type="number" class="form-control" name="max_amount" placeholder="Tối đa" value="{{ request('max_amount') }}">
-                </div>
+                    <!-- 6. Theo tổng giá trị đơn hàng -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Giá từ (đ)</label>
+                        <input type="number" class="form-control" name="min_amount" placeholder="Tối thiểu" value="{{ request('min_amount') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Giá đến (đ)</label>
+                        <input type="number" class="form-control" name="max_amount" placeholder="Tối đa" value="{{ request('max_amount') }}">
+                    </div>
 
-                <!-- 7. Theo khu vực giao hàng -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Tỉnh/Thành phố</label>
-                    <input type="text" class="form-control" name="city" placeholder="Nhập tỉnh/thành" value="{{ request('city') }}">
-                </div>
+                    <!-- 7. Theo khu vực giao hàng -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Tỉnh/Thành phố</label>
+                        <input type="text" class="form-control" name="city" placeholder="Nhập tỉnh/thành" value="{{ request('city') }}">
+                    </div>
 
-                <!-- 8. Theo sản phẩm trong đơn -->
-                <div class="col-md-3">
-                    <label class="form-label mb-1 fw-bold">Sản phẩm</label>
-                    <input type="text" class="form-control" name="product" placeholder="Tên hoặc mã SP" value="{{ request('product') }}">
-                </div>
+                    <!-- 8. Theo sản phẩm trong đơn -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 fw-bold">Sản phẩm</label>
+                        <input type="text" class="form-control" name="product" placeholder="Tên hoặc mã SP" value="{{ request('product') }}">
+                    </div>
 
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i>Tìm kiếm</button>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i>Tìm kiếm</button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary w-100">Reset</a>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary w-100">Reset</a>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
     <div class="card">
         <div class="card-body">
@@ -130,7 +130,7 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6">
                         <form method="GET" class="input-group">
                             <input type="text" name="search" class="form-control" placeholder="Tìm mã đơn hàng, tên khách hàng..." value="{{ request('search') }}">
                             <button class="btn btn-primary" type="submit">
@@ -142,7 +142,7 @@
                                 </a>
                             @endif
                         </form>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 
@@ -165,7 +165,10 @@
                             <tr>
                                 <td>{{ $loop->iteration + ($orders->currentPage() - 1) * $orders->perPage() }}</td>
                                 <td>{{ $order->code }}</td>
-                                <td>{{ $order->fullname }}</td>
+                                <td class="customer-info" data-bs-toggle="collapse" href="#order-details-{{ $order->id }}">
+                                    <span class="d-block">{{ $order->fullname }}</span>
+                                    <i class="fas fa-chevron-down toggle-icon ms-2"></i>
+                                </td>
                                 <td>{{ number_format($order->total_amount, 0, ',', '.') }} đ</td>
                                 <td>
                                     @if($order->payment_id == '2')
@@ -177,12 +180,14 @@
                                     @else
                                         <span class="badge bg-secondary">Khác</span>
                                     @endif
+                                </td>
                                 <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @php
                                         $statusClass = [
                                             'pending' => 'warning',
                                             'processing' => 'primary',
+                                            'shipping' => 'info',
                                             'completed' => 'success',
                                             'cancelled' => 'danger'
                                         ][$order->currentStatus?->orderStatus?->slug ?? ''] ?? 'info';
@@ -197,9 +202,63 @@
                                     </a>
                                 </td>
                             </tr>
+                            <tr class="collapse" id="order-details-{{ $order->id }}">
+                                <td colspan="8" class="order-details-cell">
+                                    <div class="p-3 bg-light rounded shadow-sm">
+                                        <h6 class="fw-bold mb-2">Thông tin chi tiết</h6>
+                                        <p class="mb-1"><strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i:s') }}</p>
+                                        <p class="mb-1"><strong>SĐT:</strong> {{ $order->phone_number }}</p>
+                                        <p class="mb-1"><strong>Địa chỉ:</strong> {{ $order->address }}</p>
+                                        <p><p>
+                                        @if($order->note)
+                                        <p class="mb-1"><strong>Ghi chú:</strong> {{ $order->note }}</p>
+                                        @endif
+                                        {{-- <h6 class="fw-bold mt-3 mb-2">Sản phẩm:</h6>
+                                        @if($order->orderItems?->isNotEmpty())
+                                            <ul class="list-unstyled mb-0">
+                                                @foreach($order->orderItems as $item)
+                                                    <li>- {{ $item->product_name }} ({{ $item->quantity }} x {{ number_format($item->price, 0, ',', '.') }} đ)</li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <p class="text-muted">Không có sản phẩm nào trong đơn hàng này.</p>
+                                        @endif --}}
+                                         
+                                        @foreach ($order->items as $item)
+                                @php
+                                    $product = \App\Models\Admin\Product::find($item->product_id);
+                                @endphp
+                                <tr></tr>
+                                <tr>
+                                    
+                                    <td>
+                                        @if ($product && $product->thumbnail)
+                                            <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60" class="img-thumbnail">
+                                        @else
+                                            <span class="text-muted">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ $item->name }}</div>
+                                        <div class="small text-muted">SKU: {{ $product->sku ?? 'N/A' }}</div>
+                                        @if ($product)
+                                            <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
+                                        @endif
+                                    </td>
+                                    <td>{{ number_format($item->variant->price, 0, ',', '.') }} đ</td>
+                                    <td>{{ $item->quantity }}</td>
+                                    <td class="fw-bold">
+                                        {{ number_format($item->variant->price * $item->quantity, 0, ',', '.') }} đ
+                                    </td>
+                                </tr>
+                                @endforeach
+                                        
+                                    </div>
+                                </td>
+                            </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4">Không có đơn hàng nào</td>
+                                <td colspan="8" class="text-center py-4">Không có đơn hàng nào</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -241,5 +300,53 @@
     .table th {
         white-space: nowrap;
     }
+    .customer-info {
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-icon {
+        transition: transform 0.2s ease-in-out;
+        font-size: 0.8em;
+    }
+    .customer-info[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+    .order-details-cell {
+        padding: 0 !important;
+        border-top: none;
+    }
+    .order-details-cell > div {
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+    }
+    .table > :not(caption)>*>* {
+        padding: 0.75rem;
+    }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const collapseElements = document.querySelectorAll('.collapse');
+
+        collapseElements.forEach(function(el) {
+            el.addEventListener('shown.bs.collapse', function() {
+                // Find the icon and rotate it when the element is shown
+                const icon = document.querySelector(`[href="#${el.id}"] .toggle-icon`);
+                if (icon) {
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+
+            el.addEventListener('hidden.bs.collapse', function() {
+                // Find the icon and reset its rotation when the element is hidden
+                const icon = document.querySelector(`[href="#${el.id}"] .toggle-icon`);
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+    });
+</script>
 @endpush
