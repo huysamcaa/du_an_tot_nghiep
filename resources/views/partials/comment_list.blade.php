@@ -38,6 +38,7 @@
                                 <button class="btn btn-sm btn-outline-secondary" type="submit">Gửi</button>
                             </div>
                         </form>
+                        <div class="reply-message text-danger mt-1"></div> {{-- lỗi sẽ hiển thị tại đây --}}
 
                         {{-- Danh sách trả lời --}}
                         @foreach ($comment->replies as $reply)

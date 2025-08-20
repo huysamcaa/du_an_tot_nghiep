@@ -480,6 +480,18 @@
     opacity: 1;
 }
 
+.pageBannerSection {
+    padding: 20px 0; 
+    min-height: 10px; 
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 28px; 
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
+}
     
 </style>
 

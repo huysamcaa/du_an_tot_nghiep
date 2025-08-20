@@ -164,12 +164,11 @@
                         <li role="presentation">
                             <button id="additionalinfo-tab" data-bs-toggle="tab" data-bs-target="#additionalinfo"
                                 type="button" role="tab" aria-controls="additionalinfo" aria-selected="false"
-                                tabindex="-1">Additional Information</button>
+                                tabindex="-1">Bình luận</button>
                         </li>
                         <li role="presentation">
                             <button id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
-                                role="tab" aria-controls="reviews" aria-selected="false" tabindex="-1">Bình
-                                luận</button>
+                                role="tab" aria-controls="reviews" aria-selected="false" tabindex="-1">Đánh giá</button>
                         </li>
                     </ul>
                     <div class="tab-content" id="desInfoRev_content">
@@ -187,40 +186,36 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="additionalinfo" role="tabpanel"
-                            aria-labelledby="additionalinfo-tab" tabindex="0">
-                            <div class="additionalContentArea">
-                                <h3>Additional Information</h3>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <th>Item Code</th>
-                                            <td>AB42 - 2394 - DS023</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Brand</th>
-                                            <td>Ulina</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Dimention</th>
-                                            <td>12 Cm x 42 Cm x 20 Cm</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Specification</th>
-                                            <td>1pc dress, 1 pc soap, 1 cleaner</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Weight</th>
-                                            <td>2 kg</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Warranty</th>
-                                            <td>1 year</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                <div class="tab-pane fade" id="additionalinfo" role="tabpanel" aria-labelledby="reviews-tab"
+                            tabindex="0">
+                            <div class="productReviewArea">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                  
+
+                                        <h3>Bình Luận</h3>
+                                        <div id="comment-list"></div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div class="commentFormArea">
+                                            <h3>Thêm bình luận</h3>
+                                            <div class="reviewFrom">
+                                                <form id="comment-form" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                    <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
+                                                    <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
+                                                            luận</span></button>
+                                                </form>
+                                                <div id="comment-message" class="text-success mt-2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        
 
                         <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab"
                             tabindex="0">
@@ -367,25 +362,10 @@
                                             </div>
                                         </div><br>
 
-                                        <h3>Bình Luận</h3>
-                                        <div id="comment-list"></div>
+
                                     </div>
 
-                                    <div class="col-lg-6">
-                                        <div class="commentFormArea">
-                                            <h3>Thêm bình luận</h3>
-                                            <div class="reviewFrom">
-                                                <form id="comment-form" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                    <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
-                                                    <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
-                                                            luận</span></button>
-                                                </form>
-                                                <div id="comment-message" class="text-success mt-2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -793,20 +773,34 @@
 
                 // Gửi trả lời
                 $(document).on('submit', '.reply-form', function(e) {
-                    e.preventDefault();
-                    const form = $(this);
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route('comments.reply') }}",
-                        data: form.serialize(),
-                        success: function(res) {
-                            loadComments();
-                        },
-                        error: function() {
-                            alert('Lỗi khi gửi trả lời');
-                        }
-                    });
-                });
+    e.preventDefault();
+    const form = $(this);
+
+    // Xóa thông báo lỗi cũ
+    form.find('.reply-message').remove();
+
+    $.ajax({
+        type: 'POST',
+        url: "{{ route('comments.reply') }}",
+        data: form.serialize(),
+        success: function(res) {
+            loadComments();
+        },
+        error: function(xhr) {
+            let errors = xhr.responseJSON?.errors;
+            let message = 'Đã xảy ra lỗi.';
+
+            if (errors && errors.content) {
+                message = errors.content[0];
+            } else if (xhr.responseJSON?.message) {
+                message = xhr.responseJSON.message;
+            }
+
+            // Thêm thông báo lỗi ngay dưới form trả lời
+            form.append(`<div class="reply-message text-danger mt-1">${message}</div>`);
+        }
+    });
+});
 
                 // Toggle form trả lời
                 $(document).on('click', '.toggle-reply', function() {

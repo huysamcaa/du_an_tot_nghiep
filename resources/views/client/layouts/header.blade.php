@@ -137,9 +137,16 @@
                             </div>
                         </div> --}}
                         <div class="anItems">
-                                <div class="searchToggle">
-        <a href="javascript:void(0);" id="toggleSearch"><i class="fa fa-search"></i></a>
+                            <div class="searchToggle">
+    <a href="javascript:void(0);" id="toggleSearch"><i class="fa fa-search"></i></a>
+
+    <div class="searchWrapper" id="searchWrapper" style="display: none;">
+        <form action="{{ route('search') }}" method="GET" class="searchForm">
+            <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required />
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
     </div>
+</div>
                             <div class="wishlist">
                             <a href="{{route('wishlist.index')}}" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
 
@@ -244,55 +251,36 @@
 {{-- CSS --}}
 <style>
     .searchWrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(255, 255, 255, 0.95);
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    position: absolute;
+    top: 40px; /* cách icon search một chút */
+    right: 0;
+    background: #fff;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 9999;
+}
 
-    .searchForm {
-        position: relative;
-        width: 90%;
-        max-width: 600px;
-    }
+.searchForm {
+    display: flex;
+    align-items: center;
+}
 
-    .searchForm input {
-        width: 100%;
-        padding: 15px 60px 15px 20px;
-        font-size: 18px;
-        border: 1px solid #ccc;
-        border-radius: 30px;
-    }
+.searchForm input {
+    border: none;
+    outline: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 200px;
+}
 
-    .searchForm button {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    .searchClose {
-        position: absolute;
-        top: -40px;
-        right: 0;
-        font-size: 24px;
-        cursor: pointer;
-    }
-
-    .searchToggle a {
-        font-size: 20px;
-        color: #333;
-    }
+.searchForm button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
 
 
     
