@@ -11,14 +11,6 @@
                 <h4 class="mb-0"> Quản lý tài khoản</h4>
                 <small class="text-muted">Danh sách tài khoản</small>
             </div>
-            <div class="mb-3 d-flex" style="gap: 10px;">
-                <a href="{{ route('admin.brands.create') }}"
-                    style="background-color: #ffa200; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;"
-                    onmouseover="this.style.backgroundColor='#e68a00'" onmouseout="this.style.backgroundColor='#ffa200'">
-                    <i class="fa fa-plus"></i> Thêm tài khoản
-                </a>
-
-            </div>
 
 
         </div>
@@ -69,42 +61,6 @@
   </div>
 
   <div class="col-md-2">
-    <label class="form-label mb-1">Nhóm</label>
-    <select name="user_group" class="form-control">
-      <option value="">-- Tất cả --</option>
-      <option value="guest"  {{ request('user_group')==='guest'  ? 'selected' : '' }}>Guest</option>
-      <option value="member" {{ request('user_group')==='member' ? 'selected' : '' }}>Member</option>
-      <option value="vip"    {{ request('user_group')==='vip'    ? 'selected' : '' }}>VIP</option>
-    </select>
-  </div>
-
-  <div class="col-md-2">
-    <label class="form-label mb-1">Giới tính</label>
-    <select name="gender" class="form-control">
-      <option value="">-- Tất cả --</option>
-      <option value="male"   {{ request('gender')==='male'   ? 'selected' : '' }}>Nam</option>
-      <option value="female" {{ request('gender')==='female' ? 'selected' : '' }}>Nữ</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label class="form-label mb-1">Ngày tạo bắt đầu</label>
-    <input type="date" name="created_from" class="form-control" value="{{ request('created_from') }}">
-  </div>
-  <div class="col-md-2">
-    <label class="form-label mb-1">Ngày tạo kết thúc</label>
-    <input type="date" name="created_to" class="form-control" value="{{ request('created_to') }}">
-  </div>
-
-  <div class="col-md-2">
-    <label class="form-label mb-1">Ngày sinh bắt đầu</label>
-    <input type="date" name="birthday_from" class="form-control" value="{{ request('birthday_from') }}">
-  </div>
-  <div class="col-md-2">
-    <label class="form-label mb-1">Ngày sinh kết thúc</label>
-    <input type="date" name="birthday_to" class="form-control" value="{{ request('birthday_to') }}">
-  </div>
-
-  <div class="col-md-2">
     <label class="form-label mb-1">Sắp xếp</label>
     <select name="sort" class="form-control">
       <option value="created_desc" {{ request('sort')==='created_desc' ? 'selected' : '' }}>Mới nhất</option>
@@ -136,7 +92,6 @@
                             <th>SĐT</th>
                             <th>Giới tính</th>
                             <th>Vai trò</th>
-                            <th>Nhóm</th>
                             <th>Trạng thái</th>
                             <th>Ngày sinh</th>
                             <th>Ngày tạo</th>
@@ -155,13 +110,12 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->phone_number }}</td>
                                 <td>{{ ucfirst($user->gender) }}</td>
-                                <td><span class="badge badge-info">{{ ucfirst($user->role) }}</span></td>
-                                <td><span class="badge badge-secondary">{{ ucfirst($user->user_group ?? 'Không rõ') }}</span></td>
+                                <td><span>{{ ucfirst($user->role) }}</span></td>
                                 <td>
                                     @if($user->status === 'active')
-                                        <span class="badge badge-success">Hoạt động</span>
+                                        <span >Hoạt động</span>
                                     @else
-                                        <span class="badge badge-danger">Bị khóa</span>
+                                        <span >Bị khóa</span>
                                     @endif
                                 </td>
                                 <td>{{ optional($user->birthday)->format('d/m/Y') }}</td>

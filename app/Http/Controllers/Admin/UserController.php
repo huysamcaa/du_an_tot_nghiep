@@ -9,150 +9,105 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-public function index(Request $request)
-{
-    $perPage        = (int) $request->input('perPage', 10);
-    $search         = trim((string) $request->input('search'));
-
-    $status         = $request->input('status');        // '', active, locked
-    $role           = $request->input('role');          // '', user, admin
-    $userGroup      = $request->input('user_group');    // '', guest, member, vip
-    $gender         = $request->input('gender');        // '', male, female
-    $emailVerified  = $request->input('email_verified'); // '', yes, no
-    $hasOrders      = $request->input('has_orders');     // '', yes, no
-    $hasReviews     = $request->input('has_reviews');    // '', yes, no
-
-    $createdFrom    = $request->input('created_from');  // YYYY-MM-DD
-    $createdTo      = $request->input('created_to');    // YYYY-MM-DD
-    $birthdayFrom   = $request->input('birthday_from'); // YYYY-MM-DD
-    $birthdayTo     = $request->input('birthday_to');   // YYYY-MM-DD
-
-    $sort           = $request->input('sort', 'created_desc'); // created_desc|created_asc|name_asc|name_desc
-
-    $query = \App\Models\User::query();
-
-    // Tìm kiếm
-    if ($search !== '') {
-        $query->where(function($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('phone_number', 'like', "%{$search}%");
-        });
-    }
-
-    // Trạng thái
-    if (in_array($status, ['active','locked'], true)) {
-        $query->where('status', $status);
-    }
-
-    // Vai trò
-    if (in_array($role, ['user','admin'], true)) {
-        $query->where('role', $role);
-    }
-
-    // Nhóm
-    if (in_array($userGroup, ['guest','member','vip'], true)) {
-        $query->where('user_group', $userGroup);
-    }
-
-    // Giới tính
-    if (in_array($gender, ['male','female'], true)) {
-        $query->where('gender', $gender);
-    }
-
-    // Email verified
-    if ($emailVerified === 'yes') {
-        $query->whereNotNull('email_verified_at');
-    } elseif ($emailVerified === 'no') {
-        $query->whereNull('email_verified_at');
-    }
-
-    // Có đơn hàng / không
-    if ($hasOrders === 'yes') {
-        $query->whereHas('orders');
-    } elseif ($hasOrders === 'no') {
-        $query->whereDoesntHave('orders');
-    }
-
-    // Có đánh giá / không
-    if ($hasReviews === 'yes') {
-        $query->whereHas('reviews');
-    } elseif ($hasReviews === 'no') {
-        $query->whereDoesntHave('reviews');
-    }
-
-    // Khoảng ngày tạo
-    if ($createdFrom) {
-        $query->whereDate('created_at', '>=', $createdFrom);
-    }
-    if ($createdTo) {
-        $query->whereDate('created_at', '<=', $createdTo);
-    }
-
-    // Khoảng ngày sinh
-    if ($birthdayFrom) {
-        $query->whereDate('birthday', '>=', $birthdayFrom);
-    }
-    if ($birthdayTo) {
-        $query->whereDate('birthday', '<=', $birthdayTo);
-    }
-
-    // Sort
-    match ($sort) {
-        'created_asc' => $query->orderBy('created_at', 'asc'),
-        'name_asc'    => $query->orderBy('name', 'asc'),
-        'name_desc'   => $query->orderBy('name', 'desc'),
-        default       => $query->orderBy('created_at', 'desc'),
-    };
-
-    $users = $query->paginate($perPage)->appends($request->query());
-
-    return view('admin.users.index', compact('users'));
-}
-
-    public function create()
+    public function index(Request $request)
     {
-        return view('admin.users.create');
-    }
+        $perPage        = (int) $request->input('perPage', 10);
+        $search         = trim((string) $request->input('search'));
 
+        $status         = $request->input('status');        // '', active, locked
+        $role           = $request->input('role');          // '', user, admin
+        $userGroup      = $request->input('user_group');    // '', guest, member, vip
+        $gender         = $request->input('gender');        // '', male, female
+        $emailVerified  = $request->input('email_verified'); // '', yes, no
+        $hasOrders      = $request->input('has_orders');     // '', yes, no
+        $hasReviews     = $request->input('has_reviews');    // '', yes, no
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'phone_number' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'gender' => 'nullable|in:male,female',
-            'birthday' => 'nullable|date',
-            'role' => 'required|in:user,admin',
-            'user_group' => 'nullable|in:guest,member,vip',
-        ]);
+        $createdFrom    = $request->input('created_from');  // YYYY-MM-DD
+        $createdTo      = $request->input('created_to');    // YYYY-MM-DD
+        $birthdayFrom   = $request->input('birthday_from'); // YYYY-MM-DD
+        $birthdayTo     = $request->input('birthday_to');   // YYYY-MM-DD
 
-        $data = $request->only([
-            'name',
-            'email',
-            'phone_number',
-            'gender',
-            'birthday',
-            'role',
-            'user_group'
-        ]);
-        $data['password'] = Hash::make($request->password);
-        $data['status'] = 'active';
-        $data['loyalty_points'] = 0;
-        $data['is_change_password'] = false;
+        $sort           = $request->input('sort', 'created_desc'); // created_desc|created_asc|name_asc|name_desc
 
-        // Xử lý upload avatar nếu có
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = $avatarPath;
+        $query = \App\Models\User::query();
+
+        // Tìm kiếm
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
         }
 
-        User::create($data);
+        // Trạng thái
+        if (in_array($status, ['active', 'locked'], true)) {
+            $query->where('status', $status);
+        }
 
-        return redirect()->route('admin.users.index')->with('success', 'Tạo tài khoản thành công');
+        // Vai trò
+        if (in_array($role, ['user', 'admin'], true)) {
+            $query->where('role', $role);
+        }
+
+        // Nhóm
+        if (in_array($userGroup, ['guest', 'member', 'vip'], true)) {
+            $query->where('user_group', $userGroup);
+        }
+
+        // Giới tính
+        if (in_array($gender, ['male', 'female'], true)) {
+            $query->where('gender', $gender);
+        }
+
+        // Email verified
+        if ($emailVerified === 'yes') {
+            $query->whereNotNull('email_verified_at');
+        } elseif ($emailVerified === 'no') {
+            $query->whereNull('email_verified_at');
+        }
+
+        // Có đơn hàng / không
+        if ($hasOrders === 'yes') {
+            $query->whereHas('orders');
+        } elseif ($hasOrders === 'no') {
+            $query->whereDoesntHave('orders');
+        }
+
+        // Có đánh giá / không
+        if ($hasReviews === 'yes') {
+            $query->whereHas('reviews');
+        } elseif ($hasReviews === 'no') {
+            $query->whereDoesntHave('reviews');
+        }
+
+        // Khoảng ngày tạo
+        if ($createdFrom) {
+            $query->whereDate('created_at', '>=', $createdFrom);
+        }
+        if ($createdTo) {
+            $query->whereDate('created_at', '<=', $createdTo);
+        }
+
+        // Khoảng ngày sinh
+        if ($birthdayFrom) {
+            $query->whereDate('birthday', '>=', $birthdayFrom);
+        }
+        if ($birthdayTo) {
+            $query->whereDate('birthday', '<=', $birthdayTo);
+        }
+
+        // Sort
+        match ($sort) {
+            'created_asc' => $query->orderBy('created_at', 'asc'),
+            'name_asc'    => $query->orderBy('name', 'asc'),
+            'name_desc'   => $query->orderBy('name', 'desc'),
+            default       => $query->orderBy('created_at', 'desc'),
+        };
+
+        $users = $query->paginate($perPage)->appends($request->query());
+
+        return view('admin.users.index', compact('users'));
     }
     public function locked()
     {
