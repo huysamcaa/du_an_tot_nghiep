@@ -324,10 +324,23 @@ use Illuminate\Support\Facades\File;
             $orderData = Session::get('pending_order');
             $order = $this->saveOrderToDatabase($orderData);
             $this->clearCartItems($orderData['selected_items']);
-
+            //Cập nhật trạng thái mã giảm giá
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
             DB::commit();
             Session::forget('pending_order');
-
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
         } catch (\Exception $e) {
@@ -553,6 +566,12 @@ use Illuminate\Support\Facades\File;
                 $this->reduceStock($order);
                 $this->clearCartItems($orderData['selected_items']);
             }
+            if (!empty($order->coupon_id)) {
+            DB::table('coupon_user')
+                ->where('user_id', $order->user_id)
+                ->where('coupon_id', $order->coupon_id)
+                ->update(['used_at' => now(), 'order_id' => $order->id]);
+        }
 
             // Kiểm tra trạng thái đã tồn tại chưa
             $existingStatus = OrderOrderStatus::where([
@@ -625,10 +644,7 @@ use Illuminate\Support\Facades\File;
     // ==================== HELPER METHODS ====================
 
     protected function processMomoSuccess($momoData, $orderCode)
-
-
-
-    {
+  {
         DB::beginTransaction();
         try {
             // Tìm session data từ cache hoặc database
@@ -661,6 +677,13 @@ use Illuminate\Support\Facades\File;
                     'created_at' => now(),
                 ]);
             }
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
 
             DB::commit();
             Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);

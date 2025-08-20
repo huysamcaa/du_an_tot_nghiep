@@ -12,13 +12,7 @@
         <label>Slug</label>
         <input type="text" name="slug" class="form-control" value="{{ old('slug') }}" required>
     </div>
-    <div class="form-group">
-        <label>Là thuộc tính biến thể?</label>
-        <select name="is_variant" class="form-control">
-            <option value="1" {{ old('is_variant', 1)==1?'selected':'' }}>Có</option>
-            <option value="0" {{ old('is_variant', 1)==0?'selected':'' }}>Không</option>
-        </select>
-    </div>
+    
     <div class="form-group">
         <label>Hiển thị?</label>
         <select name="is_active" class="form-control">
