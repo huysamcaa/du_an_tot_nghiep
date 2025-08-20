@@ -102,7 +102,6 @@
                                                             <i class="fa fa-times"></i>
                                                         </button>
                                                     </form>
-    
                                             </td>
                                         </tr>
                                     @empty

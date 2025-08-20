@@ -12,29 +12,63 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Mail\CouponPromotionMail;
-use Illuminate\Support\Facades\Mail;
 
+
+use Illuminate\Support\Facades\Schema;
 class CouponController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
 {
-    $perPage = $request->input('perPage', 10);
-    $search = $request->input('search');
+    $perPage      = max(1, (int) $request->input('perPage', 10));
+    $search       = trim((string) $request->input('search'));
+    $isActive     = $request->input('is_active');        // '', '1', '0'
+    $discountType = $request->input('discount_type');    // '', 'percent', 'fixed'
+    $startDate    = $request->input('start_date');       // YYYY-MM-DD
+    $endDate      = $request->input('end_date');         // YYYY-MM-DD
 
     $query = Coupon::query();
 
-    if ($search) {
+    // Tìm kiếm theo mã / tiêu đề
+    if ($search !== '') {
         $query->where(function ($q) use ($search) {
             $q->where('code', 'like', "%{$search}%")
               ->orWhere('title', 'like', "%{$search}%");
         });
     }
 
-    $coupons = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+    // Trạng thái hoạt động
+    if ($isActive === '1') {
+        $query->where('is_active', 1);
+    } elseif ($isActive === '0') {
+        $query->where('is_active', 0);
+    }
+
+    // Loại mã
+    if (in_array($discountType, ['percent', 'fixed'], true)) {
+        $query->where('discount_type', $discountType);
+    }
+
+    // Lọc theo ngày bắt đầu/kết thúc (đã rút gọn)
+    if ($startDate && $endDate && $endDate < $startDate) {
+        // Hoán đổi nếu nhập ngược
+        [$startDate, $endDate] = [$endDate, $startDate];
+    }
+    if ($startDate) {
+        $query->whereDate('start_date', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->whereDate('end_date', '<=', $endDate);
+    }
+
+    $coupons = $query
+        ->orderByDesc('created_at')
+        ->paginate($perPage)
+        ->appends($request->query());
 
     return view('admin.coupons.index', compact('coupons'));
 }
+
+
 
 
 
@@ -304,15 +338,131 @@ class CouponController extends Controller
 
         return redirect()->route('admin.coupon.trashed')->with('success', 'Mã giảm giá đã được khôi phục thành công!');
     }
-    public function show($id)
-    {
-        $coupon = Coupon::with('restriction')->findOrFail($id);
+public function show($id)
+{
+    $coupon = Coupon::with('restriction')->findOrFail($id);
 
-        $categories = Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
-        $products = Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
+    // Phạm vi áp dụng
+    $categories = Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
+    $products   = Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
 
-        return view('admin.coupons.show', compact('coupon', 'categories', 'products'));
+    // ====== THỐNG KÊ ======
+    $claimedTotal = DB::table('coupon_user')->where('coupon_id', $coupon->id)->count();
+
+    $usedTotal = DB::table('coupon_user')
+        ->where('coupon_id', $coupon->id)
+        ->where(function ($q) {
+            $q->whereNotNull('used_at')->orWhereNotNull('order_id');
+        })
+        ->count();
+
+    $unusedTotal = max(0, $claimedTotal - $usedTotal);
+
+    $revenue = (float) DB::table('coupon_user')
+        ->where('coupon_id', $coupon->id)
+        ->sum('discount_applied');
+
+    $usageRate = $claimedTotal > 0 ? round($usedTotal * 100 / $claimedTotal, 1) : 0.0;
+
+    $groupCounts = DB::table('coupon_user')
+        ->select('user_group', DB::raw('COUNT(*) as cnt'))
+        ->where('coupon_id', $coupon->id)
+        ->groupBy('user_group')
+        ->pluck('cnt', 'user_group')
+        ->toArray();
+
+    $groupBreakdown = [
+        'guest'  => $groupCounts['guest']  ?? 0,
+        'member' => $groupCounts['member'] ?? 0,
+        'vip'    => $groupCounts['vip']    ?? 0,
+        'khác'   => ($groupCounts[''] ?? 0) + ($groupCounts[null] ?? 0),
+    ];
+
+    $timeline = DB::table('coupon_user')
+        ->select(DB::raw('DATE(COALESCE(used_at, created_at)) as d'), DB::raw('COUNT(*) as cnt'))
+        ->where('coupon_id', $coupon->id)
+        ->where(function ($q) { $q->whereNotNull('used_at')->orWhereNotNull('order_id'); })
+        ->groupBy('d')
+        ->orderBy('d')
+        ->get();
+
+    $timelineLabels = $timeline->pluck('d')->map(fn ($d) => \Carbon\Carbon::parse($d)->format('d/m'))->values();
+    $timelineValues = $timeline->pluck('cnt')->values();
+
+    // ====== Fallback cột orders cho các truy vấn join ======
+    $hasOrderCode   = Schema::hasColumn('orders', 'code');
+    $hasOrderStatus = Schema::hasColumn('orders', 'status') || Schema::hasColumn('orders', 'current_status');
+
+    // cột tổng tiền có thể là total_amount | total | grand_total
+    $totalCol = null;
+    foreach (['total_amount', 'total', 'grand_total'] as $col) {
+        if (Schema::hasColumn('orders', $col)) { $totalCol = $col; break; }
     }
+
+    // ---- recentUsage (join users + orders) ----
+    $recentSelects = [
+        'cu.id', 'cu.user_id', 'cu.order_id', 'cu.code',
+        'cu.discount_applied', 'cu.used_at', 'cu.created_at',
+        'u.name as user_name', 'u.email as user_email',
+    ];
+    $recentSelects[] = $hasOrderCode   ? DB::raw('o.code as order_code')         : DB::raw('NULL as order_code');
+    if (Schema::hasColumn('orders', 'status')) {
+        $recentSelects[] = DB::raw('o.status as order_status');
+    } elseif (Schema::hasColumn('orders', 'current_status')) {
+        $recentSelects[] = DB::raw('o.current_status as order_status');
+    } else {
+        $recentSelects[] = DB::raw('NULL as order_status');
+    }
+    $recentSelects[] = $totalCol ? DB::raw("o.$totalCol as order_total") : DB::raw('NULL as order_total');
+
+    $recentUsage = DB::table('coupon_user as cu')
+        ->leftJoin('users as u', 'u.id', '=', 'cu.user_id')
+        ->leftJoin('orders as o', 'o.id', '=', 'cu.order_id')
+        ->select($recentSelects)
+        ->where('cu.coupon_id', $coupon->id)
+        ->orderByRaw('COALESCE(cu.used_at, cu.updated_at, cu.created_at) DESC')
+        ->limit(10)
+        ->get();
+
+    // ---- ordersUsingCoupon (chỉ các đơn có order_id) ----
+    $ordersSelects = ['o.id', 'cu.discount_applied', 'cu.used_at'];
+    $ordersSelects[] = $hasOrderCode ? 'o.code' : DB::raw('NULL as code');
+
+    if (Schema::hasColumn('orders', 'status')) {
+        $ordersSelects[] = DB::raw('o.status as status');
+    } elseif (Schema::hasColumn('orders', 'current_status')) {
+        $ordersSelects[] = DB::raw('o.current_status as status');
+    } else {
+        $ordersSelects[] = DB::raw('NULL as status');
+    }
+
+    $ordersSelects[] = $totalCol ? DB::raw("o.$totalCol as total_amount") : DB::raw('NULL as total_amount');
+
+    $ordersUsingCoupon = DB::table('coupon_user as cu')
+        ->join('orders as o', 'o.id', '=', 'cu.order_id')
+        ->select($ordersSelects)
+        ->where('cu.coupon_id', $coupon->id)
+        ->orderByDesc('cu.used_at')
+        ->limit(10)
+        ->get();
+
+    $stats = [
+        'claimed_total' => $claimedTotal,
+        'used_total'    => $usedTotal,
+        'unused_total'  => $unusedTotal,
+        'usage_rate'    => $usageRate,
+        'revenue'       => $revenue,
+    ];
+
+    return view('admin.coupons.show', compact(
+        'coupon', 'categories', 'products',
+        'stats', 'groupBreakdown',
+        'timelineLabels', 'timelineValues',
+        'recentUsage', 'ordersUsingCoupon'
+    ));
+}
+
+
     protected function generateRandomCode($length = 8)
     {
         do {

@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -77,9 +77,9 @@
                     <table class="shop_table cart_table">
                         <thead>
                             <tr>
-                                <th class="product-select"><input type="checkbox" id="select-all"> Chọn</th>
+                                <th class="product-select" style="width:10%"><input type="checkbox" id="select-all" > Chọn</th>
+                                <th class="product-name">Ảnh</th>
                                 <th class="product-thumbnail">Tên sản phẩm</th>
-                                <th class="product-name">&nbsp;</th>
                                 <th class="product-variation">Phân loại</th>
                                 <th class="product-price">Giá tiền</th>
                                 <th class="product-quantity">Số lượng</th>
@@ -88,42 +88,38 @@
                             </tr>
                         </thead>
                         <tbody>
-@php
-    $total = 0;
-    $totalQuantity = 0;
-@endphp
+                        @php
+                            $total = 0;
+                            $totalQuantity = 0;
+                        @endphp
 
-@foreach($cartItems as $item)
-    @php
-        if ($item->variant) {
-            // Nếu có biến thể
-            $price = ($item->variant->sale_price > 0 && $item->variant->sale_price < $item->variant->price)
-                ? $item->variant->sale_price
-                : $item->variant->price;
+                        @foreach($cartItems as $item)
+                            @php
+                                if ($item->variant) {
+                                    // Nếu có biến thể
+                                    $price = ($item->variant->sale_price > 0 && $item->variant->sale_price < $item->variant->price)
+                                        ? $item->variant->sale_price
+                                        : $item->variant->price;
 
-            $isOutOfStock = $item->variant->stock == 0;
-        } else {
-            // Nếu không có biến thể
-            $price = ($item->product->sale_price > 0 && $item->product->sale_price < $item->product->price)
-                ? $item->product->sale_price
-                : $item->product->price;
+                                    $isOutOfStock = $item->variant->stock == 0;
+                                } else {
+                                    // Nếu không có biến thể
+                                    $price = ($item->product->sale_price > 0 && $item->product->sale_price < $item->product->price)
+                                        ? $item->product->sale_price
+                                        : $item->product->price;
 
-            // Nếu bảng products có cột stock thì dùng, không thì để false
-            $isOutOfStock = property_exists($item->product, 'stock') 
-                ? $item->product->stock == 0 
-                : false;
-        }
+                                    // Nếu bảng products có cột stock thì dùng, không thì để false
+                                    $isOutOfStock = property_exists($item->product, 'stock')
+                                        ? $item->product->stock == 0
+                                        : false;
+                                }
 
-        $total += $price * $item->quantity;
-        $totalQuantity += $item->quantity;
+                                $total += $price * $item->quantity;
+                                $totalQuantity += $item->quantity;
 
-        $isNotAvailable = !$item->product || !$item->product->is_active;
-        $disableItem = $isOutOfStock || $isNotAvailable;
-    @endphp
-
-   
-
-
+                                $isNotAvailable = !$item->product || !$item->product->is_active;
+                                $disableItem = $isOutOfStock || $isNotAvailable;
+                            @endphp
                             <tr data-id="{{ $item->product_id }}" data-price="{{ $price }}" data-quantity="{{ $item->quantity }}" class="{{$disableItem ? 'out-of-stock' : ''}}">
 
                                 <td class="product-select">

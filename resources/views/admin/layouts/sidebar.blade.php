@@ -15,7 +15,7 @@
                 <!-- Thương hiệu -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/brand.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/purchase1.svg') }}" alt="img">
                         <span> Thương hiệu</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -74,7 +74,7 @@
                 <!-- Trạng thái đơn hàng -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/order-status.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Trạng thái đơn hàng</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -84,25 +84,25 @@
                 </li>
 
                 <!-- Khuyến mãi -->
-                <li>
+                <li class="submenu">
                     <a href="{{ route('admin.coupon.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/coupons.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Khuyến mãi</span>
                     </a>
                 </li>
 
                 <!-- Hoàn hàng -->
-                <li>
+                <li class="submenu">
                     <a href="{{ route('admin.refunds.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/return1.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Hoàn hàng</span>
                     </a>
                 </li>
 
                 <!-- Đánh giá -->
-                <li>
+                <li class="submenu">
                     <a href="{{ route('admin.reviews.index') }}">
-                        <img src="{{ asset('assets/admin/img/icons/review.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Đánh giá</span>
                     </a>
                 </li>
@@ -110,7 +110,7 @@
                 <!-- Bình luận -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/comment.svg') }}" alt="img">
+                        <img width="50" height="50" src="https://img.icons8.com/ios/50/chat-message.png" alt="chat-message"/>
                         <span> Bình luận</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -135,7 +135,7 @@
                 <!-- Bài viết -->
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('assets/admin/img/icons/blog.svg') }}" alt="img">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Bài viết</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
@@ -143,6 +143,17 @@
                         <li><a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a></li>
                     </ul>
                 </li>
+                <!-- Liên hệ -->
+                        <li class="submenu">
+                            <a href="javascript:void(0);">
+                                <img src="{{ asset('assets/admin/img/icons/contact.jpg') }}" alt="img">
+                                <span> Liên hệ</span> <span class="menu-arrow"></span>
+                            </a>
+                            <ul>
+                                <li><a href="{{ route('admin.contact.index') }}">Trang liên hệ</a></li>
+                            </ul>
+                        </li>
+
             </ul>
         </div>
     </div>
