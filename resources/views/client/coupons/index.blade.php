@@ -19,6 +19,19 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
+    
+}
+.pageBannerSection {
+    padding: 20px 0; 
+    min-height: 10px; 
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 38px; 
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
 }
 </style>
 

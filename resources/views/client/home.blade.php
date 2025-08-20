@@ -304,7 +304,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h2 class="secTitle">Sản Phẩm Của Chúng Tôi</h2>
+                        <h2 class="secTitle">Sản Phẩm Mới Nhất</h2>
                         <p class="secDesc">Chúng tôi cam kết chất lượng cao, giá cạnh tranh và dịch vụ giao hàng nhanh
                             chóng.</p>
                     </div>
@@ -2594,6 +2594,11 @@
             </section>
             <!-- END: Category Section -->
 
+                <section class="container py-4">
+        <h2 class="mb-4"> Sản phẩm bán chạy</h2>
+        @include('client.components.products-list', ['products' => $bestSellingProducts])
+    </section>
+
             <!-- BEGIN: Testimonial Section -->
             <section class="testimonialSection">
                 <div class="container">
@@ -2628,10 +2633,20 @@
              <div class="ti01Author">
                 <h3>{{ $review->reviewer_name }}</h3>
             </div>
+                       @if($review->product && $review->product->thumbnail)
+                <div class="ti01Product text-center mt-2">
+                    <a href="{{ route('product.detail', $review->product->id) }}">
+                        <img src="{{ asset('storage/' . $review->product->thumbnail) }}" 
+                             alt="{{ $review->product->name }}" 
+                             class="img-fluid"
+                              style="width: 100%; height: 150px; object-fit: contain;">
+                    </a>
+                    <p class="mt-1">{{ $review->product->name }}</p>
+                </div>
+            @endif
             <div class="ti01Content">
                 {{ $review->review_text }}
             </div>
-           
         </div>
     @endforeach
 </div>

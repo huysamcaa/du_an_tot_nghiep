@@ -1,6 +1,70 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    
+}
+.pageBannerSection {
+    padding: 20px 0; 
+    min-height: 10px; 
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 38px; 
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
+}
+.custom-btn {
+    background-color: #94B7B9;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+
+    min-width: 120px;   /* 👈 đồng bộ chiều rộng */
+    height: 40px;       /* 👈 đồng bộ chiều cao */
+    text-align: center;
+}
+
+.custom-btn i {
+    color: #fff;
+}
+
+.custom-btn:hover {
+    background-color: #7fa1a3;
+}
+
+.custom-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
 <!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
     <div class="container">
@@ -154,36 +218,4 @@
 </script>
 @endpush
 
-<style>
-.custom-btn {
-    background-color: #94B7B9;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
-    white-space: nowrap;
 
-    min-width: 120px;   /* 👈 đồng bộ chiều rộng */
-    height: 40px;       /* 👈 đồng bộ chiều cao */
-    text-align: center;
-}
-
-.custom-btn i {
-    color: #fff;
-}
-
-.custom-btn:hover {
-    background-color: #7fa1a3;
-}
-
-.custom-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-</style>
