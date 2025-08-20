@@ -2631,7 +2631,7 @@
             <div class="ti01Content">
                 {{ $review->review_text }}
             </div>
-           
+
         </div>
     @endforeach
 </div>

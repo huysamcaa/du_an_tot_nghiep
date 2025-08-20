@@ -490,7 +490,7 @@
                                                             fn($v) => $v->attributeValues->filter(
                                                                 fn($val) => $val->attribute->slug === 'size',
                                                             ),
-                                                        )
+                                                        )   
                                                         ->unique('id');
                                                 @endphp
 
