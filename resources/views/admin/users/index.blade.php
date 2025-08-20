@@ -124,13 +124,7 @@
                                     <td>{{ $user->phone_number }}</td>
                                     <td>{{ ucfirst($user->gender) }}</td>
                                     <td><span>{{ ucfirst($user->role) }}</span></td>
-                                    <td>
-                                        @if ($user->status === 'active')
-                                            <span>Hoạt động</span>
-                                        @else
-                                            <span>Bị khóa</span>
-                                        @endif
-                                    </td>
+
                                     <td>
                                         <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                             {{ $user->status === 'active' ? 'Hoạt động' : 'Bị khóa' }}
