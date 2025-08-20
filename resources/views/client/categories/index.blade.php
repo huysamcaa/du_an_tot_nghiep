@@ -427,7 +427,7 @@
 }
 .pi01Thumb:hover .pi01Actions {
     opacity: 1;
-    
+
 }
 .productItem01:hover img {
     filter: none !important;
@@ -480,6 +480,7 @@
     opacity: 1;
 }
 
+
 .pageBannerSection {
     padding: 20px 0; 
     min-height: 10px; 
@@ -493,6 +494,7 @@
     font-size: 14px;
 }
     
+
 </style>
 
 @push('scripts')
