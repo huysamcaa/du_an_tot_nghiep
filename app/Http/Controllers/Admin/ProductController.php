@@ -63,7 +63,7 @@ public function index(Request $request)
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::whereDoesntHave('children')->get();
         $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
         $brands     = Brand::where('is_active', 1)->get(); // Lấy danh sách brand đang hoạt động
         return view('admin.products.create', compact('attributes', 'categories', 'brands'));
@@ -150,7 +150,7 @@ public function index(Request $request)
     }
     public function edit(Product $product)
     {
-        $categories = Category::all();
+        $categories = Category::whereDoesntHave('children')->get();
         $brands     = Brand::where('is_active', 1)->get(); // Thêm dòng này
         $product->load(['variants.attributeValues']);
         $colors = AttributeValue::whereHas('attribute', function ($q) {
@@ -204,6 +204,13 @@ public function index(Request $request)
         'new_variants.*.thumbnail' => 'nullable|image|max:2048',
         'new_variants.*.sku'       => 'nullable|string|unique:product_variants,sku',
     ]);
+
+     $categoryId = $request->input('category_id');
+    $category = Category::find($categoryId);
+
+    if ($category->hasChildren()) {
+        return redirect()->back()->withInput()->with('error', 'Không thể gán sản phẩm vào danh mục cha có danh mục con.');
+    }
 
     // Xử lý các checkbox
     $data['is_sale']   = $request->has('is_sale');

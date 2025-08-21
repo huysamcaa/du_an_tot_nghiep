@@ -13,9 +13,49 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.home') }}">Trang Chủ</a>
                             </li>
-                            <li class="menu-item">
-                                <a  href="{{ route('client.categories.index') }}">Danh mục</a>
+
+                          <li class="menu-item-has-children">
+                                <a href="javascript:void(0);">Danh Mục </a>
+                                <div class="megaMenu">
+                                    <div class="row">
+                                        {{-- Lặp qua từng nhóm danh mục (chunks) để tạo các cột --}}
+                                        @foreach($chunks as $chunk)
+                                            <div class="col-lg-4">
+                                                <ul>
+                                                    {{-- Lặp qua các danh mục trong từng nhóm để hiển thị --}}
+                                                    @foreach($chunk as $category)
+                                                        <li>
+                                                           <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">{{ $category->name }}</a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endforeach
+                                        <div class="col-lg-4 hideOnMobile">
+                                            <div class="lookBook01 lb01M2">
+                                                <div class="lbContent">
+                                                    <h3>Hãy sành điệu</h3>
+                                                    <h2>Thời trang & phong cách</h2>
+                                                    <a href="{{ route('client.categories.index') }}" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Mua ngay</a>
+                                                </div>
+                                                <img src="{{ asset('assets/Client/images/home1/3.png') }}" alt="Mans Latest Collection">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
+
+                            <style>
+                                /* CSS để xử lý văn bản quá dài */
+                                .megaMenu ul li a {
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    display: block;
+                                    max-width: 100%;
+                                }
+                            </style>
+
                             {{-- <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>
                             </li> --}}
@@ -179,11 +219,11 @@
                                                     <i class="fa-solid fa-user-circle"></i> Đơn Hàng
                                                 </a>
 
-                                                
+
                                                     <a href="{{ route('user.addresses.index') }}">
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
-                                                
+
 
                                             </div>
 
@@ -285,7 +325,7 @@
 }
 
 
-    
+
 </style>
 
 {{-- JavaScript --}}

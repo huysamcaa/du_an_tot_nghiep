@@ -18,9 +18,9 @@ class HomeController extends Controller
             ->paginate(8);
 
         $categories = Category::where('is_active', 1)
-            ->withCount('products')
-            ->orderBy('ordinal')
-            ->get();
+    ->withCount('directProducts') // Hoặc relatedProducts
+    ->orderBy('ordinal')
+    ->get();
 
         $blogs = Blog::latest()->take(3)->get();
 
@@ -66,4 +66,22 @@ class HomeController extends Controller
 
         return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts'));
     }
+    public function showCategoriesInMegaMenu()
+{
+    // Lấy tất cả danh mục cha và danh mục con của chúng
+    $parentCategories = Category::whereNull('parent_id')
+        ->with('children')
+        ->where('is_active', 1)
+        ->orderBy('ordinal')
+        ->get();
+
+    // Chia danh sách các danh mục cha thành 2 hoặc 3 nhóm
+    // để phân bổ vào các cột.
+    $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 2));
+
+    // Nếu bạn có 3 cột, bạn có thể chia thành 3 chunks.
+    // $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 3));
+
+    return view('client.partials.mega_menu', compact('chunks'));
+}
 }
