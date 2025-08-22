@@ -117,7 +117,7 @@
                 <table class="table table-bordered table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
+                            <th>STT</th>
                             <th>Tên Danh Mục</th>
                             {{-- Cột danh mục cha chỉ hiển thị khi ở chế độ xem danh mục con --}}
                             @if ($mode === 'children')
@@ -130,18 +130,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Vòng lặp bây giờ chỉ cần dùng một biến categories --}}
-                        @forelse($categories as $category)
+                        @forelse($categories as $index => $category)
                             <tr>
-                                <td>{{ $category->id }}</td>
+                                {{-- Tính toán số thứ tự --}}
+                                <td>{{ $categories->firstItem() + $index }}</td>
                                 <td>{{ $category->name }}</td>
                                 {{-- Giá trị danh mục cha chỉ hiển thị khi ở chế độ xem danh mục con --}}
                                 @if ($mode === 'children')
                                     <td>{{ $category->parent->name ?? '-' }}</td>
                                 @endif
                                 <td>
+                                    {{-- Hiển thị ảnh nếu có --}}
                                     @if($category->icon)
-                                        <img src="{{ asset('storage/' . $category->icon) }}" alt="Icon" width="24" height="24">
+                                        <img src="{{ asset('storage/' . $category->icon) }}" alt="Icon" width="50" height="50">
                                     @else
                                         -
                                     @endif

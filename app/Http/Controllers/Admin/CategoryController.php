@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\CategoryRequest;
 use App\Models\Admin\Category;
 use App\Models\Admin\Product;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -37,7 +38,8 @@ class CategoryController extends Controller
             $query->where('is_active', $request->input('is_active'));
         }
 
-        $categories = $query->orderBy('ordinal')->paginate(10)->withQueryString();
+        // Đã thay đổi thứ tự sắp xếp: ưu tiên created_at (mới nhất) trước, sau đó là ordinal.
+        $categories = $query->orderBy('created_at', 'desc')->orderBy('ordinal')->paginate(10)->withQueryString();
         $parentCategoriesList = Category::whereNull('parent_id')->orderBy('name')->get();
 
         return view('admin.categories.index', compact('categories', 'parentCategoriesList'));
@@ -57,10 +59,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        // Vẫn chỉ lấy những danh mục cha không có sản phẩm để có thể thêm danh mục con vào
         $parentCategories = Category::whereNull('parent_id')
-                                    ->whereDoesntHave('directProducts')
-                                    ->get();
+                                   ->whereDoesntHave('directProducts')
+                                   ->get();
 
         return view('admin.categories.create', compact('parentCategories'));
     }
@@ -74,17 +75,22 @@ class CategoryController extends Controller
             if ($request->filled('parent_id')) {
                 $parent = Category::find($request->parent_id);
 
-                // Kiểm tra danh mục cha có tồn tại và không có sản phẩm
                 if (!$parent || $parent->hasDirectProducts()) {
                     return redirect()->back()->withInput()->with('error', 'Danh mục cha được chọn không hợp lệ hoặc đã có sản phẩm.');
                 }
+            }
+
+            // Xử lý tải lên ảnh cho trường icon
+            $imagePath = null;
+            if ($request->hasFile('icon')) {
+                $imagePath = $request->file('icon')->store('categories', 'public');
             }
 
             Category::create([
                 'parent_id' => $request->parent_id,
                 'name' => $request->name,
                 'slug' => Str::slug($request->name),
-                'icon' => $request->icon,
+                'icon' => $imagePath, // Cập nhật trường icon thành đường dẫn ảnh
                 'ordinal' => $request->ordinal ?? 0,
                 'is_active' => $request->is_active ?? 1,
             ]);
@@ -100,17 +106,14 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        // Lấy tất cả các danh mục có thể làm danh mục cha tiềm năng (không có sản phẩm trực tiếp)
         $parentCategories = Category::whereNull('parent_id')
-                                    ->whereDoesntHave('directProducts')
-                                    ->get();
+                                   ->whereDoesntHave('directProducts')
+                                   ->get();
 
-        // Loại bỏ chính danh mục đang chỉnh sửa khỏi danh sách cha
         $parentCategories = $parentCategories->filter(function ($parent) use ($category) {
             return $parent->id != $category->id;
         });
 
-        // Xác định trạng thái của danh mục
         $hasChildren = $category->hasChildren();
         $hasProducts = $category->hasDirectProducts();
 
@@ -126,7 +129,6 @@ class CategoryController extends Controller
             $oldParentId = $category->parent_id;
             $newParentId = $request->input('parent_id');
 
-            // Ngăn gán danh mục cha là chính nó
             if ($newParentId && $category->id == $newParentId) {
                 return redirect()->back()->withInput()->with('error', 'Không thể gán danh mục cha là chính nó.');
             }
@@ -134,29 +136,38 @@ class CategoryController extends Controller
             $hasChildren = $category->hasChildren();
             $hasProducts = $category->hasDirectProducts();
 
-            // Kiểm tra khi có sự thay đổi parent_id
+            // Logic mới để xử lý các trường hợp chuyển đổi
             if ($newParentId != $oldParentId) {
-
-                // Trường hợp 1: Chuyển từ cha -> cha khác hoặc con -> cha.
+                // Kiểm tra nếu muốn chuyển thành danh mục cha
                 if (is_null($newParentId)) {
-                    if ($hasProducts) {
-                         return redirect()->back()->withInput()->with('error', 'Không thể chuyển danh mục có sản phẩm thành danh mục cha.');
+                    // Nếu danh mục đang là con và có sản phẩm, có thể chuyển thành cha
+                    // Điều kiện: danh mục không có con nào
+                    if ($hasChildren) {
+                         return redirect()->back()->withInput()->with('error', 'Không thể chuyển danh mục có danh mục con thành danh mục cha.');
                     }
                 }
 
-                // Trường hợp 2: Chuyển thành danh mục con (từ cha hoặc con khác)
+                // Kiểm tra nếu muốn gán vào một danh mục cha mới
                 if (!is_null($newParentId)) {
-                    // Nếu danh mục đang có danh mục con, nó không thể trở thành danh mục con của bất kỳ ai.
                     if ($hasChildren) {
                         return redirect()->back()->withInput()->with('error', 'Không thể gán danh mục cha có danh mục con thành danh mục con.');
                     }
 
-                    // Kiểm tra danh mục cha mới có hợp lệ không (loại 1 - không có sp)
                     $newParent = Category::find($newParentId);
+                    // Kiểm tra danh mục cha mới không hợp lệ hoặc đã có sản phẩm hoặc đã là con
                     if (!$newParent || $newParent->hasDirectProducts() || !is_null($newParent->parent_id)) {
                         return redirect()->back()->withInput()->with('error', 'Danh mục cha mới không hợp lệ hoặc đã có sản phẩm.');
                     }
                 }
+            }
+
+            // Xử lý cập nhật ảnh
+            $imagePath = $category->icon;
+            if ($request->hasFile('icon')) {
+                if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                    Storage::disk('public')->delete($category->icon);
+                }
+                $imagePath = $request->file('icon')->store('categories', 'public');
             }
 
             // Cập nhật dữ liệu
@@ -164,7 +175,7 @@ class CategoryController extends Controller
                 'parent_id' => $newParentId,
                 'name' => $request->name,
                 'slug' => Str::slug($request->name),
-                'icon' => $request->icon,
+                'icon' => $imagePath,
                 'ordinal' => $request->ordinal,
                 'is_active' => $request->is_active,
             ]);
@@ -189,9 +200,10 @@ class CategoryController extends Controller
                 throw new \Exception('Không thể xóa danh mục vì có sản phẩm liên quan.');
             }
             if ($hasChildren) {
-                 throw new \Exception('Không thể xóa danh mục vì có danh mục con.');
+                throw new \Exception('Không thể xóa danh mục vì có danh mục con.');
             }
 
+            // Chỉ thực hiện xóa mềm
             $category->delete();
 
             DB::commit();
@@ -249,6 +261,11 @@ class CategoryController extends Controller
             }
             if ($hasChildren) {
                 throw new \Exception('Không thể xóa danh mục vì có danh mục con.');
+            }
+
+            // Xóa file ảnh trước khi xóa danh mục
+            if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                Storage::disk('public')->delete($category->icon);
             }
 
             $category->forceDelete();

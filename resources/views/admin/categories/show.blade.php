@@ -48,7 +48,13 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted">Icon</label>
-                            <p class="form-control-static">{!! $category->icon !!}</p>
+                            <p class="form-control-static">
+                                @if($category->icon)
+                                    <img src="{{ asset('storage/' . $category->icon) }}" alt="Icon" width="100" height="100" class="rounded">
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </p>
                         </div>
                         {{-- Thứ tự và Trạng thái --}}
                         <div class="col-md-6">
@@ -59,9 +65,9 @@
                             <label class="form-label text-muted">Trạng thái</label>
                             <p class="form-control-static">
                                 @if($category->is_active)
-                                    <span class="badge badge-pill bg-success">Hiển thị</span>
+                                    <span class="badge rounded-pill bg-success">Hiển thị</span>
                                 @else
-                                    <span class="badge badge-pill bg-secondary">Ẩn</span>
+                                    <span class="badge rounded-pill bg-secondary">Ẩn</span>
                                 @endif
                             </p>
                         </div>
@@ -116,17 +122,19 @@
                                         </td>
                                         <td class="align-middle">{{ optional($product->brand)->name ?? '—' }}</td>
                                         <td class="align-middle text-end">
-                                            <div class="text-decoration-line-through text-muted">{{ number_format($product->price,0,',','.') }} đ</div>
                                             @if($product->sale_price)
+                                                <div class="text-decoration-line-through text-muted">{{ number_format($product->price,0,',','.') }} đ</div>
                                                 <div class="text-danger fw-bold">{{ number_format($product->sale_price,0,',','.') }} đ</div>
+                                            @else
+                                                <div class="fw-bold">{{ number_format($product->price,0,',','.') }} đ</div>
                                             @endif
                                         </td>
                                         <td class="align-middle text-end">{{ $product->stock }}</td>
                                         <td class="align-middle">
                                             @if($product->is_active)
-                                                <span class="badge badge-pill bg-success">Hiển thị</span>
+                                                <span class="badge rounded-pill bg-success">Hiển thị</span>
                                             @else
-                                                <span class="badge badge-pill bg-secondary">Ẩn</span>
+                                                <span class="badge rounded-pill bg-secondary">Ẩn</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -144,4 +152,3 @@
 </div>
 
 @endsection
-
