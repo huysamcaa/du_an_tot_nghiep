@@ -398,13 +398,13 @@
                             <div class="checkout-card-body">
                                 <div class="address-item">
                                     <div class="address-info">
-                                        <div class="address-name">
-                                            {{ auth()->user()->name ?? '' }}
-                                            @if($defaultAddress)
-                                                <span class="default-badge">Mặc định</span>
-                                            @endif
-                                        </div>
-                                        <div class="address-phone">(+84) {{ auth()->user()->phone_number ?? '' }}</div>
+                                        <div class="address-name" id="mainAddressName">
+    {{ auth()->user()->name ?? '' }}
+    @if($defaultAddress)
+        <span class="default-badge">Mặc định</span>
+    @endif
+</div>
+<div class="address-phone" id="mainAddressPhone">(+84) {{ auth()->user()->phone_number ?? '' }}</div>
                                         <div class="address-details">
                                             <select name="address_id" class="address-select" id="addressSelect" required>
                                                 @foreach($userAddresses as $address)
@@ -836,6 +836,9 @@
                 $('#hiddenField1').val(nameParts[0] || '');
                 $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
             }
+             // Thêm đoạn này để cập nhật giao diện
+    $('#mainAddressName').text(fullname || '');
+    $('#mainAddressPhone').text('(+84) ' + (phone || ''));
         });
 
         // Xử lý thay đổi địa chỉ
@@ -859,6 +862,8 @@
                     $('#hiddenField1').val(nameParts[0] || '');
                     $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                 }
+                $('#mainAddressName').text(fullname || '');
+$('#mainAddressPhone').text('(+84) ' + (phone || ''));
                 
                 // Đóng modal
                 $('#changeAddressModal').modal('hide');
