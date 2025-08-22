@@ -95,13 +95,13 @@
                                             <label for="view">Chế độ xem</label>
                                             <select name="view" id="view" class="form-control form-control-sm">
                                                 <option value="month" {{ request('view') == 'month' ? 'selected' : '' }}>
-                                                    Theo
+
                                                     tháng</option>
                                                 <option value="week" {{ request('view') == 'week' ? 'selected' : '' }}>
-                                                    Theo
+
                                                     tuần</option>
                                                 <option value="day" {{ request('view') == 'day' ? 'selected' : '' }}>
-                                                    Theo
+
                                                     ngày</option>
                                             </select>
                                         </div>
@@ -141,7 +141,7 @@
                             <div class="card-body">
                                 <h4 class="box-title">Top khách hàng </h4>
                             </div>
-                            <div class="card-body--">
+                            <div class="card-body">
                                 <div class="table-stats order-table ov-h">
                                     <table class="table ">
                                         <thead>
@@ -179,6 +179,44 @@
                                     </table>
                                 </div> <!-- /.table-stats -->
                             </div>
+                            <div class="card-body">
+                                <h4 class="box-title">Mã khuyến mãi </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-stats order-table ov-h">
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã khuyến mãi</th>
+                                                <th>Giá trị khuyến mãi</th>
+                                                <th>Số lần sử dụng</th>
+                                                <th>Doanh thu từ mã</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="topCoupons">
+                                            @forelse($topCoupons as $coupon)
+                                                <tr>
+                                                    <td>{{ $coupon->code }}</td>
+                                                    <td>
+                                                        @if ($coupon->discount_type === 'percent')
+                                                            {{ $coupon->value }}%
+                                                        @else
+                                                            {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $coupon->total_uses }}</td>
+                                                    <td>{{ number_format($coupon->total_revenue, 0, ',', '.') }} đ</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Chưa có dữ liệu</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                    </table>
+                                </div> <!-- /.table-stats -->
+                            </div>
                         </div>
                         <!-- Bên phải -->
                         <div class="col-lg-4">
@@ -190,6 +228,17 @@
                                     <canvas id="orderStatusChart" height="200"></canvas>
                                 </div>
                             </div>
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5>Phương thức thanh toán</h5>
+                                </div>
+                                <div class="chart-container"style="width:300px; margin:auto;">
+                                    <canvas id="paymentChart"></canvas>
+                                    <div id="paymentTotal" style="text-align:center; margin-top:10px; font-weight:bold;">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="card mb-3">
                                 <div class="card-header">
                                     <h5>Sản phẩm mua nhiều nhất</h5>
@@ -280,7 +329,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
                 <script>
-                    let revenueChart, orderStatusChart;
+                    let revenueChart, orderStatusChart, paymentChart;
 
                     document.addEventListener("DOMContentLoaded", function() {
                         const form = document.getElementById("filterForm");
@@ -352,9 +401,9 @@
                                                 const data = chart.data.datasets[0].data;
                                                 const total = data.reduce((a, b) => a + b, 0);
 
-                                                // Các legend bình thường với %
+                                                // Các legend bình thường: label + số lượng + %
                                                 const items = chart.data.labels.map((label, i) => ({
-                                                    text: `${label} (${((data[i]/total)*100).toFixed(1)}%)`,
+                                                    text: `${label} (${data[i]} đơn - ${((data[i]/total)*100).toFixed(1)}%)`,
                                                     fillStyle: chart.data.datasets[0].backgroundColor[
                                                         i],
                                                     strokeStyle: chart.data.datasets[0].backgroundColor[
@@ -364,8 +413,8 @@
 
                                                 // Thêm legend tổng ở cuối
                                                 items.push({
-                                                    text: `Tổng: ${total}`,
-                                                    fillStyle: '#ffffff', // màu đen hoặc bạn chọn
+                                                    text: `Tổng: ${total} đơn`,
+                                                    fillStyle: '#ffffff',
                                                     strokeStyle: '#ffffff',
                                                     index: data.length
                                                 });
@@ -377,6 +426,59 @@
                                 }
                             }
                         });
+                        const paymentData = @json($paymentStats);
+
+                        if (document.getElementById('paymentChart')) {
+                            const ctx = document.getElementById('paymentChart').getContext('2d');
+                            const totalOrders = paymentData.reduce((sum, p) => sum + p.total_orders, 0);
+                            document.getElementById('paymentTotal').innerText = `Tổng tất cả: ${totalOrders} đơn`;
+
+                            paymentChart = new Chart(ctx, {
+                                type: 'pie',
+                                data: {
+                                    labels: paymentData.map(p => `${p.method} (${p.total_orders} đơn)`),
+                                    datasets: [{
+                                        data: paymentData.map(p => p.total_orders),
+                                        backgroundColor: ['#f39c12', '#00c0ef', '#00a65a']
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                generateLabels: function(chart) {
+                                                    const data = chart.data;
+                                                    const dataset = data.datasets[0];
+                                                    const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                                                    return data.labels.map((label, i) => {
+                                                        let value = dataset.data[i];
+                                                        let percentage = ((value / total) * 100).toFixed(
+                                                            1) + '%';
+                                                        return {
+                                                            text: `${label} - ${percentage}`,
+                                                            fillStyle: dataset.backgroundColor[i]
+                                                        };
+                                                    });
+                                                }
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    let value = context.raw;
+                                                    let percentage = ((value / total) * 100).toFixed(1) + '%';
+                                                    return `${context.label}: ${value} đơn (${percentage})`;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
                         // --- Hàm cập nhật dashboard ---
                         function updateDashboard(data) {
                             // 4 box nhỏ
@@ -395,6 +497,11 @@
                             orderStatusChart.data.datasets[0].data = data.statusData;
                             orderStatusChart.update();
 
+                            paymentChart.data.labels = data.paymentStats.map(p => `${p.method} (${p.total_orders} đơn)`);
+                            paymentChart.data.datasets[0].data = data.paymentStats.map(p => p.total_orders);
+                            paymentChart.update();
+                            let totalPaymentOrders = data.paymentStats.reduce((sum, p) => sum + p.total_orders, 0);
+                            document.getElementById('paymentTotal').innerText = `Tổng tất cả: ${totalPaymentOrders} đơn`;
                             // Top Customers
                             let tbodyCustomer = document.querySelector("#topCustomers");
                             tbodyCustomer.innerHTML = "";
@@ -409,7 +516,31 @@
                                     <td>${item.total_orders}</td>
                                 </tr>`;
                             });
-
+                            // --- Cập nhật bảng Mã khuyến mãi ---
+                            let tbodyCoupon = document.querySelector("#topCoupons");
+                            if (tbodyCoupon) {
+                                tbodyCoupon.innerHTML = "";
+                                if (data.topCoupons.length) {
+                                    data.topCoupons.forEach(coupon => {
+                                        tbodyCoupon.innerHTML += `
+                                        <tr>
+                                            <td>${coupon.code}</td>
+                                            <td>
+                                                ${coupon.discount_type === 'percent'
+                                                    ? coupon.value + '%'
+                                                    : new Intl.NumberFormat('vi-VN').format(coupon.value) + ' đ'}
+                                            </td>
+                                            <td>${coupon.total_uses}</td>
+                                            <td>${new Intl.NumberFormat('vi-VN').format(coupon.total_revenue)} đ</td>
+                                        </tr>`;
+                                    });
+                                } else {
+                                    tbodyCoupon.innerHTML = `
+                                    <tr>
+                                        <td colspan="4" class="text-center">Chưa có dữ liệu</td>
+                                    </tr>`;
+                                }
+                            }
                             // Top Products By Sales
                             let tbodySales = document.querySelector("#topProductsBySales");
                             tbodySales.innerHTML = "";

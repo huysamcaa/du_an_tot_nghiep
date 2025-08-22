@@ -14,6 +14,22 @@ use App\Models\Admin\Comment;
 
 class AdminController extends Controller
 {
+    private function applyDateFilter($query, $fromDate, $toDate, $year, $month, $table = 'orders')
+    {
+        if ($fromDate && $toDate) {
+            return $query->whereBetween("$table.created_at", [$fromDate, $toDate]);
+        } elseif ($year) {
+            $query->whereYear("$table.created_at", $year);
+            if ($month) {
+                $query->whereMonth("$table.created_at", $month);
+            }
+            return $query;
+        } elseif ($month) {
+            return $query->whereMonth("$table.created_at", $month);
+        }
+
+        return $query;
+    }
     public function dashboard(Request $request)
     {
         $year = $request->get('year', date('Y'));
@@ -117,11 +133,9 @@ class AdminController extends Controller
                     ];
                 });
         }
-
         $revenueToday = Order::whereIn('id', $completedOrderIds)
             ->whereDate('created_at', now()->toDateString())
             ->sum('total_amount');
-
         $revenueMonth = Order::whereIn('id', $completedOrderIds)
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
@@ -134,17 +148,14 @@ class AdminController extends Controller
 
         // Danh sách tháng (1-12)
         $months = range(1, 12);
-
         // Các thống kê khác
         $baseOrders = Order::whereIn('id', $completedOrderIds);
-
         if ($fromDate && $toDate) {
             $baseOrders->whereBetween('created_at', [$fromDate, $toDate]);
         } else {
             $baseOrders->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month);
         }
-
         $revenue    = $baseOrders->sum('total_amount');
         $orderCount = $baseOrders->count();
         // Đếm user theo ngày đăng ký
@@ -155,7 +166,6 @@ class AdminController extends Controller
                 ->whereMonth('created_at', $month);
         })
             ->count();
-
         // Đếm sản phẩm theo ngày tạo
         $productCount = Product::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
             $q->whereBetween('created_at', [$fromDate, $toDate]);
@@ -164,8 +174,6 @@ class AdminController extends Controller
                 ->whereMonth('created_at', $month);
         })
             ->count();
-
-
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
             ->join('orders', 'orders.id', '=', 'order_order_status.order_id');
@@ -176,16 +184,17 @@ class AdminController extends Controller
             $orderStatusStats->whereYear('orders.created_at', $year)
                 ->whereMonth('orders.created_at', $month);
         }
-
         $orderStatusStats = $orderStatusStats
             ->select('order_statuses.id', 'order_statuses.name', DB::raw('COUNT(*) as total'))
             ->groupBy('order_statuses.id', 'order_statuses.name')
             ->get();
-        $customerOrders = Order::whereHas('orderOrderStatuses', function ($query) use ($orderCompletedStatusId) {
-            $query->where('order_status_id', $orderCompletedStatusId)
-                ->where('is_current', 1);
-        })
-            ->whereMonth('created_at', $month)
+        $customerOrders = Order::whereIn('id', $completedOrderIds)
+            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween('created_at', [$fromDate, $toDate]);
+            }, function ($q) use ($year, $month) {
+                $q->whereYear('created_at', $year)
+                    ->whereMonth('created_at', $month);
+            })
             ->select('user_id', DB::raw('COUNT(*) as total_orders'), DB::raw('SUM(total_amount) as total_amount'))
             ->with('user:id,name,avatar')
             ->groupBy('user_id')
@@ -193,10 +202,8 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
-        // lấy danh sách user_id
+        // Lấy last status cho top customers
         $userIds = $customerOrders->pluck('user_id');
-
-        // lấy last status của mỗi user một lần duy nhất
         $lastStatuses = DB::table('orders as o')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
@@ -210,29 +217,100 @@ class AdminController extends Controller
             })
             ->pluck('status', 'user_id');
 
-        // gắn lại cho collection
         $topCustomers = $customerOrders->map(function ($order) use ($lastStatuses) {
             $order->last_order_status = $lastStatuses[$order->user_id] ?? null;
             return $order;
         });
+
+        // --- Top Products By Sales ---
         $topProductsBySales = DB::table('orders')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->whereIn('orders.id', $completedOrderIds)
-            ->whereMonth('orders.created_at', $month)
             ->select('products.id', 'products.name', 'products.thumbnail', DB::raw('SUM(order_items.quantity) as total'))
             ->groupBy('products.id', 'products.name', 'products.thumbnail')
             ->orderByDesc('total')
-            ->limit(5)
-            ->get();
+            ->limit(5);
+
+        $topProductsBySales = $this->applyDateFilter($topProductsBySales, $fromDate, $toDate, $year, $month, 'orders')->get();
+
+        // --- Top Products By Favorites ---
         $topProductsByFavorites = DB::table('wishlists')
             ->join('products', 'wishlists.product_id', '=', 'products.id')
-            ->whereMonth('wishlists.created_at', $month)
             ->select('products.id', 'products.name', 'products.thumbnail', DB::raw('COUNT(wishlists.id) as total'))
             ->groupBy('products.id', 'products.name', 'products.thumbnail')
             ->orderByDesc('total')
-            ->limit(5)
+            ->limit(5);
+
+        $topProductsByFavorites = $this->applyDateFilter($topProductsByFavorites, $fromDate, $toDate, $year, $month, 'wishlists')->get();
+
+        // --- Top Coupon Users ---
+        $topCoupons = DB::table('orders')
+            ->join('coupons', 'orders.coupon_id', '=', 'coupons.id')
+            ->join('order_order_status', function ($join) use ($orderCompletedStatusId) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', $orderCompletedStatusId)
+                    ->where('order_order_status.is_current', 1);
+            })
+            ->select(
+                'coupons.code',
+                'coupons.discount_type',
+                'coupons.discount_value',
+                DB::raw('COUNT(orders.id) as total_uses'),
+                DB::raw('SUM(orders.total_amount) as total_revenue')
+            )
+            ->groupBy('coupons.id', 'coupons.code', 'coupons.discount_type', 'coupons.discount_value')
+            ->orderByDesc('total_revenue')
+            ->limit(5);
+
+        $topCoupons = $this->applyDateFilter($topCoupons, $fromDate, $toDate, $year, $month, 'orders')->get();
+
+
+
+        // Doanh thu theo kênh thanh toán
+        $paymentRevenue = Order::select('payment_id', DB::raw('SUM(total_amount) as total'))
+            ->whereIn('id', $completedOrderIds) // chỉ lấy đơn hoàn thành
+            ->groupBy('payment_id')
+            ->pluck('total', 'payment_id');
+
+        // Map payment_id sang tên
+        $paymentMethods = [
+            2 => 'COD',
+            3 => 'MoMo',
+            4 => 'VNPay',
+        ];
+
+        // Chuẩn hóa dữ liệu
+        $paymentStats = Order::whereIn('id', $completedOrderIds)
+            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
+                $q->whereBetween('orders.created_at', [$fromDate, $toDate]);
+            }, function ($q) use ($year, $month) {
+                $q->whereYear('orders.created_at', $year)
+                    ->whereMonth('orders.created_at', $month);
+            })
+            ->select(
+                'payment_id',
+                DB::raw('SUM(total_amount) as total_amount'),
+                DB::raw('COUNT(*) as total_orders')
+            )
+            ->groupBy('payment_id')
             ->get();
+
+        // Map payment_id sang tên
+        $paymentMethods = [
+            2 => 'COD',
+            3 => 'MoMo',
+            4 => 'VNPay',
+        ];
+
+        // Chuẩn hóa dữ liệu
+        $paymentStats = $paymentStats->map(function ($item) use ($paymentMethods) {
+            return [
+                'method'       => $paymentMethods[$item->payment_id] ?? 'Khác',
+                'total_amount' => $item->total_amount,
+                'total_orders' => $item->total_orders,
+            ];
+        });
         if ($request->ajax()) {
 
             return response()->json([
@@ -240,10 +318,14 @@ class AdminController extends Controller
                 'periodData'   => $revenueByPeriod->pluck('total'),
                 'statusLabels' => $orderStatusStats->pluck('name'),
                 'statusData'   => $orderStatusStats->pluck('total'),
+                'paymentLabels' => $paymentStats->pluck('method'),
+                'paymentData'   => $paymentStats->pluck('total_orders'),
                 'revenue'      => $revenue,
                 'orderCount' => $orderCount,
                 'userCount' => $userCount,
                 'productCount' => $productCount,
+                'paymentStats' => $paymentStats,
+                'topCoupons' => $topCoupons,
                 'topCustomers' => $topCustomers->map(function ($item) {
                     return [
                         'id' => $item->user->id ?? null,
@@ -259,7 +341,6 @@ class AdminController extends Controller
                 'revenueToday' => $revenueToday,
             ]);
         }
-
         return view('admin.dashboard', compact(
             'revenue',
             'orderCount',
@@ -279,7 +360,8 @@ class AdminController extends Controller
             'revenueToday',
             'revenueMonth',
             'productCount',
-
+            'paymentStats',
+            'topCoupons',
         ));
     }
 

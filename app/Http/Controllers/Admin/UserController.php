@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     public function index(Request $request)
@@ -49,13 +49,7 @@ class UserController extends Controller
         if (in_array($role, ['user', 'admin'], true)) {
             $query->where('role', $role);
         }
-
-        // Nhóm
-        if (in_array($userGroup, ['guest', 'member', 'vip'], true)) {
-            $query->where('user_group', $userGroup);
-        }
-
-        // Giới tính
+      // Giới tính
         if (in_array($gender, ['male', 'female'], true)) {
             $query->where('gender', $gender);
         }
@@ -80,23 +74,6 @@ class UserController extends Controller
         } elseif ($hasReviews === 'no') {
             $query->whereDoesntHave('reviews');
         }
-
-        // Khoảng ngày tạo
-        if ($createdFrom) {
-            $query->whereDate('created_at', '>=', $createdFrom);
-        }
-        if ($createdTo) {
-            $query->whereDate('created_at', '<=', $createdTo);
-        }
-
-        // Khoảng ngày sinh
-        if ($birthdayFrom) {
-            $query->whereDate('birthday', '>=', $birthdayFrom);
-        }
-        if ($birthdayTo) {
-            $query->whereDate('birthday', '<=', $birthdayTo);
-        }
-
         // Sort
         match ($sort) {
             'created_asc' => $query->orderBy('created_at', 'asc'),
@@ -120,16 +97,20 @@ class UserController extends Controller
         $user->status = 'active'; // hoặc null nếu mặc định là chưa khóa
         $user->save();
 
-        return redirect()->route('admin.users.locked')->with('success', 'Đã mở khóa tài khoản.');
+        return redirect()->route('admin.users.index')->with('success', 'Đã mở khóa tài khoản.');
     }
     public function lock(User $user)
     {
+        if ($user->id == Auth :: id()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Bạn không thể tự khóa tài khoản đang đăng nhập.');
+        }
         $user->status = 'locked';
         $user->save();
 
         return redirect()->route('admin.users.index')->with('success', 'Tài khoản đã bị khóa.');
     }
- public function show(User $user)
+    public function show(User $user)
     {
         $ordersQuery = $user->orders();
 
@@ -139,9 +120,9 @@ class UserController extends Controller
         // Đơn hoàn tất = đã thanh toán & không hoàn
         $completedFilter = function ($q) {
             $q->where('is_paid', 1)
-              ->where(function ($qq) {
-                  $qq->whereNull('is_refund')->orWhere('is_refund', 0);
-              });
+                ->where(function ($qq) {
+                    $qq->whereNull('is_refund')->orWhere('is_refund', 0);
+                });
         };
 
         $ordersCompleted = (clone $ordersQuery)->where($completedFilter)->count();
@@ -153,7 +134,9 @@ class UserController extends Controller
         $recentOrders = (clone $ordersQuery)->latest('created_at')->limit(5)->get();
 
         // Coupon: tổng & đã dùng (pivot.used_at)
-        $user->load(['coupons' => function ($q) { $q->withTrashed(); }]);
+        $user->load(['coupons' => function ($q) {
+            $q->withTrashed();
+        }]);
         $couponsTotal = $user->coupons->count();
         $couponsUsed  = $user->coupons()->wherePivotNotNull('used_at')->count();
 
@@ -167,5 +150,4 @@ class UserController extends Controller
 
         return view('admin.users.show', compact('user', 'stats', 'recentOrders'));
     }
-
 }
