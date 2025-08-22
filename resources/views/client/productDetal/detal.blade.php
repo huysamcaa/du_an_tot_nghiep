@@ -55,7 +55,7 @@
         $display_price = $first_variant->sale_price > 0 ? $first_variant->sale_price : $first_variant->price;
         $original_price = $first_variant->sale_price > 0 ? $first_variant->price : null;
     } else {
-$display_price = $product->sale_price > 0 ? $product->sale_price : $product->price;
+        $display_price = $product->sale_price > 0 ? $product->sale_price : $product->price;
         $original_price = $product->sale_price > 0 ? $product->price : null;
     }
 @endphp
@@ -111,7 +111,7 @@ $display_price = $product->sale_price > 0 ? $product->sale_price : $product->pri
                                                     id="color_{{ $color->id }}"
                                                     @if (old('color') == $color->id || $loop->first) checked @endif hidden>
                                                 <label for="color_{{ $color->id }}" class="customColorCircle"
-style="background-color: {{ $color->hex }};"></label>
+                                                    style="background-color: {{ $color->hex }};"></label>
                                             </div>
                                         @endforeach
                                     </div>
@@ -157,7 +157,7 @@ style="background-color: {{ $color->hex }};"></label>
                 <div class="col-lg-12">
                     <ul class="nav productDetailsTab" id="productDetailsTab" role="tablist">
                         <li role="presentation">
-<button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description"
+                            <button class="active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description"
                                 type="button" role="tab" aria-controls="description" aria-selected="true">Chi tiết
                                 sản phẩm</button>
                         </li>
@@ -203,7 +203,7 @@ style="background-color: {{ $color->hex }};"></label>
                                             <div class="reviewFrom">
                                                 <form id="comment-form" method="POST">
                                                     @csrf
-<input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                     <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
                                                     <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
                                                             luận</span></button>
@@ -248,7 +248,7 @@ style="background-color: {{ $color->hex }};"></label>
                                                         Tất cả
                                                     </a>
                                                     @for ($i = 5; $i >= 1; $i--)
-<a href="{{ request()->fullUrlWithQuery(['rating' => $i]) }}#reviews"
+                                                        <a href="{{ request()->fullUrlWithQuery(['rating' => $i]) }}#reviews"
                                                             class="btn btn-sm {{ request('rating') == $i ? 'btn-warning text-white' : 'btn-outline-secondary' }}">
                                                             {{ $i }} <i
                                                                 class="fa-solid fa-star text-warning"></i>
@@ -287,7 +287,7 @@ style="background-color: {{ $color->hex }};"></label>
                                                 <div class="p-3 mb-4 border rounded bg-light shadow-sm">
                                                     <h5 class="mb-2">Đánh giá trung bình</h5>
                                                     <div class="d-flex align-items-center">
-<span class="fs-4 fw-semibold text-warning me-2">
+                                                        <span class="fs-4 fw-semibold text-warning me-2">
                                                             {{ number_format($allReviews->avg('rating'), 1) }}
                                                             <i class="fa-solid fa-star text-warning"></i>
                                                         </span>
@@ -327,7 +327,7 @@ style="background-color: {{ $color->hex }};"></label>
                                                         <div class="d-flex flex-wrap gap-3 mt-3">
                                                             @foreach ($review->multimedia as $media)
                                                                 @if (Str::contains($media->mime_type, 'image'))
-<div
+                                                                    <div
                                                                         style="width: 120px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;">
                                                                         <img src="{{ asset('storage/' . $media->file) }}"
                                                                             alt="review image"
@@ -369,7 +369,7 @@ style="background-color: {{ $color->hex }};"></label>
                                 </div>
                             </div>
                         </div>
-</div>
+                    </div>
                 </div>
 
             </div>
@@ -415,7 +415,7 @@ style="background-color: {{ $color->hex }};"></label>
                                         <div class="pi01Details">
                                             {{-- Star rating + Reviews --}}
                                             @php
-$avg = $prod->avg_rating ?? 0;
+                                                $avg = $prod->avg_rating ?? 0;
                                                 $avgPercent = round($avg * 20); // 5 sao = 100%
                                             @endphp
 
@@ -457,7 +457,7 @@ $avg = $prod->avg_rating ?? 0;
                                                     foreach ($prod->variantsWithAttributes() as $variant) {
                                                         foreach ($variant->attributeValues as $attrVal) {
                                                             if ($attrVal->attribute->slug === 'color') {
-$colors->push($attrVal);
+                                                                $colors->push($attrVal);
                                                             }
                                                         }
                                                     }
@@ -496,7 +496,7 @@ $colors->push($attrVal);
                                                     @if ($sizes->count())
                                                         <div class="pi01VSize">
                                                             @foreach ($sizes as $size)
-<div class="pi01VSItem">
+                                                                <div class="pi01VSItem">
                                                                     <input type="radio" name="size_{{ $prod->id }}"
                                                                         id="size_{{ $prod->id }}_{{ $size->id }}">
                                                                     <label
@@ -558,7 +558,7 @@ $colors->push($attrVal);
 
                 // Tìm biến thể phù hợp
                 const variant = variants.find(v =>
-v.color_id == colorId &&
+                    v.color_id == colorId &&
                     v.size_id == sizeId
                 );
 
@@ -622,7 +622,7 @@ v.color_id == colorId &&
                             addToCartBtn.innerHTML = '<span>Hết hàng</span>';
                         }
                     }
-// Hiển thị ảnh theo variant
+                    // Hiển thị ảnh theo variant
                     const mainImgEl = document.getElementById('main-product-image');
 
                     if (mainImgEl) {
@@ -693,7 +693,7 @@ v.color_id == colorId &&
                             title: 'Chưa đăng nhập',
                             text: 'Vui lòng đăng nhập.',
                             showConfirmButton: true
-}).then(() => location.href = '/login');
+                        }).then(() => location.href = '/login');
                     }
 
                     if (data.success) {
@@ -759,7 +759,7 @@ v.color_id == colorId &&
                             $('#comment-message')
                                 .removeClass('text-success')
                                 .addClass('text-danger')
-.text(message);
+                                .text(message);
                         }
                     });
                 });
@@ -839,7 +839,7 @@ v.color_id == colorId &&
                             text: 'Vui lòng đăng nhập để thêm vào danh sách yêu thích.',
                             showConfirmButton: true
                         }).then(() => window.location.href = '/login');
-return;
+                        return;
                     }
 
                     if (data.success) {

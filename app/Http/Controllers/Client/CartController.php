@@ -92,7 +92,7 @@ class CartController extends Controller
             // render phần icon giỏ hàng
             $cartIcon = view('partials.cart_widget', compact('cartItems','total','totalProduct'))->render();
 
-            return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartIcon' => $cartIcon]);
+            return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartWidget' => $cartIcon]);
         }
 
         return back()->with('success', 'Đã thêm vào giỏ hàng');

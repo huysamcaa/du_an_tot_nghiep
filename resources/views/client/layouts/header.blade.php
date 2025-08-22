@@ -290,11 +290,27 @@
 
 {{-- JavaScript --}}
 <script>
-    document.getElementById('toggleSearch').addEventListener('click', function () {
-        document.getElementById('searchWrapper').style.display = 'flex';
+    const toggleBtn = document.getElementById('toggleSearch');
+    const searchWrapper = document.getElementById('searchWrapper');
+    const closeBtn = document.getElementById('closeSearch');
+
+    // Toggle khi click vào icon search
+    toggleBtn.addEventListener('click', function (e) {
+        e.stopPropagation(); // chặn lan truyền
+        searchWrapper.style.display = 'flex';
     });
 
-    document.getElementById('closeSearch').addEventListener('click', function () {
-        document.getElementById('searchWrapper').style.display = 'none';
+    // Đóng khi click vào nút X
+    closeBtn.addEventListener('click', function () {
+        searchWrapper.style.display = 'none';
     });
+
+    // Đóng khi click ra ngoài
+    document.addEventListener('click', function (e) {
+        if (searchWrapper.style.display === 'flex' && !searchWrapper.contains(e.target) && e.target !== toggleBtn) {
+            searchWrapper.style.display = 'none';
+        }
+    });
+
+    
 </script>

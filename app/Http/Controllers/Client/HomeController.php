@@ -27,7 +27,9 @@ class HomeController extends Controller
         // Sản phẩm mới nhất (có phân trang hoặc limit tùy bạn)
     $newProducts = Product::with(['variants.attributeValues.attribute'])
         ->latest()
+        ->where('is_active', 1)
         ->paginate(8);
+        
 
     // Sản phẩm bán chạy
     $orderCompletedStatusId = DB::table('order_statuses')
@@ -49,6 +51,7 @@ class HomeController extends Controller
 
     $bestSellingProducts = Product::with(['variants.attributeValues.attribute'])
         ->whereIn('id', $bestSellingProductIds)
+        ->where('is_active', 1)
         ->paginate(8);
 
         $reviews = Review::with('user', 'product')
