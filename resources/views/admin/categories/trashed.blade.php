@@ -58,6 +58,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="50">STT</th>
+                            <th>Icon</th>
                             <th>Tên danh mục</th>
                             <th>Danh mục cha</th>
                             <th>Ngày xóa</th>
@@ -68,16 +69,18 @@
                         @forelse($categories as $index => $category)
                         <tr>
                             <td class="align-middle">{{ $index + $categories->firstItem() }}</td>
+                            <td class="align-middle">
+                                @if($category->icon)
+                                    <img src="{{ asset('storage/' . $category->icon) }}" alt="Icon" width="40" height="40" class="rounded">
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td class="align-middle">{{ $category->name }}</td>
-                            <td class="align-middle">{{ $category->parent ? $category->parent->name : '—' }}</td>
+                            <td class="align-middle">{{ optional($category->parent)->name ?? '—' }}</td>
                             <td class="align-middle">{{ $category->deleted_at->format('d/m/Y H:i') }}</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center" style="gap: 10px;">
-                                    {{-- Nút xem chi tiết --}}
-                                    <a href="{{ route('admin.categories.show', $category->id) }}" title="Xem chi tiết" class="btn btn-sm btn-info text-white">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-
                                     {{-- Nút khôi phục --}}
                                     <form action="{{ route('admin.categories.restore', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục danh mục này không?');">
                                         @csrf
@@ -99,7 +102,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Không có danh mục nào đã bị xóa.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">Không có danh mục nào đã bị xóa.</td>
                         </tr>
                         @endforelse
                     </tbody>
