@@ -79,7 +79,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="text-muted small mb-1">Ngày hủy</label>
-                                <p class="fw-bold">{{ $order->currentStatus->created_at ? $order->currentStatus->created_at->format('d/m/Y H:i') : 'N/A' }}</p>
+                                <p class="fw-bold">{{ $order->created_at->format('d/m/Y H:i') }}</p>
                             </div>
                         </div>
                     </div>
