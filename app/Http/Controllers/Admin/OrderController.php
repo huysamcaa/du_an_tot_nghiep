@@ -92,26 +92,30 @@ class OrderController extends Controller
 
     // Xem chi tiết đơn hàng
     public function show($id)
-    {
-        $order = Order::with([
-            'user',
-            'items.product',
-            'items.variant.attributeValues.attribute',
-            'orderOrderStatuses.orderStatus',
-            'currentStatus.orderStatus'
-        ])->findOrFail($id);
+{
+    $order = Order::with([
+        'user',
+        'items.product',
+        'items.variant.attributeValues.attribute',
+        'statuses.orderStatus', // Đổi tên mối quan hệ từ 'orderOrderStatuses' sang 'statuses' để code nhất quán
+        'currentStatus.orderStatus'
+    ])->findOrFail($id);
+    
+    // Nếu bạn không muốn đổi tên mối quan hệ trong model, bạn có thể truyền lại biến:
+    $order->statuses = $order->orderOrderStatuses;
 
-        $usedStatusIds = $order->orderOrderStatuses->pluck('order_status_id')->toArray();
-        $statuses = OrderStatus::orderBy('id')->get();
+    $usedStatusIds = $order->statuses->pluck('order_status_id')->toArray();
+    $statuses = OrderStatus::orderBy('id')->get();
 
-        // Lấy trạng thái hiện tại
-        $currentStatusId = $order->currentStatus?->order_status_id ?? 1;
+    // Lấy trạng thái hiện tại
+    $currentStatusId = $order->currentStatus?->order_status_id ?? 1;
 
-        // Trạng thái tiếp theo
-        $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null;
+    // Trạng thái tiếp theo
+    $nextStatusId = $currentStatusId < 5 ? $currentStatusId + 1 : null;
 
-        return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
-    }
+    // Truyền biến 'statuses' đã được chuẩn bị vào view
+    return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
+}
     // protected function handleCancelOrder($orderId)
     // {
     //     // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)

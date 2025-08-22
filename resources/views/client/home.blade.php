@@ -606,37 +606,42 @@
                     <div class="col-lg-12">
                         <div class="categoryCarousel owl-carousel">
                             @foreach ($categories as $category)
-                                <div class="categoryItem01 text-center">
-                                    <div class="ci01Thumb">
-                                        {{-- nếu có trường thumbnail trong DB --}}
-                                        {{-- <img src="{{ asset('storage/' . $category->thumbnail) }}" --}}
-                                        <img src="https://aoxuanhe.com/upload/product/axh-149/ao-thun-nam-trang-cao-cap-dep.jpg"
+                            <div class="categoryItem01 text-center">
+                                <div class="ci01Thumb">
+                                    {{-- Sử dụng trường 'icon' từ database --}}
+                                    @if($category->icon)
+                                        <img src="{{ asset('storage/' . $category->icon) }}"
                                             alt="{{ $category->name }}"
                                             style="width:100%; height:auto; object-fit:cover;" />
-                                    </div>
-                                    <h3>
-                                        <a
-                                            href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
-
-
-                                            {{ $category->name }}
-                                        </a>
-                                    </h3>
-                                    <p>{{ $category->products_count }} Items</p>
+                                    @else
+                                        {{-- Hiển thị ảnh placeholder nếu không có icon --}}
+                                        <img src="https://via.placeholder.com/200x200.png?text=No+Icon"
+                                            alt="{{ $category->name }}"
+                                            style="width:100%; height:auto; object-fit:cover;" />
+                                    @endif
                                 </div>
+                                <h3>
+                                    <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
+                                        {{ $category->name }}
+                                    </a>
+                                </h3>
+                                {{-- Tính tổng số sản phẩm của tất cả danh mục con --}}
+                                @php
+                                    $totalItems = $category->children->sum('direct_products_count');
+                                @endphp
+                                <p>{{ $totalItems }} Items</p>
+                            </div>
                             @endforeach
                         </div>
-
                     </div>
                 </div>
-
             </div>
-            </section>
+        </section>
             <!-- END: Category Section -->
 
                 <section class="container py-4">
-        <h2 class="mb-4"> Sản phẩm bán chạy</h2>
-        @include('client.components.products-list', ['products' => $bestSellingProducts])
+
+
     </section>
 
             <!-- BEGIN: Testimonial Section -->

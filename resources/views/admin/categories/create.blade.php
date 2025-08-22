@@ -24,7 +24,8 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.categories.store') }}" method="POST">
+            {{-- Thêm enctype="multipart/form-data" để xử lý tải lên tệp --}}
+            <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     {{-- Tên danh mục --}}
@@ -39,7 +40,6 @@
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Slug</label>
-                            {{-- Slug sẽ tự động được tạo từ tên, người dùng có thể tùy chỉnh --}}
                             <input type="text" name="slug" class="form-control" value="{{ old('slug') }}">
                         </div>
                     </div>
@@ -59,11 +59,15 @@
                         </div>
                     </div>
 
-                    {{-- Icon --}}
+                    {{-- Icon (input file để tải ảnh lên) --}}
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
-                            <label>Icon</label>
-                            <input type="text" name="icon" class="form-control" placeholder="<i class='fa fa-icon'></i>" value="{{ old('icon') }}">
+                            <label>Icon (Tải lên hình ảnh) <span class="text-danger">*</span></label>
+                            <input type="file" name="icon" class="form-control" id="icon-upload" required>
+                            <div class="mt-2" id="icon-preview-container" style="display: none;">
+                                <p class="text-muted">Ảnh xem trước:</p>
+                                <img id="icon-preview" src="#" alt="Icon Preview" style="max-width: 100px; max-height: 100px;">
+                            </div>
                         </div>
                     </div>
 
@@ -97,3 +101,28 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iconUpload = document.getElementById('icon-upload');
+        const iconPreview = document.getElementById('icon-preview');
+        const iconPreviewContainer = document.getElementById('icon-preview-container');
+
+        iconUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    iconPreview.src = e.target.result;
+                    iconPreviewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                iconPreview.src = '#';
+                iconPreviewContainer.style.display = 'none';
+            }
+        });
+    });
+</script>
+@endpush
