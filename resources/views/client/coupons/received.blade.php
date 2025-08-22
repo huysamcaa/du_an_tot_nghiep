@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,15 +19,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -66,10 +66,7 @@
                 class="btn btn-outline-primary {{ request('status') === 'unused' ? 'active' : '' }}">
                 Chưa sử dụng
             </a>
-            <a href="{{ route('client.coupons.received', ['status' => 'used']) }}"
-                class="btn btn-outline-success {{ request('status') === 'used' ? 'active' : '' }}">
-                Đã sử dụng
-            </a>
+          
         </div>
 
         @auth
@@ -103,7 +100,7 @@
                                     </h5>
                                     <p class="text-muted small mb-2">
                                         {{ $coupon->pivot->title }}
-                                    </p>                              
+                                    </p>
                                     <span class="badge bg-info text-white fs-6 px-3 py-2">
                                         {{ $coupon->pivot->discount_type === 'percent'
                                             ? rtrim(rtrim(number_format($coupon->pivot->discount_value, 2, '.', ''), '0'), '.') . '%'
