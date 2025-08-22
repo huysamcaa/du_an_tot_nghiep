@@ -57,28 +57,29 @@
                     @endphp
 
                     @if(count($activeFilters))
-                    <aside class="widget">
-                        <h3 class="widgetTitle">Đang lọc</h3>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($activeFilters as $key => $value)
-                            @php
-                            $query = request()->except([$key, 'page']);
-                            @endphp
-                            <a href="{{ url()->current() . '?' . http_build_query($query) }}"
-                                class="btn btn-outline-secondary btn-sm">
-                                {{ $value }} &times;
-                            </a>
-                            @endforeach
+                        <aside class="widget">
+                            <h3 class="widgetTitle">Đang lọc</h3>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($activeFilters as $key => $value)
+                                @php
+                                $query = request()->except([$key, 'page']);
+                                @endphp
+                                <a href="{{ url()->current() . '?' . http_build_query($query) }}"
+                                    class="btn btn-outline-secondary btn-sm">
+                                    @if (!empty($value))
+                                        {{ $value }}
+                                    @endif
+                                    &times;
+                                </a>
+                                @endforeach
 
-                            <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">
-                                Xóa tất cả
-                            </a>
-                        </div>
-                    </aside>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">
+                                    Xóa tất cả
+                                </a>
+                            </div>
+                        </aside>
                     @endif
 
-
-                    <!-- Danh mục -->
                     <aside class="widget">
                         <h3 class="widgetTitle">Danh mục</h3>
                         <ul class="categoryFilterList">
@@ -88,14 +89,54 @@
                                     Tất cả
                                 </a>
                             </li>
-                            @foreach($categories as $cat)
+                            @foreach($categories as $category)
+                            @php
+                                // Kiểm tra xem danh mục cha có đang được chọn hay không
+                                $parentIsActive = (string)$selectedCategory === (string)$category->id;
+                                // Kiểm tra xem có bất kỳ danh mục con nào đang được chọn hay không
+                                $childIsSelected = $category->children->contains('id', $selectedCategory);
+                            @endphp
+
+                            {{-- Kiểm tra nếu danh mục cha có con --}}
+                            @if($category->children->isNotEmpty())
+                            <li class="menu-item-has-children {{ $parentIsActive || $childIsSelected ? 'active' : '' }}">
+                                <div class="category-parent-link d-flex align-items-center justify-content-between">
+                                    {{-- Link lọc sản phẩm cho danh mục cha --}}
+                                    <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id', 'page']), ['category_id' => $category->id])) }}">
+                                        {{ $category->name }}
+                                    </a>
+                                    {{-- Nút + để mở/đóng danh mục con --}}
+                                    <span class="toggle-children-btn">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </span>
+                                </div>
+                                <ul class="sub-category-list">
+                                    @foreach($category->children as $child)
+                                    @php
+                                        $childIsActive = (string)$selectedCategory === (string)$child->id;
+                                    @endphp
+                                    <li>
+                                        <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id', 'page']), ['category_id' => $child->id])) }}"
+                                            class="{{ $childIsActive ? 'active' : '' }}">
+                                            {{ $child->name }}
+                                        </a>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                            @else
+                            {{-- Nếu danh mục cha không có con, nó là danh mục lá --}}
+                            @php
+                                $isActive = (string)$selectedCategory === (string)$category->id;
+                            @endphp
                             <li>
-                                <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id','page']), ['category_id' => $cat->id])) }}"
-                                    class="{{ (string)$selectedCategory === (string)$cat->id ? 'active' : '' }}">
-                                    {{ $cat->name }}
-                                    @if(isset($cat->products_count)) ({{ $cat->products_count }}) @endif
+                                <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id','page']), ['category_id' => $category->id])) }}"
+                                    class="{{ $isActive ? 'active' : '' }}">
+                                    {{ $category->name }}
+                                    @if(isset($category->products_count)) ({{ $category->products_count }}) @endif
                                 </a>
                             </li>
+                            @endif
                             @endforeach
                         </ul>
                     </aside>
@@ -224,119 +265,139 @@
                     <div class="col-lg-12">
                         <div class="tab-content productViewTabContent" id="productViewTabContent">
                             <div class="tab-pane show active" id="grid-tab-pane" role="tabpanel" aria-labelledby="grid-tab" tabindex="0">
-                                        <div class="row">
-            @foreach ($products as $product)
-                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                    <div class="productItem01">
-                        <div class="pi01Thumb" style="height: auto; overflow: hidden;">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                style="width: 100%; height: auto; object-fit: cover;" />
-                                                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                style="width: 100%; height: auto; object-fit: cover;" />
-                            <div class="pi01Actions" data-product-id="{{ $product->id }}">
-                                    <a href="javascript:void(0)" class="piAddToCart"
-       data-id="{{ $product->id }}">
-        <i class="fa-solid fa-shopping-cart"></i>
-    </a>
-    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <input type="hidden" name="quantity" value="1">
-</form>
-                                <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
-                            </div>
-                            @if ($product->sale_price && $product->price > $product->sale_price)
-                                <div class="productLabels clearfix">
-                                    <span class="plDis">-{{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ</span>
-                                    <span class="plSale">SALE</span>
+                                <div class="row">
+                                    @foreach ($products as $product)
+                                    @php
+                                    // Lấy giá thấp nhất và giá sale thấp nhất từ tất cả các biến thể của sản phẩm
+                                    $min_price = $product->variants->min('price');
+                                    $min_sale_price = $product->variants->whereNotNull('sale_price')->min('sale_price');
+
+                                    // Lấy giá cao nhất và giá sale cao nhất từ tất cả các biến thể
+                                    $max_price = $product->variants->max('price');
+                                    $max_sale_price = $product->variants->whereNotNull('sale_price')->max('sale_price');
+                                    @endphp
+                                    <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                                        <div class="productItem01">
+                                            <div class="pi01Thumb" style="height: auto; overflow: hidden;">
+                                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                                    style="width: 100%; height: auto; object-fit: cover;" />
+                                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                                    style="width: 100%; height: auto; object-fit: cover;" />
+                                                <div class="pi01Actions" data-product-id="{{ $product->id }}">
+                                                    <a href="javascript:void(0)" class="piAddToCart"
+                                                        data-id="{{ $product->id }}">
+                                                        <i class="fa-solid fa-shopping-cart"></i>
+                                                    </a>
+                                                    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+                                                        @csrf
+                                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                        <input type="hidden" name="quantity" value="1">
+                                                    </form>
+                                                    <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
+                                                </div>
+                                                @if ($min_sale_price && $min_sale_price < $min_price)
+                                                    <div class="productLabels clearfix">
+                                                    <span class="plDis">-{{ number_format($min_price - $min_sale_price, 0, ',', '.') }}đ</span>
+                                                    <span class="plSale">SALE</span>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        <div class="pi01Details">
+                                            <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
+                                                <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
+                                                    {{ $product->name }}
+                                                </a>
+                                            </h3>
+
+                                            <div class="pi01Price">
+                                                @php
+                                                $displayed_min_price = $min_sale_price ?? $min_price;
+                                                $displayed_max_price = $max_sale_price ?? $max_price;
+                                                @endphp
+                                                @if($displayed_min_price !== $displayed_max_price)
+                                                {{-- Hiển thị dải giá nếu giá min và max khác nhau --}}
+                                                <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}đ - {{ number_format($displayed_max_price, 0, ',', '.') }}đ</ins>
+                                                @else
+                                                {{-- Hiển thị một giá duy nhất nếu tất cả biến thể có cùng giá --}}
+                                                <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}đ</ins>
+                                                @endif
+
+                                                {{-- Hiển thị giá gốc bị gạch ngang nếu có giá sale --}}
+                                                @if ($min_sale_price && $min_sale_price < $min_price)
+                                                    <del>{{ number_format($min_price, 0, ',', '.') }}đ</del>
+                                                    @endif
+                                            </div>
+
+                                            {{-- Hiển thị Size --}}
+                                            @php
+                                            $sizes = $product->variants
+                                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
+                                            ->unique()
+                                            ->values()
+                                            ->toArray();
+                                            @endphp
+                                            @if(count($sizes))
+                                            <div class="product-sizes mt-1">
+                                                <strong>Size:</strong>
+                                                @foreach($sizes as $size)
+                                                <span class="badge bg-light text-dark border">{{ $size }}</span>
+                                                @endforeach
+                                            </div>
+                                            @endif
+
+                                            {{-- Hiển thị Màu --}}
+                                            @php
+                                            $colors = $product->variants
+                                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
+                                            ->unique()
+                                            ->values()
+                                            ->toArray();
+                                            @endphp
+                                            @if(count($colors))
+                                            <div class="product-colors mt-1 d-flex gap-1">
+                                                <strong class="me-1">Màu:</strong>
+                                                @foreach($colors as $hex)
+                                                <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
+                                                @endforeach
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                            @endif
-                        </div>
-                        <div class="pi01Details">
-    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-        <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
-            {{ $product->name }}
-        </a>
-    </h3>
-
-    <div class="pi01Price">
-        <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
-        @if ($product->sale_price && $product->price > $product->sale_price)
-            <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
-        @endif
-    </div>
-
-    {{-- Hiển thị Size --}}
-    @php
-        $sizes = $product->variants
-            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
-            ->unique()
-            ->values()
-            ->toArray();
-    @endphp
-    @if(count($sizes))
-        <div class="product-sizes mt-1">
-            <strong>Size:</strong>
-            @foreach($sizes as $size)
-                <span class="badge bg-light text-dark border">{{ $size }}</span>
-            @endforeach
-        </div>
-    @endif
-
-    {{-- Hiển thị Màu --}}
-    @php
-        $colors = $product->variants
-            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
-            ->unique()
-            ->values()
-            ->toArray();
-    @endphp
-    @if(count($colors))
-        <div class="product-colors mt-1 d-flex gap-1">
-            <strong class="me-1">Màu:</strong>
-            @foreach($colors as $hex)
-                <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
-            @endforeach
-        </div>
-    @endif
-</div>
-
-                    </div>
-                </div>
-            @endforeach
-        </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
                 </div>
-                @php $p = $products; @endphp
-                <div class="shopPagination">
-                    {{-- Prev --}}
-                    @if($p->onFirstPage())
-                    <span class="disabled"><i class="fa-solid fa-angle-left"></i></span>
-                    @else
-                    <a href="{{ $p->previousPageUrl() }}"><i class="fa-solid fa-angle-left"></i></a>
-                    @endif
-
-                    {{-- Pages --}}
-                    @for($i = 1; $i <= $p->lastPage(); $i++)
-                        @if($i === $p->currentPage())
-                        <span class="current">{{ $i }}</span>
-                        @else
-                        <a href="{{ $p->url($i) }}">{{ $i }}</a>
-                        @endif
-                        @endfor
-
-                        {{-- Next --}}
-                        @if($p->hasMorePages())
-                        <a href="{{ $p->nextPageUrl() }}"><i class="fa-solid fa-angle-right"></i></a>
-                        @else
-                        <span class="disabled"><i class="fa-solid fa-angle-right"></i></span>
-                        @endif
-                </div>
-
             </div>
+            @php $p = $products; @endphp
+            <div class="shopPagination">
+                {{-- Prev --}}
+                @if($p->onFirstPage())
+                <span class="disabled"><i class="fa-solid fa-angle-left"></i></span>
+                @else
+                <a href="{{ $p->previousPageUrl() }}"><i class="fa-solid fa-angle-left"></i></a>
+                @endif
+
+                {{-- Pages --}}
+                @for($i = 1; $i <= $p->lastPage(); $i++)
+                    @if($i === $p->currentPage())
+                    <span class="current">{{ $i }}</span>
+                    @else
+                    <a href="{{ $p->url($i) }}">{{ $i }}</a>
+                    @endif
+                    @endfor
+
+                    {{-- Next --}}
+                    @if($p->hasMorePages())
+                    <a href="{{ $p->nextPageUrl() }}"><i class="fa-solid fa-angle-right"></i></a>
+                    @else
+                    <span class="disabled"><i class="fa-solid fa-angle-right"></i></span>
+                    @endif
+            </div>
+
         </div>
+    </div>
     </div>
 </section>
 <style>
@@ -376,116 +437,169 @@
     }
 
     .pi01Thumb {
- position: relative;
-    overflow: hidden;
-}
+        position: relative;
+        overflow: hidden;
+    }
 
 
-.pi01Thumb img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    transition: transform 0.3s ease; /* Cho hiệu ứng mượt */
-    position: relative;
-    z-index: 0;
-}
+    .pi01Thumb img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+        /* Cho hiệu ứng mượt */
+        position: relative;
+        z-index: 0;
+    }
 
-/* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
-.pi01Thumb:hover img,
-.pi01Thumb::before,
-.pi01Thumb::after {
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-.pi01Actions {
-      position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  z-index: 2;
-}
+    /* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
+    .pi01Thumb:hover img,
+    .pi01Thumb::before,
+    .pi01Thumb::after {
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
 
-.pi01Actions a {
-    background: #7b9494;
-    color: #fff;
-    padding: 8px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease;
-}
+    .pi01Actions {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        z-index: 2;
+    }
 
-.pi01Actions a:hover {
-    background: #5d7373;
-}
-.pi01Thumb:hover .pi01Actions {
-    opacity: 1;
+    .pi01Actions a {
+        background: #7b9494;
+        color: #fff;
+        padding: 8px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+    }
 
-}
-.productItem01:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-}
+    .pi01Actions a:hover {
+        background: #5d7373;
+    }
 
-.productItem01 a:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-}
-.productItem01 {
-     background: #f9f9f9;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    border: 1px solid #eee;
-}
+    .pi01Thumb:hover .pi01Actions {
+        opacity: 1;
 
-.productItem01:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    border-color: #7b9494;
-}
-.productItem01:hover .pi01Thumb img {
-        opacity: 0.8; /* Mờ nhẹ thôi */
-    transform: scale(1.05);
-}
-.pi01Details {
-    padding-left: 15px; /* dịch sang phải 10px */
-}
-.color-circle{
-    margin-top: 5px;
-}
-.pi01Details {
-    padding-left: 15px;
-}
-.pi01Thumb::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(255,255,255,0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-.pi01Thumb:hover::after {
-    opacity: 1;
-}
+    }
 
+    .productItem01:hover img {
+        filter: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .productItem01 a:hover img {
+        filter: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .productItem01 {
+        background: #f9f9f9;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border: 1px solid #eee;
+    }
+
+    .productItem01:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border-color: #7b9494;
+    }
+
+    .productItem01:hover .pi01Thumb img {
+        opacity: 0.8;
+        /* Mờ nhẹ thôi */
+        transform: scale(1.05);
+    }
+
+    .pi01Details {
+        padding-left: 15px;
+        /* dịch sang phải 10px */
+    }
+
+    .color-circle {
+        margin-top: 5px;
+    }
+
+    .pi01Details {
+        padding-left: 15px;
+    }
+
+    .pi01Thumb::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+    }
+
+    .pi01Thumb:hover::after {
+        opacity: 1;
+    }
+
+
+    .pageBannerSection {
+        padding: 20px 0;
+        min-height: 10px;
+    }
+
+    .pageBannerSection .pageBannerContent h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .pageBannerPath {
+        font-size: 14px;
+    }
+    /* CSS cho phần danh mục */
+    .category-parent-link {
+        cursor: pointer;
+        padding-right: 15px; /* Thêm khoảng trống cho nút toggle */
+    }
+
+    .toggle-children-btn {
+        cursor: pointer;
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    /* Đảm bảo danh mục con luôn ẩn khi không có class show */
+    .categoryFilterList .sub-category-list {
+        display: none;
+        list-style: none;
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+
+    /* Tăng độ ưu tiên để buộc hiển thị danh mục con khi có class show */
+    .categoryFilterList .sub-category-list.show {
+        display: block !important;
+    }
 
 </style>
 
 @push('scripts')
 <script>
-    // Hàm định dạng tiền tệ Việt Nam
+   // Hàm định dạng tiền tệ Việt Nam
     function formatVND(n) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -521,38 +635,82 @@
         $("#amount").text(formatVND(initialValues[0]) + ' - ' + formatVND(initialValues[1]));
     });
 
-        document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.piAddToCart').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            let productId = this.getAttribute('data-id');
-            let form = document.getElementById('add-to-cart-form-' + productId);
-            let formData = new FormData(form);
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.piAddToCart').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                let productId = this.getAttribute('data-id');
+                let form = document.getElementById('add-to-cart-form-' + productId);
+                let formData = new FormData(form);
 
 
-            fetch("{{ route('cart.add') }}", {
-    method: 'POST',
-    body: formData,
-    headers: {
-        'X-CSRF-TOKEN': formData.get('_token'),
-        'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
-    }
-})
-.then(res => res.json())
-.then(data => {
-    if (data.success) {
-        alert('Đã thêm vào giỏ hàng!');
-    } else {
-        alert(data.message || 'Có lỗi xảy ra!');
-    }
-})
-.catch(err => {
-    console.error(err);
-    alert('Không thể thêm sản phẩm vào giỏ!');
-});
+                fetch("{{ route('cart.add') }}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': formData.get('_token'),
+                            'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Đã thêm vào giỏ hàng!');
+                        } else {
+                            alert(data.message || 'Có lỗi xảy ra!');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Không thể thêm sản phẩm vào giỏ!');
+                    });
+            });
         });
     });
-});
 
+    (function() {
+        // Mở danh mục con khi trang được tải nếu có danh mục con đang active
+        function openActiveSubmenu() {
+            const activeParentLi = document.querySelector('.menu-item-has-children.active');
+            if (activeParentLi) {
+                const subMenu = activeParentLi.querySelector('.sub-category-list');
+                const icon = activeParentLi.querySelector('.toggle-children-btn i');
+                if (subMenu && icon) {
+                    subMenu.classList.add('show');
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                }
+            }
+        }
+
+        // Bắt sự kiện click để bật/tắt menu con
+        function setupToggleListeners() {
+            const toggleButtons = document.querySelectorAll('.toggle-children-btn');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parentLi = this.closest('li');
+                    const subMenu = parentLi.querySelector('.sub-category-list');
+                    const icon = this.querySelector('i');
+
+                    subMenu.classList.toggle('show');
+
+                    if (subMenu.classList.contains('show')) {
+                        icon.classList.remove('fa-plus');
+                        icon.classList.add('fa-minus');
+                    } else {
+                        icon.classList.remove('fa-minus');
+                        icon.classList.add('fa-plus');
+                    }
+                });
+            });
+        }
+
+        // Chờ DOM load xong rồi mới chạy
+        document.addEventListener('DOMContentLoaded', function() {
+            openActiveSubmenu();
+            setupToggleListeners();
+        });
+    })();
 </script>
 @endpush
 

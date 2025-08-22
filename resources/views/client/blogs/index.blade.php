@@ -37,6 +37,39 @@
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
     }
+   
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    
+}
+.pageBannerSection {
+    padding: 20px 0; 
+    min-height: 10px; 
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 38px; 
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
+}
+
 </style>
 <div class="container pt-5 mt-5" style="min-height: 80vh;">
 

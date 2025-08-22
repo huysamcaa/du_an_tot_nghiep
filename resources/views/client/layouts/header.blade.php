@@ -13,9 +13,49 @@
                             <li class="menu-item">
                                 <a href="{{ route('client.home') }}">Trang Chủ</a>
                             </li>
-                            <li class="menu-item">
-                                <a  href="{{ route('client.categories.index') }}">Danh mục</a>
+
+                          <li class="menu-item-has-children">
+                                <a href="javascript:void(0);">Danh Mục </a>
+                                <div class="megaMenu">
+                                    <div class="row">
+                                        {{-- Lặp qua từng nhóm danh mục (chunks) để tạo các cột --}}
+                                        @foreach($chunks as $chunk)
+                                            <div class="col-lg-4">
+                                                <ul>
+                                                    {{-- Lặp qua các danh mục trong từng nhóm để hiển thị --}}
+                                                    @foreach($chunk as $category)
+                                                        <li>
+                                                           <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">{{ $category->name }}</a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endforeach
+                                        <div class="col-lg-4 hideOnMobile">
+                                            <div class="lookBook01 lb01M2">
+                                                <div class="lbContent">
+                                                    <h3>Hãy sành điệu</h3>
+                                                    <h2>Thời trang & phong cách</h2>
+                                                    <a href="{{ route('client.categories.index') }}" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Mua ngay</a>
+                                                </div>
+                                                <img src="{{ asset('assets/Client/images/home1/3.png') }}" alt="Mans Latest Collection">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
+
+                            <style>
+                                /* CSS để xử lý văn bản quá dài */
+                                .megaMenu ul li a {
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    display: block;
+                                    max-width: 100%;
+                                }
+                            </style>
+
                             {{-- <li class="menu-item">
                                 <a href="{{ route('client.coupons.index') }}">Khuyến Mãi</a>
                             </li> --}}
@@ -139,9 +179,16 @@
                             </div>
                         </div> --}}
                         <div class="anItems">
-                                <div class="searchToggle">
-        <a href="javascript:void(0);" id="toggleSearch"><i class="fa fa-search"></i></a>
+                            <div class="searchToggle">
+    <a href="javascript:void(0);" id="toggleSearch"><i class="fa fa-search"></i></a>
+
+    <div class="searchWrapper" id="searchWrapper" style="display: none;">
+        <form action="{{ route('search') }}" method="GET" class="searchForm">
+            <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required />
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
     </div>
+</div>
                             <div class="wishlist">
                             <a href="{{route('wishlist.index')}}" class="pi01Wishlist"><i class="fa-solid fa-heart"></i></a>
 
@@ -172,11 +219,11 @@
                                                     <i class="fa-solid fa-user-circle"></i> Đơn Hàng
                                                 </a>
 
-                                                
+
                                                     <a href="{{ route('user.addresses.index') }}">
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
-                                                
+
 
                                             </div>
 
@@ -246,58 +293,39 @@
 {{-- CSS --}}
 <style>
     .searchWrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background: rgba(255, 255, 255, 0.95);
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    position: absolute;
+    top: 40px; /* cách icon search một chút */
+    right: 0;
+    background: #fff;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 9999;
+}
 
-    .searchForm {
-        position: relative;
-        width: 90%;
-        max-width: 600px;
-    }
+.searchForm {
+    display: flex;
+    align-items: center;
+}
 
-    .searchForm input {
-        width: 100%;
-        padding: 15px 60px 15px 20px;
-        font-size: 18px;
-        border: 1px solid #ccc;
-        border-radius: 30px;
-    }
+.searchForm input {
+    border: none;
+    outline: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 200px;
+}
 
-    .searchForm button {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    .searchClose {
-        position: absolute;
-        top: -40px;
-        right: 0;
-        font-size: 24px;
-        cursor: pointer;
-    }
-
-    .searchToggle a {
-        font-size: 20px;
-        color: #333;
-    }
+.searchForm button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
 
 
-    
+
 </style>
 
 {{-- JavaScript --}}

@@ -65,7 +65,21 @@
             <div class="col-lg-6">
                 <div class="productContent">
                     <div class="pcCategory">
-                        <a href="shop_right_sidebar.html">Fashion</a>, <a href="shop_left_sidebar.html">Sports</a>
+                        {{-- Kiểm tra xem danh mục của sản phẩm có danh mục cha hay không --}}
+                        @if($product->category->parent)
+                            {{-- Nếu có, đây là danh mục con. Hiển thị cả danh mục cha và danh mục con. --}}
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->parent->id]) }}">
+                                {{ $product->category->parent->name }}
+                            </a>,
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                                {{ $product->category->name }}
+                            </a>
+                        @else
+                            {{-- Nếu không có danh mục cha, đây là danh mục cấp cao nhất. Chỉ hiển thị tên danh mục. --}}
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                                {{ $product->category->name }}
+                            </a>
+                        @endif
                     </div>
                     <h2>{{ $product->name }}</h2>
 
@@ -507,26 +521,26 @@
                                         @endif
                                     </div>
 
-                                    {{-- Màu & Size từ attributeValues --}}
+                                     {{-- Màu & Size từ attributeValues --}}
                                     @if (optional($prod->variantsWithAttributes())->count())
                                     @php
-                                    // Lấy danh sách màu
+                                    // Lấy danh sách màu - ĐÃ SỬA: Thêm kiểm tra null
                                     $colors = collect();
                                     foreach ($prod->variantsWithAttributes() as $variant) {
                                     foreach ($variant->attributeValues as $attrVal) {
-                                    if ($attrVal->attribute->slug === 'color') {
+                                    if ($attrVal->attribute && $attrVal->attribute->slug === 'color') {
                                     $colors->push($attrVal);
                                     }
                                     }
                                     }
                                     $colors = $colors->unique('id');
 
-                                    // Lấy danh sách size
+                                    // Lấy danh sách size - ĐÃ SỬA: Thêm kiểm tra null
                                     $sizes = $prod
                                     ->variantsWithAttributes()
                                     ->flatMap(
                                     fn($v) => $v->attributeValues->filter(
-                                    fn($val) => $val->attribute->slug === 'size',
+                                    fn($val) => $val->attribute && $val->attribute->slug === 'size',
                                     ),
                                     )
                                     ->unique('id');

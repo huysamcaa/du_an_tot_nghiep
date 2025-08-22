@@ -1,6 +1,39 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    .pageBannerSection {
+        background:#ECF5F4;
+        padding: 10px 0;
+    }
+    .pageBannerContent h2 {
+        
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    
+}
+.pageBannerSection {
+    padding: 20px 0; 
+    min-height: 10px; 
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 38px; 
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
+}
+</style>
 <!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
     <div class="container">
