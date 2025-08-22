@@ -89,13 +89,13 @@ public function index(Request $request)
             'variants.*.attribute_id'       => 'required|exists:attributes,id',
             'variants.*.attribute_value_id' => 'required|exists:attribute_values,id',
             'variants.*.price'              => 'required|numeric',
-            'variants.*.sku'                => 'nullable|string|max:255',
             'variants.*.thumbnail'          => 'nullable|image',
         ]);
 
         // Xử lý checkbox
         $data['is_sale']   = $request->has('is_sale');
         $data['is_active'] = $request->has('is_active');
+        
 
         // Upload ảnh chính
         if ($request->hasFile('thumbnail')) {
@@ -122,6 +122,8 @@ public function index(Request $request)
                     'price' => $variantData['price'],
                     'stock' => $variantData['stock'],
                     'sku'   => $variantData['sku'] ?? null,
+                    'is_active' => $variantData['is_active'] ?? 1,
+
                 ]);
 
                 // Upload ảnh biến thể nếu có
@@ -191,7 +193,7 @@ public function index(Request $request)
         'variants'              => 'nullable|array',
         'variants.*.price'      => 'required_with:variants|numeric|min:0',
         'variants.*.stock'      => 'required_with:variants|integer|min:0',
-        'variants.*.sku'        => 'nullable|string|unique:product_variants,sku,' . implode(',', array_keys($request->input('variants', []))),
+        // 'variants.*.sku'        => 'nullable|string|unique:product_variants,sku,' . implode(',', array_keys($request->input('variants', []))),
         'variants.*.thumbnail'  => 'nullable|image|max:2048',
         'variants.*.is_active'  => 'boolean',
 
@@ -203,6 +205,11 @@ public function index(Request $request)
         'new_variants.*.stock'     => 'required_with:new_variants|integer|min:0',
         'new_variants.*.thumbnail' => 'nullable|image|max:2048',
         'new_variants.*.sku'       => 'nullable|string|unique:product_variants,sku',
+
+        'variants.*.sale_price'           => 'nullable|numeric|min:0',
+        'variants.*.sale_price_start_at'  => 'nullable|date',
+        'variants.*.sale_price_end_at'    => 'nullable|date|after_or_equal:variants.*.sale_price_start_at',
+        'variants.*.is_sale'              => 'boolean',
     ]);
 
      $categoryId = $request->input('category_id');
@@ -256,9 +263,13 @@ public function index(Request $request)
             if ($variant) {
                 $variant->update([
                     'price'     => $variantData['price'],
-                    'sku'       => $variantData['sku'] ?? null,
+                    
                     'stock'     => $variantData['stock'] ?? 0,
                     'is_active' => isset($variantData['is_active']) ? 1 : 0,
+                    'sale_price' => $variantData['sale_price'] ?? null,
+                    'sale_price_start_at' => $variantData['sale_price_start_at'] ?? null,
+                    'sale_price_end_at' => $variantData['sale_price_end_at'] ?? null,
+                    'is_sale'              => isset($variantData['is_sale']) ? 1 : 0,
                 ]);
 
                 // Xử lý ảnh biến thể

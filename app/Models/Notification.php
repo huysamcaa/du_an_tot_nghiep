@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\Shared\Order;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,5 +27,9 @@ class Notification extends Model
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);
+    }
+     public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

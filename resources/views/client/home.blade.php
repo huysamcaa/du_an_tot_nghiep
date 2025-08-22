@@ -2525,33 +2525,14 @@
         <!-- END: Popular Products Section -->
 
         <!-- BEGIN: Lookbook Section 2 -->
-        {{-- <section class="lookbookSection2">
+        <section class="lookbookSection2">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="lookBook01 lb01M6 overLayAnim02">
-                            <div class="lbContent">
-                                <h3>Get 40% Off</h3>
-                                <h2>Women’s New Collection</h2>
-                                <a href="collections.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Shop Now</a>
-                            </div>
-                            <img src="{{ asset('assets/Client/images/home1/8.jpg') }}" alt="Women’s New Collection">
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="lookBook01 lb01M6 overLayAnim02">
-                            <div class="lbContent">
-                                <h3>Stay Upto Date</h3>
-                                <h2>Men’s Trendy Fashion</h2>
-                                <a href="collections.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Shop Now</a>
-                            </div>
-                            <img src="{{ asset('assets/Client/images/home1/9.jpg') }}" alt="Men’s Trendy Fashion">
-                        </div>
-                    </div>
-                </div>
+                <h2 class="mb-4"> Sản phẩm bán chạy</h2>
+                 @include('client.components.products-list', ['products' => $bestSellingProducts])
             </div>
-        </section>  --}}
+        </section> 
         <!-- END: Lookbook Section 2 -->
+        {{-- @include('client.components.products-list', ['products' => $bestSellingProducts]) --}}
 
         <!-- BEGIN: Category Section -->
         <section class="categorySection">
@@ -2600,8 +2581,8 @@
             <!-- END: Category Section -->
 
                 <section class="container py-4">
-        <h2 class="mb-4"> Sản phẩm bán chạy</h2>
-        @include('client.components.products-list', ['products' => $bestSellingProducts])
+        
+        
     </section>
 
             <!-- BEGIN: Testimonial Section -->

@@ -521,26 +521,26 @@
                                         @endif
                                     </div>
 
-                                    {{-- Màu & Size từ attributeValues --}}
+                                     {{-- Màu & Size từ attributeValues --}}
                                     @if (optional($prod->variantsWithAttributes())->count())
                                     @php
-                                    // Lấy danh sách màu
+                                    // Lấy danh sách màu - ĐÃ SỬA: Thêm kiểm tra null
                                     $colors = collect();
                                     foreach ($prod->variantsWithAttributes() as $variant) {
                                     foreach ($variant->attributeValues as $attrVal) {
-                                    if ($attrVal->attribute->slug === 'color') {
+                                    if ($attrVal->attribute && $attrVal->attribute->slug === 'color') {
                                     $colors->push($attrVal);
                                     }
                                     }
                                     }
                                     $colors = $colors->unique('id');
 
-                                    // Lấy danh sách size
+                                    // Lấy danh sách size - ĐÃ SỬA: Thêm kiểm tra null
                                     $sizes = $prod
                                     ->variantsWithAttributes()
                                     ->flatMap(
                                     fn($v) => $v->attributeValues->filter(
-                                    fn($val) => $val->attribute->slug === 'size',
+                                    fn($val) => $val->attribute && $val->attribute->slug === 'size',
                                     ),
                                     )
                                     ->unique('id');
