@@ -22,39 +22,42 @@
                     </ul>
                 </div>
             @endif
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
                 <div class="row">
-                    {{-- Loại danh mục --}}
-                    <div class="col-lg-6 col-sm-6 col-12">
-                        <div class="form-group">
-                            <label>Loại danh mục</label>
-                            <div class="d-flex">
-                                <div class="form-check mr-3">
-                                    <input class="form-check-input" type="radio" id="type_parent" name="type" value="parent" {{ $category->type === 'parent' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="type_parent">Cha</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="type_child" name="type" value="child" {{ $category->type === 'child' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="type_child">Con</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Danh mục cha --}}
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Chọn danh mục cha</label>
-                            <select name="parent_id" id="parent_id" class="form-control">
-                                <option value="">-- Không chọn --</option>
+                            <select name="parent_id" id="parent_id" class="form-control"
+                                {{ $hasChildren ? 'disabled' : '' }}>
+                                <option value=""
+                                    {{ $hasProducts ? 'disabled' : '' }}
+                                    {{ is_null($category->parent_id) ? 'selected' : '' }}>
+                                    -- Không chọn (Danh mục cha) --
+                                </option>
                                 @foreach($parentCategories as $parent)
-                                    <option value="{{ $parent->id }}" {{ $category->parent_id == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
+                                    <option value="{{ $parent->id }}"
+                                        {{ $category->parent_id == $parent->id ? 'selected' : '' }}>
+                                        {{ $parent->name }}
+                                    </option>
                                 @endforeach
                             </select>
+
+                            {{-- Hiển thị thông báo nếu dropdown bị vô hiệu hóa --}}
+                             @if($hasChildren)
+                                <small class="text-danger mt-2">
+                                    <i>Không thể gán danh mục này làm con vì nó đang chứa các danh mục con khác.</i>
+                                </small>
+                            @endif
                         </div>
                     </div>
 
@@ -111,23 +114,4 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const parentRadio = document.getElementById('type_parent');
-    const childRadio  = document.getElementById('type_child');
-    const parentSel   = document.getElementById('parent_id');
-
-    function toggleParent() {
-        parentSel.disabled = parentRadio.checked;
-        if (parentRadio.checked) parentSel.value = "";
-    }
-
-    parentRadio.addEventListener('change', toggleParent);
-    childRadio.addEventListener('change', toggleParent);
-    toggleParent();
-});
-</script>
-@endpush
 @endsection

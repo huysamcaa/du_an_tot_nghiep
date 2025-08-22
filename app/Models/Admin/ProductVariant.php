@@ -13,7 +13,9 @@ class ProductVariant extends Model
         'sale_price',
         'sale_price_start_at',
         'sale_price_end_at',
-        'is_sale',
+        'is_sale',     
+        'is_active',
+
     ];
 
 

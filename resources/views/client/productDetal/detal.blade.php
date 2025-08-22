@@ -186,6 +186,7 @@
                                 </div>
                             </div>
                         </div>
+
                                                 <div class="tab-pane fade" id="additionalinfo" role="tabpanel" aria-labelledby="reviews-tab"
                             tabindex="0">
                             <div class="productReviewArea">
@@ -229,6 +230,7 @@
                                                         <li>{{ $err }}</li>
                                                     @endforeach
                                                 </ul>
+
                                             </div>
                                         @endif
 
@@ -512,7 +514,9 @@
 
                                         </div>
                                     </div>
+
                                 @endforeach
+
                             </div>
                         </div>
                     </div>
@@ -598,13 +602,6 @@
                             stockEl.textContent = variant.stock || 0;
                         }
 
-                        // Cập nhật trạng thái nút thêm vào giỏ
-                        if (addToCartBtn) {
-                            addToCartBtn.disabled = variant.stock <= 0;
-                            addToCartBtn.innerHTML = variant.stock > 0 ?
-                                '<span>Thêm vào giỏ</span>' :
-                                '<span>Hết hàng</span>';
-                        }
                     } else {
                         // Nếu không tìm thấy biến thể, hiển thị giá mặc định của sản phẩm
                         const defaultPrice = product.sale_price > 0 && product.sale_price < product.price ?

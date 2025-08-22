@@ -95,9 +95,9 @@
                                                                 @else
                                                                     <span class="badge bg-danger">Ẩn</span>
                                                                 @endif
-                                                                @if ($product->is_sale)
+                                                                {{-- @if ($product->is_sale)
                                                                     <span class="badge bg-warning text-dark">Đang sale</span>
-                                                                @endif
+                                                                @endif --}}
                                                             </td>
                                                         </tr>
                                                     </tbody>

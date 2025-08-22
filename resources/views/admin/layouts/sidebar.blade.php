@@ -84,7 +84,7 @@
                 </li>
 
                 <!-- Khuyến mãi -->
-                <li class="submenu">
+                <li>
                     <a href="{{ route('admin.coupon.index') }}">
                         <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Khuyến mãi</span>
@@ -92,7 +92,7 @@
                 </li>
 
                 <!-- Hoàn hàng -->
-                <li class="submenu">
+                <li>
                     <a href="{{ route('admin.refunds.index') }}">
                         <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Hoàn hàng</span>
@@ -100,7 +100,7 @@
                 </li>
 
                 <!-- Đánh giá -->
-                <li class="submenu">
+                <li>
                     <a href="{{ route('admin.reviews.index') }}">
                         <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
                         <span> Đánh giá</span>
