@@ -309,10 +309,20 @@
                                     }
                                 },
                                 scales: {
+                                    x: {
+                                        ticks: {
+                                            maxRotation: 0,
+                                            minRotation: 0,
+                                            autoSkip: true,
+                                            autoSkipPadding: 10
+                                        }
+                                    },
                                     y: {
                                         beginAtZero: true,
                                         ticks: {
-                                            callback: v => v.toLocaleString('vi-VN') + " đ"
+                                            callback: function(v) {
+                                                return v.toLocaleString('vi-VN') + " đ";
+                                            }
                                         }
                                     }
                                 }

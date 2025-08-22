@@ -1,9 +1,6 @@
 @extends('admin.layouts.app')
 
 @section('content')
-
-
-
     <div class="content col-md-12">
         {{-- Alerts (Bootstrap 5) --}}
         @if (session('success'))
@@ -272,7 +269,11 @@
 @endsection
 
 @section('scripts')
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> e654bf5d4ff3a65d16bc599bcefbcb5c7254cf4a
 
     <script>
         $(function() {

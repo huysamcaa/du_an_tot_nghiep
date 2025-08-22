@@ -304,7 +304,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h2 class="secTitle">Sản Phẩm Của Chúng Tôi</h2>
+                        <h2 class="secTitle">Sản Phẩm Mới Nhất</h2>
                         <p class="secDesc">Chúng tôi cam kết chất lượng cao, giá cạnh tranh và dịch vụ giao hàng nhanh
                             chóng.</p>
                     </div>
@@ -2525,33 +2525,14 @@
         <!-- END: Popular Products Section -->
 
         <!-- BEGIN: Lookbook Section 2 -->
-        {{-- <section class="lookbookSection2">
+        <section class="lookbookSection2">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="lookBook01 lb01M6 overLayAnim02">
-                            <div class="lbContent">
-                                <h3>Get 40% Off</h3>
-                                <h2>Women’s New Collection</h2>
-                                <a href="collections.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Shop Now</a>
-                            </div>
-                            <img src="{{ asset('assets/Client/images/home1/8.jpg') }}" alt="Women’s New Collection">
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="lookBook01 lb01M6 overLayAnim02">
-                            <div class="lbContent">
-                                <h3>Stay Upto Date</h3>
-                                <h2>Men’s Trendy Fashion</h2>
-                                <a href="collections.html" class="ulinaLink"><i class="fa-solid fa-angle-right"></i>Shop Now</a>
-                            </div>
-                            <img src="{{ asset('assets/Client/images/home1/9.jpg') }}" alt="Men’s Trendy Fashion">
-                        </div>
-                    </div>
-                </div>
+                <h2 class="mb-4"> Sản phẩm bán chạy</h2>
+                 @include('client.components.products-list', ['products' => $bestSellingProducts])
             </div>
-        </section>  --}}
+        </section>
         <!-- END: Lookbook Section 2 -->
+        {{-- @include('client.components.products-list', ['products' => $bestSellingProducts]) --}}
 
         <!-- BEGIN: Category Section -->
         <section class="categorySection">
@@ -2566,33 +2547,43 @@
                     <div class="col-lg-12">
                         <div class="categoryCarousel owl-carousel">
                             @foreach ($categories as $category)
-                                <div class="categoryItem01 text-center">
-                                    <div class="ci01Thumb">
-                                        {{-- nếu có trường thumbnail trong DB --}}
-                                        {{-- <img src="{{ asset('storage/' . $category->thumbnail) }}" --}}
-                                        <img src="https://aoxuanhe.com/upload/product/axh-149/ao-thun-nam-trang-cao-cap-dep.jpg"
+                            <div class="categoryItem01 text-center">
+                                <div class="ci01Thumb">
+                                    {{-- Sử dụng trường 'icon' từ database --}}
+                                    @if($category->icon)
+                                        <img src="{{ asset('storage/' . $category->icon) }}"
                                             alt="{{ $category->name }}"
                                             style="width:100%; height:auto; object-fit:cover;" />
-                                    </div>
-                                    <h3>
-                                        <a
-                                            href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
-
-
-                                            {{ $category->name }}
-                                        </a>
-                                    </h3>
-                                    <p>{{ $category->products_count }} Items</p>
+                                    @else
+                                        {{-- Hiển thị ảnh placeholder nếu không có icon --}}
+                                        <img src="https://via.placeholder.com/200x200.png?text=No+Icon"
+                                            alt="{{ $category->name }}"
+                                            style="width:100%; height:auto; object-fit:cover;" />
+                                    @endif
                                 </div>
+                                <h3>
+                                    <a href="{{ route('client.categories.index', ['category_id' => $category->id]) }}">
+                                        {{ $category->name }}
+                                    </a>
+                                </h3>
+                                {{-- Tính tổng số sản phẩm của tất cả danh mục con --}}
+                                @php
+                                    $totalItems = $category->children->sum('direct_products_count');
+                                @endphp
+                                <p>{{ $totalItems }} Items</p>
+                            </div>
                             @endforeach
                         </div>
-
                     </div>
                 </div>
-
             </div>
-            </section>
+        </section>
             <!-- END: Category Section -->
+
+                <section class="container py-4">
+
+
+    </section>
 
             <!-- BEGIN: Testimonial Section -->
             <section class="testimonialSection">
@@ -2628,6 +2619,17 @@
              <div class="ti01Author">
                 <h3>{{ $review->reviewer_name }}</h3>
             </div>
+                       @if($review->product && $review->product->thumbnail)
+                <div class="ti01Product text-center mt-2">
+                    <a href="{{ route('product.detail', $review->product->id) }}">
+                        <img src="{{ asset('storage/' . $review->product->thumbnail) }}"
+                             alt="{{ $review->product->name }}"
+                             class="img-fluid"
+                              style="width: 100%; height: 150px; object-fit: contain;">
+                    </a>
+                    <p class="mt-1">{{ $review->product->name }}</p>
+                </div>
+            @endif
             <div class="ti01Content">
                 {{ $review->review_text }}
             </div>

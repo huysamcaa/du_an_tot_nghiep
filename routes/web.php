@@ -44,6 +44,8 @@ use CheckoutController as GlobalCheckoutController;
 use App\Http\Controllers\Client\NotificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Client\ContactController as ClientContactController;
 /*
 |--------------------------------------------------------------------------
 | 1. Public Routes (Không cần đăng nhập)
@@ -80,6 +82,19 @@ Route::get('/categories', [ClientCategoryController::class, 'index'])
 // show theo slug
 Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
     ->name('category.show');
+    
+// liên hệ
+Route::get('/contact', [ClientContactController::class, 'index'])
+    ->name('client.contact.index');
+
+    Route::post('/contact', [ClientContactController::class, 'submit'])
+    ->name('client.contact.submit');
+
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::get('/contact', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contact.index');
+    Route::get('/contact/{id}', [ContactController::class, 'show'])->name('contact.show'); 
+    Route::patch('/contact/{id}/mark-contacted', [ContactController::class, 'markContacted'])->name('contact.markContacted');
+});
 
 // Giỏ hàng
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -260,6 +275,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::resource('comments', AdminCommentController::class);
 
     // Thêm route cho toggleVisibility
+    Route::post('comments/{comment}/reply', [AdminCommentController::class, 'storeReply'])->name('comments.reply');
     Route::get('comments/{comment}/toggle', [AdminCommentController::class, 'toggleComment'])->name('comments.toggle');
     Route::get('replies', [AdminCommentController::class, 'indexReplies'])->name('replies.index');
     Route::get('replies/{reply}/toggle', [AdminCommentController::class, 'toggleReply'])->name('replies.toggle');
@@ -323,7 +339,6 @@ Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('cou
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{id}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     Route::patch('reviews/{id}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
-
 
 
     // Quản lý hoàn tiền

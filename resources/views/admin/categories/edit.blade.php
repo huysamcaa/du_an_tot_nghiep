@@ -9,6 +9,11 @@
             <h4>Sửa danh mục sản phẩm</h4>
             <h6>Chỉnh sửa danh mục sản phẩm hiện có</h6>
         </div>
+        <div class="page-btn">
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary me-2">
+                <i class="fa fa-arrow-left me-1"></i> Quay lại
+            </a>
+        </div>
     </div>
 
     <div class="card">
@@ -22,39 +27,42 @@
                     </ul>
                 </div>
             @endif
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
+            {{-- Đảm bảo form có thể xử lý file upload --}}
+            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
                 <div class="row">
-                    {{-- Loại danh mục --}}
-                    <div class="col-lg-6 col-sm-6 col-12">
-                        <div class="form-group">
-                            <label>Loại danh mục</label>
-                            <div class="d-flex">
-                                <div class="form-check mr-3">
-                                    <input class="form-check-input" type="radio" id="type_parent" name="type" value="parent" {{ $category->type === 'parent' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="type_parent">Cha</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="type_child" name="type" value="child" {{ $category->type === 'child' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="type_child">Con</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Danh mục cha --}}
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Chọn danh mục cha</label>
-                            <select name="parent_id" id="parent_id" class="form-control">
-                                <option value="">-- Không chọn --</option>
+                            <select name="parent_id" id="parent_id" class="form-control"
+                                {{ $hasChildren ? 'disabled' : '' }}>
+                                <option value=""
+                                    {{ is_null($category->parent_id) ? 'selected' : '' }}>
+                                    -- Không chọn (Danh mục cha) --
+                                </option>
                                 @foreach($parentCategories as $parent)
-                                    <option value="{{ $parent->id }}" {{ $category->parent_id == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
+                                    <option value="{{ $parent->id }}"
+                                        {{ $category->parent_id == $parent->id ? 'selected' : '' }}>
+                                        {{ $parent->name }}
+                                    </option>
                                 @endforeach
                             </select>
+
+                            {{-- Hiển thị thông báo nếu dropdown bị vô hiệu hóa --}}
+                            @if($hasChildren)
+                                <small class="text-danger mt-2">
+                                    <i>Không thể gán danh mục này làm con vì nó đang chứa các danh mục con khác.</i>
+                                </small>
+                            @endif
                         </div>
                     </div>
 
@@ -71,6 +79,7 @@
                         <div class="form-group">
                             <label>Slug</label>
                             <input type="text" name="slug" class="form-control" value="{{ old('slug', $category->slug) }}">
+                            <small class="text-muted"><i>Nếu để trống, slug sẽ được tự động tạo từ tên.</i></small>
                         </div>
                     </div>
 
@@ -78,7 +87,16 @@
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Icon</label>
-                            <input type="text" name="icon" class="form-control" placeholder="<i class='fa fa-icon'></i>" value="{{ old('icon', $category->icon) }}">
+                            <div class="mb-2">
+                                @if($category->icon)
+                                    <img src="{{ asset('storage/' . $category->icon) }}" alt="Current Icon" class="rounded" style="max-width: 100px;">
+                                @else
+                                    <span class="text-muted">Chưa có icon</span>
+                                @endif
+                            </div>
+                            <input type="file" name="icon" class="form-control" accept="image/*">
+                            <small class="text-muted"><i>Chọn ảnh mới để thay thế icon hiện tại.</i></small>
+                            <input type="hidden" name="old_icon" value="{{ $category->icon }}">
                         </div>
                     </div>
 
@@ -111,23 +129,4 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const parentRadio = document.getElementById('type_parent');
-    const childRadio  = document.getElementById('type_child');
-    const parentSel   = document.getElementById('parent_id');
-
-    function toggleParent() {
-        parentSel.disabled = parentRadio.checked;
-        if (parentRadio.checked) parentSel.value = "";
-    }
-
-    parentRadio.addEventListener('change', toggleParent);
-    childRadio.addEventListener('change', toggleParent);
-    toggleParent();
-});
-</script>
-@endpush
 @endsection

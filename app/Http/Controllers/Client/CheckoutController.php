@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\Admin\Review;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
@@ -325,9 +326,25 @@ use Illuminate\Support\Facades\File;
             $order = $this->saveOrderToDatabase($orderData);
             $this->clearCartItems($orderData['selected_items']);
 
+             $this->createOrderNotification($order);
+            //Cập nhật trạng thái mã giảm giá
+
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
             DB::commit();
             Session::forget('pending_order');
-
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
             return redirect()->route('client.orders.show', $order->code)
                 ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
         } catch (\Exception $e) {
@@ -553,6 +570,12 @@ use Illuminate\Support\Facades\File;
                 $this->reduceStock($order);
                 $this->clearCartItems($orderData['selected_items']);
             }
+            if (!empty($order->coupon_id)) {
+            DB::table('coupon_user')
+                ->where('user_id', $order->user_id)
+                ->where('coupon_id', $order->coupon_id)
+                ->update(['used_at' => now(), 'order_id' => $order->id]);
+        }
 
             // Kiểm tra trạng thái đã tồn tại chưa
             $existingStatus = OrderOrderStatus::where([
@@ -625,10 +648,7 @@ use Illuminate\Support\Facades\File;
     // ==================== HELPER METHODS ====================
 
     protected function processMomoSuccess($momoData, $orderCode)
-
-
-
-    {
+  {
         DB::beginTransaction();
         try {
             // Tìm session data từ cache hoặc database
@@ -644,6 +664,10 @@ use Illuminate\Support\Facades\File;
             $order->update(['is_paid' => 1, 'code' => $orderCode]);
             $this->reduceStock($order);
             $this->clearCartItems($orderData['selected_items']);
+
+
+            // Tạo thông báo cho người dùng
+            $this->createPaymentSuccessNotification($order, 3);
 
             // Kiểm tra trước khi tạo trạng thái đơn hàng
             $existingStatus = OrderOrderStatus::where('order_id', $order->id)
@@ -661,6 +685,13 @@ use Illuminate\Support\Facades\File;
                     'created_at' => now(),
                 ]);
             }
+            $order = $this->saveOrderToDatabase($orderData);
+                if (!empty($order->coupon_id)) {
+                    DB::table('coupon_user')
+                        ->where('user_id', $order->user_id)
+                        ->where('coupon_id', $order->coupon_id)
+                        ->update(['used_at' => now(), 'order_id' => $order->id]);
+                }
 
             DB::commit();
             Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);
@@ -880,55 +911,55 @@ use Illuminate\Support\Facades\File;
             return view('client.orders.show', compact('order'));
         }
 
-        public function purchaseHistory()
-        {
-            $userId = auth()->id();
-        $coupons = $this->getAvailableCoupons();
-            $orders = Order::where('user_id', $userId)
-            ->with([
-                'currentStatus.orderStatus',
-                'items.product.reviews.multimedia',
-                'items.variant'
-            ])
-                ->orderByDesc('created_at')
-                ->paginate(10);
+            public function purchaseHistory()
+            {
+                $userId = auth()->id();
+            $coupons = $this->getAvailableCoupons();
+                $orders = Order::where('user_id', $userId)
+                ->with([
+                    'currentStatus.orderStatus',
+                    'items.product.reviews.multimedia',
+                    'items.variant'
+                ])
+                    ->orderByDesc('created_at')
+                    ->paginate(10);
 
-        // Map xác định đã đánh giá hay chưa
-        $reviewedMap = [];
-        $reviewDataMap = [];
+            // Map xác định đã đánh giá hay chưa
+            $reviewedMap = [];
+            $reviewDataMap = [];
 
-   foreach ($orders as $order) {
-    foreach ($order->items as $item) {
-        if (!$item->product) continue;
+    foreach ($orders as $order) {
+        foreach ($order->items as $item) {
+            if (!$item->product) continue;
 
-        //  SỬA: dùng đúng cột variant
-        $variantId = $item->product_variant_id ?? null;
+            //  SỬA: dùng đúng cột variant
+            $variantId = $item->product_variant_id ?? null;
 
-        //  Lấy đánh giá đúng
-        $review = Review::where('order_id', $order->id)
-            ->where('product_id', $item->product_id)
-            ->where('user_id', auth()->id())
-            ->when($variantId, fn($q) => $q->where('variant_id', $variantId))
-            ->when(!$variantId, fn($q) => $q->whereNull('variant_id'))
-            ->first();
+            //  Lấy đánh giá đúng
+            $review = Review::where('order_id', $order->id)
+                ->where('product_id', $item->product_id)
+                ->where('user_id', auth()->id())
+                ->when($variantId, fn($q) => $q->where('variant_id', $variantId))
+                ->when(!$variantId, fn($q) => $q->whereNull('variant_id'))
+                ->first();
 
-        //  SỬA: key dùng 0 thay vì 'null'
-        $key = "{$order->id}-{$item->product_id}-" . ($variantId ?? 0);
-        $reviewedMap[$key] = (bool) $review;
-        $reviewDataMap[$key] = $review;
+            //  SỬA: key dùng 0 thay vì 'null'
+            $key = "{$order->id}-{$item->product_id}-" . ($variantId ?? 0);
+            $reviewedMap[$key] = (bool) $review;
+            $reviewDataMap[$key] = $review;
 
-        Log::info('purchaseHistory() - Debug review check', [
-            'key' => $key,
-            'variant_id' => $variantId,
-            'review_found' => !is_null($review),
-        ]);
+            Log::info('purchaseHistory() - Debug review check', [
+                'key' => $key,
+                'variant_id' => $variantId,
+                'review_found' => !is_null($review),
+            ]);
+        }
     }
-}
 
 
 
-        return view('client.orders.purchase_history', compact('orders', 'reviewedMap', 'reviewDataMap'), ['coupons' => $coupons,]);
-    }
+            return view('client.orders.purchase_history', compact('orders', 'reviewedMap', 'reviewDataMap'), ['coupons' => $coupons,]);
+        }
 
 
     // ==================== ADDITIONAL SECURITY & OPTIMIZATION ====================
@@ -1169,6 +1200,51 @@ use Illuminate\Support\Facades\File;
         'message' => 'Áp dụng mã giảm giá thành công'
     ]);
 }
+
+protected function createPaymentSuccessNotification($order)
+    {
+        try {
+            $order->payment_id = [
+                
+                2 => 'Thanh toán khi nhận hàng',
+                3 => 'MoMo',
+                4 => 'VNPay'
+            ];
+            
+            $message = "Đơn hàng #{$order->code} của bạn đã được thanh toán thành công qua {$order->payment_id}. Tổng tiền: " . number_format($order->total_amount) . "đ";
+            
+            Notification::create([
+                'user_id' => $order->user_id,
+                'order_id' => $order->id,
+                'message' => $message,
+                'type' => 1, // Loại thông báo thanh toán
+                'read' => 0, // Chưa đọc
+            ]);
+            
+            Log::info('Created payment success notification', [
+                'order_id' => $order->id,
+                'user_id' => $order->user_id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create notification: ' . $e->getMessage());
+        }
+    }
+    protected function createOrderNotification($order)
+    {
+        try {
+            $message = "Đơn hàng #{$order->code} của bạn đã được tạo thành công. Tổng tiền: " . number_format($order->total_amount) . "đ";
+            
+            Notification::create([
+                'user_id' => $order->user_id,
+                'order_id' => $order->id,
+                'message' => $message,
+                'type' => 2, // Loại thông báo đơn hàng
+                'read' => 0, // Chưa đọc
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create order notification: ' . $e->getMessage());
+        }
+    }
 
 
 
