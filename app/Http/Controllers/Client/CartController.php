@@ -8,6 +8,7 @@ use App\Models\Admin\CartItem;
 use App\Models\Admin\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -28,17 +29,19 @@ class CartController extends Controller
         $userId = Auth::id();
         $productId = $request->input('product_id');
         $quantity = (int) $request->input('quantity') ?: 1;
-        $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+        $attributeValueIds = $request->input('attribute_values',[]); //lấy mảng attribute_values
 
         // Tìm biến thể phù hợp
         $variant = ProductVariant::where('product_id', $productId)
-            ->whereHas('attributeValues', fn($q) =>
-                $q->whereIn('attribute_value_id', $attributeValueIds),
-                '=', count($attributeValueIds)
-            )
-            ->withCount('attributeValues')
-            ->having('attribute_values_count', '=', count($attributeValueIds))
-            ->first();
+            ->with('attributeValues')
+            ->get()
+            ->first(function($variant) use ($attributeValueIds){
+                $variantValues = $variant->attributeValues->pluck('id')->toArray();
+                sort($variantValues);
+                $selected = $attributeValueIds;
+                sort($selected);
+                return $variantValues == $selected;
+            });
 
         if (!$variant) {
             return response()->json(['success' => false, 'message' => 'Biến thể sản phẩm không tồn tại.']);
@@ -121,7 +124,7 @@ class CartController extends Controller
             }else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Chỉ còn' . $stock . ' sản phẩm'
+                    'message' => 'Trong kho còn ' . $stock . ' sản phẩm'
                 ]);
             }
         } elseif ($action === 'decrease') {
@@ -155,17 +158,23 @@ class CartController extends Controller
     public function checkVariant(Request $request)
     {
         // Lấy các thuộc tính đã chọn (color, size,...)
-        $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+        $attributeValueIds = $request->input('attribute_values',[]);
 
         // Tìm biến thể có đầy đủ các thuộc tính
         $variant = ProductVariant::where('product_id', $request->input('product_id'))
-            ->whereHas('attributeValues', fn($q) =>
-                $q->whereIn('attribute_value_id', $attributeValueIds),
-                '=', count($attributeValueIds)
-            )
-            ->withCount('attributeValues')
-            ->having('attribute_values_count', '=', count($attributeValueIds))
-            ->first();
+            ->with('attributeValues')
+            ->get()
+            ->first(function($variant) use($attributeValueIds){
+                $variantValues = $variant->attributeValues->pluck('id')->toArray();
+                sort($variantValues);
+                $selected = $attributeValueIds;
+                sort($selected);
+                return $variantValues == $selected;
+            });
+Log::info('Selected:', $attributeValueIds);
+foreach(ProductVariant::where('product_id', $request->input('product_id'))->with('attributeValues')->get() as $v){
+    Log::info('Variant ' . $v->id . ': ' . json_encode($v->attributeValues->pluck('id')->toArray()));
+}
 
         // Trả về true nếu tìm thấy, false nếu không
         return response()->json(['found' => (bool) $variant]);

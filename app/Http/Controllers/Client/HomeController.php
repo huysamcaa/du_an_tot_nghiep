@@ -8,12 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Category;
 use App\Models\Blog;
 use App\Models\Admin\Review;
+use App\Models\Coupon;
 use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::where('is_active', 1)
+        $products = Product::with(['variants.attributeValues.attribute'])
+            ->where('is_active', 1)
             ->latest()
             ->paginate(8);
 
@@ -59,12 +61,19 @@ class HomeController extends Controller
             ->latest()
             ->take(6)
             ->get();
-
+        $coupons = Coupon::where('is_active', 1)
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                ->orWhere('end_date', '>=', now());
+            })
+            ->latest()
+            ->take(6)
+            ->get();
         if ($request->ajax()) {
             return view('client.components.products-list', compact('products'))->render();
         }
 
-        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts'));
+        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','coupons'));
     }
     public function showCategoriesInMegaMenu()
 {

@@ -70,12 +70,63 @@
 
                     {{-- Size options --}}
                     @php
-                        $sizeValues = $product->variants
-                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size'))
-                            ->unique('id')
-                            ->values();
+                    // Lấy tất cả attribute values theo từng attribute
+                    $attributes = $product->variants
+                        ->flatMap(fn($v) => $v->attributeValues)
+                        ->groupBy('attribute_id');
+// Map mỗi attribute_value_id -> ảnh đại diện của 1 variant chứa nó
+    $avImageMap = [];
+    foreach ($product->variants as $v) {
+        // tuỳ cấu trúc, dùng $v->thumbnail hoặc $v->image
+        $img = $v->thumbnail
+            ? asset('storage/' . $v->thumbnail)
+            : asset('storage/' . $product->thumbnail);
+
+        foreach ($v->attributeValues as $av) {
+            // chỉ gán nếu chưa có (tránh overwrite)
+            if (!isset($avImageMap[$av->id])) {
+                $avImageMap[$av->id] = $img;
+            }
+        }
+    }
+                        // $sizeValues = $product->variants
+                        //     ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size'))
+                        //     ->unique('id')
+                        //     ->values();
                     @endphp
-                    @if($sizeValues->count())
+                    @foreach ($attributes as $attributeId => $values)
+                        @php
+                            $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
+                        @endphp
+                        <div class="product-attribute mt-1 d-flex gap-1">
+                            <strong class="me-1">{{ $attribute->name }}</strong>
+                            {{-- Nếu là màu --}}
+                            @if ($attribute->slug === 'color')
+                                <div class="d-flex gap-1">
+                                    @foreach ($values->unique('id') as $av)
+                                    <span class="color-option color-circle attribute-option"
+                                        data-id="{{$av->id}}"
+                                        data-attribute="{{$attribute->slug}}"
+                                        data-color="{{ \Illuminate\Support\Str::start($av->hex, '#') }}"
+                                        data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}"
+                                        style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($av->hex, '#') }}; border:1px solid #ccc; cursor:pointer;">
+                                    </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                {{-- Các thuộc tính khác --}}
+                                @foreach ($values->unique('id') as $av)
+                                    <span class="badge bg-light text-dark border attribute-option"
+                                        data-id="{{ $av->id }}"
+                                        data-attribute="{{ $attribute->slug }}"
+                                        data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}">
+                                        {{ $av->value }}
+                                    </span>
+                                @endforeach
+                            @endif
+                        </div>
+                    @endforeach
+                    {{-- @if($sizeValues->count())
                         <div class="product-sizes mt-1">
                             <strong>Size:</strong>
                             @foreach($sizeValues as $av)
@@ -86,10 +137,10 @@
                                 </span>
                             @endforeach
                         </div>
-                    @endif
+                    @endif --}}
 
                     {{-- Color options --}}
-                    @php
+                    {{-- @php
                         $colorValues = $product->variants
                             ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color'))
                             ->unique('id')
@@ -106,7 +157,7 @@
                                 </span>
                             @endforeach
                         </div>
-                    @endif
+                    @endif --}}
 
                 </div>
             </div>
@@ -128,10 +179,10 @@
     margin-top: 20px;
 }
 .pagination .page-link {
-    color: #7b9494; 
-    border: 1px solid #c5d0d0; 
+    color: #7b9494;
+    border: 1px solid #c5d0d0;
     background-color: transparent;
-    border-radius: 50% !important; 
+    border-radius: 50% !important;
     width: 60px;
     height: 60px;
     display: flex;
@@ -206,7 +257,7 @@
 /* Hover hiện nút và phóng ảnh */
 .pi01Thumb:hover .pi01Actions {
     opacity: 1;
-    
+
 }
 .productItem01:hover .pi01Thumb img {
     opacity: 0.8; /* Mờ nhẹ thôi */
@@ -242,13 +293,12 @@
 .pi01Thumb:hover::after {
     opacity: 1;
 }
-.size-option.selected {
-    background: #7b9494 !important;
-    color: #fff !important;
+.attribute-option.selected {
+    color: #dc1515 !important;
 }
 
 .color-option.selected {
-    border: 2px solid #7b9494 !important;
+    border: 3px solid #000 !important; /* Viền đen đậm hơn */
 }
 .color-circle{
     margin-top: 5px;
@@ -257,74 +307,84 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    // ===== Chọn size =====
-    document.querySelectorAll('.size-option').forEach(function (el) {
-        el.addEventListener('click', function () {
-            let parent = this.closest('.product-sizes');
-            parent.querySelectorAll('.size-option').forEach(e => e.classList.remove('selected'));
-            this.classList.add('selected');
+    // Chọn attribute
+    document.querySelectorAll('.attribute-option').forEach(el => {
+        el.addEventListener('click', e => {
+            let parent = e.target.closest(".product-attribute");
+            parent.querySelectorAll(".attribute-option")
+                .forEach(opt => opt.classList.remove("selected"));
+            e.target.classList.add("selected");
+            // Đổi ảnh
+            let imgUrl = e.target.dataset.image;
+            if (imgUrl) {
+                let productCard = e.target.closest(".productItem01");
+                let imgEls = productCard.querySelectorAll(".pi01Thumb img");
+                imgEls.forEach(img => img.src = imgUrl); // đổi cả 2 ảnh
+            }
         });
     });
 
-    // ===== Chọn màu =====
-    document.querySelectorAll('.color-option').forEach(function (el) {
-        el.addEventListener('click', function () {
-            let parent = this.closest('.product-colors');
-            parent.querySelectorAll('.color-option').forEach(e => e.classList.remove('selected'));
-            this.classList.add('selected');
-        });
-    });
+    // Thêm vào giỏ
+    document.querySelectorAll('.piAddToCart').forEach(btn => {
+        if (btn.dataset.bound) return; // tránh gắn trùng
+        btn.dataset.bound = "true";
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation(); // chặn nổi bọt
 
-    // ===== Thêm vào giỏ =====
-    document.querySelectorAll('.piAddToCart').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            let productId = this.getAttribute('data-id');
-            let productCard = this.closest('.productItem01');
+            let productCard = this.closest(".productItem01");
+            let productId = this.dataset.id;
 
-            // Lấy id của size và màu đã chọn
-            let selectedSize = productCard.querySelector('.size-option.selected')?.dataset.id || '';
-            let selectedColor = productCard.querySelector('.color-option.selected')?.dataset.id || '';
+            // Lấy attribute đã chọn
+            let selectedAttributes = {};
+            productCard.querySelectorAll(".attribute-option.selected")
+                .forEach(el => selectedAttributes[el.dataset.attribute] = el.dataset.id);
 
-            if (!selectedSize || !selectedColor) {
-                alert('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng!');
+            let requiredCount = productCard.querySelectorAll(".product-attribute").length;
+            if (Object.keys(selectedAttributes).length < requiredCount) {
+                alert("Vui lòng chọn đầy đủ thuộc tính!");
                 return;
             }
 
-            let form = document.getElementById('add-to-cart-form-' + productId);
+            let form = document.getElementById("add-to-cart-form-" + productId);
             let formData = new FormData(form);
+            for (let key in selectedAttributes) {
+                formData.append("attribute_values[]", selectedAttributes[key]);
+            }
 
-            // Gửi id của attribute value
-            formData.append('size', selectedSize);
-            formData.append('color', selectedColor);
+            // Disable tránh double click
+            this.classList.add("disabled");
 
             fetch("{{ route('cart.add') }}", {
-                method: 'POST',
+                method: "POST",
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': formData.get('_token'),
-                    'X-Requested-With': 'XMLHttpRequest'
+                    "X-CSRF-TOKEN": formData.get("_token"),
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             })
             .then(res => res.json())
             .then(data => {
-    if (data.success) {
-        let cartDropdown = document.querySelector('#cart-widget .dropdown-menu');
-        if (cartDropdown) {
-            cartDropdown.innerHTML = data.cartWidget;
-        }
-        alert('Đã thêm sản phẩm vào giỏ hàng!');
-    } else {
-        alert(data.message || 'Có lỗi xảy ra!');
-    }
-})
+                if (data.success) {
+        //             // Cập nhật số lượng sản phẩm trên icon giỏ
+        document.querySelector(".cart-count").innerText = data.totalProduct;
+
+        // Cập nhật lại dropdown / widget giỏ hàng
+        document.querySelector(".cartWidgetArea").innerHTML = data.cartIcon;
+                    alert("Đã thêm sản phẩm vào giỏ hàng");
+                } else {
+                    alert(data.message || "Có lỗi xảy ra!");
+                }
+            })
             .catch(err => {
                 console.error(err);
-                alert('Không thể thêm sản phẩm vào giỏ!');
+                alert("Không thể thêm sản phẩm vào giỏ");
+            })
+            .finally(() => {
+                this.classList.remove("disabled");
             });
         });
     });
-
 });
 
 </script>

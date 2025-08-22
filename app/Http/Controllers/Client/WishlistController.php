@@ -64,7 +64,7 @@ class WishlistController extends Controller
     {
         $wishlists = Wishlist::with([
              'product.variants' => function($q) {
-            $q->select('id', 'product_id', 'stock');
+            $q->select('id', 'product_id', 'stock','price', 'sale_price',);
         }
         ])
                     ->where('user_id', Auth::id())

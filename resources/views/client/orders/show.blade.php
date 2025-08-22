@@ -9,8 +9,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2 class="animate__animated animate__fadeInDown">Lịch Sử Mua Hàng</h2>
-                    <div class="pageBannerPath animate__animated animate__fadeInUp">
+                    <h2>Lịch Sử Mua Hàng</h2>
+                    <div class="pageBannerPath">
                         <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Lịch Sử Mua Hàng</span>
                     </div>
                 </div>
@@ -62,11 +62,11 @@
                                                     </div>
                                                     <div class="timeline-text">
                                                         <span>{{ $status['text'] }}</span>
-                                                       
+
                                                             <small class="d-block text-muted-darker animate__animated animate__fadeIn">
                                                                 @if($order->currentStatus->created_at)
                                                                     {{-- {{ $order->currentStatus->created_at->format('H:i d/m/Y') }} --}}
-                                                                
+
                                                             </small>
                                                         @endif
                                                     </div>
@@ -378,37 +378,6 @@
         color: #6c757d; /* Lighter color for labels */
     }
 
-    /* Banner Section */
-    .pageBannerSection {
-        background-color: #ecf5f4; /* Lighter background for banner */
-        padding: 80px 0; /* More padding */
-        margin-bottom: 40px;
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
-        box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .pageBannerContent h2 {
-        font-size: 3rem; /* Larger font size */
-        font-weight: 700;
-        color: #343a40; /* Darker text */
-        margin-bottom: 10px;
-    }
-
-    .pageBannerPath {
-        color: #6c757d; /* Muted color for path */
-        font-size: 1rem;
-    }
-
-    .pageBannerPath a {
-        color: #007bff; /* Primary color for links */
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .pageBannerPath a:hover {
-        color: #0056b3; /* Darker primary on hover */
-    }
 
     /* Order Status Tracking (Shopee Style) */
     .order-status-tracking {

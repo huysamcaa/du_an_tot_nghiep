@@ -9,13 +9,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2 class="banner-title">Đơn Hàng Của Tôi</h2>
+                    <h2>Đơn Hàng Của Tôi</h2>
                     <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">
-                            <i class="fas fa-home me-1"></i>Trang chủ
-                        </a>
-                        <span class="separator">/</span>
-                        <span class="current">Đơn Hàng</span>
+                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Đơn hàng</span>
                     </div>
                 </div>
             </div>
@@ -23,8 +19,7 @@
     </div>
 </section>
 
-<div class="orderHistorySection py-5">
-    <div class="container">
+    <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 @if (session('success'))
@@ -56,7 +51,7 @@
                     </div>
                     <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
                     <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
-                    <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
+                    <a href="{{ route('client.products.index') }}" class="ulinaBTN">
                         <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
                     </a>
                 </div>
@@ -240,12 +235,12 @@
                                     </a>
                                     @endif
 
-                                   
+
 
                                     <button class="btn btn-outline-success btn-sm action-btn">
                                         <i class="fas fa-comments me-1"></i>Chat
                                     </button>
-                                    
+
                                      @if ($statusClass === 'completed')
                                                         @php
                                                             $orderId = (int) $order->id;
@@ -283,7 +278,7 @@
                             <div class="shop-info">
                                 <i class="fas fa-store me-2"></i>
                                 <span class="shop-name"> <tr>
-                                    
+
                                     <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
                                 </span>
                             </div>
@@ -291,12 +286,14 @@
                             <div class="order-actions">
                                  @if ($statusName === 'Chờ Xác Nhận')
                                     @if ($order->payment_id == 2) <!-- COD -->
-                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="ulinaBTN">
+                                            <span>
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
                                         </a>
                                     @elseif ($order->payment_id == 3 || $order->payment_id == 4) <!-- Online payment -->
-                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="ulinaBTN">
+                                            <span>
+                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
                                         </a>
                                     @endif
                                 @endif
@@ -306,12 +303,13 @@
                                         @csrf
                                         @method('POST')
                                         <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng 
+                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
                                         </button>
                                     </form>
                                     @endif
-                                <a href="{{ route('client.orders.show', $order->code) }}" class="btn btn-outline-info btn-sm me-2">
-                                    <i class="fas fa-eye me-1"></i>Chi tiết
+                                <a href="{{ route('client.orders.show', $order->code) }}" class="ulinaBTN">
+                                    <span class="">
+                                    <i class="fas fa-eye me-1"></i>Chi tiết</span>
                                 </a>
 
 
@@ -344,7 +342,6 @@
             </div>
         </div>
     </div>
-</div>
 
     <style>
         /* Previous styles remain the same... */
@@ -363,7 +360,6 @@
         }
 
         .pageBannerPath a {
-            color: white;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -441,15 +437,16 @@
         }
 
         .nav-pills .nav-link:hover {
-            color: #16a34a;
+            color: #3a6f54;
             background-color: #ecf5f4;
             transform: translateY(-2px);
         }
 
         .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(135deg, #5e7674 0%, #59736e 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
+            /* color: rgb(158, 187, 189); */
+            box-shadow: 0 5px 15px rgb(157, 173, 170);
             transform: translateY(-2px);
         }
 
@@ -469,7 +466,7 @@
 
         .nav-link.active .count-badge {
             background: rgba(255, 255, 255, 0.9);
-            color: #16a34a;
+            color: #256b57;
         }
 
         /* Search Box */
