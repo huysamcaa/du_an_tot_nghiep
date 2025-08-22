@@ -224,38 +224,41 @@
                                 </div>
                             </div>
                         </div>
-
-                                                <div class="tab-pane fade" id="additionalinfo" role="tabpanel" aria-labelledby="reviews-tab"
-                            tabindex="0">
-                            <div class="productReviewArea">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                  
-
-                                        <h3>Bình Luận</h3>
-                                        <div id="comment-list"></div>
-                                    </div>
-
-                                    <div class="col-lg-6">
-                                        <div class="commentFormArea">
-                                            <h3>Thêm bình luận</h3>
-                                            <div class="reviewFrom">
-                                                <form id="comment-form" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                    <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
-                                                    <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
-                                                            luận</span></button>
-                                                </form>
-                                                <div id="comment-message" class="text-success mt-2"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="tab-pane fade" id="additionalinfo" role="tabpanel"
+                        aria-labelledby="additionalinfo-tab" tabindex="0">
+                        <div class="additionalContentArea">
+                            <h3>Additional Information</h3>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <td>AB42 - 2394 - DS023</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Brand</th>
+                                        <td>Ulina</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Dimention</th>
+                                        <td>12 Cm x 42 Cm x 20 Cm</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Specification</th>
+                                        <td>1pc dress, 1 pc soap, 1 cleaner</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Weight</th>
+                                        <td>2 kg</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Warranty</th>
+                                        <td>1 year</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        
-
+                    </div>
 
                     <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab"
                         tabindex="0">
@@ -420,8 +423,6 @@
                                             <div id="comment-message" class="text-success mt-2"></div>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
@@ -506,26 +507,26 @@
                                         @endif
                                     </div>
 
-                                    {{-- Màu & Size từ attributeValues --}}
+                                     {{-- Màu & Size từ attributeValues --}}
                                     @if (optional($prod->variantsWithAttributes())->count())
                                     @php
-                                    // Lấy danh sách màu
+                                    // Lấy danh sách màu - ĐÃ SỬA: Thêm kiểm tra null
                                     $colors = collect();
                                     foreach ($prod->variantsWithAttributes() as $variant) {
                                     foreach ($variant->attributeValues as $attrVal) {
-                                    if ($attrVal->attribute->slug === 'color') {
+                                    if ($attrVal->attribute && $attrVal->attribute->slug === 'color') {
                                     $colors->push($attrVal);
                                     }
                                     }
                                     }
                                     $colors = $colors->unique('id');
 
-                                    // Lấy danh sách size
+                                    // Lấy danh sách size - ĐÃ SỬA: Thêm kiểm tra null
                                     $sizes = $prod
                                     ->variantsWithAttributes()
                                     ->flatMap(
                                     fn($v) => $v->attributeValues->filter(
-                                    fn($val) => $val->attribute->slug === 'size',
+                                    fn($val) => $val->attribute && $val->attribute->slug === 'size',
                                     ),
                                     )
                                     ->unique('id');
@@ -870,6 +871,12 @@
                 });
             });
 
+            // Toggle form trả lời
+            $(document).on('click', '.toggle-reply', function() {
+                let id = $(this).data('id');
+                $('.reply-form').addClass('d-none');
+                $('#reply-form-' + id).toggleClass('d-none');
+            });
 
             loadComments();
         });

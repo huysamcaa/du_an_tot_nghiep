@@ -40,12 +40,11 @@
                                                 2 => ['icon' => 'fas fa-check-circle', 'text' => 'Đã xác nhận', 'color' => 'text-primary'],
                                                 3 => ['icon' => 'fas fa-box', 'text' => 'Đóng gói', 'color' => 'text-warning'],
                                                 4 => ['icon' => 'fas fa-truck', 'text' => 'Vận chuyển', 'color' => 'text-secondary'],
-                                                5 => ['icon' => 'fas fa-clipboard-check', 'text' => 'Hoàn Thành', 'color' => 'text-success'], // Changed icon and text for clarity
-                                                6 => ['icon' => 'fas fa-times-circle', 'text' => 'Đã hủy', 'color' => 'text-danger'] // Changed icon for clarity
+                                                5 => ['icon' => 'fas fa-clipboard-check', 'text' => 'Hoàn Thành', 'color' => 'text-success'],
+                                                6 => ['icon' => 'fas fa-times-circle', 'text' => 'Đã hủy', 'color' => 'text-danger']
                                             ];
 
                                             $currentStatusId = $order->currentStatus->order_status_id;
-                                            // Adjust progress bar for 5 active steps + cancelled as a separate state
                                             $progressBarWidth = ($currentStatusId <= 5) ? (($currentStatusId / 5) * 100) : 100;
                                         @endphp
 
@@ -55,20 +54,23 @@
 
                                         <div class="timeline-items">
                                             @foreach($statuses as $id => $status)
-                                                @if ($id <= 5) {{-- Only show active progression statuses --}}
+                                                @if ($id <= 5)
                                                 <div class="timeline-item {{ $id <= $currentStatusId ? 'active' : '' }} {{ $id == $currentStatusId ? 'current' : '' }} animate__animated animate__fadeIn">
                                                     <div class="timeline-icon {{ $status['color'] }}">
                                                         <i class="{{ $status['icon'] }}"></i>
                                                     </div>
                                                     <div class="timeline-text">
                                                         <span>{{ $status['text'] }}</span>
-                                                       
-                                                            <small class="d-block text-muted-darker animate__animated animate__fadeIn">
-                                                                @if($order->currentStatus->created_at)
-                                                                    {{-- {{ $order->currentStatus->created_at->format('H:i d/m/Y') }} --}}
-                                                                
-                                                            </small>
-                                                        @endif
+                                                        
+                                                        {{-- HIỂN THỊ THỜI GIAN CẬP NHẬT TƯƠNG ỨNG VỚI TỪNG MỐC --}}
+                                                        @foreach($order->statuses as $orderStatus)
+                                                            @if($orderStatus->order_status_id == $id)
+                                                                <small class="d-block text-muted-darker animate__animated animate__fadeIn">
+                                                                    {{ $orderStatus->created_at->format('H:i d/m/Y') }}
+                                                                </small>
+                                                            @endif
+                                                        @endforeach
+                                                        
                                                     </div>
                                                 </div>
                                                 @endif
@@ -93,74 +95,9 @@
 
 <div class="container my-5">
     <div class="row g-4">
-        <div class="col-lg-6 animate__animated animate__fadeInLeft">
-            <div class="card border-0 shadow-lg h-100 rounded-3">
-                <div class="card-header bg-white border-bottom-0 py-3">
-                    <h5 class="mb-0 fw-bold text-primary">
-                        <i class="fas fa-user-circle me-2"></i>Thông tin người đặt
-                    </h5>
-                </div>
-                <div class="card-body pt-0">
-                    @if($order->user)
-                    <div class="d-flex align-items-center mb-3 p-3 bg-light rounded-2">
-                        @if($order->user->avatar)
-                            <img src="{{ asset('storage/' . $order->user->avatar) }}"
-                                 class="rounded-circle me-3 border border-primary p-1"
-                                 width="70"
-                                 height="70"
-                                 alt="Avatar">
-                        @else
-                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                 style="width: 70px; height: 70px;">
-                                <i class="fas fa-user fs-3"></i>
-                            </div>
-                        @endif
-                        <div>
-                            <h6 class="mb-1 text-dark">{{ $order->user->fullname ?? $order->user->name }}</h6>
-                            <small class="text-muted">Thành viên từ: {{ $order->user->created_at->format('d/m/Y') }}</small>
-                        </div>
-                    </div>
-                    @endif
+        {{-- Phần Thông tin người đặt đã được loại bỏ --}}
 
-                    <ul class="list-group list-group-flush mt-3">
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span class="fw-medium text-secondary">Tài khoản:</span>
-                            <span class="text-dark">{{ $order->user->email ?? 'Khách vãng lai' }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span class="fw-medium text-secondary">Điện thoại:</span>
-                            <span class="text-dark">{{ $order->user->phone_number ?? 'N/A' }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span class="fw-medium text-secondary">Giới tính:</span>
-                            <span class="text-dark">
-                                @if($order->user && $order->user->gender)
-                                    @if($order->user->gender === 'male')
-                                        Nam
-                                    @elseif($order->user->gender === 'female')
-                                        Nữ
-                                    @else
-                                        Khác
-                                    @endif
-                                @else
-                                    Không xác định
-                                @endif
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span class="fw-medium text-secondary">Ngày sinh:</span>
-                            <span class="text-dark">{{ $order->user->birthday ? \Carbon\Carbon::parse($order->user->birthday)->format('d/m/Y') : 'Không có' }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span class="fw-medium text-secondary">Điểm tích lũy:</span>
-                            <span class="text-dark">{{ $order->user->loyalty_points ?? 0 }} điểm</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 animate__animated animate__fadeInRight">
+        <div class="col-lg-12 animate__animated animate__fadeInRight">
             <div class="card border-0 shadow-lg h-100 rounded-3">
                 <div class="card-header bg-white border-bottom-0 py-3">
                     <h5 class="mb-0 fw-bold text-primary">
@@ -196,11 +133,11 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
                             <span class="fw-medium text-secondary">Trạng thái thanh toán:</span>
                              <span class="badge {{ $order->is_paid == 1 ? 'bg-success' : 'bg-secondary' }} bg-opacity-10 text-{{ $order->is_paid == 1 ? 'success' : 'secondary' }} rounded-pill py-2 px-3">
-                                @if($order->is_paid == 1 )
-                                    <i class="fas fa-check-circle me-1"></i>Đã thanh toán
-                                @elseif($order->is_paid == 0)
-                                    <i class="fas fa-clock me-1"></i>Thanh toán khi nhận hàng
-                                @endif
+                                 @if($order->is_paid == 1 )
+                                     <i class="fas fa-check-circle me-1"></i>Đã thanh toán
+                                 @elseif($order->is_paid == 0)
+                                     <i class="fas fa-clock me-1"></i>Thanh toán khi nhận hàng
+                                 @endif
                             </span>
                         </li>
                         <li class="list-group-item border-0 px-0 pt-2 pb-0">
@@ -331,12 +268,12 @@
 
     body {
         font-family: 'Poppins', sans-serif;
-        background-color: #ffffff; /* Light gray background */
+        background-color: #ffffff;
     }
 
     /* General Card Styling */
     .card {
-        border-radius: 15px; /* More rounded corners */
+        border-radius: 15px;
         overflow: hidden;
         margin-bottom: 25px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -348,20 +285,20 @@
     }
 
     .card-header {
-        border-bottom: 1px solid rgba(0,0,0,.08); /* Slightly stronger border */
+        border-bottom: 1px solid rgba(0,0,0,.08);
         background-color: #fff;
-        padding: 1.25rem 1.5rem; /* More padding */
+        padding: 1.25rem 1.5rem;
     }
 
     .card-header h5 {
-        color: #007bff; /* Primary blue for headings */
+        color: #007bff;
         font-weight: 600;
         display: flex;
         align-items: center;
     }
 
     .card-header i {
-        color: #007bff; /* Primary blue for icons */
+        color: #007bff;
     }
 
     .list-group-item {
@@ -371,17 +308,17 @@
     }
 
     .list-group-item span {
-        color: #495057; /* Darker text for information */
+        color: #495057;
     }
 
     .list-group-item .fw-medium {
-        color: #6c757d; /* Lighter color for labels */
+        color: #6c757d;
     }
 
     /* Banner Section */
     .pageBannerSection {
-        background-color: #ecf5f4; /* Lighter background for banner */
-        padding: 80px 0; /* More padding */
+        background-color: #ecf5f4;
+        padding: 80px 0;
         margin-bottom: 40px;
         border-bottom-left-radius: 20px;
         border-bottom-right-radius: 20px;
@@ -389,30 +326,30 @@
     }
 
     .pageBannerContent h2 {
-        font-size: 3rem; /* Larger font size */
+        font-size: 3rem;
         font-weight: 700;
-        color: #343a40; /* Darker text */
+        color: #343a40;
         margin-bottom: 10px;
     }
 
     .pageBannerPath {
-        color: #6c757d; /* Muted color for path */
+        color: #6c757d;
         font-size: 1rem;
     }
 
     .pageBannerPath a {
-        color: #007bff; /* Primary color for links */
+        color: #007bff;
         text-decoration: none;
         transition: color 0.2s ease;
     }
 
     .pageBannerPath a:hover {
-        color: #0056b3; /* Darker primary on hover */
+        color: #0056b3;
     }
 
     /* Order Status Tracking (Shopee Style) */
     .order-status-tracking {
-        background-color: #f0f2f5; /* Very light background for this section */
+        background-color: #f0f2f5;
         padding: 3rem 0;
     }
 
@@ -427,14 +364,14 @@
         width: 100%;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start; /* Align items to the top for better text display */
+        align-items: flex-start;
     }
 
     .timeline-progress {
-        height: 4px; /* Thicker progress bar */
+        height: 4px;
         background-color: #e0e0e0;
         position: absolute;
-        top: 30px; /* Adjust based on icon size */
+        top: 30px;
         left: 0;
         right: 0;
         z-index: 1;
@@ -443,8 +380,8 @@
 
     .timeline-progress-bar {
         height: 100%;
-        background-color: #28a745; /* Green for completion */
-        transition: width 0.5s ease-in-out; /* Smoother transition */
+        background-color: #28a745;
+        transition: width 0.5s ease-in-out;
         border-radius: 2px;
     }
 
@@ -462,36 +399,36 @@
         align-items: center;
         position: relative;
         flex: 1;
-        padding: 0 5px; /* Add some padding to prevent overlap on smaller screens */
-        min-width: 100px; /* Ensure minimum width for each item */
+        padding: 0 5px;
+        min-width: 100px;
     }
 
     .timeline-icon {
-        width: 50px; /* Larger icon size */
+        width: 50px;
         height: 50px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: #fff;
-        border: 3px solid #ced4da; /* Lighter border */
+        border: 3px solid #ced4da;
         margin-bottom: 10px;
-        font-size: 22px; /* Larger icon font */
+        font-size: 22px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
 
     .timeline-item.active .timeline-icon {
-        border-color: #007bff; /* Primary color for active border */
-        color: #007bff; /* Primary color for active icon */
+        border-color: #007bff;
+        color: #007bff;
     }
 
     .timeline-item.current .timeline-icon {
-        background-color: #007bff; /* Primary color for current background */
+        background-color: #007bff;
         color: white;
         border-color: #007bff;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); /* Stronger shadow for current */
-        transform: scale(1.1); /* Slight enlarge effect */
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        transform: scale(1.1);
     }
 
     .timeline-text {
@@ -503,7 +440,7 @@
 
     .timeline-item.active .timeline-text,
     .timeline-item.current .timeline-text {
-        color: #343a40; /* Darker text for active/current */
+        color: #343a40;
         font-weight: 500;
     }
 
@@ -535,14 +472,14 @@
     }
 
     .item-row:hover {
-        background-color: #9ebbbd; /* Light hover effect for table rows */
+        background-color: #9ebbbd;
     }
 
     .product-thumbnail-wrapper {
-        width: 70px; /* Slightly larger thumbnails */
+        width: 70px;
         height: 70px;
         overflow: hidden;
-        border-radius: 10px; /* Rounded corners for thumbnails */
+        border-radius: 10px;
         border: 1px solid #eee;
         flex-shrink: 0;
     }
@@ -570,28 +507,28 @@
     }
 
     .price-cell {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more "number-friendly" font */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: 600;
     }
 
     /* Badges */
     .badge {
-        padding: 0.5em 0.9em; /* More padding */
+        padding: 0.5em 0.9em;
         font-weight: 600;
-        font-size: 0.9rem; /* Slightly larger font */
-        border-radius: 50px; /* Pill shape */
-        min-width: 120px; /* Ensure consistent width */
+        font-size: 0.9rem;
+        border-radius: 50px;
+        min-width: 120px;
         text-align: center;
     }
 
     /* Payment Status Badges */
     .badge.bg-success.bg-opacity-10 {
-        background-color: rgba(40, 167, 69, 0.15) !important; /* Brighter green opacity */
+        background-color: rgba(40, 167, 69, 0.15) !important;
         color: #28a745 !important;
     }
 
     .badge.bg-secondary.bg-opacity-10 {
-        background-color: rgba(108, 117, 125, 0.15) !important; /* Brighter gray opacity */
+        background-color: rgba(108, 117, 125, 0.15) !important;
         color: #6c757d !important;
     }
 
@@ -657,20 +594,20 @@
 
         .timeline-items {
             flex-wrap: wrap;
-            justify-content: center; /* Center items when wrapped */
+            justify-content: center;
         }
 
         .timeline-item {
-            flex: 0 0 50%; /* 2 items per row */
+            flex: 0 0 50%;
             margin-bottom: 20px;
         }
 
         .timeline-progress {
-            display: none; /* Hide progress bar on mobile for stacked layout */
+            display: none;
         }
 
         .timeline-item:nth-child(2n) {
-            border-right: none; /* No vertical line on every second item */
+            border-right: none;
         }
 
         /* Adjustments for the status badge and order code alignment on mobile */
@@ -683,11 +620,11 @@
         }
 
         .table thead {
-            display: none; /* Hide table header on small screens */
+            display: none;
         }
 
         .table, .table tbody, .table tr, .table td {
-            display: block; /* Make table elements behave like blocks */
+            display: block;
             width: 100%;
         }
 
@@ -700,7 +637,7 @@
 
         .table td {
             text-align: right !important;
-            padding-left: 50% !important; /* Space for the pseudo-element label */
+            padding-left: 50% !important;
             position: relative;
             border: none;
             padding-top: 0.75rem;
@@ -708,7 +645,7 @@
         }
 
         .table td::before {
-            content: attr(data-label); /* Use data-label for content */
+            content: attr(data-label);
             position: absolute;
             left: 0;
             width: 50%;
@@ -720,26 +657,6 @@
 
         /* Specific data-labels for table cells */
         .table tbody td:nth-child(1)::before { content: 'Sản phẩm:'; }
-        .table tbody td:nth-child(2)::before { content: 'Đơn giá:'; }
-        .table tbody td:nth-child(3)::before { content: 'Số lượng:'; }
-        .table tbody td:nth-child(4)::before { content: 'Thành tiền:'; }
-
-        /* Footer total rows */
-        .table tfoot tr {
-            border: none;
-            box-shadow: none;
-        }
-        .table tfoot td {
-            text-align: right !important;
-            padding-left: 1rem !important;
-        }
-        .table tfoot td:nth-child(1)::before { content: ''; } /* Hide pseudo-element for footer */
-    }
-
-    @media (max-width: 576px) {
-        .timeline-item {
-            flex: 0 0 100%; /* 1 item per row on very small screens */
-        }
     }
 </style>
 

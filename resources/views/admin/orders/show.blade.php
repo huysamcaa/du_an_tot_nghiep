@@ -24,59 +24,88 @@
                     <h5 class="mb-0">Thông tin đơn hàng</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-2">
-                                <strong>Khách hàng:</strong> {{ $order->fullname }}
-                            </div>
-                            <div class="mb-2">
-                                <strong>SĐT:</strong> {{ $order->phone_number }}
-                            </div>
-                            <div>
-                                <strong>Email:</strong> {{ $order->email ?? 'N/A' }}
+                            <div class="info-section">
+                                <h6 class="info-title"><i class="fas fa-user me-2"></i>Thông tin người đặt</h6>
+                                <div class="info-content">
+                                    <div class="mb-2">
+                                        <strong>Họ tên:</strong> {{ $order->fullname }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>SĐT:</strong> {{ $order->phone_number }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Email:</strong> {{ $order->email ?? 'N/A' }}
+                                    </div>
+                                    <div>
+                                        <strong>Địa chỉ:</strong> {{ $order->address }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-2">
-                                <strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}
-                            </div>
-                            <div class="mb-2">
-                                <strong>Địa chỉ:</strong> {{ $order->address }}
-                            </div>
-                            <div>
-                                <strong>Ghi chú:</strong> {{ $order->notes ?? 'Không có' }}
+                            <div class="info-section">
+                                <h6 class="info-title"><i class="fas fa-truck me-2"></i>Thông tin người nhận</h6>
+                                <div class="info-content">
+                                    
+                                    <div class="mb-2">
+                                        <strong>Họ tên:</strong> {{ $order->fullname }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>SĐT:</strong> {{ $order->phone_number }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Email:</strong> {{ $order->email ?? 'N/A' }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Địa chỉ:</strong> {{ $order->address }}
+                                    </div>
+                                    
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <strong>Phương thức thanh toán:</strong>
-                                <span class="badge bg-info">
-                                    @switch($order->payment_id)
-                                        @case(2) COD @break
-                                        @case(3) MOMO @break
-                                        @case(4) VNPAY @break
-                                        @default Chưa xác định
-                                    @endswitch
-                                </span>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6 class="info-title"><i class="fas fa-info-circle me-2"></i>Thông tin bổ sung</h6>
+                                <div class="info-content">
+                                    <div class="mb-2">
+                                        <strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Ghi chú:</strong> {{ $order->note ?? 'Không có' }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <strong>Trạng thái thanh toán:</strong>
-                                <span class="badge bg-{{ $order->is_paid ? 'success' : 'warning' }}">
-                                    {{ $order->is_paid ? 'Đã thanh toán' : 'Chưa thanh toán' }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <strong>Trạng thái đơn hàng:</strong>
-                                <span class="badge bg-{{ getStatusColor($order->currentStatus?->orderStatus?->slug ?? 'pending') }}">
-                                    {{ $order->currentStatus?->orderStatus?->name ?? 'Chờ xử lý' }}
-                                </span>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6 class="info-title"><i class="fas fa-credit-card me-2"></i>Thanh toán & Vận chuyển</h6>
+                                <div class="info-content">
+                                    <div class="mb-2">
+                                        <strong>Phương thức thanh toán:</strong>
+                                        <span class="badge bg-info">
+                                            @switch($order->payment_id)
+                                                @case(2) COD @break
+                                                @case(3) MOMO @break
+                                                @case(4) VNPAY @break
+                                                @default Chưa xác định
+                                            @endswitch
+                                        </span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Trạng thái thanh toán:</strong>
+                                        <span class="badge bg-{{ $order->is_paid ? 'success' : 'warning' }}">
+                                            {{ $order->is_paid ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong>Phí vận chuyển:</strong> 30.000 đ
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -115,7 +144,15 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold">{{ $item->name }}</div>
-                                        <div class="small text-muted">SKU: {{ $product->sku ?? 'N/A' }}</div>
+                                         @if ($item->variant)
+                                                        @php
+                                                            $color = $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? '';
+                                                            $size = $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? '';
+                                                        @endphp
+                                                        @if($color) Màu: {{ $color }} @endif
+                                                        @if($color && $size) | @endif
+                                                        @if($size) Size: {{ $size }} @endif
+                                                    @endif
                                         @if ($product)
                                             <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
                                         @endif
@@ -130,12 +167,22 @@
                             </tbody>
                             <tfoot class="table-light">
                                 <tr>
-                                    <th colspan="4" class="text-end">Tạm tính:</th>
+                                    <th colspan="4" class="text-end">Giá sản phẩm:</th>
                                     <th>{{ number_format($order->total_amount - 30000, 0, ',', '.') }} đ</th>
                                 </tr>
                                 <tr>
                                     <th colspan="4" class="text-end">Phí vận chuyển:</th>
                                     <th>30.000 đ</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4" class="text-end">Mã giảm giá:</th>
+                                    <th>
+                                    @if($order->coupon_code)
+                                            Mã: {{ $order->coupon_code }} (Giảm: {{ number_format($order->coupon_discount_value, 0, ',', '.') }}₫)
+                                        @else
+                                            Không có
+                                        @endif
+                                    </th>
                                 </tr>
                                 <tr>
                                     <th colspan="4" class="text-end">Tổng cộng:</th>
@@ -173,6 +220,7 @@
                         <div class="mb-3">
                             <label class="form-label">Trạng thái hiện tại</label>
                             <div class="alert alert-{{ getStatusColor($order->currentStatus?->orderStatus?->slug ?? 'pending', true) }} mb-3">
+                                <i class="fas {{ getStatusIcon($order->currentStatus?->orderStatus?->slug ?? 'pending') }} me-2"></i>
                                 {{ $order->currentStatus?->orderStatus?->name ?? 'Chờ xử lý' }}
                             </div>
                         </div>
@@ -187,7 +235,7 @@
                                             !in_array($status->id, [$nextStatusId, 6, 7]) ||
                                             ($status->id == 7 && $currentStatusId != 5) ||
                                             ($status->id == 6 && $currentStatusId != 1)) disabled @endif>
-                                        {{ $status->name }}
+                                        <i class="fas {{ getStatusIcon($status->slug) }} me-2"></i> {{ $status->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -203,15 +251,30 @@
             {{-- Lịch sử trạng thái --}}
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">Lịch sử trạng thái</h5>
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử trạng thái</h5>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        @foreach (\App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)->orderBy('created_at', 'desc')->get() as $history)
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span class="fw-bold">{{ $history->orderStatus->name ?? '—' }}</span>
-                                <span class="text-muted small">{{ $history->created_at->format('d/m/Y H:i') }}</span>
+                    <div class="order-timeline">
+                        @php
+                            $histories = \App\Models\Admin\OrderOrderStatus::where('order_id', $order->id)
+                                ->orderBy('created_at', 'asc')
+                                ->get();
+                        @endphp
+                        
+                        @foreach ($histories as $index => $history)
+                        <div class="timeline-item {{ $index === count($histories) - 1 ? 'current' : '' }}">
+                            <div class="timeline-icon bg-{{ getStatusColor($history->orderStatus->slug ?? 'pending') }}">
+                                <i class="fas {{ getStatusIcon($history->orderStatus->slug ?? 'pending') }}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">{{ $history->orderStatus->name ?? '—' }}</h6>
+                                <p class="text-muted small mb-0">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ $history->created_at->format('H:i d/m/Y') }}
+                                </p>
+                                @if($index === count($histories) - 1)
+                                    <span class="badge bg-success mt-1">Trạng thái hiện tại</span>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -241,6 +304,70 @@
         max-width: 100%;
         height: auto;
     }
+    
+    /* Info Section Styles */
+    .info-section {
+        margin-bottom: 1.5rem;
+    }
+    .info-title {
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .info-content {
+        padding-left: 0.5rem;
+    }
+    
+    /* Timeline Styles */
+    .order-timeline {
+        padding: 15px;
+    }
+    .timeline-item {
+        display: flex;
+        position: relative;
+        padding: 10px 0;
+    }
+    .timeline-item:not(:last-child):after {
+        content: '';
+        position: absolute;
+        left: 21px;
+        top: 45px;
+        bottom: -10px;
+        width: 2px;
+        background: #dee2e6;
+        z-index: 1;
+    }
+    .timeline-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        z-index: 2;
+        flex-shrink: 0;
+    }
+    .timeline-icon i {
+        color: white;
+        font-size: 18px;
+    }
+    .timeline-content {
+        flex-grow: 1;
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 6px;
+        border-left: 3px solid #6c757d;
+    }
+    .timeline-item.current .timeline-content {
+        border-left-color: #28a745;
+        background: #f0fff4;
+    }
+    .timeline-item.current .timeline-icon {
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+    }
 </style>
 @endpush
 
@@ -256,5 +383,18 @@
         ];
         
         return $colors[$statusSlug] ?? ($isAlert ? 'light' : 'secondary');
+    }
+    
+    function getStatusIcon($statusSlug) {
+        $icons = [
+            'pending' => 'fa-hourglass-half',
+            'processing' => 'fa-cogs',
+            'shipped' => 'fa-shipping-fast',
+            'delivered' => 'fa-check-circle',
+            'cancelled' => 'fa-times-circle',
+            'returned' => 'fa-undo'
+        ];
+        
+        return $icons[$statusSlug] ?? 'fa-circle';
     }
 @endphp
