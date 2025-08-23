@@ -130,7 +130,6 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Ảnh</th>
-                                                <th>SKU</th>
                                                 <th>Tên biến thể</th>
                                                 <th class="text-end">Giá</th>
                                                 <th class="text-end">Số lượng</th>
@@ -150,7 +149,6 @@
                                                         @endif
                                                     </div>
                                                 </td>
-                                                <td class="align-middle"><span class="badge bg-light text-dark">{{ $variant->sku ?? '-' }}</span></td>
                                                 <td class="align-middle">
                                                     @foreach($variant->attributeValues as $value)
                                                         <span class="badge bg-primary me-1">{{ $value->attribute->name }}: {{ $value->value }}</span>
@@ -216,7 +214,7 @@
                                             <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}</span></td>
                                             <td class="text-end">{{ $orderItem->quantity }}</td>
                                             <td>
-                                                
+
                                                 {{-- @switch($orderItem->order->status)
                                                     @case(1) <span class="badge bg-warning text-dark">Chờ xử lý</span> @break
                                                     @case(2) <span class="badge bg-info text-dark">Đang xử lý</span> @break

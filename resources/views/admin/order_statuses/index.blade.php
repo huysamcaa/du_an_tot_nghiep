@@ -1,156 +1,149 @@
 @extends('admin.layouts.app')
 
 @section('content')
+<div class="content col-md-12">
 
-    {{-- Breadcrumbs --}}
-    <div class="breadcrumbs">
-        <div class="breadcrumbs-inner">
-            <div class="row m-0">
-                <div class="col-sm-4">
-                    <div class="page-header float-left">
-                        <div class="page-title">
-                            <h1>Trạng thái đơn hàng</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-8">
-                    <div class="page-header float-right">
-                        <div class="page-title">
-                            <ol class="breadcrumb text-right">
-                                <li><a href="{{ route('admin.dashboard') }}">Trang chủ</a></li>
-                                <li class="active">Trạng thái đơn hàng</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    {{-- Alerts --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0 ps-3">
+                @foreach ($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    @endif
+
+    {{-- Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-0">Quản lý trạng thái đơn hàng</h4>
+            <small class="text-muted">Danh sách trạng thái đơn hàng</small>
+        </div>
+        <div>
+            <a href="{{ route('admin.order_statuses.create') }}"
+               style="background-color: #ffa200; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;"
+               onmouseover="this.style.backgroundColor='#e68a00'"
+               onmouseout="this.style.backgroundColor='#ffa200'">
+                <i class="fa fa-plus"></i> Thêm trạng thái
+            </a>
         </div>
     </div>
 
-    {{-- Nội dung --}}
-    <div class="content">
-        <div class="col-md-12">
+    {{-- Form tìm kiếm --}}
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.order_statuses.index') }}" class="row g-2">
+                @foreach (request()->except(['page','search']) as $k => $v)
+                    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+                @endforeach
 
-            {{-- Thông báo --}}
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Đóng">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <div class="col-md-6">
+                    <label class="form-label mb-1">Tìm kiếm</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tên trạng thái..."
+                           value="{{ request('search') }}">
                 </div>
-            @endif
 
-            {{-- Nút thêm trạng thái --}}
-            <div class="mb-3">
-                <a href="{{ route('admin.order_statuses.create') }}" class="btn btn-success" title="Thêm trạng thái đơn hàng">
-                    <i class="fa fa-plus"></i> Thêm trạng thái đơn hàng
-                </a>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <strong class="card-title">Danh sách trạng thái đơn hàng</strong>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn w-100" style="background:#ffa200;color:#fff;">Tìm</button>
                 </div>
-                <div class="card-body">
 
-                    {{-- Bộ lọc hiển thị số lượng + tìm kiếm --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <form method="GET" action="{{ route('admin.order_statuses.index') }}" class="d-flex align-items-center" style="gap: 12px;">
-                            <div>
-                                <label for="perPage" style="font-weight:600;">Hiển thị:</label>
-                                <select name="perPage" id="perPage" class="form-control d-inline-block" style="width:auto;" onchange="this.form.submit()">
-                                    <option value="10" {{ request('perPage') == '10' ? 'selected' : '' }}>10</option>
-                                    <option value="25" {{ request('perPage') == '25' ? 'selected' : '' }}>25</option>
-                                    <option value="50" {{ request('perPage') == '50' ? 'selected' : '' }}>50</option>
-                                    <option value="100" {{ request('perPage') == '100' ? 'selected' : '' }}>100</option>
-                                </select>
-                            </div>
-                        </form>
-
-                        <form method="GET" action="{{ route('admin.order_statuses.index') }}" class="w-50">
-                            <div class="d-flex">
-                                <input type="text" name="search" class="form-control" placeholder="Tìm tên trạng thái..." value="{{ request('search') }}">
-                                <button class="btn btn-primary ml-1" type="submit">Tìm</button>
-                                @if (request('search'))
-                                    <a href="{{ route('admin.order_statuses.index') }}" class="btn btn-outline-secondary ml-1">Xóa</a>
-                                @endif
-                            </div>
-                        </form>
+                @if (request()->has('search'))
+                    <div class="col-md-2 d-flex align-items-end">
+                        <a href="{{ route('admin.order_statuses.index') }}" class="btn btn-outline-secondary w-100">Xóa tìm</a>
                     </div>
+                @endif
+            </form>
+        </div>
+    </div>
 
-                    {{-- Bảng --}}
-                    <table id="status-table" class="table table-striped table-bordered text-center align-middle">
-                        <thead>
+    {{-- Bảng --}}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="status-table" class="table table-bordered table-hover align-middle text-center mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:10%;">ID</th>
+                            <th class="text-start">Tên trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($statuses as $status)
                             <tr>
-                                <th style="width: 8%;">ID</th>
-                                <th>Tên trạng thái</th>
-                                <th style="width: 15%;">Hành động</th>
+                                <td>{{ $status->id }}</td>
+                                <td class="text-start">{{ $status->name }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($statuses as $status)
-                                <tr>
-                                    <td>{{ $status->id }}</td>
-                                    <td>{{ $status->name }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.order_statuses.edit', $status->id) }}" class="btn btn-sm btn-warning" title="Sửa">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('admin.order_statuses.destroy', $status->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')" title="Xóa">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-muted">Không có trạng thái nào.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                    {{-- Phân trang --}}
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div class="text-muted">
-                            Hiển thị từ {{ $statuses->firstItem() ?? 0 }} đến {{ $statuses->lastItem() ?? 0 }} trên
-                            tổng số {{ $statuses->total() }} trạng thái
-                        </div>
-                        <div>
-                            {!! $statuses->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
-                        </div>
-                    </div>
-
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-muted text-center">Không có trạng thái nào.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+    {{-- Footer controls --}}
+    <div id="status-footer-controls" class="d-flex justify-content-between align-items-center px-3 py-3"
+        style="position:sticky; bottom:0; background:#fff; border-top:1px solid #eef0f2; z-index:5;">
+        <form method="GET" action="{{ route('admin.order_statuses.index') }}" class="d-flex align-items-center"
+            style="gap:8px; margin:0;">
+            @foreach (request()->except(['perPage','page']) as $k => $v)
+                <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+            @endforeach
+            <label for="perPage" class="mb-0 fw-semibold">Hiển thị:</label>
+            <select name="perPage" id="perPage" class="form-control"
+                style="width:90px; border:1px solid #cfd4da; border-radius:8px; padding:6px 10px; background:#f9fafb;"
+                onchange="this.form.submit()">
+                @foreach ([10,25,50,100] as $n)
+                    <option value="{{ $n }}" {{ request('perPage') == (string)$n ? 'selected':'' }}>{{ $n }}</option>
+                @endforeach
+            </select>
+        </form>
+
+        <div class="d-flex align-items-center flex-wrap" style="gap:10px;">
+            <small class="text-muted">
+                Hiển thị từ {{ $statuses->firstItem() ?? 0 }} đến {{ $statuses->lastItem() ?? 0 }} / {{ $statuses->total() }} mục
+            </small>
+            <div class="pagination pagination-sm mb-0">
+                {!! $statuses->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-4') !!}
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
-    {{-- DataTables CSS --}}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
-
-    {{-- jQuery & DataTables --}}
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#status-table').DataTable({
-                "paging": false,
-                "searching": false,
-                "info": false,
-                "order": [[0, "asc"]],
-                "columnDefs": [
-                    { "orderable": false, "targets": [2] }
-                ]
-            });
+<script>
+    $(function(){
+        $('#status-table').DataTable({
+            order:[[0,'asc']],
+            paging:false,
+            searching:false,
+            info:false,
+            columnDefs:[{ orderable:false, targets:[2] }],
+            language:{
+                emptyTable:"Không có trạng thái nào",
+                zeroRecords:"Không tìm thấy kết quả phù hợp"
+            }
         });
-    </script>
+    });
+</script>
 @endsection

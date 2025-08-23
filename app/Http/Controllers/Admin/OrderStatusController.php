@@ -40,31 +40,5 @@ class OrderStatusController extends Controller
 
         return redirect()->route('admin.order_statuses.index')->with('success', 'Thêm trạng thái thành công!');
     }
-
-    public function edit($id)
-    {
-        $status = OrderStatus::findOrFail($id);
-        return view('admin.order_statuses.edit', compact('status'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $status = OrderStatus::findOrFail($id);
-        $status->update($request->only('name'));
-
-        return redirect()->route('admin.order_statuses.index')->with('success', 'Cập nhật trạng thái thành công!');
-    }
-
-    public function destroy($id)
-    {
-        $status = OrderStatus::findOrFail($id);
-        $status->delete();
-
-        return redirect()->route('admin.order_statuses.index')->with('success', 'Xóa trạng thái thành công!');
-    }
 }
 

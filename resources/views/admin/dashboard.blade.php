@@ -386,8 +386,9 @@
                                 labels: @json($statusLabels),
                                 datasets: [{
                                     data: @json($statusData),
-                                    backgroundColor: ['#36A2EB', '#FF9F40', '#FFCE56', '#4BC0C0', '#9966FF',
-                                        '#FF6384'
+                                    backgroundColor: [
+                                        '#36A2EB', '#FF9F40', '#FFCE56', '#4BC0C0',
+                                        '#9966FF', '#FF6384', '#FF4444', '#44FF44'
                                     ]
                                 }]
                             },

@@ -55,7 +55,7 @@
                                 <div class="card p-4">
                                     <div class="form-group mb-3">
                                         <label>Tên sản phẩm <span class="text-danger">*</span></label>
-                                        <input type="text" name="name" class="form-control" value="{{ old('name', $product->name) }}" required>
+                                        <input type="text" name="name" class="form-control" value="{{ old('name', $product->name) }}" >
                                     </div>
                                     <div class="form-group mb-3">
                                         <label>Mô tả ngắn</label>
@@ -131,7 +131,6 @@
                                                         <th>Bắt đầu</th>
                                                         <th>Kết thúc</th>
                                                         <th>Số lượng</th>
-                                                        <th>SKU</th>
                                                         <th>Ảnh</th>
                                                         <th>Đang sale</th>
                                                         <th>Trạng thái</th>
@@ -147,7 +146,7 @@
                                                             @endforeach
                                                         </td>
                                                         <td>
-                                                            <input type="number" name="variants[{{ $variant->id }}][price]" step="0.01" class="form-control" value="{{ old("variants.{$variant->id}.price", $variant->price) }}" required>
+                                                            <input type="number" name="variants[{{ $variant->id }}][price]" step="0.01" class="form-control" value="{{ old("variants.{$variant->id}.price", $variant->price) }}" >
                                                         </td>
                                                         <td>
                                                             <input type="number" name="variants[{{ $variant->id }}][sale_price]" step="0.01" class="form-control" value="{{ old("variants.{$variant->id}.sale_price", $variant->sale_price) }}">
@@ -159,10 +158,7 @@
                                                             <input type="datetime-local" name="variants[{{ $variant->id }}][sale_price_end_at]" class="form-control" value="{{ old("variants.{$variant->id}.sale_price_end_at", $variant->sale_price_end_at ? \Carbon\Carbon::parse($variant->sale_price_end_at)->format('Y-m-d\TH:i') : '') }}">
                                                         </td>
                                                         <td>
-                                                            <input type="number" name="variants[{{ $variant->id }}][stock]" class="form-control" min="0" value="{{ old("variants.{$variant->id}.stock", $variant->stock) }}" required>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" name="variants[{{ $variant->id }}][sku]" class="form-control" value="{{ old("variants.{$variant->id}.sku", $variant->sku) }}">
+                                                            <input type="number" name="variants[{{ $variant->id }}][stock]" class="form-control" min="0" value="{{ old("variants.{$variant->id}.stock", $variant->stock) }}" >
                                                         </td>
                                                         <td>
                                                             <input type="file" name="variants[{{ $variant->id }}][thumbnail]" class="form-control mb-1" accept="image/*">
@@ -211,7 +207,7 @@
                             <h5 class="card-title">Tổ chức & Tùy chọn</h5>
                             <div class="form-group mb-3">
                                 <label>Danh mục <span class="text-danger">*</span></label>
-                                <select name="category_id" class="form-control select2" required>
+                                <select name="category_id" class="form-control select2" >
                                     <option value="">-- Chọn danh mục --</option>
                                     @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
@@ -222,7 +218,7 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label>Nhà sản xuất <span class="text-danger">*</span></label>
-                                <select name="brand_id" class="form-control select2" required>
+                                <select name="brand_id" class="form-control select2" >
                                     <option value="">-- Chọn nhà sản xuất --</option>
                                     @foreach ($brands as $brand)
                                     <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
@@ -286,7 +282,7 @@
         <div class="col-md-2 mb-2">
             <div class="form-group mb-0">
                 <label>Giá gốc</label>
-                <input type="number" name="new_variants[0][price]" class="form-control" step="0.01" min="0" required>
+                <input type="number" name="new_variants[0][price]" class="form-control" step="0.01" min="0" >
             </div>
         </div>
         <div class="col-md-2 mb-2">
@@ -310,13 +306,7 @@
         <div class="col-md-2 mb-2">
             <div class="form-group mb-0">
                 <label>Số lượng</label>
-                <input type="number" name="new_variants[0][stock]" class="form-control" min="0" required>
-            </div>
-        </div>
-        <div class="col-md-2 mb-2">
-            <div class="form-group mb-0">
-                <label>SKU</label>
-                <input type="text" name="new_variants[0][sku]" class="form-control">
+                <input type="number" name="new_variants[0][stock]" class="form-control" min="0" >
             </div>
         </div>
         <div class="col-md-2 mb-2">
@@ -422,7 +412,7 @@
                             .addClass('btn btn-danger btn-sm remove-added-image')
                             .css({position: 'absolute', top: '-5px', right: '5px', 'border-radius': '50%', padding: '0.1rem 0.4rem'})
                             .html('&times;');
-                        
+
                         imgContainer.append(img, removeButton);
                         $('#imagesPreviewArea').append(imgContainer);
                     };

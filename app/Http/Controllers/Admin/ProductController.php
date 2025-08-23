@@ -95,7 +95,7 @@ public function index(Request $request)
         // Xử lý checkbox
         $data['is_sale']   = $request->has('is_sale');
         $data['is_active'] = $request->has('is_active');
-        
+
 
         // Upload ảnh chính
         if ($request->hasFile('thumbnail')) {
@@ -121,7 +121,6 @@ public function index(Request $request)
                 $variant = new ProductVariant([
                     'price' => $variantData['price'],
                     'stock' => $variantData['stock'],
-                    'sku'   => $variantData['sku'] ?? null,
                     'is_active' => $variantData['is_active'] ?? 1,
 
                 ]);
@@ -193,7 +192,6 @@ public function index(Request $request)
         'variants'              => 'nullable|array',
         'variants.*.price'      => 'required_with:variants|numeric|min:0',
         'variants.*.stock'      => 'required_with:variants|integer|min:0',
-        // 'variants.*.sku'        => 'nullable|string|unique:product_variants,sku,' . implode(',', array_keys($request->input('variants', []))),
         'variants.*.thumbnail'  => 'nullable|image|max:2048',
         'variants.*.is_active'  => 'boolean',
 
@@ -204,7 +202,6 @@ public function index(Request $request)
         'new_variants.*.price'     => 'required_with:new_variants|numeric|min:0',
         'new_variants.*.stock'     => 'required_with:new_variants|integer|min:0',
         'new_variants.*.thumbnail' => 'nullable|image|max:2048',
-        'new_variants.*.sku'       => 'nullable|string|unique:product_variants,sku',
 
         'variants.*.sale_price'           => 'nullable|numeric|min:0',
         'variants.*.sale_price_start_at'  => 'nullable|date',
@@ -263,7 +260,7 @@ public function index(Request $request)
             if ($variant) {
                 $variant->update([
                     'price'     => $variantData['price'],
-                    
+
                     'stock'     => $variantData['stock'] ?? 0,
                     'is_active' => isset($variantData['is_active']) ? 1 : 0,
                     'sale_price' => $variantData['sale_price'] ?? null,
@@ -306,7 +303,6 @@ public function index(Request $request)
             $newVariant = new ProductVariant([
                 'price'     => $newVariantData['price'] ?? 0,
                 'stock'     => $newVariantData['stock'] ?? 0,
-                'sku'       => $newVariantData['sku'] ?? null,
                 'is_active' => true, // Mặc định là active khi tạo mới
             ]);
 
@@ -410,17 +406,17 @@ public function index(Request $request)
     /**
      * Tạo SKU tự động cho biến thể
      */
-    protected function generateVariantSku(Product $product, array $variantData)
-    {
-        $color = AttributeValue::find($variantData['color_id']);
-        $size  = AttributeValue::find($variantData['size_id']);
+    // protected function generateVariantSku(Product $product, array $variantData)
+    // {
+    //     $color = AttributeValue::find($variantData['color_id']);
+    //     $size  = AttributeValue::find($variantData['size_id']);
 
-        $productSku = $product->sku ?: substr(strtoupper(preg_replace('/[^a-z0-9]/i', '', $product->name)), 0, 3);
-        $colorCode  = substr(strtoupper($color->value), 0, 3);
-        $sizeCode   = $size->value;
+    //     $productSku = $product->sku ?: substr(strtoupper(preg_replace('/[^a-z0-9]/i', '', $product->name)), 0, 3);
+    //     $colorCode  = substr(strtoupper($color->value), 0, 3);
+    //     $sizeCode   = $size->value;
 
-        return $productSku . '-' . $colorCode . '-' . $sizeCode;
-    }
+    //     return $productSku . '-' . $colorCode . '-' . $sizeCode;
+    // }
     public function adminListByCategory($id)
     {
         $category = Category::findOrFail($id);
