@@ -269,12 +269,6 @@
 @endsection
 
 @section('scripts')
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> e654bf5d4ff3a65d16bc599bcefbcb5c7254cf4a
-
     <script>
         $(function() {
             $('#brand-table').DataTable({
