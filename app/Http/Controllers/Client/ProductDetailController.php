@@ -19,22 +19,19 @@ class ProductDetailController extends Controller
     public function show($id)
     {
         $product = Product::query()
-            ->with(['variants.attributeValues.attribute'])
+            ->with(['variants' => fn($q) => $q->whereNull('deleted_at')
+                                                ->with('attributeValues.attribute')])
             ->withAvg(['reviews as avg_rating' => function ($q) {
                 $q->where('is_active', 1);
             }], 'rating')
             ->withCount(['reviews as reviews_count' => function ($q) {
                 $q->where('is_active', 1);
             }])
+            ->whereNull('deleted_at')
             ->findOrFail($id);
 
-
         $category = $product->category;
-        // Lấy tất cả giá trị thuộc tính theo dạng tách biệt màu - size
-        // Lấy tất cả ID attribute_value của các biến thể
-        // $attributeValueIds = DB::table('attribute_value_product')
-        // ->where('product_id', $product->id)
-        // ->pluck('attribute_value_id');
+
         $variantIds = $product->variants->pluck('id');
 
         $attributeValueIds = DB::table('attribute_value_product_variant')
@@ -52,22 +49,40 @@ class ProductDetailController extends Controller
             ->get();
 
         $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
+
         // Lấy tất cả variant và chỉ lấy những gì cần thiết
         $variants = $product->variants->map(function ($variant) use ($product) {
-            // Lấy ra tất cả ID các attribute_value liên quan đến biến thể của sản phẩm
+            $isSaleActive = $variant->is_sale == 1 &&
+                            $variant->sale_price &&
+                            $variant->sale_price_start_at &&
+                            $variant->sale_price_end_at &&
+                            now()->between($variant->sale_price_start_at, $variant->sale_price_end_at);
+
+            $currentPrice = $isSaleActive ? $variant->sale_price : $variant->price;
+
             $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
             $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
 
             return [
                 'id' => $variant->id,
-                'color_id' => $color?->id, // $color ? $color->id : null
+                'color_id' => $color?->id,
                 'size_id' => $size?->id,
                 'price' => $variant->price,
                 'sale_price' => $variant->sale_price,
                 'stock' => $variant->stock,
                 'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : asset('storage/' . $product->thumbnail),
+                'current_price' => $currentPrice,
+                'is_sale_active' => $isSaleActive,
             ];
         });
+
+        // Tính toán giá min/max dựa trên giá hiện tại
+        $minPrice = $variants->min('current_price');
+        $maxPrice = $variants->max('current_price');
+
+        // Tính toán giá gốc min/max
+        $minOriginalPrice = $variants->min('price');
+        $maxOriginalPrice = $variants->max('price');
 
         $ratingFilter = request()->input('rating');
         $sortOption = request()->input('sort');
@@ -82,27 +97,28 @@ class ProductDetailController extends Controller
             ->when($sortOption === 'latest', fn($q) => $q->orderByDesc('created_at'))
             ->when($sortOption === 'highest', fn($q) => $q->orderByDesc('rating'))
             ->when($sortOption === 'lowest', fn($q) => $q->orderBy('rating'))
-            ->paginate(5) // Có thể đổi số 5 tuỳ ý
+            ->paginate(5)
             ->withQueryString();
-        $relatedProducts = Product::query()
-    ->where('category_id', $product->category_id)
-    ->where('id', '<>', $product->id)
-    ->with(['variants.attributeValues.attribute'])
-    ->withAvg(['reviews as avg_rating' => function ($q) {
-        $q->where('is_active', 1);
-    }], 'rating')
-    ->withCount(['reviews as reviews_count' => function ($q) {
-        $q->where('is_active', 1);
-    }])
-    ->orderByDesc('avg_rating')   // 👈 ưu tiên sp được đánh giá cao
-    ->orderByDesc('reviews_count')// 👈 rồi tới số lượng đánh giá
-    ->take(8)
-    ->get();
 
+        $relatedProducts = Product::query()
+            ->where('category_id', $product->category_id)
+            ->where('id', '<>', $product->id)
+            ->with(['variants.attributeValues.attribute'])
+            ->withAvg(['reviews as avg_rating' => function ($q) {
+                $q->where('is_active', 1);
+            }], 'rating')
+            ->withCount(['reviews as reviews_count' => function ($q) {
+                $q->where('is_active', 1);
+            }])
+            ->orderByDesc('avg_rating')
+            ->orderByDesc('reviews_count')
+            ->take(8)
+            ->get();
 
         $isFavorite = Wishlist::where('user_id', Auth::id())
             ->where('product_id', $product->id)
             ->exists();
+
         $hasReviewed = false;
         $myReview = null;
 
@@ -115,8 +131,26 @@ class ProductDetailController extends Controller
             $hasReviewed = $myReview !== null;
         }
 
-        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview', 'isFavorite'));
+        return view('client.productDetal.detal', compact(
+            'product',
+            'category',
+            'comments',
+            'colors',
+            'sizes',
+            'relatedProducts',
+            'reviews',
+            'variants',
+            'allReviews',
+            'hasReviewed',
+            'myReview',
+            'isFavorite',
+            'minPrice',
+            'maxPrice',
+            'minOriginalPrice',
+            'maxOriginalPrice'
+        ));
     }
+
     public function attributeValues()
     {
         return $this->belongsToMany(AttributeValue::class, 'attribute_value_product');

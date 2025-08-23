@@ -267,104 +267,117 @@
                             <div class="tab-pane show active" id="grid-tab-pane" role="tabpanel" aria-labelledby="grid-tab" tabindex="0">
                                 <div class="row">
                                     @foreach ($products as $product)
-                                    @php
-                                    // Lấy giá thấp nhất và giá sale thấp nhất từ tất cả các biến thể của sản phẩm
-                                    $min_price = $product->variants->min('price');
-                                    $min_sale_price = $product->variants->whereNotNull('sale_price')->min('sale_price');
+                                        @php
+                                            // Lấy tất cả biến thể đang sale
+                                            $active_sale_variants = $product->variants->filter(function ($variant) {
+                                                return $variant->is_sale == 1 &&
+                                                    $variant->sale_price &&
+                                                    $variant->sale_price_start_at &&
+                                                    $variant->sale_price_end_at &&
+                                                    now()->between($variant->sale_price_start_at, $variant->sale_price_end_at);
+                                            });
 
-                                    // Lấy giá cao nhất và giá sale cao nhất từ tất cả các biến thể
-                                    $max_price = $product->variants->max('price');
-                                    $max_sale_price = $product->variants->whereNotNull('sale_price')->max('sale_price');
-                                    @endphp
-                                    <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                                        <div class="productItem01">
-                                            <div class="pi01Thumb" style="height: auto; overflow: hidden;">
-                                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                                    style="width: 100%; height: auto; object-fit: cover;" />
-                                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                                    style="width: 100%; height: auto; object-fit: cover;" />
-                                                <div class="pi01Actions" data-product-id="{{ $product->id }}">
-                                                    <a href="javascript:void(0)" class="piAddToCart"
+                                            // Lấy giá thấp nhất và cao nhất của các biến thể đang sale
+                                            $min_sale_price = $active_sale_variants->min('sale_price');
+                                            $max_sale_price = $active_sale_variants->max('sale_price');
+
+                                            // Lấy giá thấp nhất và cao nhất của tất cả các biến thể (để so sánh)
+                                            $min_price = $product->variants->min('price');
+                                            $max_price = $product->variants->max('price');
+
+                                            // Xác định giá hiển thị trên frontend
+                                            $is_on_sale = $active_sale_variants->isNotEmpty();
+
+                                            $displayed_min_price = $is_on_sale ? $min_sale_price : $min_price;
+                                            $displayed_max_price = $is_on_sale ? $max_sale_price : $max_price;
+                                        @endphp
+
+                                        <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                                            <div class="productItem01">
+                                                <div class="pi01Thumb" style="height: auto; overflow: hidden;">
+                                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                                        style="width: 100%; height: auto; object-fit: cover;" />
+                                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                                                        style="width: 100%; height: auto; object-fit: cover;" />
+                                                    <div class="pi01Actions" data-product-id="{{ $product->id }}">
+                                                        <a href="javascript:void(0)" class="piAddToCart"
                                                         data-id="{{ $product->id }}">
-                                                        <i class="fa-solid fa-shopping-cart"></i>
-                                                    </a>
-                                                    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
-                                                        @csrf
-                                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                        <input type="hidden" name="quantity" value="1">
-                                                    </form>
-                                                    <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
-                                                </div>
-                                                @if ($min_sale_price && $min_sale_price < $min_price)
-                                                    <div class="productLabels clearfix">
-                                                    <span class="plDis">-{{ number_format($min_price - $min_sale_price, 0, ',', '.') }}đ</span>
-                                                    <span class="plSale">SALE</span>
-                                            </div>
-                                            @endif
-                                        </div>
-                                        <div class="pi01Details">
-                                            <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-                                                <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
-                                                    {{ $product->name }}
-                                                </a>
-                                            </h3>
+                                                            <i class="fa-solid fa-shopping-cart"></i>
+                                                        </a>
+                                                        <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+                                                            @csrf
+                                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                            <input type="hidden" name="quantity" value="1">
+                                                        </form>
+                                                        <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
+                                                    </div>
 
-                                            <div class="pi01Price">
-                                                @php
-                                                $displayed_min_price = $min_sale_price ?? $min_price;
-                                                $displayed_max_price = $max_sale_price ?? $max_price;
-                                                @endphp
-                                                @if($displayed_min_price !== $displayed_max_price)
-                                                {{-- Hiển thị dải giá nếu giá min và max khác nhau --}}
-                                                <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}đ - {{ number_format($displayed_max_price, 0, ',', '.') }}đ</ins>
-                                                @else
-                                                {{-- Hiển thị một giá duy nhất nếu tất cả biến thể có cùng giá --}}
-                                                <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}đ</ins>
-                                                @endif
-
-                                                {{-- Hiển thị giá gốc bị gạch ngang nếu có giá sale --}}
-                                                @if ($min_sale_price && $min_sale_price < $min_price)
-                                                    <del>{{ number_format($min_price, 0, ',', '.') }}đ</del>
+                                                    {{-- Hiển thị nhãn SALE nếu có biến thể đang sale --}}
+                                                    @if ($is_on_sale)
+                                                        <div class="productLabels clearfix">
+                                                            @if ($min_sale_price && $min_sale_price < $min_price)
+                                                                <span class="plDis">-{{ number_format($min_price - $min_sale_price, 0, ',', '.') }}₫</span>
+                                                            @endif
+                                                            <span class="plSale">SALE</span>
+                                                        </div>
                                                     @endif
-                                            </div>
+                                                </div>
+                                                <div class="pi01Details">
+                                                    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
+                                                        <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
+                                                            {{ $product->name }}
+                                                        </a>
+                                                    </h3>
+                                                    <div class="pi01Price">
+                                                        {{-- Hiển thị giá hiện tại --}}
+                                                        @if($displayed_min_price !== $displayed_max_price)
+                                                            <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}₫ - {{ number_format($displayed_max_price, 0, ',', '.') }}₫</ins>
+                                                        @else
+                                                            <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}₫</ins>
+                                                        @endif
 
-                                            {{-- Hiển thị Size --}}
-                                            @php
-                                            $sizes = $product->variants
-                                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
-                                            ->unique()
-                                            ->values()
-                                            ->toArray();
-                                            @endphp
-                                            @if(count($sizes))
-                                            <div class="product-sizes mt-1">
-                                                <strong>Size:</strong>
-                                                @foreach($sizes as $size)
-                                                <span class="badge bg-light text-dark border">{{ $size }}</span>
-                                                @endforeach
+                                                        {{-- Hiển thị giá gốc bị gạch ngang nếu có giá sale --}}
+                                                        @if ($is_on_sale)
+                                                            <del>{{ number_format($min_price, 0, ',', '.') }}₫</del>
+                                                        @endif
+                                                    </div>
+                                                    {{-- Hiển thị Size --}}
+                                                    @php
+                                                        $sizes = $product->variants
+                                                        ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
+                                                        ->unique()
+                                                        ->values()
+                                                        ->toArray();
+                                                    @endphp
+                                                    @if(count($sizes))
+                                                    <div class="product-sizes mt-1">
+                                                        <strong>Size:</strong>
+                                                        @foreach($sizes as $size)
+                                                        <span class="badge bg-light text-dark border">{{ $size }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                    @endif
+                                                    {{-- Hiển thị Màu --}}
+                                                    @php
+                                                        $colors = $product->variants
+                                                        ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
+                                                        ->unique()
+                                                        ->values()
+                                                        ->toArray();
+                                                    @endphp
+                                                    @if(count($colors))
+                                                    <div class="product-colors mt-1 d-flex gap-1">
+                                                        <strong class="me-1">Màu:</strong>
+                                                        @foreach($colors as $hex)
+                                                        <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
+                                                        @endforeach
+                                                    </div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                            @endif
-
-                                            {{-- Hiển thị Màu --}}
-                                            @php
-                                            $colors = $product->variants
-                                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
-                                            ->unique()
-                                            ->values()
-                                            ->toArray();
-                                            @endphp
-                                            @if(count($colors))
-                                            <div class="product-colors mt-1 d-flex gap-1">
-                                                <strong class="me-1">Màu:</strong>
-                                                @foreach($colors as $hex)
-                                                <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
-                                                @endforeach
-                                            </div>
-                                            @endif
                                         </div>
-                                    </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
                             </div>
                         </div>
                     </div>

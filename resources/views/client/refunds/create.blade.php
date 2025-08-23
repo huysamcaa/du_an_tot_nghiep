@@ -137,14 +137,25 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="bank_name" class="form-label">Ngân hàng</label>
-                                <input type="text" name="bank_name" id="bank_name"
-                                    class="form-control @error('bank_name') is-invalid @enderror"
-                                    value="{{ old('bank_name') }}" placeholder="Nhập ngân hàng">
+                                <label for="bank_name" class="form-label">Ngân hàng <span class="text-danger">*</span></label>
+                                <select class="form-select @error('bank_name') is-invalid @enderror" id="bank_name" name="bank_name" required>
+                                    <option value="" selected disabled>-- Chọn ngân hàng --</option>
+                                    <option value="Vietcombank" {{ old('bank_name') == 'Vietcombank' ? 'selected' : '' }}>Vietcombank</option>
+                                    <option value="VietinBank" {{ old('bank_name') == 'VietinBank' ? 'selected' : '' }}>VietinBank</option>
+                                    <option value="BIDV" {{ old('bank_name') == 'BIDV' ? 'selected' : '' }}>BIDV</option>
+                                    <option value="Agribank" {{ old('bank_name') == 'Agribank' ? 'selected' : '' }}>Agribank</option>
+                                    <option value="Techcombank" {{ old('bank_name') == 'Techcombank' ? 'selected' : '' }}>Techcombank</option>
+                                    <option value="MB Bank" {{ old('bank_name') == 'MB Bank' ? 'selected' : '' }}>MB Bank</option>
+                                    <option value="ACB" {{ old('bank_name') == 'ACB' ? 'selected' : '' }}>ACB</option>
+                                    <option value="Sacombank" {{ old('bank_name') == 'Sacombank' ? 'selected' : '' }}>Sacombank</option>
+                                    <option value="VPBank" {{ old('bank_name') == 'VPBank' ? 'selected' : '' }}>VPBank</option>
+                                    <option value="SHB" {{ old('bank_name') == 'SHB' ? 'selected' : '' }}>SHB</option>
+                                </select>
                                 @error('bank_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <label for="phone_number" class="form-label">Số điện thoại</label>
                                 <input type="text" name="phone_number" id="phone_number"
