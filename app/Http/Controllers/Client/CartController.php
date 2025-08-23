@@ -78,7 +78,7 @@ class CartController extends Controller
         );
 
         if ($request->ajax()) {
-            $cartItems = CartItem::with(['product', 'variant.attributeValues.attribute'])->where('user_id', $userId)->with(['product','variant'])->get();
+            $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
             $total = $cartItems->sum(function($item) {
                 $variant = $item->variant;
 
@@ -149,7 +149,7 @@ class CartController extends Controller
         $userId = Auth::id();
 
         // Xoá sản phẩm trong giỏ hàng nếu tồn tại
-        CartItem::with(['product', 'variant.attributeValues.attribute'])->where('user_id', $userId)->where('id', $id)->delete();
+        CartItem::where('user_id', $userId)->where('id', $id)->delete();
 
         return back()->with('success', 'Đã xoá sản phẩm khỏi giỏ hàng');
     }
@@ -171,13 +171,23 @@ class CartController extends Controller
                 sort($selected);
                 return $variantValues == $selected;
             });
-Log::info('Selected:', $attributeValueIds);
-foreach(ProductVariant::where('product_id', $request->input('product_id'))->with('attributeValues')->get() as $v){
-    Log::info('Variant ' . $v->id . ': ' . json_encode($v->attributeValues->pluck('id')->toArray()));
-}
 
-        // Trả về true nếu tìm thấy, false nếu không
-        return response()->json(['found' => (bool) $variant]);
+        if (!$variant) {
+            return response()->json(['found' => false]);
+        }
+
+        // Tính giá hiển thị (ưu tiên sale_price)
+        $price = ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+            ? $variant->sale_price
+            : $variant->price;
+
+        return response()->json([
+            'found' => true,
+            'price' => number_format($price, 0, ',', '.') . 'đ',
+            'image' => $variant->thumbnail
+                ? asset('storage/' . $variant->thumbnail)
+                : null
+        ]);
     }
     public function deleteSelected(Request $request)
     {

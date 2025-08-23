@@ -9,6 +9,7 @@ use App\Models\Admin\Category;
 use App\Models\Blog;
 use App\Models\Admin\Review;
 use App\Models\Coupon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
@@ -68,14 +69,25 @@ class HomeController extends Controller
             ->latest()
             ->take(6)
             ->get();
-        $coupons = Coupon::where('is_active', 1)
+
+        $user = Auth::user();
+
+        // Nếu đã đăng nhập → lấy ra danh sách coupon mà user đã nhận
+        $claimedIds = $user
+            ? \DB::table('coupon_user')->where('user_id', $user->id)->pluck('coupon_id')
+            : collect([]);
+
+        // Chỉ lấy các coupon chưa nhận, còn hiệu lực
+        $coupons = Coupon::with('restriction')
+            ->where('is_active', 1)
+            ->whereNotIn('id', $claimedIds) // loại bỏ coupon đã claim
             ->where(function ($q) {
-                $q->whereNull('end_date')
-                ->orWhere('end_date', '>=', now());
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
             })
             ->latest()
             ->take(6)
             ->get();
+
         if ($request->ajax()) {
             return view('client.components.products-list', compact('products'))->render();
         }

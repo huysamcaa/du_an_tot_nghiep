@@ -314,12 +314,44 @@ document.addEventListener('DOMContentLoaded', function () {
             parent.querySelectorAll(".attribute-option")
                 .forEach(opt => opt.classList.remove("selected"));
             e.target.classList.add("selected");
-            // Đổi ảnh
-            let imgUrl = e.target.dataset.image;
-            if (imgUrl) {
-                let productCard = e.target.closest(".productItem01");
-                let imgEls = productCard.querySelectorAll(".pi01Thumb img");
-                imgEls.forEach(img => img.src = imgUrl); // đổi cả 2 ảnh
+            let productCard = e.target.closest(".productItem01");
+            let productId = productCard.querySelector(".piAddToCart").dataset.id;
+
+            // Thu thập tất cả attribute đã chọn
+            let selectedIds = [];
+            productCard.querySelectorAll(".attribute-option.selected").forEach(sel => {
+                selectedIds.push(sel.dataset.id);
+            });
+
+            let requiredCount = productCard.querySelectorAll(".product-attribute").length;
+            if (selectedIds.length === requiredCount) {
+                // Gọi checkVariant
+                fetch("{{ route('check.variant') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        attribute_values: selectedIds
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.found) {
+                        // Cập nhật giá
+                        let priceEl = productCard.querySelector(".pi01Price ins");
+                        if (priceEl) priceEl.innerText = data.price;
+
+                        // Cập nhật ảnh
+                        if (data.image) {
+                            let imgEls = productCard.querySelectorAll(".pi01Thumb img");
+                            imgEls.forEach(img => img.src = data.image);
+                        }
+                    }
+                })
+                .catch(err => console.error("checkVariant error:", err));
             }
         });
     });
