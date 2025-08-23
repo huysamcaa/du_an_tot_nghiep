@@ -29,6 +29,66 @@ class CartController extends Controller
         $productId = $request->input('product_id');
         $quantity = (int) $request->input('quantity') ?: 1;
         $attributeValueIds = array_filter([$request->input('color'), $request->input('size')]);
+// --- THÊM MỚI: ưu tiên product_variant_id nếu có ---
+if ($request->filled('product_variant_id')) {
+    $variant = ProductVariant::where('product_id', $productId)
+        ->whereKey($request->input('product_variant_id'))
+        ->first();
+
+    if (!$variant) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Biến thể sản phẩm không tồn tại.'
+        ]);
+    }
+
+    // Kiểm tra số lượng hiện có trong giỏ
+    $existingItem = CartItem::where('user_id', $userId)
+        ->where('product_id', $productId)
+        ->where('product_variant_id', $variant->id)
+        ->first();
+
+    $currentQuantityInCart = $existingItem ? $existingItem->quantity : 0;
+    $totalAfterAdd = $currentQuantityInCart + $quantity;
+
+    $availableStock = $variant->stock - $currentQuantityInCart;
+    if ($quantity > $availableStock) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Chỉ còn ' . $availableStock . ' sản phẩm'
+        ]);
+    }
+
+    // Thêm hoặc cập nhật
+    $item = CartItem::updateOrCreate(
+        [
+            'user_id'            => $userId,
+            'product_id'         => $productId,
+            'product_variant_id' => $variant->id,
+        ],
+        [
+            'quantity' => $totalAfterAdd
+        ]
+    );
+
+    if ($request->ajax()) {
+        $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
+        $total = $cartItems->sum(function($item) {
+            $variant = $item->variant;
+            $price = ($variant && $variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                ? $variant->sale_price
+                : ($variant->price ?? $item->product->price);
+            return $price * $item->quantity;
+        });
+        $totalProduct = $cartItems->sum('quantity');
+        $cartIcon = view('partials.cart_widget', compact('cartItems','total','totalProduct'))->render();
+
+        return response()->json(['success' => true, 'totalProduct' => $totalProduct, 'cartIcon' => $cartIcon]);
+    }
+
+    return back()->with('success', 'Đã thêm vào giỏ hàng');
+}
+// --- HẾT PHẦN THÊM MỚI ---
 
         // Tìm biến thể phù hợp
         $variant = ProductVariant::where('product_id', $productId)

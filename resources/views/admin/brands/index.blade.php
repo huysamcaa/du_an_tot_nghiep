@@ -269,8 +269,6 @@
 @endsection
 
 @section('scripts')
-    
-
     <script>
         $(function() {
             $('#brand-table').DataTable({

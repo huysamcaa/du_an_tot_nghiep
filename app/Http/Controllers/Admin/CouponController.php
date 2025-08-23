@@ -562,7 +562,7 @@ public function bulkDestroy(Request $request)
     // Soft delete hàng loạt
     $deleted = Coupon::whereIn('id', $ids)->delete();
 
-    return back()->with('success', "Đã xóa (mềm) {$deleted} mã giảm giá.");
+    return back()->with('success', "Đã xóa thành công {$deleted} mã giảm giá.");
 }
 
 
