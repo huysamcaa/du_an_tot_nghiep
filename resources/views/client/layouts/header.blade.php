@@ -136,7 +136,24 @@
                                 </ul>
                             </li> --}}
 
-                            <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
+                            <li class="menu-item-has-children menu-blog">
+    <a href="javascript:void(0);">Bài viết</a>
+    <div class="megaMenu">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul>
+                    @foreach($blogCategories as $blogCategory)
+                        <li>
+                            <a href="{{ route('client.blogs.index', ['category' => $blogCategory->id]) }}">
+    {{ $blogCategory->name }}
+</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+</li>
 
                              <li class="menu-item">
                                 <a href="{{ route('client.contact.index') }}">Liên hệ</a>
@@ -323,6 +340,40 @@
     cursor: pointer;
     font-size: 16px;
 }
+
+/* Chỉ áp dụng cho menu Bài viết */
+.menu-blog > .megaMenu {
+    position: absolute;
+    top: 100%; /* ngay dưới menu cha */
+    left: 0;
+    display: none; /* ẩn mặc định */
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 6px 0;
+    min-width: 180px;
+    z-index: 1000;
+}
+
+/* Hover hiện menu */
+.menu-blog:hover > .megaMenu {
+    display: block;
+}
+
+/* Reset ul li */
+.menu-blog .megaMenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-blog .megaMenu li {
+    white-space: nowrap;
+}
+
+
+
 
 
 

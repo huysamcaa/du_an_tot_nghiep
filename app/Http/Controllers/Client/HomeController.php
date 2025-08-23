@@ -9,6 +9,7 @@ use App\Models\Admin\Category;
 use App\Models\Blog;
 use App\Models\Admin\Review;
 use Illuminate\Support\Facades\DB;
+use App\Models\BlogCategory;
 class HomeController extends Controller
 {
     public function index(Request $request)
@@ -23,6 +24,7 @@ class HomeController extends Controller
     ->get();
 
         $blogs = Blog::latest()->take(3)->get();
+        $blogCategories = BlogCategory::where('is_active', 1)->get();
 
         // Sản phẩm mới nhất (có phân trang hoặc limit tùy bạn)
     $newProducts = Product::with(['variants.attributeValues.attribute'])
@@ -67,7 +69,7 @@ class HomeController extends Controller
             return view('client.components.products-list', compact('products'))->render();
         }
 
-        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts'));
+        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','blogCategories'));
     }
     public function showCategoriesInMegaMenu()
 {
@@ -87,4 +89,5 @@ class HomeController extends Controller
 
     return view('client.partials.mega_menu', compact('chunks'));
 }
+
 }
