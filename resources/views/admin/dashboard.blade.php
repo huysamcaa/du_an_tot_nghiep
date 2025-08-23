@@ -232,7 +232,8 @@
                                 <div class="card-header">
                                     <h5>Phương thức thanh toán</h5>
                                 </div>
-                                <div class="chart-container"style="width:300px; margin:auto;">
+
+                                <div class="chart-container" style="width:300px; margin:auto;">
                                     <canvas id="paymentChart"></canvas>
                                     <div id="paymentTotal" style="text-align:center; margin-top:10px; font-weight:bold;">
                                     </div>
@@ -503,6 +504,7 @@
                             paymentChart.update();
                             let totalPaymentOrders = data.paymentStats.reduce((sum, p) => sum + p.total_orders, 0);
                             document.getElementById('paymentTotal').innerText = `Tổng tất cả: ${totalPaymentOrders} đơn`;
+
                             // Top Customers
                             let tbodyCustomer = document.querySelector("#topCustomers");
                             tbodyCustomer.innerHTML = "";

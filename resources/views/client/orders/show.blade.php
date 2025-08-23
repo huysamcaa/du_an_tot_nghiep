@@ -9,8 +9,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="pageBannerContent text-center">
-                    <h2 class="animate__animated animate__fadeInDown">Lịch Sử Mua Hàng</h2>
-                    <div class="pageBannerPath animate__animated animate__fadeInUp">
+                    <h2>Lịch Sử Mua Hàng</h2>
+                    <div class="pageBannerPath">
                         <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Lịch Sử Mua Hàng</span>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                                                     </div>
                                                     <div class="timeline-text">
                                                         <span>{{ $status['text'] }}</span>
-                                                        
+
                                                         {{-- HIỂN THỊ THỜI GIAN CẬP NHẬT TƯƠNG ỨNG VỚI TỪNG MỐC --}}
                                                         @foreach($order->statuses as $orderStatus)
                                                             @if($orderStatus->order_status_id == $id)
@@ -70,7 +70,7 @@
                                                                 </small>
                                                             @endif
                                                         @endforeach
-                                                        
+
                                                     </div>
                                                 </div>
                                                 @endif

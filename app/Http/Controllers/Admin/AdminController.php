@@ -149,32 +149,24 @@ class AdminController extends Controller
         // Danh sách tháng (1-12)
         $months = range(1, 12);
         // Các thống kê khác
-        // Các thống kê khác
-        // ==========================
-        // 4 BOX NHỎ - luôn lấy ALL TIME (trừ khi filter khoảng ngày)
-        // ==========================
         $allTimeOrders = Order::whereIn('id', $completedOrderIds);
-
         if ($fromDate && $toDate) {
             $allTimeOrders->whereBetween('created_at', [$fromDate, $toDate]);
         }
-
         $revenue    = $allTimeOrders->sum('total_amount');
         $orderCount = $allTimeOrders->count();
 
-        // User all time (hoặc theo filter khoảng ngày)
+
         $userCount = User::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
             $q->whereBetween('created_at', [$fromDate, $toDate]);
         })
             ->count();
 
-        // Product all time (hoặc theo filter khoảng ngày)
+        // Đếm sản phẩm theo ngày tạo
         $productCount = Product::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
             $q->whereBetween('created_at', [$fromDate, $toDate]);
         })
             ->count();
-
-
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
             ->join('orders', 'orders.id', '=', 'order_order_status.order_id');
@@ -257,8 +249,8 @@ class AdminController extends Controller
                 'coupons.code',
                 'coupons.discount_type',
                 'coupons.discount_value',
-                DB::raw('COUNT(orders.id) as total_uses'),
-                DB::raw('SUM(orders.total_amount) as total_revenue')
+                DB::raw('COUNT(DISTINCT orders.id) as total_uses'),
+                DB::raw('SUM(DISTINCT orders.total_amount) as total_revenue')
             )
             ->groupBy('coupons.id', 'coupons.code', 'coupons.discount_type', 'coupons.discount_value')
             ->orderByDesc('total_revenue')
@@ -327,6 +319,7 @@ class AdminController extends Controller
                 'productCount' => $productCount,
                 'paymentStats' => $paymentStats,
                 'topCoupons' => $topCoupons,
+
                 'topCustomers' => $topCustomers->map(function ($item) {
                     return [
                         'id' => $item->user->id ?? null,

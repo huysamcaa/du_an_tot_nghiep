@@ -132,16 +132,18 @@
 
 @section('scripts')
 <script>
-    $(function(){
+    $(document).ready(function() {
         $('#status-table').DataTable({
-            order:[[0,'asc']],
-            paging:false,
-            searching:false,
-            info:false,
-            columnDefs:[{ orderable:false, targets:[2] }],
-            language:{
-                emptyTable:"Không có trạng thái nào",
-                zeroRecords:"Không tìm thấy kết quả phù hợp"
+            "paging": false,
+            "searching": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            "columnDefs": [
+                { "orderable": false, "targets": [2] }
+            ],
+            "language": {
+                "emptyTable": "Không có trạng thái nào",
+                "zeroRecords": "Không tìm thấy kết quả phù hợp"
             }
         });
     });

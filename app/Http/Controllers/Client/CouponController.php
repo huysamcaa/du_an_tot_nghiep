@@ -25,9 +25,9 @@ public function index()
     // Lấy các mã CHƯA nhận, còn hiệu lực, chưa bị xóa
     $coupons = Coupon::query()
         ->with('restriction')
-        ->whereNotIn('id', $claimedIds) // ❗ Chỉ mã chưa nhận
+        ->whereNotIn('id', $claimedIds) // Chỉ mã chưa nhận
         ->where('is_active', true)
-        ->whereNull('deleted_at')       // ❗ Bỏ mã đã bị soft delete
+        ->whereNull('deleted_at')       // Bỏ mã đã bị soft delete
         ->where(function ($query) {
             $query->whereNull('start_date')->orWhere('start_date', '<=', now());
         })
@@ -67,15 +67,18 @@ public function index()
         });
 
     // Sửa logic used/unused: xét cả used_at và order_id
-    if ($status === 'used') {
-        $couponQuery->where(function($q){
-            $q->whereNotNull('coupon_user.used_at')
-              ->orWhereNotNull('coupon_user.order_id');
-        });
-    } elseif ($status === 'unused') {
-        $couponQuery->whereNull('coupon_user.used_at')
-                    ->whereNull('coupon_user.order_id');
-    }
+  $couponQuery = $user->coupons()
+    ->where(function ($q) {
+        $q->whereNull('coupon_user.start_date')
+          ->orWhere('coupon_user.start_date', '<=', now());
+    })
+    ->where(function ($q) {
+        $q->whereNull('coupon_user.end_date')
+          ->orWhere('coupon_user.end_date', '>=', now());
+    })
+    ->whereNull('coupon_user.used_at')     // chỉ lấy chưa dùng
+    ->whereNull('coupon_user.order_id');   // chỉ lấy chưa gắn vào order
+
 
     $coupons = $couponQuery
         ->orderByDesc('coupon_user.created_at')
@@ -202,5 +205,5 @@ public function index()
 
         return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
     }
-    
+
 }

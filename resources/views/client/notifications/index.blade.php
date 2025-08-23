@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,15 +19,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -123,9 +123,9 @@
         {{-- DANH SÁCH THÔNG BÁO --}}
         <div class="list-group">
             @foreach ($notifications as $notification)
-                <div class="list-group-item d-flex align-items-center justify-content-between gap-3 rounded-4 shadow-sm mb-2 
+                <div class="list-group-item d-flex align-items-center justify-content-between gap-3 rounded-4 shadow-sm mb-2
                     {{ $notification->read == 0 ? 'bg-light border-primary' : 'bg-white border' }}">
-                    
+
                     {{-- Checkbox --}}
                     <div class="form-check me-2">
                         <input class="form-check-input checkbox-item" type="checkbox" value="{{ $notification->id }}">

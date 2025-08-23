@@ -79,14 +79,14 @@
                                                             <th class="text-muted">Danh mục</th>
                                                             <td><span class="badge bg-secondary">{{ optional($product->category)->name ?? 'N/A' }}</span></td>
                                                         </tr>
-                                                        <tr>
+                                                        {{-- <tr>
                                                             <th class="text-muted">Giá gốc</th>
                                                             <td class="fw-bold text-danger">{{ number_format($product->price, 0, ',', '.') }} đ</td>
-                                                        </tr>
-                                                        <tr>
+                                                        </tr> --}}
+                                                        {{-- <tr>
                                                             <th class="text-muted">Tổng tồn kho</th>
-                                                            <td><span class="fw-semibold {{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">{{ $product->stock }}</span></td>
-                                                        </tr>
+                                                            <td><span class="fw-semibold {{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">{{ $variant->stock }}</span></td>
+                                                        </tr> --}}
                                                         <tr>
                                                             <th class="text-muted">Trạng thái</th>
                                                             <td>
@@ -182,7 +182,7 @@
                                     ['icon'=>'shopping-cart','label'=>'Tổng đơn hàng','value'=>$totalOrders,'color'=>'primary'],
                                     ['icon'=>'check-circle','label'=>'Đã bán','value'=>$totalSold,'color'=>'success'],
                                     ['icon'=>'dollar-sign','label'=>'Doanh thu','value'=>number_format($totalRevenue,0,',','.') . ' đ','color'=>'warning'],
-                                    ['icon'=>'cubes','label'=>'Tồn kho','value'=>$product->stock,'color'=>'primary'],
+                                    ['icon'=>'cubes','label'=>'Số Lượng','value'=>$variant->stock,'color'=>'primary'],
                                 ] as $stat)
                                 <div class="col-6">
                                     <div class="border rounded p-3">
@@ -211,7 +211,7 @@
                                         @foreach($recentOrders as $orderItem)
                                         <tr>
                                             <td><a href="{{ route('admin.orders.show', $orderItem->order_id) }}" class="text-primary">#{{ $orderItem->order->code ?? 'N/A' }}</a></td>
-                                            <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Khách vãng lai' }}</span></td>
+                                            <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Huy Đỗ' }}</span></td>
                                             <td class="text-end">{{ $orderItem->quantity }}</td>
                                             <td>
 

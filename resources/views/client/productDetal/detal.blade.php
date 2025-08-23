@@ -1,6 +1,75 @@
 @extends('client.layouts.app')
 
 @section('content')
+<style>
+    /* Container mỗi thuộc tính
+.pcVariation {
+    margin-bottom: 15px;
+} */
+
+/* Container các option */
+/* .pcvContainer {
+    display: flex;
+    gap: 8px;
+} */
+
+/* Ẩn radio input */
+.attributeOptionWrapper input[type="radio"] {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+/* Vòng màu */
+.attributeOptionWrapper label.color {
+    display: inline-block;
+    margin: 5px 0 0 15px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.attributeOptionWrapper input[type="radio"]:checked + label.color {
+    border: 2px solid #333; /* viền khi chọn */
+}
+
+/* Button chữ */
+.attributeOptionWrapper label.text {
+    border: 1px solid #e5e5e5;
+    width: auto;
+    height: 36px;
+    text-align: center;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #7f8495;
+    background: #FFF;
+    line-height: 36px;
+    cursor: pointer;
+    padding: 0 10px;
+    margin-left: 15px;
+    transition: all ease 350ms;
+    -moz-transition: all ease 350ms;
+    -webkit-transition: all ease 350ms;
+}
+
+.attributeOptionWrapper input[type="radio"]:checked + label.text {
+    color: #FFF;
+    border-color: #7b9496;
+    background: #7b9496;
+}
+
+/* Hover hiệu ứng */
+.attributeOptionWrapper label:hover {
+    border-color: #232a27;
+}
+
+</style>
 <!-- BEGIN: Shop Details Section -->
 <section class="shopDetailsPageSection">
     <div class="container">
@@ -151,7 +220,7 @@
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                        <div class="pcVariations">
+                        {{-- <div class="pcVariations">
                             <div class="pcVariation">
                                 <span>Màu</span>
                                 <div class="pcvContainer">
@@ -179,7 +248,28 @@
                                     @endforeach
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
+                        @foreach($productAttributes as $attrSlug => $attr)
+                            <div class="pcVariation">
+                                <span class="mt-2">{{ $attr['label'] }}</span>
+                                <div class="pcvContainer">
+                                    @foreach($attr['values'] as $value)
+                                        <div class="attributeOptionWrapper">
+                                            <input type="radio"
+                                                name="attribute_values[{{ $attrSlug }}]"
+                                                value="{{ $value->id }}"
+                                                id="attr_{{ $value->id }}"
+                                                hidden>
+                                                @if($attrSlug === 'color')
+                                                    <label for="attr_{{ $value->id }}" class="color" style="background:{{ $value->hex }};"></label>
+                                                @else
+                                                    <label for="attr_{{ $value->id }}" class="text">{{ $value->value }}</label>
+                                                @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
                         <div class="productStock mb-3">
                             <span>Số Lượng: </span>
                             <span id="stock-quantity">--</span>
@@ -466,6 +556,115 @@
                                         @endif
                                     </a>
 
+                                            {{-- Sale label --}}
+                                            <div class="productLabels clearfix">
+                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                                    <span
+                                                        class="plDis">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
+                                                    <span class="plSale">Sale</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="pi01Details">
+                                            {{-- Star rating + Reviews --}}
+                                            @php
+                                                $avg = $prod->avg_rating ?? 0;
+                                                $avgPercent = round($avg * 20); // 5 sao = 100%
+                                            @endphp
+
+                                            @if (($prod->reviews_count ?? 0) > 0)
+                                                <div class="productRatings">
+                                                    <div class="productRatingWrap">
+                                                        <div class="star-rating"
+                                                            aria-label="{{ number_format($avg, 1) }}/5">
+                                                            <span style="width: {{ $avgPercent }}%"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ratingCounts">{{ $prod->reviews_count }} đánh giá</div>
+                                                </div>
+                                            @endif
+
+
+                                            {{-- Tên sản phẩm --}}
+                                            <h3>
+                                                <a href="{{ route('product.detail', $prod->id) }}">
+                                                    {{ Str::limit($prod->name, 40) }}
+                                                </a>
+                                            </h3>
+
+                                            {{-- Giá --}}
+                                            <div class="pi01Price">
+                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                                    <ins>{{ number_format($prod->sale_price, 0, ',', '.') }}₫</ins>
+                                                    <del>{{ number_format($prod->price, 0, ',', '.') }}₫</del>
+                                                @else
+                                                    <ins>{{ number_format($prod->price, 0, ',', '.') }}₫</ins>
+                                                @endif
+                                            </div>
+
+                                            {{-- Màu & Size từ attributeValues --}}
+                                            @if (optional($prod->variantsWithAttributes())->count())
+                                                @php
+                                                    // Lấy danh sách màu
+                                                    $colors = collect();
+                                                    foreach ($prod->variantsWithAttributes() as $variant) {
+                                                        foreach ($variant->attributeValues as $attrVal) {
+                                                            if ($attrVal->attribute->slug === 'color') {
+                                                                $colors->push($attrVal);
+                                                            }
+                                                        }
+                                                    }
+                                                    $colors = $colors->unique('id');
+
+                                                    // Lấy danh sách size
+                                                    $sizes = $prod
+                                                        ->variantsWithAttributes()
+                                                        ->flatMap(
+                                                            fn($v) => $v->attributeValues->filter(
+                                                                fn($val) => $val->attribute->slug === 'size',
+                                                            ),
+                                                        )
+                                                        ->unique('id');
+                                                @endphp
+
+                                                <div class="pi01Variations">
+                                                    @if ($colors->isNotEmpty())
+                                                        <div class="pi01VColor">
+                                                            @foreach ($colors as $color)
+                                                                <div class="colorOptionWrapper">
+                                                                    <input type="radio"
+                                                                        name="color_{{ $prod->id }}"
+                                                                        id="color_{{ $prod->id }}_{{ $color->id }}"
+                                                                        hidden>
+                                                                    <label
+                                                                        for="color_{{ $prod->id }}_{{ $color->id }}"
+                                                                        class="customColorCircle"
+                                                                        style="background-color: {{ Str::start($color->hex, '#') }};"
+                                                                        title="{{ ucfirst($color->value) }}"></label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+
+                                                    @if ($sizes->count())
+                                                        <div class="pi01VSize">
+                                                            @foreach ($sizes as $size)
+                                                                <div class="pi01VSItem">
+                                                                    <input type="radio" name="size_{{ $prod->id }}"
+                                                                        id="size_{{ $prod->id }}_{{ $size->id }}">
+                                                                    <label
+                                                                        for="size_{{ $prod->id }}_{{ $size->id }}">
+                                                                        {{ strtoupper($size->value) }}
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                        </div>
                                     {{-- Actions --}}
                                     <div class="pi01Actions">
                                         <a href="javascript:void(0);" class="pi01QuickView"><i
@@ -623,17 +822,20 @@
 
         // Hàm tìm biến thể được chọn
         const getSelectedVariant = () => {
-            const colorId = form.querySelector('[name="color"]:checked')?.value;
-            const sizeId = form.querySelector('[name="size"]:checked')?.value;
+            // Lấy tất cả thuộc tính đã chọn
+            const selectedAttributes = {};
+            document.querySelectorAll('[name^="attribute_values"]').forEach(input => {
+                if (input.checked) {
+                    // input name = attribute_values[Color], attribute_values[Size],...
+                    const attrName = input.name.match(/\[(.*)\]/)[1]; // lấy phần trong []
+                    selectedAttributes[attrName] = parseInt(input.value);
+                }
+            });
 
-            // Debug: Log giá trị đang chọn
-            console.log('Selected color:', colorId, 'size:', sizeId);
-
-            // Tìm biến thể phù hợp
-            const variant = variants.find(v =>
-                v.color_id == colorId &&
-                v.size_id == sizeId
-            );
+            const variant = variants.find(v => {
+                return Object.values(selectedAttributes).every(val => v.attribute_values.includes(val)) &&
+                    v.attribute_values.length === Object.values(selectedAttributes).length;
+            });
 
             console.log('Found variant:', variant);
             return variant;
@@ -641,99 +843,42 @@
 
         // Hàm cập nhật giá và số lượng
         const updatePriceAndStock = () => {
-            try {
-                const colorId = form.querySelector('[name="color"]:checked')?.value;
-                const sizeId = form.querySelector('[name="size"]:checked')?.value;
+            const variant = getSelectedVariant();
+            const mainImgEl = document.getElementById('main-product-image');
 
-                const mainImgEl = document.getElementById('main-product-image');
-                const saleEl = document.getElementById('sale-price');
-                const priceEl = document.getElementById('original-price');
-                const stockEl = document.getElementById('stock-quantity');
-                const addToCartBtn = document.getElementById('add-to-cart');
-
-                // Khôi phục ảnh về ảnh mặc định nếu chưa chọn đủ thuộc tính
-                if (!colorId || !sizeId) {
-                    if (addToCartBtn) {
-                        addToCartBtn.disabled = true;
-                        addToCartBtn.innerHTML = '<span>Vui lòng chọn thuộc tính</span>';
-                    }
-                    if (stockEl) {
-                        stockEl.textContent = '--';
-                    }
-                    // Quay về ảnh chính của sản phẩm khi chưa có lựa chọn
-                    if (mainImgEl) {
-                        mainImgEl.src = "{{ asset('storage/' . $product->thumbnail) }}";
-                    }
-                    return;
+            if (!variant) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<span>Vui lòng chọn thuộc tính</span>';
+                stockEl.textContent = '--';
+                if (mainImgEl) {
+                    mainImgEl.src = "{{ asset('storage/' . $product->thumbnail) }}";
                 }
+                return;
+            }
 
-                const variant = variants.find(v =>
-                    v.color_id == colorId &&
-                    v.size_id == sizeId
-                );
+            // Có variant => cập nhật giá
+            if (variant.sale_price > 0 && variant.sale_price < variant.price) {
+                saleEl.textContent = formatPrice(variant.sale_price);
+                saleEl.style.display = 'inline';
+                priceEl.textContent = formatPrice(variant.price);
+                priceEl.style.display = 'inline';
+            } else {
+                saleEl.textContent = formatPrice(variant.price);
+                priceEl.style.display = 'none';
+            }
 
-                console.log('Found variant:', variant);
+            // Số lượng tồn
+            stockEl.textContent = variant.stock || 0;
 
-                if (variant) {
-                    // Cập nhật giá
-                    if (variant.sale_price > 0 && variant.sale_price < variant.price) {
-                        saleEl.textContent = formatPrice(variant.sale_price);
-                        saleEl.style.display = 'inline';
-                        if (priceEl) {
-                            priceEl.textContent = formatPrice(variant.price);
-                            priceEl.style.display = 'inline';
-                        }
-                    } else {
-                        saleEl.textContent = formatPrice(variant.price);
-                        if (priceEl) priceEl.style.display = 'none';
-                    }
+            // Trạng thái nút
+            addToCartBtn.disabled = variant.stock <= 0;
+            addToCartBtn.innerHTML = variant.stock > 0
+                ? '<span>Thêm vào giỏ</span>'
+                : '<span>Hết hàng</span>';
 
-                    // Cập nhật số lượng tồn kho
-                    if (stockEl) {
-                        stockEl.textContent = variant.stock || 0;
-                    }
-
-                    // Cập nhật trạng thái nút thêm vào giỏ
-                    if (addToCartBtn) {
-                        addToCartBtn.disabled = variant.stock <= 0;
-                        addToCartBtn.innerHTML = variant.stock > 0 ?
-                            '<span>Thêm vào giỏ</span>' :
-                            '<span>Hết hàng</span>';
-                    }
-
-                    // Hiển thị ảnh theo variant
-                    if (mainImgEl) {
-                        if (variant.thumbnail) {
-                            // Kiểm tra xem đường dẫn có phải là URL tuyệt đối không
-                            if (variant.thumbnail.startsWith('http://') || variant.thumbnail.startsWith('https://')) {
-                                // Nếu là URL tuyệt đối, sử dụng trực tiếp
-                                mainImgEl.src = variant.thumbnail;
-                            } else {
-                                // Nếu là đường dẫn tương đối, ghép với đường dẫn storage
-                                mainImgEl.src = "{{ asset('storage') }}" + '/' + variant.thumbnail;
-                            }
-                        } else {
-                            // Nếu không có ảnh biến thể, quay về ảnh chính của sản phẩm
-                            mainImgEl.src = "{{ asset('storage/' . $product->thumbnail) }}";
-                        }
-                    }
-                } else {
-                    // Trường hợp không tìm thấy biến thể khớp
-                    if (addToCartBtn) {
-                        addToCartBtn.disabled = true;
-                        addToCartBtn.innerHTML = '<span>Biến thể không tồn tại</span>';
-                    }
-                    if (stockEl) {
-                        stockEl.textContent = '0';
-                    }
-                    // Quay về ảnh chính của sản phẩm
-                    if (mainImgEl) {
-                        mainImgEl.src = "{{ asset('storage/' . $product->thumbnail) }}";
-                    }
-                }
-
-            } catch (error) {
-                console.error('Lỗi trong updatePriceAndStock:', error);
+            // Ảnh
+            if (mainImgEl) {
+                mainImgEl.src = variant.thumbnail || "{{ asset('storage/' . $product->thumbnail) }}";
             }
         };
 
@@ -748,10 +893,11 @@
             qtyInput.value = currentQty + 1;
         });
 
-        // Gán sự kiện khi chọn màu/size
-        document.querySelectorAll('[name="color"], [name="size"]').forEach(input => {
+        // Gán sự kiện khi chọn thuộc tính
+        document.querySelectorAll('[name^="attribute_values"]').forEach(input => {
             input.addEventListener('change', updatePriceAndStock);
         });
+
 
         // Khởi tạo lần đầu
         updatePriceAndStock();

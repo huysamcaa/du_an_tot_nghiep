@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,20 +19,87 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
     font-size: 14px;
 }
+
+
+.coupon-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff5f5; /* nền hồng nhạt */
+    border: 1px solid #ffcccc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'Jost', sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out;
+    height: 120px;
+}
+.coupon-card:hover {
+    transform: translateY(-3px);
+}
+
+.coupon-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.coupon-left h5 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e53935;
+    margin: 0 0 6px;
+}
+.coupon-left p {
+    font-size: 14px;
+    margin: 2px 0;
+    color: #555;
+}
+.coupon-left .expiry {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+}
+
+.coupon-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-left: 1px dashed #ff9999;
+    padding-left: 20px;
+    min-width: 90px;
+}
+
+.coupon-right a {
+    background: #e53935;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.coupon-right a:hover {
+    background: #d32f2f;
+}
+
 </style>
 
 
@@ -54,29 +121,32 @@
     </section>
     <!-- Content -->
     <div class="container py-5">
-        <h4 class="text-center mb-4 text-dark">Danh sách mã giảm giá đã nhận</h4>
+        <h2 class="text-center mb-4 text-dark">Danh sách mã giảm giá đã nhận</h2>
 
         <!-- Bộ lọc -->
         <div class="text-center mb-4">
-            <a href="{{ route('client.coupons.received') }}"
-                class="btn btn-outline-dark {{ !request('status') ? 'active' : '' }}">
-                Tất cả
-            </a>
+            <div>
+                <a href="{{ route('client.coupons.received') }}"
+                class="ulinaBTN {{ !request('status') ? 'active' : '' }}">
+                <span>Tất cả</span>
+                </a>
             <a href="{{ route('client.coupons.received', ['status' => 'unused']) }}"
-                class="btn btn-outline-primary {{ request('status') === 'unused' ? 'active' : '' }}">
-                Chưa sử dụng
-            </a>
+                class="ulinaBTN {{ request('status') === 'unused' ? 'active' : '' }}">
+                <span>Chưa sử dụng</span>
+                </a>
             <a href="{{ route('client.coupons.received', ['status' => 'used']) }}"
-                class="btn btn-outline-success {{ request('status') === 'used' ? 'active' : '' }}">
-                Đã sử dụng
-            </a>
+                class="ulinaBTN {{ request('status') === 'used' ? 'active' : '' }}">
+                <span>Đã sử dụng</span>
+                </a>
+            </div>
+                <a href="{{ route('client.coupons.index') }}" class="btn btn-outline-secondary rounded-5">
+                    <span><i class="fas fa-arrow-left me-1"></i>Quay lại</span>
+                </a>
         </div>
 
         @auth
             <div class="text-center mb-4">
-                <a href="{{ route('client.coupons.index') }}" class="btn btn-outline-dark">
-                    <i class="fas me-1"></i>Quay lại
-                </a>
+
             </div>
         @endauth
 
@@ -93,7 +163,7 @@
         @else
             <div class="row g-4">
                 @foreach ($coupons as $coupon)
-                    <div class="col-md-6 col-lg-4">
+                    {{-- <div class="col-md-6 col-lg-4">
                         <div class="card h-100 border border-info rounded-3 shadow-sm">
                             <div class="card-body d-flex flex-column p-4">
                                 <!-- Header -->
@@ -103,7 +173,7 @@
                                     </h5>
                                     <p class="text-muted small mb-2">
                                         {{ $coupon->pivot->title }}
-                                    </p>                              
+                                    </p>
                                     <span class="badge bg-info text-white fs-6 px-3 py-2">
                                         {{ $coupon->pivot->discount_type === 'percent'
                                             ? rtrim(rtrim(number_format($coupon->pivot->discount_value, 2, '.', ''), '0'), '.') . '%'
@@ -236,7 +306,78 @@
 
                             </div>
                         </div>
+                    </div> --}}
+                     @php
+                        $p = $coupon->pivot;
+                        $isLocked = !is_null($p->order_id);
+                        $isUsed = $isLocked || !is_null($p->used_at);
+                        $usedAt = $p->used_at
+                            ? \Carbon\Carbon::parse($p->used_at)
+                                ->setTimezone('Asia/Ho_Chi_Minh')
+                                ->format('d/m/Y H:i')
+                            : null;
+                    @endphp
+                <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="coupon-card">
+                        <div class="coupon-left">
+                            <h5>
+                                @if ($coupon->pivot->discount_type === 'percent')
+                                {{ $coupon->pivot->code }} -
+                                    Giảm {{ rtrim(rtrim(number_format($coupon->pivot->discount_value, 2, '.', ''), '0'), '.') }}%
+                                @else
+                                {{ $coupon->pivot->code }} -
+                                    Giảm {{ number_format($coupon->pivot->discount_value, 0, ',', '.') }} VNĐ
+                                @endif
+                            </h5>
+                            <p>Đơn tối thiểu: {{ number_format($coupon->pivot->min_order_value ?? 0, 0, ',', '.') }} VNĐ</p>
+                            @if ($coupon->pivot->end_date)
+                                <p class="expiry">
+                                    HSD: {{ \Carbon\Carbon::parse($coupon->pivot->end_date)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y') }}
+                                </p>
+                            @endif
+                        </div>
+                        <div class="coupon-right">
+                            <a href="{{ route('client.coupons.show', $coupon->id) }}" class="btn btn-danger">
+                                        Xem chi tiết
+                                    </a>
+                                    <div class="mt-3 text-center">
+                                        @if ($isUsed)
+                                            @if ($isLocked)
+                                                <span
+                                                    >
+                                                    <i class="fas fa-check-circle"></i>
+                                                    Đã dùng cho đơn
+                                                    @if (Route::has('client.orders.show'))
+                                                        <a href="{{ route('client.orders.show', $p->order_id) }}" class="badge bg-secondary">#{{ $p->order_id }}</a>
+                                                    @else
+                                                        #{{ $p->order_id }}
+                                                    @endif
+                                                </span>
+                                            @elseif ($usedAt)
+                                                <span >
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Đã sử dụng lúc: {{ $usedAt }}
+                                                </span>
+                                            @endif
+
+
+                                            @if (!is_null($p->discount_applied))
+                                                <div class="small text-muted mt-2">
+                                                    Giảm thực tế:
+                                                    <strong>{{ number_format((int) $p->discount_applied, 0, ',', '.') }}
+                                                        VNĐ</strong>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span >
+                                                <i class="fas fa-clock me-1"></i>
+                                                Chưa sử dụng
+                                            </span>
+                                        @endif
+                                    </div>
+                        </div>
                     </div>
+                </div>
                 @endforeach
             </div>
         @endif
