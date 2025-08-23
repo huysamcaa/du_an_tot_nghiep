@@ -2530,7 +2530,7 @@
                 <h2 class="mb-4"> Sản phẩm bán chạy</h2>
                  @include('client.components.products-list', ['products' => $bestSellingProducts])
             </div>
-        </section> 
+        </section>
         <!-- END: Lookbook Section 2 -->
         {{-- @include('client.components.products-list', ['products' => $bestSellingProducts]) --}}
 
@@ -2581,8 +2581,8 @@
             <!-- END: Category Section -->
 
                 <section class="container py-4">
-        
-        
+
+
     </section>
 
             <!-- BEGIN: Testimonial Section -->
@@ -2633,6 +2633,7 @@
             <div class="ti01Content">
                 {{ $review->review_text }}
             </div>
+
         </div>
     @endforeach
 </div>
