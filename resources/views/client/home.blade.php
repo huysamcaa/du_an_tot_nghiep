@@ -710,7 +710,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            @foreach ($coupons as $coupon)
+                            @forelse ($coupons as $coupon)
                                 @php
                                     $code = $coupon->code;
                                     $title = $coupon->title;
@@ -751,7 +751,11 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                            @empty
+                            <div class="col-12 text-center">
+                                <p>Hiện tại chưa có khuyến mãi nào.</p>
+                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </section>
