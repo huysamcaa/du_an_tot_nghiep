@@ -78,7 +78,7 @@ class CartController extends Controller
         );
 
         if ($request->ajax()) {
-            $cartItems = CartItem::where('user_id', $userId)->with(['product','variant'])->get();
+            $cartItems = CartItem::with(['product', 'variant.attributeValues.attribute'])->where('user_id', $userId)->with(['product','variant'])->get();
             $total = $cartItems->sum(function($item) {
                 $variant = $item->variant;
 
@@ -149,7 +149,7 @@ class CartController extends Controller
         $userId = Auth::id();
 
         // Xoá sản phẩm trong giỏ hàng nếu tồn tại
-        CartItem::where('user_id', $userId)->where('id', $id)->delete();
+        CartItem::with(['product', 'variant.attributeValues.attribute'])->where('user_id', $userId)->where('id', $id)->delete();
 
         return back()->with('success', 'Đã xoá sản phẩm khỏi giỏ hàng');
     }
