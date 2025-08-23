@@ -66,45 +66,50 @@
                         </form>
                     </div>
 
-                    <table id="blogs-table" class="table table-striped table-bordered text-center align-middle">
-                        <thead>
-                            <tr>
-                                <th>Tiêu đề</th>
-                                <th>Ảnh</th>
-                                <th style="width: 15%;">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($blogs as $blog)
-                                <tr>
-                                    <td>{{ $blog->title }}</td>
-                                    <td>
-                                        @if ($blog->image)
-                                            <img src="{{ asset('storage/' . $blog->image) }}" width="100" style="object-fit: cover;">
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="btn btn-sm btn-outline-warning" title="Sửa">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('admin.blogs.destroy', $blog->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Xóa bài viết này?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger" title="Xóa">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">Chưa có bài viết nào.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <table id="blogs-table" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Danh mục</th> {{-- thêm cột danh mục --}}
+            <th>Ảnh</th>
+            <th style="width: 15%;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($blogs as $blog)
+            <tr>
+                <td>{{ $blog->title }}</td>
+                <td>
+                    {{ $blog->category?->name ?? 'Chưa có' }}
+                </td>
+                <td>
+                    @if ($blog->image)
+                        <img src="{{ asset('storage/' . $blog->image) }}" width="100" style="object-fit: cover;">
+                    @else
+                        -
+                    @endif
+                </td>
+                <td>
+                    <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="btn btn-sm btn-outline-warning" title="Sửa">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    <form action="{{ route('admin.blogs.destroy', $blog->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Xóa bài viết này?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-outline-danger" title="Xóa">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="4" class="text-center text-muted">Chưa có bài viết nào.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
 
                     <div class="d-flex justify-content-between align-items-center mt-4">
                         <div class="text-muted">
