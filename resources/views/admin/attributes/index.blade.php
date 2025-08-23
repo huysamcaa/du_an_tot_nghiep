@@ -62,7 +62,6 @@
                             <th width="5%">ID</th>
                             <th>Tên</th>
                             <th>Slug</th>
-                            <th>Biến thể</th>
                             <th>Hiển thị</th>
                             <th width="150" class="text-end">Hành động</th>
                         </tr>
@@ -73,11 +72,7 @@
                             <td>{{ $attr->id }}</td>
                             <td>{{ $attr->name }}</td>
                             <td>{{ $attr->slug }}</td>
-                            <td>
-                                <span class="badge bg-{{ $attr->is_variant ? 'success' : 'danger' }}">
-                                    {{ $attr->is_variant ? 'Có' : 'Không' }}
-                                </span>
-                            </td>
+                            
                             <td>
                                 <span class="badge bg-{{ $attr->is_active ? 'success' : 'danger' }}">
                                     {{ $attr->is_active ? 'Hiển thị' : 'Ẩn' }}

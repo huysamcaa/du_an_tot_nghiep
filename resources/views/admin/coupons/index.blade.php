@@ -276,6 +276,10 @@
 @endsection
 
 @section('scripts')
+<<<<<<< HEAD
+
+=======
+>>>>>>> fc6639f111cefb4be94e8551eac7a12146e3ea5f
     <script>
         $(function () {
             const table = $('#coupon-table').DataTable({
