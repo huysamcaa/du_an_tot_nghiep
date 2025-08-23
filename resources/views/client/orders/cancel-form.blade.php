@@ -7,8 +7,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0">Hủy đơn hàng #{{ $order->code }}</h4>
+                <div class="card-header bg-danger">
+                    <h4 class="mb-0 text-light">Hủy đơn hàng #{{ $order->code }}</h4>
                 </div>
 
                 <div class="card-body">
@@ -47,10 +47,10 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ route('client.orders.purchase.history') }}" class="btn btn-secondary me-md-2">
+                            <a href="{{ route('client.orders.purchase.history') }}" class="btn btn-outline-secondary me-md-2 rounded-5">
                                 <i class="fas fa-arrow-left me-1"></i> Quay lại
                             </a>
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger rounded-5">
                                 <i class="fas fa-times-circle me-1"></i> Xác nhận hủy
                             </button>
                         </div>
@@ -102,21 +102,21 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         border: none;
     }
-    
+
     .card-header {
         border-radius: 10px 10px 0 0 !important;
         padding: 1.5rem;
     }
-    
+
     .form-select-lg {
         padding: 0.8rem 1rem;
         font-size: 1.1rem;
     }
-    
+
     textarea.form-control {
         min-height: 120px;
     }
-    
+
     .btn-lg {
         padding: 0.8rem 1.5rem;
         font-size: 1.1rem;
