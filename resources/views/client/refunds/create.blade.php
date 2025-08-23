@@ -136,7 +136,8 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-6 mb-3">
+
+                           <div class="col-md-6 mb-3">
                                 <label for="bank_name" class="form-label">Ngân hàng <span class="text-danger">*</span></label>
                                 <select class="form-select @error('bank_name') is-invalid @enderror" id="bank_name" name="bank_name" required>
                                     <option value="" selected disabled>-- Chọn ngân hàng --</option>

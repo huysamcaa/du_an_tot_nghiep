@@ -438,6 +438,115 @@
                                         @endif
                                     </a>
 
+                                            {{-- Sale label --}}
+                                            <div class="productLabels clearfix">
+                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                                    <span
+                                                        class="plDis">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
+                                                    <span class="plSale">Sale</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="pi01Details">
+                                            {{-- Star rating + Reviews --}}
+                                            @php
+                                                $avg = $prod->avg_rating ?? 0;
+                                                $avgPercent = round($avg * 20); // 5 sao = 100%
+                                            @endphp
+
+                                            @if (($prod->reviews_count ?? 0) > 0)
+                                                <div class="productRatings">
+                                                    <div class="productRatingWrap">
+                                                        <div class="star-rating"
+                                                            aria-label="{{ number_format($avg, 1) }}/5">
+                                                            <span style="width: {{ $avgPercent }}%"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ratingCounts">{{ $prod->reviews_count }} đánh giá</div>
+                                                </div>
+                                            @endif
+
+
+                                            {{-- Tên sản phẩm --}}
+                                            <h3>
+                                                <a href="{{ route('product.detail', $prod->id) }}">
+                                                    {{ Str::limit($prod->name, 40) }}
+                                                </a>
+                                            </h3>
+
+                                            {{-- Giá --}}
+                                            <div class="pi01Price">
+                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
+                                                    <ins>{{ number_format($prod->sale_price, 0, ',', '.') }}₫</ins>
+                                                    <del>{{ number_format($prod->price, 0, ',', '.') }}₫</del>
+                                                @else
+                                                    <ins>{{ number_format($prod->price, 0, ',', '.') }}₫</ins>
+                                                @endif
+                                            </div>
+
+                                            {{-- Màu & Size từ attributeValues --}}
+                                            @if (optional($prod->variantsWithAttributes())->count())
+                                                @php
+                                                    // Lấy danh sách màu
+                                                    $colors = collect();
+                                                    foreach ($prod->variantsWithAttributes() as $variant) {
+                                                        foreach ($variant->attributeValues as $attrVal) {
+                                                            if ($attrVal->attribute->slug === 'color') {
+                                                                $colors->push($attrVal);
+                                                            }
+                                                        }
+                                                    }
+                                                    $colors = $colors->unique('id');
+
+                                                    // Lấy danh sách size
+                                                    $sizes = $prod
+                                                        ->variantsWithAttributes()
+                                                        ->flatMap(
+                                                            fn($v) => $v->attributeValues->filter(
+                                                                fn($val) => $val->attribute->slug === 'size',
+                                                            ),
+                                                        )
+                                                        ->unique('id');
+                                                @endphp
+
+                                                <div class="pi01Variations">
+                                                    @if ($colors->isNotEmpty())
+                                                        <div class="pi01VColor">
+                                                            @foreach ($colors as $color)
+                                                                <div class="colorOptionWrapper">
+                                                                    <input type="radio"
+                                                                        name="color_{{ $prod->id }}"
+                                                                        id="color_{{ $prod->id }}_{{ $color->id }}"
+                                                                        hidden>
+                                                                    <label
+                                                                        for="color_{{ $prod->id }}_{{ $color->id }}"
+                                                                        class="customColorCircle"
+                                                                        style="background-color: {{ Str::start($color->hex, '#') }};"
+                                                                        title="{{ ucfirst($color->value) }}"></label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+
+                                                    @if ($sizes->count())
+                                                        <div class="pi01VSize">
+                                                            @foreach ($sizes as $size)
+                                                                <div class="pi01VSItem">
+                                                                    <input type="radio" name="size_{{ $prod->id }}"
+                                                                        id="size_{{ $prod->id }}_{{ $size->id }}">
+                                                                    <label
+                                                                        for="size_{{ $prod->id }}_{{ $size->id }}">
+                                                                        {{ strtoupper($size->value) }}
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                        </div>
                                     {{-- Actions --}}
                                     <div class="pi01Actions">
                                         <a href="javascript:void(0);" class="pi01QuickView"><i
