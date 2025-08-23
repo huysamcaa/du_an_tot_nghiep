@@ -3,29 +3,35 @@
 @section('title', 'Lịch sử mua hàng')
 
 @section('content')
-<!-- Banner Section -->
-<section class="pageBannerSection">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pageBannerContent text-center">
-                    <h2>Đơn Hàng Của Tôi</h2>
-                    <div class="pageBannerPath">
-                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Đơn hàng</span>
+    <!-- Banner Section -->
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2 class="banner-title">Đơn Hàng Của Tôi</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">
+                                <i class="fas fa-home me-1"></i>Trang chủ
+                            </a>
+                            <span class="separator">/</span>
+                            <span class="current">Đơn Hàng</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-                @endif
+    <div class="orderHistorySection py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
                     @if (session('error'))
                         <div class="alert alert-danger">
@@ -43,18 +49,17 @@
                 </div>
                 @endif --}}
 
-                @if ($orders->isEmpty())
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
-                    <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
-                    <a href="{{ route('client.products.index') }}" class="ulinaBTN">
-                        <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
-                    </a>
-                </div>
-
+                    @if ($orders->isEmpty())
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
+                            <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
+                            <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
+                            </a>
+                        </div>
                     @else
                         <!-- Filter Tabs -->
                         <div class="order-filters mb-4">
@@ -343,51 +348,6 @@
                             @endforeach
                         </div>
 
-
-                        <!-- Order Footer -->
-                        <div class="order-footer">
-                            <div class="shop-info">
-                                <i class="fas fa-store me-2"></i>
-                                <span class="shop-name"> <tr>
-
-                                    <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
-                                </span>
-                            </div>
-
-                            <div class="order-actions">
-                                 @if ($statusName === 'Chờ Xác Nhận')
-                                    @if ($order->payment_id == 2) <!-- COD -->
-                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="ulinaBTN">
-                                            <span>
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
-                                        </a>
-                                    @elseif ($order->payment_id == 3 || $order->payment_id == 4) <!-- Online payment -->
-                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="ulinaBTN">
-                                            <span>
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
-                                        </a>
-                                    @endif
-                                @endif
-
-                                     @if ($statusName === 'Đang giao hàng')
-                                    <form action="{{ route('client.orders.received', $order->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
-                                        </button>
-                                    </form>
-                                    @endif
-                                <a href="{{ route('client.orders.show', $order->code) }}" class="ulinaBTN">
-                                    <span class="">
-                                    <i class="fas fa-eye me-1"></i>Chi tiết</span>
-                                </a>
-
-
-                                <div class="total-amount">
-                                    <span class="total-label">Tổng tiền:</span>
-                                    <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
-                                </div>
                         <!-- No Results Message -->
                         <div class="no-results d-none">
                             <div class="text-center py-5">
@@ -426,6 +386,7 @@
         }
 
         .pageBannerPath a {
+            color: white;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -503,16 +464,15 @@
         }
 
         .nav-pills .nav-link:hover {
-            color: #3a6f54;
+            color: #16a34a;
             background-color: #ecf5f4;
             transform: translateY(-2px);
         }
 
         .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #5e7674 0%, #59736e 100%);
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
             color: white;
-            /* color: rgb(158, 187, 189); */
-            box-shadow: 0 5px 15px rgb(157, 173, 170);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
             transform: translateY(-2px);
         }
 
@@ -532,7 +492,7 @@
 
         .nav-link.active .count-badge {
             background: rgba(255, 255, 255, 0.9);
-            color: #256b57;
+            color: #16a34a;
         }
 
         /* Search Box */

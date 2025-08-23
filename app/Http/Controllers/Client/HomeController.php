@@ -11,6 +11,7 @@ use App\Models\Admin\Review;
 use App\Models\Coupon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\BlogCategory;
 class HomeController extends Controller
 {
     public function index(Request $request)
@@ -33,11 +34,14 @@ class HomeController extends Controller
             ->get();
 
         $blogs = Blog::latest()->take(3)->get();
+        $blogCategories = BlogCategory::where('is_active', 1)->get();
 
         // Sản phẩm mới nhất (có phân trang hoặc limit tùy bạn)
     $newProducts = Product::with(['variants.attributeValues.attribute'])
         ->latest()
+        ->where('is_active', 1)
         ->paginate(8);
+        
 
     // Sản phẩm bán chạy
     $orderCompletedStatusId = DB::table('order_statuses')
@@ -59,6 +63,7 @@ class HomeController extends Controller
 
     $bestSellingProducts = Product::with(['variants.attributeValues.attribute'])
         ->whereIn('id', $bestSellingProductIds)
+        ->where('is_active', 1)
         ->paginate(8);
 
         $reviews = Review::with('user', 'product')
@@ -92,7 +97,9 @@ class HomeController extends Controller
             return view('client.components.products-list', compact('products'))->render();
         }
 
-        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','coupons'));
+
+        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','blogCategories', 'coupons'));
+
     }
 
      public function showCategoriesInMegaMenu()
@@ -108,9 +115,8 @@ class HomeController extends Controller
         // để phân bổ vào các cột.
         $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 2));
 
-        // Nếu bạn có 3 cột, bạn có thể chia thành 3 chunks.
-        // $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 3));
 
-        return view('client.partials.mega_menu', compact('chunks'));
-    }
+    return view('client.partials.mega_menu', compact('chunks'));
+}
+
 }

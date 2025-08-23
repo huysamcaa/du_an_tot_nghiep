@@ -136,7 +136,24 @@
                                 </ul>
                             </li> --}}
 
-                            <li><a href="{{ route('client.blogs.index') }}">Bài viết</a></li>
+                            <li class="menu-item-has-children menu-blog">
+    <a href="javascript:void(0);">Bài viết</a>
+    <div class="megaMenu">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul>
+                    @foreach($blogCategories as $blogCategory)
+                        <li>
+                            <a href="{{ route('client.blogs.index', ['category' => $blogCategory->id]) }}">
+    {{ $blogCategory->name }}
+</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+</li>
 
                              <li class="menu-item">
                                 <a href="{{ route('client.contact.index') }}">Liên hệ</a>
@@ -324,17 +341,67 @@
     font-size: 16px;
 }
 
+/* Chỉ áp dụng cho menu Bài viết */
+.menu-blog > .megaMenu {
+    position: absolute;
+    top: 100%; /* ngay dưới menu cha */
+    left: 0;
+    display: none; /* ẩn mặc định */
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 6px 0;
+    min-width: 180px;
+    z-index: 1000;
+}
+
+/* Hover hiện menu */
+.menu-blog:hover > .megaMenu {
+    display: block;
+}
+
+/* Reset ul li */
+.menu-blog .megaMenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-blog .megaMenu li {
+    white-space: nowrap;
+}
+
+
+
+
 
 
 </style>
 
 {{-- JavaScript --}}
 <script>
-    document.getElementById('toggleSearch').addEventListener('click', function () {
-        document.getElementById('searchWrapper').style.display = 'flex';
+    const toggleBtn = document.getElementById('toggleSearch');
+    const searchWrapper = document.getElementById('searchWrapper');
+    const closeBtn = document.getElementById('closeSearch');
+
+    // Toggle khi click vào icon search
+    toggleBtn.addEventListener('click', function (e) {
+        e.stopPropagation(); // chặn lan truyền
+        searchWrapper.style.display = 'flex';
     });
 
-    document.getElementById('closeSearch').addEventListener('click', function () {
-        document.getElementById('searchWrapper').style.display = 'none';
+    // Đóng khi click vào nút X
+    closeBtn.addEventListener('click', function () {
+        searchWrapper.style.display = 'none';
     });
+
+    // Đóng khi click ra ngoài
+    document.addEventListener('click', function (e) {
+        if (searchWrapper.style.display === 'flex' && !searchWrapper.contains(e.target) && e.target !== toggleBtn) {
+            searchWrapper.style.display = 'none';
+        }
+    });
+
+    
 </script>

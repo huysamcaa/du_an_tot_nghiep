@@ -56,6 +56,23 @@
               <textarea name="content" id="ckeditor" rows="10" class="form-control" required>{{ old('content', $blog->content ?? '') }}</textarea>
             </div>
           </div>
+          <div class="row mb-3">
+  <div class="col-md-12">
+    <label for="blog_category_id" class="font-weight-bold">Danh mục bài viết <span class="text-danger">*</span></label>
+    <select name="blog_category_id" id="blog_category_id" class="form-control" required>
+      <option value="">-- Chọn danh mục --</option>
+      @foreach($categories as $cat)
+        <option value="{{ $cat->id }}"
+          {{ old('blog_category_id', $blog->blog_category_id ?? '') == $cat->id ? 'selected' : '' }}>
+          {{ $cat->name }}
+        </option>
+      @endforeach
+    </select>
+    @error('blog_category_id') 
+      <div class="text-danger">{{ $message }}</div> 
+    @enderror
+  </div>
+</div>
 
           <div class="row mb-4">
             <div class="col-md-6">

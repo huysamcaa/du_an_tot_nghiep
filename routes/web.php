@@ -30,6 +30,7 @@ use App\Http\Controllers\Client\ReviewController as ClientReviewController;
 use App\Http\Controllers\Client\ReviewController as AdminReviewController;
 use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\Client\SearchController;
+use App\Http\Controllers\Admin\BlogCategoryController;
 
 
 use App\Http\Controllers\Client\RefundController as ClientRefundController;
@@ -352,4 +353,5 @@ Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('cou
 
     //Blogs
     Route::resource('blogs', BlogController::class);
+Route::resource('blog_categories', BlogCategoryController::class);
 });
