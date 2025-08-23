@@ -114,85 +114,87 @@
 
             {{-- Danh sách sản phẩm --}}
             <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Danh sách sản phẩm</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="80">Hình ảnh</th>
-                                    <th>Sản phẩm</th>
-                                    <th width="120">Giá</th>
-                                    <th width="100">SL</th>
-                                    <th width="150">Tổng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($order->items as $item)
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Danh sách sản phẩm</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th width="80">Hình ảnh</th>
+                        <th>Sản phẩm</th>
+                        <th width="120">Giá</th>
+                        <th width="100">SL</th>
+                        <th width="150">Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $subtotal = 0;
+                        $shippingFee = $order->shipping_fee ?? 30000;
+                    @endphp
+                    
+                    @foreach ($order->items as $item)
+                    @php
+                        $product = \App\Models\Admin\Product::find($item->product_id);
+                        $itemPrice = $item->variant->price ?? $item->price ?? 0;
+                        $itemTotal = $itemPrice * $item->quantity;
+                        $subtotal += $itemTotal;
+                    @endphp
+                    <tr>
+                        <td>
+                            
+                                <img src="{{ asset('storage/' . $item->variant->thumbnail) }}" width="60" class="img-thumbnail">
+                            
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ $item->name }}</div>
+                            @if ($item->variant)
                                 @php
-                                    $product = \App\Models\Admin\Product::find($item->product_id);
+                                    $color = $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? '';
+                                    $size = $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? '';
                                 @endphp
-                                <tr>
-                                    <td>
-                                        @if ($product && $product->thumbnail)
-                                            <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60" class="img-thumbnail">
-                                        @else
-                                            <span class="text-muted">N/A</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold">{{ $item->name }}</div>
-                                         @if ($item->variant)
-                                                        @php
-                                                            $color = $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? '';
-                                                            $size = $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? '';
-                                                        @endphp
-                                                        @if($color) Màu: {{ $color }} @endif
-                                                        @if($color && $size) | @endif
-                                                        @if($size) Size: {{ $size }} @endif
-                                                    @endif
-                                        @if ($product)
-                                            <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
-                                        @endif
-                                    </td>
-                                    <td>{{ number_format($item->variant->price, 0, ',', '.') }} đ</td>
-                                    <td>{{ $item->quantity }}</td>
-                                    <td class="fw-bold">
-                                        {{ number_format($item->variant->price * $item->quantity, 0, ',', '.') }} đ
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot class="table-light">
-                                <tr>
-                                    <th colspan="4" class="text-end">Giá sản phẩm:</th>
-                                    <th>{{ number_format($order->total_amount - 30000, 0, ',', '.') }} đ</th>
-                                </tr>
-                                <tr>
-                                    <th colspan="4" class="text-end">Phí vận chuyển:</th>
-                                    <th>30.000 đ</th>
-                                </tr>
-                                <tr>
-                                    <th colspan="4" class="text-end">Mã giảm giá:</th>
-                                    <th>
-                                    @if($order->coupon_code)
-                                            Mã: {{ $order->coupon_code }} (Giảm: {{ number_format($order->coupon_discount_value, 0, ',', '.') }}₫)
-                                        @else
-                                            Không có
-                                        @endif
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th colspan="4" class="text-end">Tổng cộng:</th>
-                                    <th>{{ number_format($order->total_amount, 0, ',', '.') }} đ</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                                @if($color) Màu: {{ $color }} @endif
+                                @if($color && $size) | @endif
+                                @if($size) Size: {{ $size }} @endif
+                            @endif
+                            @if ($product)
+                                <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
+                            @endif
+                        </td>
+                        <td>{{ number_format($itemPrice, 0, ',', '.') }} đ</td>
+                        <td>{{ $item->quantity }}</td>
+                        <td class="fw-bold">
+                            {{ number_format($itemTotal, 0, ',', '.') }} đ
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <th colspan="4" class="text-end">Tạm tính:</th>
+                        <th>{{ number_format($subtotal, 0, ',', '.') }} đ</th>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-end">Phí vận chuyển:</th>
+                        <th>30.000 đ</th>
+                    </tr>
+                    @if($order->coupon_code)
+                    <tr>
+                        <th colspan="4" class="text-end">Mã giảm giá ({{ $order->coupon_code }}):</th>
+                        <th>- {{ number_format($order->coupon_discount_value, 0, ',', '.') }} đ</th>
+                    </tr>
+                    @endif
+                    <tr>
+                        <th colspan="4" class="text-end">Tổng cộng:</th>
+                        <th>{{ number_format($order->total_amount, 0, ',', '.') }} đ</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>  
         </div>
 
         <div class="col-lg-4">
