@@ -20,7 +20,7 @@ class ProductDetailController extends Controller
     {
         $product = Product::query()
             ->with(['variants' => fn($q) => $q->whereNull('deleted_at')
-                                                ->with('attributeValues.attribute')])
+                                             ->with('attributeValues.attribute')])
             ->withAvg(['reviews as avg_rating' => function ($q) {
                 $q->where('is_active', 1);
             }], 'rating')
@@ -38,35 +38,27 @@ class ProductDetailController extends Controller
             ->whereIn('product_variant_id', $variantIds)
             ->pluck('attribute_value_id');
 
-        $colors = AttributeValue::whereIn('id', $attributeValueIds)
-            ->where('attribute_id', 1)
-            ->where('is_active', 1)
-            ->get();
+        $productAttributes = $product->variants
+            ->flatMap(fn($v) => $v->attributeValues)
+            ->unique('id')
+            ->groupBy(fn($attrVal) => $attrVal->attribute->slug ?? 'other')
+            ->mapWithKeys(function ($group, $slug) {
+                $label = $group->first()->attribute->name ?? $slug;
+                return [$slug => ['label' => $label, 'values' => $group]];
+            });
 
-        $sizes = AttributeValue::whereIn('id', $attributeValueIds)
-            ->where('attribute_id', 2)
-            ->where('is_active', 1)
-            ->get();
 
         $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
 
-        // Lấy tất cả variant và chỉ lấy những gì cần thiết
+
         $variants = $product->variants->map(function ($variant) use ($product) {
-            $isSaleActive = $variant->is_sale == 1 &&
-                            $variant->sale_price &&
-                            $variant->sale_price_start_at &&
-                            $variant->sale_price_end_at &&
-                            now()->between($variant->sale_price_start_at, $variant->sale_price_end_at);
-
-            $currentPrice = $isSaleActive ? $variant->sale_price : $variant->price;
-
-            $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
-            $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
+            // Xác định giá hiện tại và trạng thái giảm giá ngay trong vòng lặp
+            $currentPrice = $variant->sale_price ?? $variant->price;
+            $isSaleActive = $variant->sale_price !== null;
 
             return [
                 'id' => $variant->id,
-                'color_id' => $color?->id,
-                'size_id' => $size?->id,
+                'attribute_values' => $variant->attributeValues->pluck('id')->toArray(),
                 'price' => $variant->price,
                 'sale_price' => $variant->sale_price,
                 'stock' => $variant->stock,
@@ -131,24 +123,7 @@ class ProductDetailController extends Controller
             $hasReviewed = $myReview !== null;
         }
 
-        return view('client.productDetal.detal', compact(
-            'product',
-            'category',
-            'comments',
-            'colors',
-            'sizes',
-            'relatedProducts',
-            'reviews',
-            'variants',
-            'allReviews',
-            'hasReviewed',
-            'myReview',
-            'isFavorite',
-            'minPrice',
-            'maxPrice',
-            'minOriginalPrice',
-            'maxOriginalPrice'
-        ));
+        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview', 'isFavorite', 'productAttributes', 'minPrice', 'maxPrice', 'minOriginalPrice', 'maxOriginalPrice'));
     }
 
     public function attributeValues()
