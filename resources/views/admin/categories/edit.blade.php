@@ -9,6 +9,11 @@
             <h4>Sửa danh mục sản phẩm</h4>
             <h6>Chỉnh sửa danh mục sản phẩm hiện có</h6>
         </div>
+        <div class="page-btn">
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary me-2">
+                <i class="fa fa-arrow-left me-1"></i> Quay lại
+            </a>
+        </div>
     </div>
 
     <div class="card">
@@ -28,7 +33,8 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
+            {{-- Đảm bảo form có thể xử lý file upload --}}
+            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -40,7 +46,6 @@
                             <select name="parent_id" id="parent_id" class="form-control"
                                 {{ $hasChildren ? 'disabled' : '' }}>
                                 <option value=""
-                                    {{ $hasProducts ? 'disabled' : '' }}
                                     {{ is_null($category->parent_id) ? 'selected' : '' }}>
                                     -- Không chọn (Danh mục cha) --
                                 </option>
@@ -53,7 +58,7 @@
                             </select>
 
                             {{-- Hiển thị thông báo nếu dropdown bị vô hiệu hóa --}}
-                             @if($hasChildren)
+                            @if($hasChildren)
                                 <small class="text-danger mt-2">
                                     <i>Không thể gán danh mục này làm con vì nó đang chứa các danh mục con khác.</i>
                                 </small>
@@ -74,6 +79,7 @@
                         <div class="form-group">
                             <label>Slug</label>
                             <input type="text" name="slug" class="form-control" value="{{ old('slug', $category->slug) }}">
+                            <small class="text-muted"><i>Nếu để trống, slug sẽ được tự động tạo từ tên.</i></small>
                         </div>
                     </div>
 
@@ -81,7 +87,16 @@
                     <div class="col-lg-6 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Icon</label>
-                            <input type="text" name="icon" class="form-control" placeholder="<i class='fa fa-icon'></i>" value="{{ old('icon', $category->icon) }}">
+                            <div class="mb-2">
+                                @if($category->icon)
+                                    <img src="{{ asset('storage/' . $category->icon) }}" alt="Current Icon" class="rounded" style="max-width: 100px;">
+                                @else
+                                    <span class="text-muted">Chưa có icon</span>
+                                @endif
+                            </div>
+                            <input type="file" name="icon" class="form-control" accept="image/*">
+                            <small class="text-muted"><i>Chọn ảnh mới để thay thế icon hiện tại.</i></small>
+                            <input type="hidden" name="old_icon" value="{{ $category->icon }}">
                         </div>
                     </div>
 

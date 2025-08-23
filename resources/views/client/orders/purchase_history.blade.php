@@ -39,7 +39,7 @@
                 </div>
                 @endif
 
-                @if ($errors->any())
+                {{-- @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
@@ -47,7 +47,7 @@
                         @endforeach
                     </ul>
                 </div>
-                @endif
+                @endif --}}
 
                 @if ($orders->isEmpty())
                 <div class="empty-state">
@@ -240,12 +240,12 @@
                                     </a>
                                     @endif
 
-                                   
+
 
                                     <button class="btn btn-outline-success btn-sm action-btn">
                                         <i class="fas fa-comments me-1"></i>Chat
                                     </button>
-                                    
+
                                      @if ($statusClass === 'completed')
                                                         @php
                                                             $orderId = (int) $order->id;
@@ -283,7 +283,7 @@
                             <div class="shop-info">
                                 <i class="fas fa-store me-2"></i>
                                 <span class="shop-name"> <tr>
-                                    
+
                                     <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
                                 </span>
                             </div>
@@ -306,7 +306,7 @@
                                         @csrf
                                         @method('POST')
                                         <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng 
+                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
                                         </button>
                                     </form>
                                     @endif

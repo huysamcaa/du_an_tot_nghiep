@@ -57,27 +57,29 @@
                     @endphp
 
                     @if(count($activeFilters))
-                    <aside class="widget">
-                        <h3 class="widgetTitle">Đang lọc</h3>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($activeFilters as $key => $value)
-                            @php
-                            $query = request()->except([$key, 'page']);
-                            @endphp
-                            <a href="{{ url()->current() . '?' . http_build_query($query) }}"
-                                class="btn btn-outline-secondary btn-sm">
-                                {{ $value }} &times;
-                            </a>
-                            @endforeach
+                        <aside class="widget">
+                            <h3 class="widgetTitle">Đang lọc</h3>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($activeFilters as $key => $value)
+                                @php
+                                $query = request()->except([$key, 'page']);
+                                @endphp
+                                <a href="{{ url()->current() . '?' . http_build_query($query) }}"
+                                    class="btn btn-outline-secondary btn-sm">
+                                    @if (!empty($value))
+                                        {{ $value }}
+                                    @endif
+                                    &times;
+                                </a>
+                                @endforeach
 
-                            <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">
-                                Xóa tất cả
-                            </a>
-                        </div>
-                    </aside>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary btn-sm">
+                                    Xóa tất cả
+                                </a>
+                            </div>
+                        </aside>
                     @endif
 
-                    <!-- Danh mục -->
                     <aside class="widget">
                         <h3 class="widgetTitle">Danh mục</h3>
                         <ul class="categoryFilterList">
@@ -88,14 +90,30 @@
                                 </a>
                             </li>
                             @foreach($categories as $category)
+                            @php
+                                // Kiểm tra xem danh mục cha có đang được chọn hay không
+                                $parentIsActive = (string)$selectedCategory === (string)$category->id;
+                                // Kiểm tra xem có bất kỳ danh mục con nào đang được chọn hay không
+                                $childIsSelected = $category->children->contains('id', $selectedCategory);
+                            @endphp
+
                             {{-- Kiểm tra nếu danh mục cha có con --}}
                             @if($category->children->isNotEmpty())
-                            <li class="menu-item-has-children">
-                                <a href="javascript:void(0);">{{ $category->name }}</a>
-                                <ul>
+                            <li class="menu-item-has-children {{ $parentIsActive || $childIsSelected ? 'active' : '' }}">
+                                <div class="category-parent-link d-flex align-items-center justify-content-between">
+                                    {{-- Link lọc sản phẩm cho danh mục cha --}}
+                                    <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id', 'page']), ['category_id' => $category->id])) }}">
+                                        {{ $category->name }}
+                                    </a>
+                                    {{-- Nút + để mở/đóng danh mục con --}}
+                                    <span class="toggle-children-btn">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </span>
+                                </div>
+                                <ul class="sub-category-list">
                                     @foreach($category->children as $child)
                                     @php
-                                    $childIsActive = (string)$selectedCategory === (string)$child->id;
+                                        $childIsActive = (string)$selectedCategory === (string)$child->id;
                                     @endphp
                                     <li>
                                         <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id', 'page']), ['category_id' => $child->id])) }}"
@@ -109,7 +127,7 @@
                             @else
                             {{-- Nếu danh mục cha không có con, nó là danh mục lá --}}
                             @php
-                            $isActive = (string)$selectedCategory === (string)$category->id;
+                                $isActive = (string)$selectedCategory === (string)$category->id;
                             @endphp
                             <li>
                                 <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['category_id','page']), ['category_id' => $category->id])) }}"
@@ -552,6 +570,31 @@
     .pageBannerPath {
         font-size: 14px;
     }
+    /* CSS cho phần danh mục */
+    .category-parent-link {
+        cursor: pointer;
+        padding-right: 15px; /* Thêm khoảng trống cho nút toggle */
+    }
+
+    .toggle-children-btn {
+        cursor: pointer;
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    /* Đảm bảo danh mục con luôn ẩn khi không có class show */
+    .categoryFilterList .sub-category-list {
+        display: none;
+        list-style: none;
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+
+    /* Tăng độ ưu tiên để buộc hiển thị danh mục con khi có class show */
+    .categoryFilterList .sub-category-list.show {
+        display: block !important;
+    }
+
 </style>
 
 @push('scripts')
@@ -623,6 +666,51 @@
             });
         });
     });
+
+    (function() {
+        // Mở danh mục con khi trang được tải nếu có danh mục con đang active
+        function openActiveSubmenu() {
+            const activeParentLi = document.querySelector('.menu-item-has-children.active');
+            if (activeParentLi) {
+                const subMenu = activeParentLi.querySelector('.sub-category-list');
+                const icon = activeParentLi.querySelector('.toggle-children-btn i');
+                if (subMenu && icon) {
+                    subMenu.classList.add('show');
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                }
+            }
+        }
+
+        // Bắt sự kiện click để bật/tắt menu con
+        function setupToggleListeners() {
+            const toggleButtons = document.querySelectorAll('.toggle-children-btn');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parentLi = this.closest('li');
+                    const subMenu = parentLi.querySelector('.sub-category-list');
+                    const icon = this.querySelector('i');
+
+                    subMenu.classList.toggle('show');
+
+                    if (subMenu.classList.contains('show')) {
+                        icon.classList.remove('fa-plus');
+                        icon.classList.add('fa-minus');
+                    } else {
+                        icon.classList.remove('fa-minus');
+                        icon.classList.add('fa-plus');
+                    }
+                });
+            });
+        }
+
+        // Chờ DOM load xong rồi mới chạy
+        document.addEventListener('DOMContentLoaded', function() {
+            openActiveSubmenu();
+            setupToggleListeners();
+        });
+    })();
 </script>
 @endpush
 

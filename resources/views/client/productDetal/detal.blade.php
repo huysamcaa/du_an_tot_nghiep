@@ -40,6 +40,39 @@
                     </div>
                 </div>
 
+            </div>
+            <div class="col-lg-6">
+                <div class="productContent">
+                    <div class="pcCategory">
+                        {{-- Kiểm tra xem danh mục của sản phẩm có danh mục cha hay không --}}
+                        @if($product->category->parent)
+                            {{-- Nếu có, đây là danh mục con. Hiển thị cả danh mục cha và danh mục con. --}}
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->parent->id]) }}">
+                                {{ $product->category->parent->name }}
+                            </a>,
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                                {{ $product->category->name }}
+                            </a>
+                        @else
+                            {{-- Nếu không có danh mục cha, đây là danh mục cấp cao nhất. Chỉ hiển thị tên danh mục. --}}
+                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                                {{ $product->category->name }}
+                            </a>
+                        @endif
+                    </div>
+                    <h2>{{ $product->name }}</h2>
+
+                    {{-- Logic hiển thị giá sản phẩm theo khoảng giá của biến thể --}}
+                    <div class="pi01Price">
+                        @php
+                        $minPrice = $product->variants->min(function($variant) {
+                        return $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
+                        });
+                        $maxPrice = $product->variants->max(function($variant) {
+                        return $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
+                        });
+
+
                 <div class="col-lg-6">
                     <div class="productContent">
                         <div class="pcCategory">
@@ -374,7 +407,7 @@
                     </div>
                 </div>
 
-            </div>
+
 
             <!-- Sản phẩm liên quan -->
             <div class="row relatedProductRow">

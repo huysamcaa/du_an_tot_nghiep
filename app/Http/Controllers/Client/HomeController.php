@@ -18,10 +18,17 @@ class HomeController extends Controller
             ->latest()
             ->paginate(8);
 
-        $categories = Category::where('is_active', 1)
-    ->withCount('directProducts') // Hoặc relatedProducts
-    ->orderBy('ordinal')
-    ->get();
+       $categories = Category::where('is_active', 1)
+            ->whereNull('parent_id') // Lọc chỉ các danh mục cha
+            ->whereHas('children') // Đảm bảo danh mục cha này có ít nhất một danh mục con
+            ->with(['children' => function ($query) {
+                // Tải các danh mục con và đếm số sản phẩm trực tiếp đang hoạt động của chúng
+                $query->withCount(['directProducts' => function ($query) {
+                    $query->where('is_active', 1);
+                }]);
+            }])
+            ->orderBy('ordinal')
+            ->get();
 
         $blogs = Blog::latest()->take(3)->get();
         $blogCategories = BlogCategory::where('is_active', 1)->get();
@@ -71,21 +78,23 @@ class HomeController extends Controller
 
         return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','blogCategories'));
     }
-    public function showCategoriesInMegaMenu()
-{
-    // Lấy tất cả danh mục cha và danh mục con của chúng
-    $parentCategories = Category::whereNull('parent_id')
-        ->with('children')
-        ->where('is_active', 1)
-        ->orderBy('ordinal')
-        ->get();
 
-    // Chia danh sách các danh mục cha thành 2 hoặc 3 nhóm
-    // để phân bổ vào các cột.
-    $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 2));
+     public function showCategoriesInMegaMenu()
+    {
+        // Lấy tất cả danh mục cha và danh mục con của chúng
+        $parentCategories = Category::whereNull('parent_id')
+            ->with('children')
+            ->where('is_active', 1)
+            ->orderBy('ordinal')
+            ->get();
 
-    // Nếu bạn có 3 cột, bạn có thể chia thành 3 chunks.
-    // $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 3));
+        // Chia danh sách các danh mục cha thành 2 hoặc 3 nhóm
+        // để phân bổ vào các cột.
+        $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 2));
+
+        // Nếu bạn có 3 cột, bạn có thể chia thành 3 chunks.
+        // $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 3));
+
 
     return view('client.partials.mega_menu', compact('chunks'));
 }
