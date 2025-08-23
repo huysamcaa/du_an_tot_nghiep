@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,15 +19,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -95,12 +95,12 @@
             <!-- Header -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="text-info fw-bold mb-1">
+                    <h4 class="text-danger fw-bold mb-1">
                         <i class="fas fa-ticket-alt me-2"></i>
                         {{ $title }}
                     </h4>
 
-                    <span class="badge bg-dark text-white fs-5 py-2 px-3">
+                    <span class="badge bg-dark text-white fs-5 py-2 px-3 mt-3">
                         {{ $code }}
                     </span>
 
@@ -124,7 +124,7 @@
                 </div>
 
                 <div class="text-end mt-3 mt-md-0">
-                    <span class="badge bg-info text-white fs-6 px-3 py-2">
+                    <span class="badge bg-danger text-white fs-6 px-3 py-2">
                         {{ $discountText }}
                     </span>
                 </div>
@@ -238,10 +238,9 @@
             @endif
 
             <!-- Back Button -->
-            <div class="mt-4">
-                <a href="{{ route('client.coupons.index') }}" class="btn btn-outline-info">← Quay lại danh sách mã</a>
-            </div>
-
+                <a href="{{ route('client.coupons.index') }}" class="ulinaBTN">
+                    <i class="fas me-1"><span>Quay lại</span></i>
+                </a>
         </div>
     </div>
 </div>

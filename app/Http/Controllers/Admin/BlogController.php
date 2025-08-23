@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Blog;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\BlogCategory;
 
 class BlogController extends Controller
 {
@@ -29,7 +30,8 @@ class BlogController extends Controller
 
     public function create()
     {
-        return view('admin.blogs.create');
+            $categories = BlogCategory::where('is_active', 1)->get();
+    return view('admin.blogs.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -38,6 +40,7 @@ class BlogController extends Controller
             'title' => 'required|min:5',
             'content' => 'required',
             'image' => 'nullable|image|max:2048',
+            'blog_category_id' => 'required|exists:blog_categories,id',
         ]);
 
         $image = null;
@@ -50,6 +53,7 @@ class BlogController extends Controller
             'slug' => Str::slug($request->title),
             'content' => $request->content,
             'image' => $image,
+            'blog_category_id' => $request->blog_category_id,
         ]);
 
         return redirect()->route('admin.blogs.index')->with('success', 'Thêm bài viết thành công!');
@@ -58,7 +62,8 @@ class BlogController extends Controller
     public function edit($id)
     {
         $blog = Blog::findOrFail($id);
-        return view('admin.blogs.edit', compact('blog'));
+        $categories = BlogCategory::where('is_active', 1)->get();
+        return view('admin.blogs.edit', compact('blog', 'categories'));
     }
 
     public function update(Request $request, $id)
@@ -69,6 +74,7 @@ class BlogController extends Controller
             'title' => 'required|min:5',
             'content' => 'required',
             'image' => 'nullable|image|max:2048',
+            'blog_category_id' => 'required|exists:blog_categories,id',
         ]);
 
         // Xóa ảnh nếu người dùng chọn "remove_image"
@@ -92,6 +98,7 @@ class BlogController extends Controller
             'slug' => Str::slug($request->title),
             'content' => $request->content,
             'image' => $blog->image,
+            'blog_category_id' => $request->blog_category_id,
         ]);
 
         return redirect()->route('admin.blogs.index')->with('success', 'Cập nhật thành công!');
