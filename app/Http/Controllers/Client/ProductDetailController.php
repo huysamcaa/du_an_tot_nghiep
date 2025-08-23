@@ -41,27 +41,48 @@ class ProductDetailController extends Controller
             ->whereIn('product_variant_id', $variantIds)
             ->pluck('attribute_value_id');
 
-        $colors = AttributeValue::whereIn('id', $attributeValueIds)
-            ->where('attribute_id', 1)
-            ->where('is_active', 1)
-            ->get();
+        // $colors = AttributeValue::whereIn('id', $attributeValueIds)
+        //     ->where('attribute_id', 1)
+        //     ->where('is_active', 1)
+        //     ->get();
 
-        $sizes = AttributeValue::whereIn('id', $attributeValueIds)
-            ->where('attribute_id', 2)
-            ->where('is_active', 1)
-            ->get();
+        // $sizes = AttributeValue::whereIn('id', $attributeValueIds)
+        //     ->where('attribute_id', 2)
+        //     ->where('is_active', 1)
+        //     ->get();
+        // Lấy tất cả value của thuộc tính từ các variant -> unique -> groupBy slug
+        $productAttributes = $product->variants
+            ->flatMap(fn($v) => $v->attributeValues)
+            ->unique('id')
+            ->groupBy(fn($attrVal) => $attrVal->attribute->slug ?? 'other')
+            ->mapWithKeys(function ($group, $slug) {
+                $label = $group->first()->attribute->name ?? $slug;
+                return [$slug => ['label' => $label, 'values' => $group]];
+            });
+
 
         $comments = $product->comments()->where('is_active', 1)->with('user')->latest()->get();
         // Lấy tất cả variant và chỉ lấy những gì cần thiết
-        $variants = $product->variants->map(function ($variant) use ($product) {
-            // Lấy ra tất cả ID các attribute_value liên quan đến biến thể của sản phẩm
-            $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
-            $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
+        // $variants = $product->variants->map(function ($variant) use ($product) {
+        //     // Lấy ra tất cả ID các attribute_value liên quan đến biến thể của sản phẩm
+        //     $color = $variant->attributeValues->firstWhere('attribute.slug', 'color');
+        //     $size = $variant->attributeValues->firstWhere('attribute.slug', 'size');
 
+        //     return [
+        //         'id' => $variant->id,
+        //         'color_id' => $color?->id, // $color ? $color->id : null
+        //         'size_id' => $size?->id,
+        //         'price' => $variant->price,
+        //         'sale_price' => $variant->sale_price,
+        //         'stock' => $variant->stock,
+        //         'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : asset('storage/' . $product->thumbnail),
+        //     ];
+        // });
+
+        $variants = $product->variants->map(function ($variant) use ($product) {
             return [
                 'id' => $variant->id,
-                'color_id' => $color?->id, // $color ? $color->id : null
-                'size_id' => $size?->id,
+                'attribute_values' => $variant->attributeValues->pluck('id')->toArray(),
                 'price' => $variant->price,
                 'sale_price' => $variant->sale_price,
                 'stock' => $variant->stock,
@@ -115,7 +136,7 @@ class ProductDetailController extends Controller
             $hasReviewed = $myReview !== null;
         }
 
-        return view('client.productDetal.detal', compact('product', 'category', 'comments', 'colors', 'sizes', 'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview', 'isFavorite'));
+        return view('client.productDetal.detal', compact('product', 'category', 'comments',  'relatedProducts', 'reviews', 'variants', 'allReviews', 'hasReviewed', 'myReview', 'isFavorite','productAttributes'));
     }
     public function attributeValues()
     {

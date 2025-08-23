@@ -299,43 +299,24 @@
                                             @endphp
                                             <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
                                                 @php
-                                                    // Lập ma trận biến thể: size, color, id, price, sale_price
-                                                    $variantMatrix = $product->variants
-                                                        ->map(function ($v) {
-                                                            $sizeVal = optional(
-                                                                $v->attributeValues->firstWhere(
-                                                                    'attribute.slug',
-                                                                    'size',
-                                                                ),
-                                                            )->value;
-                                                            $colorHex = optional(
-                                                                $v->attributeValues->firstWhere(
-                                                                    'attribute.slug',
-                                                                    'color',
-                                                                ),
-                                                            )->hex;
-                                                            return [
-                                                                'id' => (int) $v->id,
-                                                                'size' => $sizeVal,
-                                                                'color' => $colorHex,
-                                                                'price' => (int) $v->price,
-                                                                'sale_price' => $v->sale_price
-                                                                    ? (int) $v->sale_price
-                                                                    : null,
-                                                            ];
-                                                        })
-                                                        ->values();
+                                                    // Lập ma trận biến thể: id, price, sale_price + tất cả attribute động
+                                                    $variantMatrix = $product->variants->map(function ($v) {
+                                                        $variantData = [
+                                                            'id' => (int) $v->id,
+                                                            'price' => (int) $v->price,
+                                                            'sale_price' => $v->sale_price ? (int) $v->sale_price : null,
+                                                        ];
 
-                                                    $sizesForUI = $variantMatrix
-                                                        ->pluck('size')
-                                                        ->filter()
-                                                        ->unique()
-                                                        ->values();
-                                                    $colorsForUI = $variantMatrix
-                                                        ->pluck('color')
-                                                        ->filter()
-                                                        ->unique()
-                                                        ->values();
+                                                        // Thêm tất cả attribute vào mảng variantData
+                                                        foreach($v->attributeValues as $attrVal){
+                                                            $slug = $attrVal->attribute->slug;
+                                                            $variantData[$slug] = $attrVal->id; // luôn dùng id
+                                                            if($slug==='color'){
+                                                                $variantData['color_hex'] = $attrVal->hex; // chỉ để render UI
+                                                            }
+                                                        }
+                                                        return $variantData;
+                                                    })->values();
                                                 @endphp
 
                                                 <div class="productItem01" data-product-id="{{ $product->id }}"
@@ -404,49 +385,53 @@
                                                                 </del>
                                                             @endif
                                                         </div>
-
-
-                                                        {{-- Hiển thị Size --}}
-                                                        {{-- Chọn biến thể --}}
-                                                        @if ($colorsForUI->count() || $sizesForUI->count())
+                                                        {{-- Hiển thị tất cả các thuộc tính động --}}
+                                                        @if($variantMatrix->count())
                                                             <div class="variant-selectors mt-2">
-                                                                @if ($colorsForUI->count())
-                                                                    <div
-                                                                        class="variant-group variant-color d-flex align-items-center gap-1 mb-2">
-                                                                        <strong class="me-2">Màu:</strong>
-                                                                        @foreach ($colorsForUI as $hex)
-                                                                            @php $cid = "c-{$product->id}-".md5($hex); @endphp
-                                                                            <input type="radio"
-                                                                                id="{{ $cid }}"
-                                                                                name="color_{{ $product->id }}"
-                                                                                class="visually-hidden js-color"
-                                                                                value="{{ $hex }}">
-                                                                            <label for="{{ $cid }}"
-                                                                                class="color-swatch"
-                                                                                style="background-color: {{ \Illuminate\Support\Str::start($hex, '#') }};"
-                                                                                title="{{ $hex }}"
-                                                                                data-color="{{ $hex }}"></label>
-                                                                        @endforeach
-                                                                    </div>
-                                                                @endif
+                                                                @php
+                                                                    // Lấy danh sách attribute của sản phẩm
+                                                                    $attributesForUI = $variantMatrix->flatMap(function($v) {
+                                                                        return collect($v)->except(['id','price','sale_price']);
+                                                                    })->keys()->unique();
+                                                                @endphp
 
-                                                                @if ($sizesForUI->count())
-                                                                    <div
-                                                                        class="variant-group variant-size d-flex align-items-center gap-1 mb-2">
-                                                                        <strong class="me-2">Size:</strong>
-                                                                        @foreach ($sizesForUI as $size)
-                                                                            @php $sid = "s-{$product->id}-".\Illuminate\Support\Str::slug($size); @endphp
-                                                                            <input type="radio"
-                                                                                id="{{ $sid }}"
-                                                                                name="size_{{ $product->id }}"
-                                                                                class="visually-hidden js-size"
-                                                                                value="{{ $size }}">
-                                                                            <label for="{{ $sid }}"
-                                                                                class="size-pill"
-                                                                                data-size="{{ $size }}">{{ $size }}</label>
+                                                                @foreach($attributesForUI as $attr)
+                                                                    <div class="variant-group variant-{{ $attr }} d-flex align-items-center gap-1 mb-2">
+                                                                        <strong class="me-2">{{ ucfirst($attr) }}:</strong>
+                                                                        @php
+                                                                            $values = $variantMatrix->pluck($attr)->filter()->unique()->values();
+                                                                        @endphp
+
+                                                                        @foreach($values as $val)
+                                                                            @php
+                                                                                $inputId = "{$attr}-{$product->id}-".\Illuminate\Support\Str::slug($val);
+
+                                                                                // Lấy thông tin attributeValue để render (chỉ color cần HEX)
+                                                                                $attrValData = $product->variants->flatMap(function($v) use($attr, $val){
+                                                                                    return $v->attributeValues->filter(fn($av)=>$av->attribute->slug==$attr && $av->id==$val);
+                                                                                })->first();
+                                                                            @endphp
+
+                                                                            <input type="radio" id="{{ $inputId }}"
+                                                                                name="{{ $attr }}_{{ $product->id }}"
+                                                                                class="visually-hidden js-attr-{{ $attr }}"
+                                                                                value="{{ $val }}">
+
+                                                                            @if($attr === 'color' && $attrValData)
+                                                                                <label for="{{ $inputId }}" class="color-swatch"
+                                                                                    style="background-color: {{ $attrValData->hex }}"
+                                                                                    title="{{ $attrValData->value }}"></label>
+                                                                            @else
+                                                                                <label for="{{ $inputId }}" class="size-pill">
+                                                                                    {{ $attrValData?->value ?? $val }}
+                                                                                </label>
+                                                                            @endif
                                                                         @endforeach
+
                                                                     </div>
-                                                                @endif
+                                                                @endforeach
+                                                                {{-- Hidden input để gửi attribute_values --}}
+<input type="hidden" name="attribute_values[]" class="js-attribute-values" value="">
                                                             </div>
                                                         @endif
 
@@ -879,213 +864,203 @@
 
 // ================== VARIANT UI + ADD TO CART (mới, gộp 1 chỗ) ==================
 (function(){
-  // Helpers
-  function formatVND(n){
-    try { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
-    catch(e){ return (n||0).toLocaleString('vi-VN') + 'đ'; }
-  }
-  function safeParse(s){ try { return JSON.parse(s||'[]'); } catch(e){ return []; } }
-  const normHex = (h)=> (h||'').toString().trim().toLowerCase().replace(/^#/,'');
-  const q = (sel,root=document)=> root.querySelector(sel);
-  const qa = (sel,root=document)=> Array.from(root.querySelectorAll(sel));
+    // ===== Helpers =====
+    function formatVND(n){
+        try { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
+        catch(e){ return (n||0).toLocaleString('vi-VN') + 'đ'; }
+    }
 
-  document.addEventListener('DOMContentLoaded', function(){
-    // Khởi tạo UI biến thể cho từng card sản phẩm
-    document.querySelectorAll('.productItem01[data-variants]').forEach(initVariantUI);
+    function safeParse(s){ try { return JSON.parse(s||'[]'); } catch(e){ return []; } }
 
-    // Gắn 1 lần listener cho nút thêm giỏ
-    document.querySelectorAll('.piAddToCart').forEach(btn=>{
-      if (btn.dataset.bound === '1') return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', onAddToCartClick);
+    const q = (sel, root=document)=> root.querySelector(sel);
+    const qa = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
+
+    const norm = (s)=> (s||'').toString().trim().toLowerCase().replace(/^#/,'');
+
+    document.addEventListener('DOMContentLoaded', function(){
+        // Khởi tạo cho tất cả card sản phẩm có variants
+        qa('.productItem01[data-variants]').forEach(initVariantUI);
+
+        // Gắn listener add-to-cart
+        qa('.piAddToCart').forEach(btn=>{
+            if(btn.dataset.bound==='1') return;
+            btn.dataset.bound='1';
+            btn.addEventListener('click', onAddToCartClick);
+        });
     });
-  });
 
-  // Cho phép "bỏ chọn" radio khi bấm lại vào label
-  document.addEventListener('click', function(e){
-    const lbl = e.target.closest('label.color-swatch, label.size-pill');
-    if (!lbl) return;
-    const forId = lbl.getAttribute('for');
-    const inp = forId ? document.getElementById(forId) : null;
-    if (inp && inp.checked) {
-      inp.checked = false;
-      // phát sự kiện change để UI cập nhật lại
-      inp.dispatchEvent(new Event('change', { bubbles:true }));
-    }
-  });
-
-  // ================== Add to cart ==================
-  function onAddToCartClick(e){
-    e.preventDefault();
-
-    const btn  = e.currentTarget;
-    const card = btn.closest('.productItem01');
-    const pid  = card?.dataset.productId;
-
-    const variants = safeParse(card?.dataset.variants)
-                      .map(v => ({...v, color: normHex(v.color)}));
-    const needVariant = variants.length > 0;
-
-    const form = document.getElementById('add-to-cart-form-'+pid);
-    const fd   = new FormData(form);
-
-    // Lấy sẵn variant id (nếu UI đã tìm được)
-    let variantId = (document.getElementById('variant_input_'+pid)?.value || '').toString().trim();
-
-    // Nếu có biến thể mà chưa có id => cố gắng map theo lựa chọn hiện tại
-    if (needVariant && !variantId) {
-      const c = card.querySelector('.js-color:checked')?.value;
-      const s = card.querySelector('.js-size:checked')?.value;
-      const match = variants.find(v =>
-        (!c || v.color === normHex(c)) && (!s || v.size === s)
-      );
-      if (!match) {
-        alert('Vui lòng chọn Màu và Size phù hợp trước khi thêm vào giỏ.');
-        return;
-      }
-      variantId = match.id;
-    }
-
-    if (variantId) fd.set('product_variant_id', variantId);
-
-    fetch("{{ route('cart.add') }}", {
-      method: 'POST',
-      body: fd,
-      headers: {
-        'X-CSRF-TOKEN': fd.get('_token'),
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.unauthenticated) {
-        if (confirm('Bạn cần đăng nhập để thêm vào giỏ. Chuyển đến trang đăng nhập?')) {
-          location.href = '/login';
+    // Cho phép click lại label để bỏ chọn
+    document.addEventListener('click', function(e){
+        const lbl = e.target.closest('label[class^="color-swatch"], label[class^="size-pill"], label[class^="js-attr-"]');
+        if(!lbl) return;
+        const inp = document.getElementById(lbl.getAttribute('for'));
+        if(inp && inp.checked){
+            inp.checked = false;
+            inp.dispatchEvent(new Event('change', {bubbles:true}));
         }
-        return;
-      }
-
-      if (data.success) {
-        // Cập nhật số lượng trên icon giỏ
-        const cartCountEl = document.querySelector('.anCart span');
-        if (cartCountEl && typeof data.totalProduct !== 'undefined') {
-          cartCountEl.textContent = data.totalProduct;
-        }
-        // Cập nhật mini-cart (nếu backend trả về)
-        const cartWidgetArea = document.querySelector('.cartWidgetArea');
-        if (cartWidgetArea && data.cartIcon) {
-          cartWidgetArea.innerHTML = data.cartIcon;
-        }
-        alert('Đã thêm vào giỏ hàng!');
-      } else {
-        alert(data.message || 'Có lỗi xảy ra!');
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Không thể thêm sản phẩm vào giỏ!');
     });
-  }
 
-  // ================== UI biến thể (giá/nút/disable option) ==================
-  function initVariantUI(card){
-    const pid          = card.dataset.productId;
-    const variantsRaw  = safeParse(card.dataset.variants);
-    const variants     = variantsRaw.map(v => ({...v, color: normHex(v.color)}));
+    // ===== Add to cart =====
+    function onAddToCartClick(e){
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const card = btn.closest('.productItem01');
+        const pid = card?.dataset.productId;
+        const variants = safeParse(card?.dataset.variants).map(v=> {
+            const newV = {...v};
+            if(v.color) newV.color = norm(v.color);
+            return newV;
+        });
+        const needVariant = variants.length>0;
+        const form = document.getElementById('add-to-cart-form-'+pid);
+        const fd = new FormData(form);
 
-    const priceIns     = q('.pi01Price .js-price', card);
-    const priceDel     = q('.pi01Price .js-compare', card);
-    const addBtn       = q('.pi01Actions .piAddToCart', card);
-    const hidden       = document.getElementById('variant_input_'+pid);
+        // Lấy variant id từ hidden
+        let variantId = (document.getElementById('variant_input_'+pid)?.value||'').toString().trim();
 
-    const colorInputs  = qa('.js-color', card);
-    const sizeInputs   = qa('.js-size', card);
-
-    // Chuẩn hoá value radio màu
-    colorInputs.forEach(inp => { inp.value = normHex(inp.value); });
-
-    if (variants.length && addBtn){
-      addBtn.classList.add('disabled');
-      addBtn.setAttribute('aria-disabled', 'true');
-    }
-
-    const selColor = () => (q('.js-color:checked', card)?.value) || null;
-    const selSize  = () => (q('.js-size:checked',  card)?.value) || null;
-
-    function setDisabled(inp, dis){
-      const lb = card.querySelector('label[for="'+inp.id+'"]');
-      if (dis){
-        inp.checked = false;
-        inp.disabled = true;
-        lb && lb.classList.add('is-disabled');
-      } else {
-        inp.disabled = false;
-        lb && lb.classList.remove('is-disabled');
-      }
-    }
-
-    function refreshOptions(){
-      const c = selColor(), s = selSize();
-
-      if (sizeInputs.length){
-        const allowedSizes = new Set(
-          variants.filter(v => !c || v.color===c).map(v => v.size).filter(Boolean)
-        );
-        sizeInputs.forEach(inp => setDisabled(inp, allowedSizes.size && !allowedSizes.has(inp.value)));
-      }
-
-      if (colorInputs.length){
-        const allowedColors = new Set(
-          variants.filter(v => !s || v.size===s).map(v => normHex(v.color)).filter(Boolean)
-        );
-        colorInputs.forEach(inp => setDisabled(inp, allowedColors.size && !allowedColors.has(normHex(inp.value))));
-      }
-    }
-
-    function refreshPriceAndHidden(){
-      const c = selColor(), s = selSize();
-      const needC = colorInputs.length>0, needS = sizeInputs.length>0;
-      const ok    = (!needC || !!c) && (!needS || !!s);
-      const match = ok ? variants.find(v => (!c || v.color===c) && (!s || v.size===s)) : null;
-
-      if (match){
-        if (hidden) hidden.value = match.id;
-        if (addBtn){
-          addBtn.classList.remove('disabled');
-          addBtn.removeAttribute('aria-disabled');
+        if(needVariant && !variantId){
+            const selected = {};
+            qa('input[class^="js-attr-"]:checked', card).forEach(i=>{
+                const attr = i.className.match(/js-attr-(\w+)/)?.[1];
+                if(attr) selected[attr] = i.value;
+            });
+            const match = variants.find(v => Object.keys(selected).every(k => (v[k]+''===selected[k]+'')));
+            if(!match){
+                alert('Vui lòng chọn đầy đủ thuộc tính trước khi thêm vào giỏ.');
+                return;
+            }
+            variantId = match.id;
         }
-        const show = (match.sale_price ?? match.price);
-        if (priceIns) priceIns.textContent = formatVND(show);
-        if (priceDel){
-          if (match.sale_price && match.sale_price < match.price){
-            priceDel.textContent = formatVND(match.price);
-            priceDel.classList.remove('d-none');
-          } else {
-            priceDel.textContent = '';
-            priceDel.classList.add('d-none');
-          }
-        }
-      } else {
-        if (hidden) hidden.value = '';
-        if (addBtn){
-          addBtn.classList.add('disabled');
-          addBtn.setAttribute('aria-disabled', 'true');
-        }
-      }
+
+        if(variantId) fd.set('product_variant_id', variantId);
+
+        fetch("{{ route('cart.add') }}", {
+            method:'POST',
+            body: fd,
+            headers: {'X-CSRF-TOKEN': fd.get('_token'), 'X-Requested-With':'XMLHttpRequest'}
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            if(data.unauthenticated){
+                if(confirm('Bạn cần đăng nhập. Chuyển đến trang đăng nhập?')) location.href='/login';
+                return;
+            }
+            if(data.success){
+                const cartCountEl = document.querySelector('.anCart span');
+                if(cartCountEl && typeof data.totalProduct!=='undefined') cartCountEl.textContent = data.totalProduct;
+                const cartWidgetArea = document.querySelector('.cartWidgetArea');
+                if(cartWidgetArea && data.cartIcon) cartWidgetArea.innerHTML = data.cartIcon;
+                alert('Đã thêm vào giỏ hàng!');
+            } else {
+                alert(data.message||'Có lỗi xảy ra!');
+            }
+        })
+        .catch(err=>{ console.error(err); alert('Không thể thêm sản phẩm vào giỏ!'); });
     }
 
-    // Lắng nghe thay đổi màu/size
-    card.addEventListener('change', function(e){
-      if (e.target.classList.contains('js-color') || e.target.classList.contains('js-size')){
+    // ===== Variant UI =====
+    function initVariantUI(card){
+        const pid = card.dataset.productId;
+        const variants = safeParse(card.dataset.variants).map(v=>{
+            if(v.color) v.color = norm(v.color);
+            return v;
+        });
+
+        const priceIns = q('.pi01Price .js-price', card);
+        const priceDel = q('.pi01Price .js-compare', card);
+        const addBtn   = q('.pi01Actions .piAddToCart', card);
+        const hidden   = document.getElementById('variant_input_'+pid);
+
+        const attrInputs = qa('input[class^="js-attr-"]', card);
+
+        if(variants.length && addBtn){
+            addBtn.classList.add('disabled');
+            addBtn.setAttribute('aria-disabled','true');
+        }
+
+        function getSelectedAttrs(){
+            const selected={};
+            attrInputs.forEach(i=>{
+                if(i.checked){
+                    const attr = i.className.match(/js-attr-(\w+)/)?.[1];
+                    if(attr) selected[attr]=i.value;
+                }
+            });
+            return selected;
+        }
+
+        function refreshOptions(){
+            const selected = getSelectedAttrs();
+            attrInputs.forEach(inp=>{
+                const attr = inp.className.match(/js-attr-(\w+)/)?.[1];
+                const otherSelected = {...selected}; delete otherSelected[attr];
+
+                const allowed = variants.filter(v=> Object.keys(otherSelected).every(k=> !otherSelected[k]|| (v[k]+''===otherSelected[k]+'')))
+                                        .map(v=>v[attr]);
+                const allowedSet = new Set(allowed.filter(Boolean));
+                const lb = card.querySelector('label[for="'+inp.id+'"]');
+                if(allowedSet.size && !allowedSet.has(inp.value)){
+                    inp.checked=false;
+                    inp.disabled=true;
+                    lb && lb.classList.add('is-disabled');
+                } else {
+                    inp.disabled=false;
+                    lb && lb.classList.remove('is-disabled');
+                }
+            });
+        }
+
+        function refreshPriceAndHidden(){
+            const selected = getSelectedAttrs();
+            const match = variants.find(v => Object.keys(selected).every(k=> (v[k]+''===selected[k]+'')));
+            if(match){
+                if(hidden) hidden.value = match.id;
+                if(addBtn){
+                    addBtn.classList.remove('disabled');
+                    addBtn.removeAttribute('aria-disabled');
+                }
+                if(priceIns) priceIns.textContent = formatVND(match.sale_price??match.price);
+                if(priceDel){
+                    if(match.sale_price && match.sale_price<match.price){
+                        priceDel.textContent = formatVND(match.price);
+                        priceDel.classList.remove('d-none');
+                    } else {
+                        priceDel.textContent='';
+                        priceDel.classList.add('d-none');
+                    }
+                }
+            } else {
+                if(hidden) hidden.value='';
+                if(addBtn){
+                    addBtn.classList.add('disabled');
+                    addBtn.setAttribute('aria-disabled','true');
+                }
+                if(priceIns) priceIns.textContent='';
+                if(priceDel){ priceDel.textContent=''; priceDel.classList.add('d-none'); }
+            }
+        }
+
+function updateAttributeValuesHidden(card) {
+    const hiddenInputs = qa('.js-attribute-values', card);
+    const selectedValues = qa('input[class^="js-attr-"]:checked', card)
+        .map(i => i.value);
+    hiddenInputs.forEach(inp => inp.value = selectedValues.join(',')); // hoặc lưu từng input nếu controller xử lý mảng
+}
+
+// Trong event change:
+card.addEventListener('change', function(e){
+    if(e.target.className.match(/js-attr-/)){
         refreshOptions();
         refreshPriceAndHidden();
-      }
-    });
+        updateAttributeValuesHidden(card); // cập nhật hidden
+    }
+});
 
-    // Khởi tạo lần đầu
-    refreshOptions();
-    refreshPriceAndHidden();
-  }
+
+        // Khởi tạo lần đầu
+        refreshOptions();
+        refreshPriceAndHidden();
+    }
 })();
 </script>
     @endpush

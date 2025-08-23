@@ -99,7 +99,7 @@
                             $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
                         @endphp
                         <div class="product-attribute mt-1 d-flex gap-1">
-                            <strong class="me-1">{{ $attribute->name }}</strong>
+                            <strong class="mt-1 me-2">{{ $attribute->name }}</strong>
                             {{-- Nếu là màu --}}
                             @if ($attribute->slug === 'color')
                                 <div class="d-flex gap-1">
@@ -293,16 +293,48 @@
 .pi01Thumb:hover::after {
     opacity: 1;
 }
-.attribute-option.selected {
-    color: #dc1515 !important;
+/* ====== SIZE / CHẤT LIỆU ====== */
+.attribute-option:not(.color-option) {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    user-select: none;
 }
 
+/* Khi được chọn thì đổi màu nền + chữ trắng */
+.attribute-option:not(.color-option).selected {
+    background: #7b9496 !important;
+    color: #fff !important;
+    border-color: #7b9496 !important;
+}
+
+/* ====== MÀU SẮC (COLOR CIRCLE) ====== */
+.color-option {
+    display: inline-block;
+    margin-top: 7px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Khi hover thì viền xám đậm hơn */
+.color-option:hover {
+    border-color: #7b9496;
+}
+
+/* Khi chọn thì chỉ viền đen nổi bật */
 .color-option.selected {
-    border: 3px solid #000 !important; /* Viền đen đậm hơn */
+    border: 3px solid #000 !important;
 }
-.color-circle{
-    margin-top: 5px;
-}
+
 </style>
 
 <script>
