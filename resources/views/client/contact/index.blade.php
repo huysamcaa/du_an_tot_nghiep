@@ -26,7 +26,21 @@
         box-shadow: 0 0 15px rgba(0,0,0,0.05);
     }
 </style>
-
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2>Liên hệ</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Liên hệ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <div class="container my-5">
     <div class="row g-4">
         <div class="col-lg-5">
@@ -81,7 +95,7 @@
                     </div>
 
                     <div class="col-12 text-center">
-                        <button type="submit" class="btn btn-primary px-5 py-2">Gửi liên hệ</button>
+                        <button type="submit" class="ulinaBTN"><span>Gửi liên hệ</span></button>
                     </div>
 
                     <div id="formMessage" class="mt-3"></div>
