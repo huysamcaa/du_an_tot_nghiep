@@ -318,41 +318,35 @@ use Illuminate\Support\Facades\File;
         }
     }
 
-    protected function processRegularOrder(Request $request, $couponData)
-    {
-        DB::beginTransaction();
-        try {
-            $orderData = Session::get('pending_order');
-            $order = $this->saveOrderToDatabase($orderData);
-            $this->clearCartItems($orderData['selected_items']);
+   protected function processRegularOrder(Request $request, $couponData)
+{
+    DB::beginTransaction();
+    try {
+        $orderData = Session::get('pending_order');
+        $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
+        $this->clearCartItems($orderData['selected_items']);
 
-             $this->createOrderNotification($order);
-            //Cập nhật trạng thái mã giảm giá
+        $this->createOrderNotification($order);
 
-            $order = $this->saveOrderToDatabase($orderData);
-                if (!empty($order->coupon_id)) {
-                    DB::table('coupon_user')
-                        ->where('user_id', $order->user_id)
-                        ->where('coupon_id', $order->coupon_id)
-                        ->update(['used_at' => now(), 'order_id' => $order->id]);
-                }
-            DB::commit();
-            Session::forget('pending_order');
-            $order = $this->saveOrderToDatabase($orderData);
-                if (!empty($order->coupon_id)) {
-                    DB::table('coupon_user')
-                        ->where('user_id', $order->user_id)
-                        ->where('coupon_id', $order->coupon_id)
-                        ->update(['used_at' => now(), 'order_id' => $order->id]);
-                }
-            return redirect()->route('client.orders.show', $order->code)
-                ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Regular Order Error: ' . $e->getMessage());
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        // Cập nhật trạng thái mã giảm giá
+        if (!empty($order->coupon_id)) {
+            DB::table('coupon_user')
+                ->where('user_id', $order->user_id)
+                ->where('coupon_id', $order->coupon_id)
+                ->update(['used_at' => now(), 'order_id' => $order->id]);
         }
+
+        DB::commit();
+        Session::forget('pending_order');
+
+        return redirect()->route('client.orders.show', $order->code)
+            ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Regular Order Error: ' . $e->getMessage());
+        return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
     }
+}
 
     // ==================== CALLBACK HANDLERS ====================
 
@@ -1205,14 +1199,14 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $order->payment_id = [
-                
+
                 2 => 'Thanh toán khi nhận hàng',
                 3 => 'MoMo',
                 4 => 'VNPay'
             ];
-            
+
             $message = "Đơn hàng #{$order->code} của bạn đã được thanh toán thành công qua {$order->payment_id}. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
@@ -1220,7 +1214,7 @@ protected function createPaymentSuccessNotification($order)
                 'type' => 1, // Loại thông báo thanh toán
                 'read' => 0, // Chưa đọc
             ]);
-            
+
             Log::info('Created payment success notification', [
                 'order_id' => $order->id,
                 'user_id' => $order->user_id
@@ -1233,7 +1227,7 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $message = "Đơn hàng #{$order->code} của bạn đã được tạo thành công. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,

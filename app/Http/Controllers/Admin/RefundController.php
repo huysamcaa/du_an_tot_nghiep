@@ -14,9 +14,8 @@ class RefundController extends Controller
     /**
      * Hiển thị danh sách yêu cầu hoàn tiền
      */
-     public function index(Request $request)
+    public function index(Request $request)
     {
-        // Lấy các tham số lọc từ request
         $perPage = $request->input('perPage', 10);
         $search = $request->input('search');
         $status = $request->input('status');
@@ -24,25 +23,21 @@ class RefundController extends Controller
 
         $query = Refund::with(['user', 'order']);
 
-        // Áp dụng bộ lọc tìm kiếm
+        // Tìm kiếm
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('order', function ($orderQuery) use ($search) {
-                    $orderQuery->where('code', 'LIKE', "%{$search}%");
-                })
-                ->orWhereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->where('name', 'LIKE', "%{$search}%");
-                })
-                ->orWhere('id', 'LIKE', "%{$search}%");
+                $q->whereHas('order', fn($order) => $order->where('code', 'LIKE', "%{$search}%"))
+                    ->orWhereHas('user', fn($user) => $user->where('name', 'LIKE', "%{$search}%"))
+                    ->orWhere('id', 'LIKE', "%{$search}%");
             });
         }
 
-        // Áp dụng lọc theo trạng thái
-        if ($status && $status != 'all') {
+        // Lọc trạng thái
+        if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
 
-        // Áp dụng lọc theo thời gian và sắp xếp
+        // Lọc thời gian và sắp xếp
         switch ($dateRange) {
             case 'last_month':
                 $query->where('created_at', '>=', now()->subMonth())->orderByDesc('created_at');
@@ -57,14 +52,12 @@ class RefundController extends Controller
                 $query->orderBy('created_at');
                 break;
             default:
-                // Sắp xếp mặc định là mới nhất
                 $query->orderByDesc('created_at');
                 break;
         }
 
         $refunds = $query->paginate($perPage)->withQueryString();
 
-        // Danh sách trạng thái để truyền vào view cho dropdown
         $statuses = [
             'all' => 'Tất cả trạng thái',
             'pending' => 'Chờ xử lý',
@@ -78,7 +71,6 @@ class RefundController extends Controller
         return view('admin.refunds.index', compact('refunds', 'statuses'));
     }
 
-
     /**
      * Hiển thị chi tiết yêu cầu hoàn tiền
      */
@@ -86,7 +78,6 @@ class RefundController extends Controller
     {
         $refund->load(['user', 'items.orderItem.product', 'order']);
 
-        // Các màu trạng thái
         $statusColors = [
             'pending' => 'secondary',
             'receiving' => 'info',
@@ -100,8 +91,6 @@ class RefundController extends Controller
             'verified' => 'info',
             'sent' => 'success',
         ];
-
-        // Nhãn hiển thị
         $statusLabels = [
             'pending' => 'Chờ xử lý',
             'receiving' => 'Đang tiếp nhận',
@@ -123,146 +112,109 @@ class RefundController extends Controller
      * Cập nhật trạng thái và thông tin hoàn tiền
      */
     public function update(Request $request, Refund $refund)
-    {
+{
+    // Xác thực dữ liệu cơ bản
+    $rules = [
+        'status' => 'required|in:pending,receiving,completed,rejected,failed,cancel',
+        'bank_account_status' => $request->status === 'completed'
+            ? 'nullable|in:unverified,sent,verified'
+            : 'required|in:unverified,sent,verified',
+        'admin_reason' => 'nullable|string|max:1000',
+        'fail_reason' => 'nullable|string|max:1000',
+        'img_fail_or_completed' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webm|max:10240',
+    ];
 
-        // Khởi tạo các quy tắc xác thực cơ bản
-        $rules = [
-            'status'                => 'required|in:pending,receiving,completed,rejected,failed,cancel',
-            'bank_account_status'   => 'required|in:unverified,sent,verified',
-            'is_send_money'         => 'nullable|boolean',
-            'admin_reason'          => 'nullable|string|max:1000',
-            'fail_reason'           => 'nullable|string|max:1000',
-            'img_fail_or_completed' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webm|max:10240', // Cho phép cả ảnh và video, 10MB
-        ];
+    // Điều kiện riêng cho rejected và failed
+    if ($request->status === 'rejected') {
+        $rules['admin_reason'] = 'required|string|max:1000';
+    }
+    if ($request->status === 'failed') {
+        $rules['fail_reason'] = 'required|string|max:1000';
+        $rules['img_fail_or_completed'] = 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webm|max:10240';
+    }
 
-        // Ghi lại trạng thái cũ để kiểm tra thay đổi
-        $oldStatus = $refund->status;
-        $oldBankStatus = $refund->bank_account_status;
+    $validated = $request->validate($rules);
 
-        // Thêm các quy tắc xác thực có điều kiện dựa trên trạng thái mới
-        // Logic PHP:
-        // 1. Khi status là 'rejected' thì 'admin_reason' là bắt buộc
-        if ($request->input('status') === 'rejected') {
-            $rules['admin_reason'] = 'required|string|max:1000';
-        }
+    // Kiểm tra thay đổi trước khi cập nhật
+    $isUnchanged =
+        ($request->status === $refund->status) &&
+        (
+            $request->status === 'completed'
+                ? true // completed tự gán bank_account_status, không xét
+                : $request->bank_account_status === $refund->bank_account_status
+        ) &&
+        ($request->admin_reason === $refund->admin_reason) &&
+        ($request->fail_reason === $refund->fail_reason) &&
+        !$request->hasFile('img_fail_or_completed');
 
-        // 2. Khi status là 'failed' thì 'fail_reason' và 'img_fail_or_completed' là bắt buộc
-        if ($request->input('status') === 'failed') {
-            $rules['fail_reason'] = 'required|string|max:1000';
-            $rules['img_fail_or_completed'] = 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webm|max:10240';
-        }
+    if ($isUnchanged) {
+        return back()->withErrors(['error' => 'Vui lòng thay đổi ít nhất một thông tin trước khi gửi.']);
+    }
 
-        // 3. Khi 'is_send_money' được tích thì 'img_fail_or_completed' là bắt buộc và status phải là 'completed'
-        if ($request->boolean('is_send_money')) {
-            $rules['img_fail_or_completed'] = 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webm|max:10240';
-            $rules['status'] = 'required|in:completed'; // Bắt buộc status phải là completed
-            $rules['bank_account_status'] = 'required|in:sent'; // Bắt buộc bank status phải là sent
-        }
+    DB::beginTransaction();
+    try {
+        // Cập nhật trạng thái và bank_account_status
+        $refund->status = strtolower($validated['status']);
+        $refund->bank_account_status = $refund->status === 'completed'
+            ? 'sent'
+            : $validated['bank_account_status'];
 
+        // Cập nhật reason theo trạng thái
+        $refund->admin_reason = $refund->status === 'rejected' ? $validated['admin_reason'] : null;
+        $refund->fail_reason = $refund->status === 'failed' ? $validated['fail_reason'] : null;
 
-        $validatedData = $request->validate($rules);
+        // Cập nhật is_send_money nếu có file ảnh/video
+        $refund->is_send_money = $request->hasFile('img_fail_or_completed') ? 1 : 0;
 
-        // Kiểm tra nếu không có thay đổi nào được thực hiện
-        $isUnchanged =
-            ($request->input('status') === $oldStatus) &&
-            ($request->input('bank_account_status') === $oldBankStatus) &&
-            ($request->input('admin_reason') === $refund->admin_reason) &&
-            ($request->input('fail_reason') === $refund->fail_reason) &&
-            !$request->hasFile('img_fail_or_completed') &&
-            ($request->boolean('is_send_money') == $refund->is_send_money);
-
-        if ($isUnchanged) {
-            return redirect()->back()->withErrors(['error' => 'Vui lòng thay đổi ít nhất một thông tin trước khi gửi.']);
-        }
-
-        DB::beginTransaction();
-        try {
-            // Cập nhật các trường
-            $refund->status = strtolower($validatedData['status']);
-            $refund->bank_account_status = $validatedData['bank_account_status'];
-
-            // Xử lý các trường `reason` dựa trên trạng thái mới
-            // Chỉ lưu `admin_reason` khi status là 'rejected'
-            if ($refund->status === 'rejected') {
-                $refund->admin_reason = $validatedData['admin_reason'];
-            } else {
-                $refund->admin_reason = null; // Xóa lý do nếu trạng thái thay đổi
+        // Xử lý file ảnh/video
+        if ($request->hasFile('img_fail_or_completed')) {
+            if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
+                Storage::disk('public')->delete($refund->img_fail_or_completed);
             }
-
-            // Chỉ lưu `fail_reason` khi status là 'failed'
-            if ($refund->status === 'failed') {
-                $refund->fail_reason = $validatedData['fail_reason'];
-            } else {
-                $refund->fail_reason = null; // Xóa lý do nếu trạng thái thay đổi
+            $refund->img_fail_or_completed = $request->file('img_fail_or_completed')->store('refund_proofs', 'public');
+        } elseif (!in_array($refund->status, ['completed', 'failed'])) {
+            if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
+                Storage::disk('public')->delete($refund->img_fail_or_completed);
             }
+            $refund->img_fail_or_completed = null;
+        }
 
-            // Cập nhật trường `is_send_money`
-            $refund->is_send_money = $request->boolean('is_send_money');
+        $refund->save();
 
-            // Xử lý file ảnh/video
-            if ($request->hasFile('img_fail_or_completed')) {
-                // Xóa file cũ nếu có
-                if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
-                    Storage::disk('public')->delete($refund->img_fail_or_completed);
-                }
-                $path = $request->file('img_fail_or_completed')->store('refund_proofs', 'public');
-                $refund->img_fail_or_completed = $path;
-            } elseif ($refund->status !== 'completed' && $refund->status !== 'failed') {
-                 // Nếu trạng thái không yêu cầu file, xóa file nếu tồn tại
-                 if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
-                    Storage::disk('public')->delete($refund->img_fail_or_completed);
-                }
-                $refund->img_fail_or_completed = null;
-            }
-
-            $refund->save();
-
-        // Lấy đơn hàng liên quan từ yêu cầu hoàn tiền
+        // Cập nhật đơn hàng nếu hoàn thành
         $order = $refund->order;
+        if ($order && $refund->status === 'completed' && $refund->is_send_money) {
+            $order->is_refund_cancel = true;
+            $order->is_refund = true;
+            $order->img_send_refund_money = $refund->img_fail_or_completed;
+            $order->save();
 
-        if ($order) {
-            // Kiểm tra nếu yêu cầu hoàn tiền đạt trạng thái 'completed' và tiền đã được gửi đi
-            if ($refund->status === 'completed' && $refund->is_send_money) {
-                // Cập nhật các trường liên quan trong bảng 'orders'
-                $order->is_refund_cancel = true;
-                $order->is_refund = true;
-                $order->img_send_refund_money = $refund->img_fail_or_completed;
-                $order->save();
+            $refundedStatusId = 7;
 
-                // Cập nhật trạng thái đơn hàng trong bảng 'order_order_status'
-                $refundedStatusId = 6;
+            DB::table('order_order_status')
+                ->where('order_id', $order->id)
+                ->where('is_current', true)
+                ->update(['is_current' => false]);
 
-                // Nếu tìm thấy ID trạng thái 'Đã hoàn tiền'
-                if ($refundedStatusId) {
-                    // Cập nhật tất cả trạng thái cũ của đơn hàng thành không phải là hiện tại
-                    DB::table('order_order_status')
-                        ->where('order_id', $order->id)
-                        ->where('is_current', true)
-                        ->update(['is_current' => false]);
-
-                    // Thêm một bản ghi mới để đánh dấu đơn hàng đã được hoàn tiền
-                    DB::table('order_order_status')->insert([
-                        'order_id' => $order->id,
-                        'order_status_id' => $refundedStatusId,
-                        'modified_by' => auth()->user()->id,
-                        'is_current' => true,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
+            DB::table('order_order_status')->insert([
+                'order_id' => $order->id,
+                'order_status_id' => $refundedStatusId,
+                'modified_by' => auth()->user()->id,
+                'is_current' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
-        // Gửi thông báo cho người dùng
+
+        // Gửi thông báo
         $refund->user->notify(new RefundStatusChanged($refund));
 
-            // Gửi thông báo cho người dùng
-            $refund->user->notify(new RefundStatusChanged($refund));
-
-            DB::commit();
-            return redirect()->back()->with('success', 'Cập nhật hoàn tiền thành công.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Đã xảy ra lỗi: ' . $e->getMessage()])->withInput();
-        }
+        DB::commit();
+        return back()->with('success', 'Cập nhật hoàn tiền thành công.');
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return back()->withErrors(['error' => 'Đã xảy ra lỗi: ' . $e->getMessage()])->withInput();
     }
+}
+
 }
