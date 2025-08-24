@@ -48,19 +48,33 @@ public function show($id)
         }
     }
 
+    // ✅ Cập nhật trạng thái "đã đọc"
+    if ($notification->read == 0) {
+        DB::table('notifications')
+            ->where('id', $notification->id)
+            ->update(['read' => 1]);
+        $notification->read = 1; // đồng bộ object hiển thị view
+    }
+
     return view('client.notifications.show', compact('notification'));
 }
 
 
-    public function markAsRead($id)
-    {
-        DB::table('notifications')
-            ->where('id', $id)
-            ->where('user_id', auth()->id())
-            ->update(['read' => 1]);
 
-        return redirect()->back()->with('success', 'Thông báo đã được đánh dấu là đã đọc.');
+    public function markAsRead($id)
+{
+    $updated = DB::table('notifications')
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->update(['read' => 1]);
+
+    if (request()->ajax()) {
+        return response()->json(['ok' => (bool)$updated]);
     }
+
+    return redirect()->back()->with('success', 'Thông báo đã được đánh dấu là đã đọc.');
+}
+
 
     public function destroy($id)
     {

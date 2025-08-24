@@ -83,7 +83,7 @@ Route::get('/categories', [ClientCategoryController::class, 'index'])
 // show theo slug
 Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
     ->name('category.show');
-    
+
 // liên hệ
 Route::get('/contact', [ClientContactController::class, 'index'])
     ->name('client.contact.index');
@@ -93,7 +93,7 @@ Route::get('/contact', [ClientContactController::class, 'index'])
 
 Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('/contact', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contact.index');
-    Route::get('/contact/{id}', [ContactController::class, 'show'])->name('contact.show'); 
+    Route::get('/contact/{id}', [ContactController::class, 'show'])->name('contact.show');
     Route::patch('/contact/{id}/mark-contacted', [ContactController::class, 'markContacted'])->name('contact.markContacted');
 });
 
@@ -135,6 +135,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('client.orders.cancel-form');
     Route::get('/orders/{order}/cancel-online', [OrderController::class, 'showCancelForm2'])
         ->name('client.orders.cancel-online');
+        
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');

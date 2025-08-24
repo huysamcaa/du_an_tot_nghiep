@@ -14,7 +14,7 @@ class RefundController extends Controller
     /**
      * Hiển thị danh sách yêu cầu hoàn tiền
      */
-     public function index(Request $request)
+    public function index(Request $request)
     {
         // Lấy các tham số lọc từ request
         $perPage = $request->input('perPage', 10);
@@ -30,10 +30,10 @@ class RefundController extends Controller
                 $q->whereHas('order', function ($orderQuery) use ($search) {
                     $orderQuery->where('code', 'LIKE', "%{$search}%");
                 })
-                ->orWhereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->where('name', 'LIKE', "%{$search}%");
-                })
-                ->orWhere('id', 'LIKE', "%{$search}%");
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhere('id', 'LIKE', "%{$search}%");
             });
         }
 
@@ -208,8 +208,8 @@ class RefundController extends Controller
                 $path = $request->file('img_fail_or_completed')->store('refund_proofs', 'public');
                 $refund->img_fail_or_completed = $path;
             } elseif ($refund->status !== 'completed' && $refund->status !== 'failed') {
-                 // Nếu trạng thái không yêu cầu file, xóa file nếu tồn tại
-                 if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
+                // Nếu trạng thái không yêu cầu file, xóa file nếu tồn tại
+                if ($refund->img_fail_or_completed && Storage::disk('public')->exists($refund->img_fail_or_completed)) {
                     Storage::disk('public')->delete($refund->img_fail_or_completed);
                 }
                 $refund->img_fail_or_completed = null;
@@ -217,46 +217,51 @@ class RefundController extends Controller
 
             $refund->save();
 
-        // Lấy đơn hàng liên quan từ yêu cầu hoàn tiền
-        $order = $refund->order;
+            $order = $refund->order;
 
-        if ($order) {
-            // Kiểm tra nếu yêu cầu hoàn tiền đạt trạng thái 'completed' và tiền đã được gửi đi
-            if ($refund->status === 'completed' && $refund->is_send_money) {
-                // Cập nhật các trường liên quan trong bảng 'orders'
-                $order->is_refund_cancel = true;
-                $order->is_refund = true;
-                $order->img_send_refund_money = $refund->img_fail_or_completed;
-                $order->save();
+            if ($order && $refund->status === 'completed' && $refund->is_send_money) {
+                // Tổng tiền đơn (sử dụng total_price hoặc tính lại từ order_items)
+                $orderTotal = $order->items()->sum(DB::raw('price * quantity'));
 
-                // Cập nhật trạng thái đơn hàng trong bảng 'order_order_status'
-                $refundedStatusId = 6;
+                // Tổng tiền đã được hoàn thành cho đơn này
+                $refundedForOrder = \App\Models\Refund::where('order_id', $order->id)
+                    ->where('status', 'completed')
+                    ->sum('total_amount');
 
-                // Nếu tìm thấy ID trạng thái 'Đã hoàn tiền'
-                if ($refundedStatusId) {
-                    // Cập nhật tất cả trạng thái cũ của đơn hàng thành không phải là hiện tại
+                if ($refundedForOrder + 1e-6 >= $orderTotal) {
+                    // ✅ Hoàn toàn phần: set trạng thái order = Đã hoàn tiền (id=6)
+                    $order->is_refund_cancel = true;
+                    $order->is_refund = true;
+                    $order->img_send_refund_money = $refund->img_fail_or_completed;
+                    $order->save();
+
                     DB::table('order_order_status')
                         ->where('order_id', $order->id)
                         ->where('is_current', true)
                         ->update(['is_current' => false]);
 
-                    // Thêm một bản ghi mới để đánh dấu đơn hàng đã được hoàn tiền
                     DB::table('order_order_status')->insert([
-                        'order_id' => $order->id,
-                        'order_status_id' => $refundedStatusId,
-                        'modified_by' => auth()->user()->id,
-                        'is_current' => true,
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'order_id'        => $order->id,
+                        'order_status_id' => 6, // Đã hoàn tiền
+                        'modified_by'     => auth()->id(),
+                        'is_current'      => true,
+                        'created_at'      => now(),
+                        'updated_at'      => now(),
                     ]);
+                } else {
+                    // ✅ Hoàn một phần: order vẫn giữ trạng thái "Hoàn thành" (id=5),
+                    // chỉ cập nhật cờ is_refund để biết đã có hoàn.
+                    $order->is_refund = true;
+                    $order->save();
                 }
+
+                // Luôn refresh lại hạng thành viên sau khi hoàn
+                $order->user?->refreshGroup();
             }
-        }
-        // Gửi thông báo cho người dùng
-        $refund->user->notify(new RefundStatusChanged($refund));
 
             // Gửi thông báo cho người dùng
             $refund->user->notify(new RefundStatusChanged($refund));
+            $refund->user->refreshGroup();
 
             DB::commit();
             return redirect()->back()->with('success', 'Cập nhật hoàn tiền thành công.');
