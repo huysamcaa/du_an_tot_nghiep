@@ -300,23 +300,23 @@
                                             <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
                                                 @php
                                                     // Lập ma trận biến thể: id, price, sale_price + tất cả attribute động
-                                                    $variantMatrix = $product->variants->map(function ($v) {
+                                                    $variantMatrix = $product->variants->map(function ($v) use ($product) {
                                                         $variantData = [
-                                                            'id' => (int) $v->id,
-                                                            'price' => (int) $v->price,
+                                                            'id'         => (int) $v->id,
+                                                            'price'      => (int) $v->price,
                                                             'sale_price' => $v->sale_price ? (int) $v->sale_price : null,
+                                                            // 'image'      => $v->image
+                                                            //     ? asset('storage/' . $v->image)
+                                                            //     : asset('storage/' . $product->thumbnail),
                                                         ];
 
-                                                        // Thêm tất cả attribute vào mảng variantData
-                                                        foreach($v->attributeValues as $attrVal){
+                                                        foreach ($v->attributeValues as $attrVal) {
                                                             $slug = $attrVal->attribute->slug;
-                                                            $variantData[$slug] = $attrVal->id; // luôn dùng id
-                                                            if($slug==='color'){
-                                                                $variantData['color_hex'] = $attrVal->hex; // chỉ để render UI
-                                                            }
+                                                            $variantData[$slug] = $attrVal->id;
                                                         }
                                                         return $variantData;
                                                     })->values();
+
                                                 @endphp
 
                                                 <div class="productItem01" data-product-id="{{ $product->id }}"
@@ -430,8 +430,6 @@
 
                                                                     </div>
                                                                 @endforeach
-                                                                {{-- Hidden input để gửi attribute_values --}}
-<input type="hidden" name="attribute_values[]" class="js-attribute-values" value="">
                                                             </div>
                                                         @endif
 
@@ -706,14 +704,37 @@
             pointer-events: none;
         }
         /* Màu nhấn chung */
-:root { --accent: #5d7373; }
 
-/* Tô viền/bo tròn khi CHỌN MÀU */
-.productItem01 input.js-color:checked + .color-swatch {
-  outline: 2px solid #fff;               /* viền trong */
-  box-shadow: 0 0 0 3px var(--accent);   /* vòng sáng ngoài */
-  transform: scale(1.08);
-  border-color: var(--accent);
+.color-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="radio"]:checked + .color-swatch {
+    border: 2px solid #000; /* khi chọn có viền đen */
+}
+
+.size-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    user-select: none;
+}
+
+input[type="radio"]:checked + .size-pill {
+    background: #7b9496;
+    color: #fff;
+    border-color: #7b9496;
 }
 
 /* Hover/focus cho MÀU */
@@ -860,208 +881,343 @@
     setupToggleListeners();
   });
 })();
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".productItem01").forEach(function (productEl) {
+        let productId = productEl.dataset.productId;
+        let variants = JSON.parse(productEl.dataset.variants);
+        let addToCartBtn = productEl.querySelector(".piAddToCart");
+        let hiddenVariantInput = document.getElementById("variant_input_" + productId);
 
-
-// ================== VARIANT UI + ADD TO CART (mới, gộp 1 chỗ) ==================
-(function(){
-    // ===== Helpers =====
-    function formatVND(n){
-        try { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
-        catch(e){ return (n||0).toLocaleString('vi-VN') + 'đ'; }
-    }
-
-    function safeParse(s){ try { return JSON.parse(s||'[]'); } catch(e){ return []; } }
-
-    const q = (sel, root=document)=> root.querySelector(sel);
-    const qa = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
-
-    const norm = (s)=> (s||'').toString().trim().toLowerCase().replace(/^#/,'');
-
-    document.addEventListener('DOMContentLoaded', function(){
-        // Khởi tạo cho tất cả card sản phẩm có variants
-        qa('.productItem01[data-variants]').forEach(initVariantUI);
-
-        // Gắn listener add-to-cart
-        qa('.piAddToCart').forEach(btn=>{
-            if(btn.dataset.bound==='1') return;
-            btn.dataset.bound='1';
-            btn.addEventListener('click', onAddToCartClick);
-        });
-    });
-
-    // Cho phép click lại label để bỏ chọn
-    document.addEventListener('click', function(e){
-        const lbl = e.target.closest('label[class^="color-swatch"], label[class^="size-pill"], label[class^="js-attr-"]');
-        if(!lbl) return;
-        const inp = document.getElementById(lbl.getAttribute('for'));
-        if(inp && inp.checked){
-            inp.checked = false;
-            inp.dispatchEvent(new Event('change', {bubbles:true}));
-        }
-    });
-
-    // ===== Add to cart =====
-    function onAddToCartClick(e){
-        e.preventDefault();
-        const btn = e.currentTarget;
-        const card = btn.closest('.productItem01');
-        const pid = card?.dataset.productId;
-        const variants = safeParse(card?.dataset.variants).map(v=> {
-            const newV = {...v};
-            if(v.color) newV.color = norm(v.color);
-            return newV;
-        });
-        const needVariant = variants.length>0;
-        const form = document.getElementById('add-to-cart-form-'+pid);
-        const fd = new FormData(form);
-
-        // Lấy variant id từ hidden
-        let variantId = (document.getElementById('variant_input_'+pid)?.value||'').toString().trim();
-
-        if(needVariant && !variantId){
-            const selected = {};
-            qa('input[class^="js-attr-"]:checked', card).forEach(i=>{
-                const attr = i.className.match(/js-attr-(\w+)/)?.[1];
-                if(attr) selected[attr] = i.value;
-            });
-            const match = variants.find(v => Object.keys(selected).every(k => (v[k]+''===selected[k]+'')));
-            if(!match){
-                alert('Vui lòng chọn đầy đủ thuộc tính trước khi thêm vào giỏ.');
-                return;
-            }
-            variantId = match.id;
-        }
-
-        if(variantId) fd.set('product_variant_id', variantId);
-
-        fetch("{{ route('cart.add') }}", {
-            method:'POST',
-            body: fd,
-            headers: {'X-CSRF-TOKEN': fd.get('_token'), 'X-Requested-With':'XMLHttpRequest'}
-        })
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.unauthenticated){
-                if(confirm('Bạn cần đăng nhập. Chuyển đến trang đăng nhập?')) location.href='/login';
-                return;
-            }
-            if(data.success){
-                const cartCountEl = document.querySelector('.anCart span');
-                if(cartCountEl && typeof data.totalProduct!=='undefined') cartCountEl.textContent = data.totalProduct;
-                const cartWidgetArea = document.querySelector('.cartWidgetArea');
-                if(cartWidgetArea && data.cartIcon) cartWidgetArea.innerHTML = data.cartIcon;
-                alert('Đã thêm vào giỏ hàng!');
-            } else {
-                alert(data.message||'Có lỗi xảy ra!');
-            }
-        })
-        .catch(err=>{ console.error(err); alert('Không thể thêm sản phẩm vào giỏ!'); });
-    }
-
-    // ===== Variant UI =====
-    function initVariantUI(card){
-        const pid = card.dataset.productId;
-        const variants = safeParse(card.dataset.variants).map(v=>{
-            if(v.color) v.color = norm(v.color);
-            return v;
-        });
-
-        const priceIns = q('.pi01Price .js-price', card);
-        const priceDel = q('.pi01Price .js-compare', card);
-        const addBtn   = q('.pi01Actions .piAddToCart', card);
-        const hidden   = document.getElementById('variant_input_'+pid);
-
-        const attrInputs = qa('input[class^="js-attr-"]', card);
-
-        if(variants.length && addBtn){
-            addBtn.classList.add('disabled');
-            addBtn.setAttribute('aria-disabled','true');
-        }
-
-        function getSelectedAttrs(){
-            const selected={};
-            attrInputs.forEach(i=>{
-                if(i.checked){
-                    const attr = i.className.match(/js-attr-(\w+)/)?.[1];
-                    if(attr) selected[attr]=i.value;
+        // Hàm lấy attribute đã chọn
+        function getSelectedAttributes() {
+            let selected = {};
+            productEl.querySelectorAll(".variant-group").forEach(function (group) {
+                let input = group.querySelector("input:checked");
+                if (input) {
+                    let attr = input.name.replace("_" + productId, "");
+                    selected[attr] = input.value;
                 }
             });
             return selected;
         }
 
-        function refreshOptions(){
-            const selected = getSelectedAttrs();
-            attrInputs.forEach(inp=>{
-                const attr = inp.className.match(/js-attr-(\w+)/)?.[1];
-                const otherSelected = {...selected}; delete otherSelected[attr];
-
-                const allowed = variants.filter(v=> Object.keys(otherSelected).every(k=> !otherSelected[k]|| (v[k]+''===otherSelected[k]+'')))
-                                        .map(v=>v[attr]);
-                const allowedSet = new Set(allowed.filter(Boolean));
-                const lb = card.querySelector('label[for="'+inp.id+'"]');
-                if(allowedSet.size && !allowedSet.has(inp.value)){
-                    inp.checked=false;
-                    inp.disabled=true;
-                    lb && lb.classList.add('is-disabled');
-                } else {
-                    inp.disabled=false;
-                    lb && lb.classList.remove('is-disabled');
-                }
-            });
+        // Tìm biến thể khớp
+        function findMatchingVariant() {
+            let selected = getSelectedAttributes();
+            return variants.find(v =>
+                Object.keys(selected).every(k => String(v[k]) === String(selected[k]))
+            );
         }
 
-        function refreshPriceAndHidden(){
-            const selected = getSelectedAttrs();
-            const match = variants.find(v => Object.keys(selected).every(k=> (v[k]+''===selected[k]+'')));
-            if(match){
-                if(hidden) hidden.value = match.id;
-                if(addBtn){
-                    addBtn.classList.remove('disabled');
-                    addBtn.removeAttribute('aria-disabled');
-                }
-                if(priceIns) priceIns.textContent = formatVND(match.sale_price??match.price);
-                if(priceDel){
-                    if(match.sale_price && match.sale_price<match.price){
-                        priceDel.textContent = formatVND(match.price);
-                        priceDel.classList.remove('d-none');
-                    } else {
-                        priceDel.textContent='';
-                        priceDel.classList.add('d-none');
-                    }
-                }
+        // Cập nhật UI và hidden input mỗi khi chọn biến thể
+        function updateUI(match) {
+            if (!match) return;
+
+            // Gán variant id vào input hidden
+            hiddenVariantInput.value = match.id;
+
+            // Cập nhật giá
+            let priceEl = productEl.querySelector(".js-price");
+            let compareEl = productEl.querySelector(".js-compare");
+
+            if (match.sale_price && match.sale_price < match.price) {
+                priceEl.innerText = match.sale_price.toLocaleString("vi-VN") + "đ";
+                compareEl.innerText = match.price.toLocaleString("vi-VN") + "đ";
+                compareEl.classList.remove("d-none");
             } else {
-                if(hidden) hidden.value='';
-                if(addBtn){
-                    addBtn.classList.add('disabled');
-                    addBtn.setAttribute('aria-disabled','true');
-                }
-                if(priceIns) priceIns.textContent='';
-                if(priceDel){ priceDel.textContent=''; priceDel.classList.add('d-none'); }
+                priceEl.innerText = match.price.toLocaleString("vi-VN") + "đ";
+                compareEl.classList.add("d-none");
+            }
+
+            // Cập nhật ảnh nếu có
+            let thumbImg = productEl.querySelector(".pi01Thumb img");
+            if (thumbImg && match.image) {
+                thumbImg.src = match.image;
             }
         }
 
-function updateAttributeValuesHidden(card) {
-    const hiddenInputs = qa('.js-attribute-values', card);
-    const selectedValues = qa('input[class^="js-attr-"]:checked', card)
-        .map(i => i.value);
-    hiddenInputs.forEach(inp => inp.value = selectedValues.join(',')); // hoặc lưu từng input nếu controller xử lý mảng
-}
+        // Lắng nghe sự kiện thay đổi variant
+        productEl.querySelectorAll(".variant-group input").forEach(input => {
+            input.addEventListener("change", () => {
+                let match = findMatchingVariant();
+                updateUI(match);
+            });
+        });
 
-// Trong event change:
-card.addEventListener('change', function(e){
-    if(e.target.className.match(/js-attr-/)){
-        refreshOptions();
-        refreshPriceAndHidden();
-        updateAttributeValuesHidden(card); // cập nhật hidden
-    }
+        // Khi click Add to Cart
+        addToCartBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let match = findMatchingVariant();
+            if (!match) {
+                alert("Vui lòng chọn đầy đủ biến thể trước khi thêm vào giỏ hàng!");
+                return;
+            }
+
+            // Gán chắc chắn variant id
+            hiddenVariantInput.value = match.id;
+
+            let form = document.getElementById("add-to-cart-form-" + productId);
+            let formData = new FormData(form);
+
+            // Thêm attribute_values[] vào formData
+            let selected = getSelectedAttributes();
+            Object.keys(selected).forEach(attrKey => {
+                formData.append("attribute_values[]", selected[attrKey]);
+            });
+
+            addToCartBtn.classList.add("disabled");
+
+            fetch("{{ route('cart.add') }}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRF-TOKEN": formData.get("_token"),
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(res => {
+                    if (res.status === 401) {
+                        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ!");
+                        return Promise.reject(); // Ngắt luôn, không chạy xuống
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector(".cart-count").innerText = data.totalProduct;
+                        document.querySelector(".cartWidgetArea").innerHTML = data.cartWidget;
+                        alert("Thêm vào giỏ hàng thành công!");
+                    } else {
+                        alert(data.message || "Có lỗi xảy ra!");
+                    }
+                })
+                .catch(err => {
+                    if (err) console.error(err);
+                })
+                .finally(() => {
+                    addToCartBtn.classList.remove("disabled");
+                });
+        });
+    });
 });
 
+// ================== VARIANT UI + ADD TO CART (mới, gộp 1 chỗ) ==================
+// (function(){
+//     // ===== Helpers =====
+//     function formatVND(n){
+//         try { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
+//         catch(e){ return (n||0).toLocaleString('vi-VN') + 'đ'; }
+//     }
 
-        // Khởi tạo lần đầu
-        refreshOptions();
-        refreshPriceAndHidden();
-    }
-})();
+//     function safeParse(s){ try { return JSON.parse(s||'[]'); } catch(e){ return []; } }
+
+//     const q = (sel, root=document)=> root.querySelector(sel);
+//     const qa = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
+
+//     const norm = (s)=> (s||'').toString().trim().toLowerCase().replace(/^#/,'');
+
+//     document.addEventListener('DOMContentLoaded', function(){
+//         // Khởi tạo cho tất cả card sản phẩm có variants
+//         qa('.productItem01[data-variants]').forEach(initVariantUI);
+
+//         // Gắn listener add-to-cart
+//         qa('.piAddToCart').forEach(btn=>{
+//             if(btn.dataset.bound==='1') return;
+//             btn.dataset.bound='1';
+//             btn.addEventListener('click', onAddToCartClick);
+//         });
+//     });
+
+//     // Cho phép click lại label để bỏ chọn
+//     document.addEventListener('click', function(e){
+//         const lbl = e.target.closest('label[class^="color-swatch"], label[class^="size-pill"], label[class^="js-attr-"]');
+//         if(!lbl) return;
+//         const inp = document.getElementById(lbl.getAttribute('for'));
+//         if(inp && inp.checked){
+//             inp.checked = false;
+//             inp.dispatchEvent(new Event('change', {bubbles:true}));
+//         }
+//     });
+
+//     // ===== Add to cart =====
+//     function onAddToCartClick(e){
+//         e.preventDefault();
+//         const btn = e.currentTarget;
+//         const card = btn.closest('.productItem01');
+//         const pid = card?.dataset.productId;
+//         const variants = safeParse(card?.dataset.variants).map(v=> {
+//             const newV = {...v};
+//             if(v.color) newV.color = norm(v.color);
+//             return newV;
+//         });
+//         const needVariant = variants.length>0;
+//         const form = document.getElementById('add-to-cart-form-'+pid);
+//         const fd = new FormData(form);
+
+//         // Lấy variant id từ hidden
+//         let variantId = (document.getElementById('variant_input_'+pid)?.value||'').toString().trim();
+
+//         if(needVariant && !variantId){
+//             const selected = {};
+//             qa('input[class^="js-attr-"]:checked', card).forEach(i=>{
+//                 const attr = i.className.match(/js-attr-(\w+)/)?.[1];
+//                 if(attr) selected[attr] = i.value;
+//             });
+//             const match = variants.find(v => Object.keys(selected).every(k => (v[k]+''===selected[k]+'')));
+//             if(!match){
+//                 alert('Vui lòng chọn đầy đủ thuộc tính trước khi thêm vào giỏ.');
+//                 return;
+//             }
+//             variantId = match.id;
+//         }
+
+//         if(variantId) fd.set('product_variant_id', variantId);
+
+//         fetch("{{ route('cart.add') }}", {
+//             method:'POST',
+//             body: fd,
+//             headers: {'X-CSRF-TOKEN': fd.get('_token'), 'X-Requested-With':'XMLHttpRequest'}
+//         })
+//         .then(res=>res.json())
+//         .then(data=>{
+//             if(data.unauthenticated){
+//                 if(confirm('Bạn cần đăng nhập. Chuyển đến trang đăng nhập?')) location.href='/login';
+//                 return;
+//             }
+//             if(data.success){
+//                 const cartCountEl = document.querySelector('.anCart span');
+//                 if(cartCountEl && typeof data.totalProduct!=='undefined') cartCountEl.textContent = data.totalProduct;
+//                 const cartWidgetArea = document.querySelector('.cartWidgetArea');
+//                 if(cartWidgetArea && data.cartIcon) cartWidgetArea.innerHTML = data.cartIcon;
+//                 alert('Đã thêm vào giỏ hàng!');
+//             } else {
+//                 alert(data.message||'Có lỗi xảy ra!');
+//             }
+//         })
+//         .catch(err=>{ console.error(err); alert('Không thể thêm sản phẩm vào giỏ!'); });
+//     }
+
+//     // ===== Variant UI =====
+//     function initVariantUI(card){
+//         const pid = card.dataset.productId;
+//         const variants = safeParse(card.dataset.variants).map(v=>{
+//             if(v.color) v.color = norm(v.color);
+//             return v;
+//         });
+
+//         const priceIns = q('.pi01Price .js-price', card);
+//         const priceDel = q('.pi01Price .js-compare', card);
+//         const addBtn   = q('.pi01Actions .piAddToCart', card);
+//         const hidden   = document.getElementById('variant_input_'+pid);
+
+//         const attrInputs = qa('input[class^="js-attr-"]', card);
+
+//         if(variants.length && addBtn){
+//             addBtn.classList.add('disabled');
+//             addBtn.setAttribute('aria-disabled','true');
+//         }
+
+//         function getSelectedAttrs(){
+//             const selected={};
+//             attrInputs.forEach(i=>{
+//                 if(i.checked){
+//                     const attr = i.className.match(/js-attr-(\w+)/)?.[1];
+//                     if(attr) selected[attr]=i.value;
+//                 }
+//             });
+//             return selected;
+//         }
+
+//         function refreshOptions(){
+//             const selected = getSelectedAttrs();
+//             attrInputs.forEach(inp=>{
+//                 const attr = inp.className.match(/js-attr-(\w+)/)?.[1];
+//                 const otherSelected = {...selected}; delete otherSelected[attr];
+
+//                 const allowed = variants.filter(v=> Object.keys(otherSelected).every(k=> !otherSelected[k]|| (v[k]+''===otherSelected[k]+'')))
+//                                         .map(v=>v[attr]);
+//                 const allowedSet = new Set(allowed.filter(Boolean));
+//                 const lb = card.querySelector('label[for="'+inp.id+'"]');
+//                 if(allowedSet.size && !allowedSet.has(inp.value)){
+//                     inp.checked=false;
+//                     inp.disabled=true;
+//                     lb && lb.classList.add('is-disabled');
+//                 } else {
+//                     inp.disabled=false;
+//                     lb && lb.classList.remove('is-disabled');
+//                 }
+//             });
+//         }
+//                 function refreshPriceAndHidden(){
+//             const selected = getSelectedAttrs();
+//             const match = variants.find(v => Object.keys(selected).every(k => (v[k]+''===selected[k]+'')));
+
+//             if(match){
+//                 if(hidden) hidden.value = match.id;
+
+//                 // Bật nút thêm giỏ
+//                 if(addBtn){
+//                     addBtn.classList.remove('disabled');
+//                     addBtn.removeAttribute('aria-disabled');
+//                 }
+
+//                 // Hiển thị giá
+//                 if(priceIns){
+//                     const sale = match.sale_price;
+//                     const price = match.price;
+//                     if(sale && sale < price){
+//                         priceIns.textContent = formatVND(sale);
+//                         if(priceDel){
+//                             priceDel.textContent = formatVND(price);
+//                             priceDel.classList.remove('d-none');
+//                         }
+//                     }else{
+//                         priceIns.textContent = formatVND(price);
+//                         if(priceDel){
+//                             priceDel.textContent = '';
+//                             priceDel.classList.add('d-none');
+//                         }
+//                     }
+//                 }
+//             } else {
+//                 if(hidden) hidden.value = '';
+
+//                 // Disable nút giỏ hàng nếu chưa chọn đủ
+//                 if(addBtn){
+//                     addBtn.classList.add('disabled');
+//                     addBtn.setAttribute('aria-disabled','true');
+//                 }
+
+//                 // Reset giá về khoảng tổng (min - max)
+//                 if(priceIns){
+//                     const minPrice = Math.min(...variants.map(v=>v.sale_price||v.price));
+//                     const maxPrice = Math.max(...variants.map(v=>v.sale_price||v.price));
+//                     if(minPrice!==maxPrice){
+//                         priceIns.textContent = formatVND(minPrice) + ' - ' + formatVND(maxPrice);
+//                         if(priceDel) priceDel.classList.add('d-none');
+//                     }else{
+//                         priceIns.textContent = formatVND(minPrice);
+//                         if(priceDel) priceDel.classList.add('d-none');
+//                     }
+//                 }
+//             }
+//         }
+
+//         // Bind change cho các input
+//         attrInputs.forEach(inp=>{
+//             inp.addEventListener('change', function(){
+//                 refreshOptions();
+//                 refreshPriceAndHidden();
+//             });
+//         });
+
+//         // Lần đầu load
+//         refreshOptions();
+//         refreshPriceAndHidden();
+//     }
+// })();
 </script>
     @endpush
 

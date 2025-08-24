@@ -99,7 +99,7 @@
                             $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
                         @endphp
                         <div class="product-attribute mt-1 d-flex gap-1">
-                            <strong class="mt-1 me-2">{{ $attribute->name }}</strong>
+                            <strong class="mt-2 me-2">{{ $attribute->name }}</strong>
                             {{-- Nếu là màu --}}
                             @if ($attribute->slug === 'color')
                                 <div class="d-flex gap-1">
@@ -116,7 +116,7 @@
                             @else
                                 {{-- Các thuộc tính khác --}}
                                 @foreach ($values->unique('id') as $av)
-                                    <span class="badge bg-light text-dark border attribute-option"
+                                    <span class="attribute-option"
                                         data-id="{{ $av->id }}"
                                         data-attribute="{{ $attribute->slug }}"
                                         data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}">
@@ -264,8 +264,8 @@
 /* ====== SIZE / CHẤT LIỆU ====== */
 .attribute-option:not(.color-option) {
     display: inline-block;
-    padding: 4px 10px;
-    margin: 5px 0;
+    padding: 3px 10px;
+    margin: 4px 0;
     border: 1px solid #ccc;
     border-radius: 6px;
     cursor: pointer;
@@ -284,7 +284,7 @@
 /* ====== MÀU SẮC (COLOR CIRCLE) ====== */
 .color-option {
     display: inline-block;
-    margin-top: 7px;
+    margin-top: 9px;
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -395,21 +395,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     "X-Requested-With": "XMLHttpRequest"
                 }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401) {
+                    alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ!");
+                    return Promise.reject(); // Ngắt luôn, không chạy xuống
+                }
+                return res.json();
+            })
             .then(data => {
                 if (data.success) {
-                    // Kiểm tra và cập nhật số lượng sản phẩm
-                    const cartCountEl = document.querySelector(".cart-count");
-                    if (cartCountEl && data.totalProduct !== undefined) {
-                        cartCountEl.innerText = data.totalProduct;
-                    }
+                //Cập nhật số lượng sản phẩm trên icon giỏ
+                document.querySelector(".cart-count").innerText = data.totalProduct;
 
-                    // Cập nhật widget giỏ hàng
-                    const cartWidgetEl = document.querySelector(".cartWidgetArea");
-                    if (cartWidgetEl && data.cartIcon) {
-                        cartWidgetEl.innerHTML = data.cartIcon;
-                    }
-
+                // Cập nhật lại dropdown / widget giỏ hàng
+                document.querySelector(".cartWidgetArea").innerHTML = data.cartWidget;
                     alert("Đã thêm sản phẩm vào giỏ hàng");
                 } else {
                     alert(data.message || "Có lỗi xảy ra!");
