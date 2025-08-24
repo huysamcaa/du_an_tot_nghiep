@@ -184,7 +184,7 @@
                                     ['icon'=>'shopping-cart','label'=>'Tổng đơn hàng','value'=>$totalOrders,'color'=>'primary'],
                                     ['icon'=>'check-circle','label'=>'Đã bán','value'=>$totalSold,'color'=>'success'],
                                     ['icon'=>'dollar-sign','label'=>'Doanh thu','value'=>number_format($totalRevenue,0,',','.') . ' đ','color'=>'warning'],
-                                    ['icon'=>'cubes','label'=>'Số Lượng','value'=>$variant->stock,'color'=>'primary'],
+                                    ['icon'=>'cubes','label'=>'Số Lượng','value'=> number_format($totalStock) ,'color'=>'primary'],
                                 ] as $stat)
                                 <div class="col-6">
                                     <div class="border rounded p-3">
@@ -193,7 +193,9 @@
                                         <div class="fw-bold fs-5">{{ $stat['value'] }}</div>
                                     </div>
                                 </div>
+                                
                                 @endforeach
+                               
                             </div>
                             <hr class="my-4">
                             {{-- Đơn hàng gần đây --}}
@@ -216,14 +218,9 @@
                                             <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Huy Đỗ' }}</span></td>
                                             <td class="text-end">{{ $orderItem->quantity }}</td>
                                             <td>
+                                                {{ $orderItem->order->status_text ?? 'N/A' }}
                                                 
-                                                {{-- @switch($orderItem->order->status)
-                                                    @case(1) <span class="badge bg-warning text-dark">Chờ xử lý</span> @break
-                                                    @case(2) <span class="badge bg-info text-dark">Đang xử lý</span> @break
-                                                    @case(3) <span class="badge bg-success">Hoàn thành</span> @break
-                                                    @case(4) <span class="badge bg-danger">Đã hủy</span> @break
-                                                    @default <span class="badge bg-secondary">{{ $orderItem->order->status }}</span>
-                                                @endswitch --}}
+                                               
                                             </td>
                                         </tr>
                                         @endforeach

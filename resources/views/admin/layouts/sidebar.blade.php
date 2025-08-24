@@ -133,17 +133,17 @@
 
                 <!-- Bài viết -->
                  <li class="submenu">
-    <a href="javascript:void(0);">
-        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
-        <span> Bài viết</span> <span class="menu-arrow"></span>
-    </a>
-    <ul>
-        <li><a href="{{ route('admin.blogs.index') }}">Danh sách bài viết</a></li>
-        <li><a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a></li>
-        <li><a href="{{ route('admin.blog_categories.index') }}">Danh mục bài viết</a></li>
-        <li><a href="{{ route('admin.blog_categories.create') }}">Thêm danh mục</a></li>
-    </ul>
-</li>
+                    <a href="javascript:void(0);">
+                        <img src="{{ asset('assets/admin/img/icons/transcation.svg') }}" alt="img">
+                        <span> Bài viết</span> <span class="menu-arrow"></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('admin.blogs.index') }}">Danh sách bài viết</a></li>
+                        <li><a href="{{ route('admin.blogs.create') }}">Thêm bài viết</a></li>
+                        <li><a href="{{ route('admin.blog_categories.index') }}">Danh mục bài viết</a></li>
+                        <li><a href="{{ route('admin.blog_categories.create') }}">Thêm danh mục</a></li>
+                    </ul>
+                </li>
                 <!-- Liên hệ -->
                         <li class="submenu">
                             <a href="javascript:void(0);">

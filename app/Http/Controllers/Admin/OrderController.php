@@ -202,7 +202,7 @@ class OrderController extends Controller
             $order = Order::with('items.variant')->findOrFail($orderId);
 
             // Kiểm tra payment_id = 1 (COD)
-            if ($order->payment_id == 1) {
+            if ($order->payment_id == 2) {
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
