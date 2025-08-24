@@ -215,7 +215,7 @@
 
 
                     <div class="pcExcerpt">
-                        <p>{{ $product->short_description }}</p>
+                        <p>{!! $product->short_description !!}</p>
                     </div>
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
@@ -321,7 +321,7 @@
                                     <div class="descriptionContent">
                                         <h3>Mô tả chi tiết</h3>
                                         <div class="description-scrollable">
-                                            <p>{{ $product->short_description }}</p>
+                                            <p>{!! $product->short_description !!}</p>
                                             {!! $product->description !!}
                                         </div>
                                     </div>

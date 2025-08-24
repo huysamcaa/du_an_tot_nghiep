@@ -8,7 +8,11 @@
                 <h6>Tạo sản phẩm mới trong kho</h6>
             </div>
         </div>
-
+        @if ($errors->has('variants'))
+            <div class="alert alert-danger">
+                Vui lòng thêm biến thể.
+            </div>
+        @endif
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
@@ -55,14 +59,14 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Mô tả ngắn <span class="text-danger">*</span></label>
-                                            <textarea name="short_description" rows="2" class="form-control">{{ old('short_description') }}</textarea>
+                                            <textarea name="short_description"  class="form-control summernote">{{ old('short_description') }}</textarea>
                                             @error('short_description')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Mô tả chi tiết <span class="text-danger">*</span></label>
-                                            <textarea name="description" id="editor" rows="5" class="form-control">{{ old('description') }}</textarea>
+                                          <textarea name="description" class="form-control summernote">{{ old('description') }}</textarea>
                                             @error('description')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
@@ -90,8 +94,7 @@
                                                             style="display:none;">
                                                             <img id="thumbnailPreview" src="" alt="Ảnh đại diện"
                                                                 class="img-thumbnail w-100">
-                                                            <button type="button"
-                                                                class="btn btn-sm btn-danger mt-2 w-100"
+                                                            <button type="button" class="btn btn-sm btn-danger mt-2 w-100"
                                                                 id="removeThumbnail">Xóa ảnh</button>
                                                         </div>
                                                     </div>
@@ -174,6 +177,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-4" id="variants-table"></div>
+
                                     </div>
                                 </div>
                             </div>
@@ -249,7 +253,6 @@
     @endphp
 
     @push('scripts')
-        <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -258,7 +261,23 @@
 
         <script>
             $(function() {
-                CKEDITOR.replace('editor');
+
+                    $('.summernote').summernote({
+                        height: 200, // chiều cao editor
+                        toolbar: [
+                            ['style', ['style']],
+                            ['font', ['bold', 'italic', 'underline', 'clear']],
+                            ['fontname', ['fontname']],
+                            ['fontsize', ['fontsize']],
+                            ['color', ['color']],
+                            ['para', ['ul', 'ol', 'paragraph']],
+                            ['height', ['height']],
+                            ['insert', ['link', 'picture', 'video']],
+                            ['view', ['fullscreen', 'codeview', 'help']]
+                        ]
+                    });
+
+
                 $('.select2').select2({
                     placeholder: "-- Chọn một tùy chọn --",
                     allowClear: true
@@ -272,8 +291,6 @@
                     altFormat: "d/m/Y H:i",
                     locale: "vn" // If you have a Vietnamese locale for Flatpickr
                 });
-
-
                 const attributesData = @json($attributesData);
                 let manualVariantIndex = 0; // Để quản lý index cho các biến thể thêm thủ công
 
@@ -366,7 +383,7 @@
                         dateFormat: "Y-m-d H:i",
                         altInput: true,
                         altFormat: "d/m/Y H:i",
-                        locale: "vn"
+                        locale: "default"
                     });
                 }
 
