@@ -139,18 +139,31 @@
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                             @endif
-                                            @if (Route::has('admin.users.lock') && $user->status === 'active')
+                                            @if ($user->status === 'active' && $user->id != Auth::id())
                                                 <form action="{{ route('admin.users.lock', $user->id) }}" method="POST"
                                                     style="display:inline-block;"
                                                     onsubmit="return confirm('Khóa tài khoản này?')">
                                                     @csrf @method('PATCH')
-                                                    <button  type="submit" class="btn btn-link p-0" title="Khóa">
+                                                    <button type="submit" class="btn btn-link p-0" title="Khóa">
                                                         <i class="fa fa-lock"></i>
+                                                    </button>
+                                                </form>
+
+                                                {{-- Nếu đang bị khóa → hiện nút Mở khóa --}}
+                                            @elseif ($user->status === 'locked')
+                                                <form action="{{ route('admin.users.unlock', $user->id) }}" method="POST"
+                                                    style="display:inline-block;"
+                                                    onsubmit="return confirm('Mở khóa tài khoản này?')">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="btn btn-link text-success p-0"
+                                                        title="Mở khóa">
+                                                        <i class="fa fa-unlock"></i>
                                                     </button>
                                                 </form>
                                             @else
                                                 <span class="text-muted">—</span>
                                             @endif
+
                                         </div>
                                     </td>
                                 </tr>
