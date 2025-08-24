@@ -93,7 +93,7 @@
                             <th>Danh mục</th>
                             <th>Thương hiệu</th>
                             <th>Số lượng</th>
-                            
+                            <th>Tổng giá</th>
                             <th>Trạng thái</th>
                             <th class="text-center">Hành động</th>
                         </tr>
@@ -112,7 +112,7 @@
                             <td>{{ $product->category->name ?? '-' }}</td>
                             <td>{{ $product->brand->name ?? '-' }}</td>
                             <td>{{ $product->total_stock ?? 0 }}</td>
-                            
+                            <td class="text-end">{{ number_format($product->price, 0, ',', '.') }} đ</td>
                             <td>
                                 <span class="badge {{ $product->is_active ? 'bg-success' : 'bg-danger' }}">
                                     {{ $product->is_active ? 'Hiển thị' : 'Ẩn' }}
