@@ -277,6 +277,9 @@
 
 @section('scripts')
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 1de77f8bb879453b4156f80bc17534f213871e3f
 
 =======
 >>>>>>> fc6639f111cefb4be94e8551eac7a12146e3ea5f

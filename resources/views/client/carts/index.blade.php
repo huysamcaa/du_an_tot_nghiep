@@ -16,13 +16,13 @@
         color: #007bff;
         text-decoration: none;
     }
-    
+
     .pageBannerSection {
         background:#ECF5F4;
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -34,15 +34,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -139,9 +139,9 @@
                                     @endif
                                 </td>
                                 <td class="product-variant">
-                                    @if($item->variant)
-                                        @if($item->variant->variant_name)
-                                            <p>{{$item->variant->variant_name}}</p>
+                                    @if($item->variant )
+                                        @if($item->variant && $item->variant->attributeValues->count() > 0)
+                                            <p>{{$item->variant->attributeValues->pluck('value')->implode(' / ')}}</p>
                                         @else
                                         <p>Chưa cấu hình thuộc tính</p>
                                         @endif
