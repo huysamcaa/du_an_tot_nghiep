@@ -170,14 +170,14 @@
 
                             <div class="pi01Actions" data-product-id="{{ $product->id }}">
                                                                    <a href="javascript:void(0)" class="piAddToCart"
-       data-id="{{ $product->id }}">
-        <i class="fa-solid fa-shopping-cart"></i>
-    </a>
-    <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
-    @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <input type="hidden" name="quantity" value="1">
-</form>
+                                data-id="{{ $product->id }}">
+                                    <i class="fa-solid fa-shopping-cart"></i>
+                                </a>
+                                <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                </form>
                                 <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
                             </div>
                             @if ($product->sale_price && $product->price > $product->sale_price)
