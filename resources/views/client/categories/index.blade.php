@@ -239,7 +239,6 @@
                     </div>
                 </div>
 
-
                 <div class="col-lg-8 col-xl-9">
                     <div class="row shopAccessRow">
                         <div class="col-sm-6">
@@ -285,18 +284,29 @@
                                     <div class="row">
                                         @foreach ($products as $product)
                                             @php
-                                                // Lấy giá thấp nhất và giá sale thấp nhất từ tất cả các biến thể của sản phẩm
-                                                $min_price = $product->variants->min('price');
-                                                $min_sale_price = $product->variants
-                                                    ->whereNotNull('sale_price')
-                                                    ->min('sale_price');
+                                            // Lấy tất cả biến thể đang sale
+                                            $active_sale_variants = $product->variants->filter(function ($variant) {
+                                                return $variant->is_sale == 1 &&
+                                                    $variant->sale_price &&
+                                                    $variant->sale_price_start_at &&
+                                                    $variant->sale_price_end_at &&
+                                                    now()->between($variant->sale_price_start_at, $variant->sale_price_end_at);
+                                            });
 
-                                                // Lấy giá cao nhất và giá sale cao nhất từ tất cả các biến thể
-                                                $max_price = $product->variants->max('price');
-                                                $max_sale_price = $product->variants
-                                                    ->whereNotNull('sale_price')
-                                                    ->max('sale_price');
-                                            @endphp
+                                            // Lấy giá thấp nhất và cao nhất của các biến thể đang sale
+                                            $min_sale_price = $active_sale_variants->min('sale_price');
+                                            $max_sale_price = $active_sale_variants->max('sale_price');
+
+                                            // Lấy giá thấp nhất và cao nhất của tất cả các biến thể (để so sánh)
+                                            $min_price = $product->variants->min('price');
+                                            $max_price = $product->variants->max('price');
+
+                                            // Xác định giá hiển thị trên frontend
+                                            $is_on_sale = $active_sale_variants->isNotEmpty();
+
+                                            $displayed_min_price = $is_on_sale ? $min_sale_price : $min_price;
+                                            $displayed_max_price = $is_on_sale ? $max_sale_price : $max_price;
+                                        @endphp
                                             <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
                                                 @php
                                                     // Lập ma trận biến thể: id, price, sale_price + tất cả attribute động
@@ -347,13 +357,15 @@
                                                             <a href="{{ route('product.detail', $product->id) }}"><i
                                                                     class="fa-solid fa-eye"></i></a>
                                                         </div>
-                                                        @if ($min_sale_price && $min_sale_price < $min_price)
-                                                            <div class="productLabels clearfix">
-                                                                <span
-                                                                    class="plDis">-{{ number_format($min_price - $min_sale_price, 0, ',', '.') }}đ</span>
-                                                                <span class="plSale">SALE</span>
-                                                            </div>
-                                                        @endif
+                                                       {{-- Hiển thị nhãn SALE nếu có biến thể đang sale --}}
+                                                    @if ($is_on_sale)
+                                                        <div class="productLabels clearfix">
+                                                            @if ($min_sale_price && $min_sale_price < $min_price)
+                                                                <span class="plDis">-{{ number_format($min_price - $min_sale_price, 0, ',', '.') }}₫</span>
+                                                            @endif
+                                                            <span class="plSale">SALE</span>
+                                                        </div>
+                                                    @endif
                                                     </div>
                                                     <div class="pi01Details">
                                                         <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
@@ -363,6 +375,7 @@
                                                                 {{ $product->name }}
                                                             </a>
                                                         </h3>
+
 
                                                         @php
                                                             $displayed_min_price = $min_sale_price ?? $min_price;

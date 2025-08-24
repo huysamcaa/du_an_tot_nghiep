@@ -133,26 +133,9 @@ class RefundController extends Controller
             'user_bank_name' => 'required|string|max:255',
             'phone_number'   => ['required', 'regex:/^0\d{9}$/'],
             'bank_name'      => 'required|string|max:100',
-            'reason_image'   => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240', // 10MB
+            'reason_image'   => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240',
             'item_ids'       => 'required|array|min:1',
             'item_ids.*'     => 'exists:order_items,id',
-        ], [
-            'order_id.required'        => 'Đơn hàng không được để trống.',
-            'order_id.exists'          => 'Đơn hàng không tồn tại.',
-            'reason.required'          => 'Lý do hoàn tiền không được để trống.',
-            'reason.max'               => 'Lý do hoàn tiền không được vượt quá 500 ký tự.',
-            'bank_account.required'    => 'Số tài khoản không được để trống.',
-            'bank_account.min'         => 'Số tài khoản phải có ít nhất 8 ký tự.',
-            'bank_account.max'         => 'Số tài khoản không được vượt quá 20 ký tự.',
-            'user_bank_name.required'  => 'Tên chủ tài khoản không được để trống.',
-            'phone_number.required'    => 'Số điện thoại không được để trống.',
-            'phone_number.regex'       => 'Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số, bắt đầu bằng 0.',
-            'bank_name.required'       => 'Tên ngân hàng không được để trống.',
-            'reason_image.max'         => 'Kích thước tệp không được vượt quá 10MB.',
-            'reason_image.mimes'       => 'Định dạng tệp không hợp lệ. Vui lòng chọn ảnh (jpeg, png, jpg) hoặc video (mp4, mov, avi).',
-            'item_ids.required'        => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
-            'item_ids.min'             => 'Vui lòng chọn ít nhất một sản phẩm để hoàn tiền.',
-            'item_ids.*.exists'        => 'Một hoặc nhiều sản phẩm không hợp lệ.',
         ]);
 
         if ($validator->fails()) {
@@ -161,6 +144,7 @@ class RefundController extends Controller
 
         $validated = $validator->validated();
 
+        // Tránh duplicate pending refund
         $existing = Refund::where('order_id', $validated['order_id'])
             ->where('status', 'pending')
             ->first();
@@ -171,28 +155,62 @@ class RefundController extends Controller
 
         $selectedItemIds = $validated['item_ids'];
         $itemCounts = array_count_values($selectedItemIds);
+
+        // Lấy các order items (unique) với variant nếu cần
         $selectedItems = OrderItem::whereIn('id', array_keys($itemCounts))
             ->with(['product', 'variant'])
             ->get();
 
-        $totalAmount = $selectedItems->sum(function($item) use ($itemCounts) {
-            return $item->price * ($itemCounts[$item->id] ?? 0);
-        });
+        $order = Order::findOrFail($validated['order_id']);
+        $orderItems = $order->items;
+
+        // Tổng giá gốc của hàng (chỉ hàng, không tính ship)
+        $totalItemPrice = $orderItems->sum(fn($i) => $i->price * $i->quantity);
+
+        // shipping mặc định = 30000 nếu DB không có
+        $shippingFee = $order->shipping_fee ?? 30000;
+
+        // Tổng voucher áp dụng cho hàng = tổng giá gốc - (khách thực trả cho hàng)
+        // khách thực trả cho hàng = order.total_amount - shippingFee
+        $paidForItems = $order->total_amount - $shippingFee;
+        $discountTotal = max(0, $totalItemPrice - $paidForItems);
+
+        // Tính tổng tiền refund dựa trên phân bổ voucher theo tỷ lệ
+        $refundTotal = 0.0;
+        foreach ($selectedItems as $item) {
+            $qty = $itemCounts[$item->id] ?? 0;
+            if ($qty <= 0) continue;
+
+            $itemTotal = $item->price * $qty;
+
+            // tránh chia cho 0
+            $discountShare = ($totalItemPrice > 0) ? ($itemTotal / $totalItemPrice) * $discountTotal : 0;
+
+            $realPaid = $itemTotal - $discountShare;
+
+            // đảm bảo không âm
+            $realPaid = max(0, $realPaid);
+
+            $refundTotal += $realPaid;
+        }
+
+        // Làm tròn (đơn vị: đồng), bạn có thể dùng round($refundTotal, 0) hoặc tùy chính sách
+        $refundTotal = round($refundTotal, 0);
 
         DB::beginTransaction();
         try {
             $refundData = [
-                'user_id'           => auth()->id(),
-                'order_id'          => $validated['order_id'],
-                'reason'            => $validated['reason'],
-                'bank_account'      => $validated['bank_account'],
-                'user_bank_name'    => $validated['user_bank_name'],
-                'phone_number'      => $validated['phone_number'],
-                'bank_name'         => $validated['bank_name'],
-                'total_amount'      => $totalAmount,
-                'status'            => 'pending',
-                'bank_account_status' => 'unverified',
-                'is_send_money'     => 0,
+                'user_id'            => auth()->id(),
+                'order_id'           => $validated['order_id'],
+                'reason'             => $validated['reason'],
+                'bank_account'       => $validated['bank_account'],
+                'user_bank_name'     => $validated['user_bank_name'],
+                'phone_number'       => $validated['phone_number'],
+                'bank_name'          => $validated['bank_name'],
+                'total_amount'       => $refundTotal,   // <-- sửa ở đây: dùng $refundTotal
+                'status'             => 'pending',
+                'bank_account_status'=> 'unverified',
+                'is_send_money'      => 0,
             ];
 
             $refund = Refund::create($refundData);
@@ -202,32 +220,27 @@ class RefundController extends Controller
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('refunds', $filename, 'public');
 
-                $refund->update([
-                    'reason_image' => $path,
-                ]);
+                $refund->update(['reason_image' => $path]);
             }
 
-            $order = Order::find($validated['order_id']);
-            if ($order) {
-                $order->update(['is_refund' => 1]);
-            } else {
-                Log::error("Không tìm thấy order với ID: " . $validated['order_id']);
-            }
+            // đánh dấu order là đang có yêu cầu hoàn
+            $order->update(['is_refund' => 1]);
 
+            // Lưu refund items (không lưu refunded amount per item vì db hiện tại không có cột đó)
             foreach ($selectedItems as $item) {
                 $quantity = $itemCounts[$item->id] ?? 0;
                 if ($quantity > 0) {
                     RefundItem::create([
-                        'refund_id'          => $refund->id,
-                        'product_id'         => $item->product_id,
-                        'variant_id'         => $item->product_variant_id,
-                        'name'               => $item->name, // Sử dụng tên sản phẩm từ OrderItem
-                        'name_variant'       => optional($item->variant)->name ?? 'Không có phân loại',
-                        'thumbnail'          => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
-                        'quantity'           => $quantity,
-                        'price'              => $item->price,
-                        'price_variant'      => optional($item->variant)->sale_price ?? 0,
-                        'quantity_variant'   => $quantity,
+                        'refund_id'        => $refund->id,
+                        'product_id'       => $item->product_id,
+                        'variant_id'       => $item->product_variant_id,
+                        'name'             => $item->name,
+                        'name_variant'     => optional($item->variant)->name ?? 'Không có phân loại',
+                        'thumbnail'        => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
+                        'quantity'         => $quantity,
+                        'price'            => $item->price,
+                        'price_variant'    => optional($item->variant)->sale_price ?? 0,
+                        'quantity_variant' => $quantity,
                     ]);
                 }
             }

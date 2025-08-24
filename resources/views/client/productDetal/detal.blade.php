@@ -136,50 +136,38 @@
                     <div class="pcCategory">
                         {{-- Kiểm tra xem danh mục của sản phẩm có danh mục cha hay không --}}
                         @if($product->category->parent)
-                            {{-- Nếu có, đây là danh mục con. Hiển thị cả danh mục cha và danh mục con. --}}
-                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->parent->id]) }}">
-                                {{ $product->category->parent->name }}
-                            </a>,
-                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
-                                {{ $product->category->name }}
-                            </a>
+                        {{-- Nếu có, đây là danh mục con. Hiển thị cả danh mục cha và danh mục con. --}}
+                        <a href="{{ route('client.categories.index', ['category_id' => $product->category->parent->id]) }}">
+                            {{ $product->category->parent->name }}
+                        </a>,
+                        <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                            {{ $product->category->name }}
+                        </a>
                         @else
-                            {{-- Nếu không có danh mục cha, đây là danh mục cấp cao nhất. Chỉ hiển thị tên danh mục. --}}
-                            <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
-                                {{ $product->category->name }}
-                            </a>
+                        {{-- Nếu không có danh mục cha, đây là danh mục cấp cao nhất. Chỉ hiển thị tên danh mục. --}}
+                        <a href="{{ route('client.categories.index', ['category_id' => $product->category->id]) }}">
+                            {{ $product->category->name }}
+                        </a>
                         @endif
                     </div>
                     <h2>{{ $product->name }}</h2>
 
                     {{-- Logic hiển thị giá sản phẩm theo khoảng giá của biến thể --}}
                     <div class="pi01Price">
-                        @php
-                        $minPrice = $product->variants->min(function($variant) {
-                        return $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
-                        });
-                        $maxPrice = $product->variants->max(function($variant) {
-                        return $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
-                        });
-
-                        $minOriginalPrice = $product->variants->min('price');
-                        $maxOriginalPrice = $product->variants->max('price');
-                        @endphp
-
                         <ins id="sale-price">
                             @if ($minPrice == $maxPrice)
-                            {{ number_format($minPrice, 0, ',', '.') }} đ
+                            {{ number_format($minPrice, 0, ',', '.') }}₫
                             @else
-                            {{ number_format($minPrice, 0, ',', '.') }} - {{ number_format($maxPrice, 0, ',', '.') }} đ
+                            {{ number_format($minPrice, 0, ',', '.') }} - {{ number_format($maxPrice, 0, ',', '.') }}₫
                             @endif
                         </ins>
 
                         @if ($minOriginalPrice > $minPrice || $maxOriginalPrice > $maxPrice)
                         <del id="original-price">
                             @if ($minOriginalPrice == $maxOriginalPrice)
-                            {{ number_format($minOriginalPrice, 0, ',', '.') }} đ
+                            {{ number_format($minOriginalPrice, 0, ',', '.') }}₫
                             @else
-                            {{ number_format($minOriginalPrice, 0, ',', '.') }} - {{ number_format($maxOriginalPrice, 0, ',', '.') }} đ
+                            {{ number_format($minOriginalPrice, 0, ',', '.') }} - {{ number_format($maxOriginalPrice, 0, ',', '.') }}₫
                             @endif
                         </del>
                         @else
@@ -254,7 +242,7 @@
                                 <button type="button" name="btnPlus" class="qtyBtn btnPlus">+</button>
                             </div>
                             <br>
-                            <button type="submit" id="add-to-cart" class="ulinaBTN" disabled><span>Vui lòng chọn thuộc tính</span></button>
+                            <button type="submit" id="add-to-cart" class="ulinaBTN" disabled><span>Vui lòng chọn phân loại</span></button>
                             <a href="javascript:void(0);" data-product-id="{{ $product->id }}" class="pcWishlist">
                                 <i class="fa-solid fa-heart {{ $isFavorite ? 'text-danger' : '' }}"></i></a>
                             <a href="javascript:void(0);" class="pcCompare"><i class="fa-solid fa-right-left"></i></a>
@@ -274,17 +262,18 @@
                             sản phẩm</button>
                     </li>
                     <li role="presentation">
-                        <button id="additionalinfo-tab" data-bs-toggle="tab" data-bs-target="#additionalinfo"
-                            type="button" role="tab" aria-controls="additionalinfo" aria-selected="false"
-                            tabindex="-1">Additional Information</button>
+                        <button id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
+                            role="tab" aria-controls="reviews" aria-selected="false">Đánh
+                            giá</button>
                     </li>
                     <li role="presentation">
-                        <button id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button"
-                            role="tab" aria-controls="reviews" aria-selected="false" tabindex="-1">Bình
+                        <button id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button"
+                            role="tab" aria-controls="comments" aria-selected="false">Bình
                             luận</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="desInfoRev_content">
+                    {{-- Tab: Chi tiết sản phẩm --}}
                     <div class="tab-pane fade show active" id="description" role="tabpanel"
                         aria-labelledby="description-tab" tabindex="0">
                         <div class="productDescContentArea">
@@ -301,46 +290,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="additionalinfo" role="tabpanel"
-                        aria-labelledby="additionalinfo-tab" tabindex="0">
-                        <div class="additionalContentArea">
-                            <h3>Additional Information</h3>
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <th>Item Code</th>
-                                        <td>AB42 - 2394 - DS023</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Brand</th>
-                                        <td>Ulina</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Dimention</th>
-                                        <td>12 Cm x 42 Cm x 20 Cm</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Specification</th>
-                                        <td>1pc dress, 1 pc soap, 1 cleaner</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Weight</th>
-                                        <td>2 kg</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Warranty</th>
-                                        <td>1 year</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
 
-                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab"
-                        tabindex="0">
+                    {{-- Tab: Đánh giá --}}
+                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
                         <div class="productReviewArea">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     @if ($errors->any())
                                     <div class="alert alert-danger">
                                         <ul class="mb-0">
@@ -352,14 +307,11 @@
                                     @endif
 
                                     <div class="review-section mt-4">
-
                                         <h4 class="mt-4" id="reviews">Đánh giá sản phẩm</h4><br>
 
                                         {{-- BỘ LỌC ĐÁNH GIÁ + SẮP XẾP --}}
                                         <div
                                             class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 px-3 py-3 border rounded bg-light shadow-sm">
-
-                                            {{-- Bộ lọc theo số sao --}}
                                             <div class="d-flex flex-wrap align-items-center gap-2">
                                                 <strong class="me-2">Lọc theo sao:</strong>
                                                 <a href="{{ request()->url() }}#reviews"
@@ -369,22 +321,15 @@
                                                 @for ($i = 5; $i >= 1; $i--)
                                                 <a href="{{ request()->fullUrlWithQuery(['rating' => $i]) }}#reviews"
                                                     class="btn btn-sm {{ request('rating') == $i ? 'btn-warning text-white' : 'btn-outline-secondary' }}">
-                                                    {{ $i }} <i
-                                                        class="fa-solid fa-star text-warning"></i>
+                                                    {{ $i }} <i class="fa-solid fa-star text-warning"></i>
                                                 </a>
                                                 @endfor
-
-
-
                                             </div>
-
-                                            {{-- Bộ lọc sắp xếp --}}
                                             <form method="GET" class="d-flex align-items-center">
                                                 <div class="input-group input-group-sm" style="min-width: 200px;">
                                                     <label class="input-group-text bg-light"><i
                                                             class="fa-solid fa-sort"></i></label>
-                                                    <select name="sort" class="form-select"
-                                                        onchange="this.form.submit()">
+                                                    <select name="sort" class="form-select" onchange="this.form.submit()">
                                                         <option value="">Sắp xếp theo</option>
                                                         <option value="latest"
                                                             {{ request('sort') == 'latest' ? 'selected' : '' }}>Mới
@@ -398,7 +343,6 @@
                                                     </select>
                                                 </div>
                                             </form>
-
                                         </div>
 
                                         {{-- Trung bình đánh giá --}}
@@ -420,84 +364,89 @@
                                         <hr class="my-4">
 
                                         {{-- Danh sách đánh giá --}}
-                                        @forelse ($reviews as $review)
-                                        <div class="review-box">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <div>
-                                                    <strong>{{ $review->reviewer_name }}</strong>
-                                                    <small class="text-muted ms-2">
-                                                        <i class="fa-regular fa-clock me-1"></i>
-                                                        {{ $review->created_at->format('H:i d/m/Y') }}
-                                                    </small>
+                                        <div class="review-scrollable">
+                                            @forelse ($reviews as $review)
+                                            <div class="review-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div>
+                                                        <strong>{{ $review->reviewer_name }}</strong>
+                                                        <small class="text-muted ms-2">
+                                                            <i class="fa-regular fa-clock me-1"></i>
+                                                            {{ $review->created_at->format('H:i d/m/Y') }}
+                                                        </small>
+                                                    </div>
+                                                    <div class="rating-stars">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <i
+                                                            class="fa{{ $i <= $review->rating ? 's' : 'r' }} fa-star text-warning"></i>
+                                                            @endfor
+                                                    </div>
                                                 </div>
-                                                <div class="rating-stars">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        <i
-                                                        class="fa{{ $i <= $review->rating ? 's' : 'r' }} fa-star text-warning"></i>
-                                                        @endfor
-                                                </div>
-                                            </div>
-
-                                            <p class="mb-2">{{ $review->review_text }}</p>
-
-
-                                            {{-- Hình ảnh hoặc video --}}
-                                            @if ($review->multimedia->count())
-                                            <div class="d-flex flex-wrap gap-3 mt-3">
-                                                @foreach ($review->multimedia as $media)
-                                                @if (Str::contains($media->mime_type, 'image'))
-                                                <div
-                                                    style="width: 120px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;">
-                                                    <img src="{{ asset('storage/' . $media->file) }}"
-                                                        alt="review image"
-                                                        style="width: 100%; height: 100%; object-fit: cover;"
-                                                        onclick="window.open(this.src)">
-                                                </div>
-                                                @elseif (Str::contains($media->mime_type, 'video'))
-                                                <div
-                                                    style="width: 200px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd;">
-                                                    <video
-                                                        style="width: 100%; height: 100%; object-fit: cover;"
-                                                        controls>
-                                                        <source
-                                                            src="{{ asset('storage/' . $media->file) }}"
-                                                            type="{{ $media->mime_type }}">
-                                                    </video>
+                                                <p class="mb-2">{{ $review->review_text }}</p>
+                                                @if ($review->multimedia->count())
+                                                <div class="d-flex flex-wrap gap-3 mt-3">
+                                                    @foreach ($review->multimedia as $media)
+                                                    @if (Str::contains($media->mime_type, 'image'))
+                                                    <div
+                                                        style="width: 120px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;">
+                                                        <img src="{{ asset('storage/' . $media->file) }}" alt="review image"
+                                                            style="width: 100%; height: 100%; object-fit: cover;"
+                                                            onclick="window.open(this.src)">
+                                                    </div>
+                                                    @elseif (Str::contains($media->mime_type, 'video'))
+                                                    <div
+                                                        style="width: 200px; height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid #ddd;">
+                                                        <video style="width: 100%; height: 100%; object-fit: cover;"
+                                                            controls>
+                                                            <source src="{{ asset('storage/' . $media->file) }}"
+                                                                type="{{ $media->mime_type }}">
+                                                        </video>
+                                                    </div>
+                                                    @endif
+                                                    @endforeach
                                                 </div>
                                                 @endif
-                                                @endforeach
                                             </div>
-                                            @endif
-
+                                            <hr>
+                                            @empty
+                                            <div class="alert alert-info">Chưa có đánh giá nào.</div>
+                                            @endforelse
                                         </div>
 
-                                        {{-- Ngăn cách giữa các đánh giá --}}
-                                        <hr>
-                                        @empty
-                                        <div class="alert alert-info">Chưa có đánh giá nào.</div>
-                                        @endforelse
                                         <div class="pagination-wrapper">
                                             {{ $reviews->links() }}
                                         </div>
-                                    </div><br>
-
-                                    <h3>Bình Luận</h3>
-                                    <div id="comment-list"></div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    {{-- Tab: Bình luận --}}
+                    <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab" tabindex="0">
+                        <div class="commentFormArea">
+                            <div class="row">
                                 <div class="col-lg-6">
-                                    <div class="commentFormArea">
-                                        <h3>Thêm bình luận</h3>
-                                        <div class="reviewFrom">
-                                            <form id="comment-form" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
-                                                <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
-                                                        luận</span></button>
-                                            </form>
-                                            <div id="comment-message" class="text-success mt-2"></div>
-                                        </div>
+                                    <br>
+                                    <h3>Bình Luận</h3>
+                                    <br>
+                                    <div class="comment-scrollable">
+                                        <div id="comment-list"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <br>
+                                    <h3>Thêm bình luận</h3>
+                                    <br>
+                                    <div class="reviewFrom">
+                                        <form id="comment-form" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <textarea name="content" class="form-control" placeholder="Nhập bình luận..." required></textarea>
+                                            <button type="submit" class="ulinaBTN mt-2"><span>Gửi bình
+                                                    luận</span></button>
+                                        </form>
+                                        <div id="comment-message" class="text-success mt-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -505,7 +454,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Sản phẩm liên quan -->
@@ -516,6 +464,30 @@
                     <div class="col-lg-12">
                         <div class="productCarousel owl-carousel">
                             @foreach ($relatedProducts as $prod)
+                            @php
+                            // Lấy tất cả biến thể đang sale
+                            $active_sale_variants = $prod->variants->filter(function ($variant) {
+                            return $variant->is_sale == 1 &&
+                            $variant->sale_price &&
+                            $variant->sale_price_start_at &&
+                            $variant->sale_price_end_at &&
+                            now()->between($variant->sale_price_start_at, $variant->sale_price_end_at);
+                            });
+
+                            // Lấy giá thấp nhất và cao nhất của các biến thể đang sale
+                            $min_sale_price = $active_sale_variants->min('sale_price');
+                            $max_sale_price = $active_sale_variants->max('sale_price');
+
+                            // Lấy giá thấp nhất và cao nhất của tất cả các biến thể (để so sánh)
+                            $min_price = $prod->variants->min('price');
+                            $max_price = $prod->variants->max('price');
+
+                            // Xác định giá hiển thị trên frontend
+                            $is_on_sale = $active_sale_variants->isNotEmpty();
+
+                            $displayed_min_price = $is_on_sale ? $min_sale_price : $min_price;
+                            $displayed_max_price = $is_on_sale ? $max_sale_price : $max_price;
+                            @endphp
                             <div class="productItem01 {{ $prod->comments_count ? '' : 'pi01NoRating' }}">
                                 <div class="pi01Thumb">
                                     {{-- Ảnh chính + ảnh biến thể --}}
@@ -528,128 +500,18 @@
                                         @endif
                                     </a>
 
-                                            {{-- Sale label --}}
-                                            <div class="productLabels clearfix">
-                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                                    <span
-                                                        class="plDis">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
-                                                    <span class="plSale">Sale</span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="pi01Details">
-                                            {{-- Star rating + Reviews --}}
-                                            @php
-                                                $avg = $prod->avg_rating ?? 0;
-                                                $avgPercent = round($avg * 20); // 5 sao = 100%
-                                            @endphp
-
-                                            @if (($prod->reviews_count ?? 0) > 0)
-                                                <div class="productRatings">
-                                                    <div class="productRatingWrap">
-                                                        <div class="star-rating"
-                                                            aria-label="{{ number_format($avg, 1) }}/5">
-                                                            <span style="width: {{ $avgPercent }}%"></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="ratingCounts">{{ $prod->reviews_count }} đánh giá</div>
-                                                </div>
-                                            @endif
-
-
-                                            {{-- Tên sản phẩm --}}
-                                            <h3>
-                                                <a href="{{ route('product.detail', $prod->id) }}">
-                                                    {{ Str::limit($prod->name, 40) }}
-                                                </a>
-                                            </h3>
-
-                                            {{-- Giá --}}
-                                            <div class="pi01Price">
-                                                @if ($prod->is_sale && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                                    <ins>{{ number_format($prod->sale_price, 0, ',', '.') }}₫</ins>
-                                                    <del>{{ number_format($prod->price, 0, ',', '.') }}₫</del>
-                                                @else
-                                                    <ins>{{ number_format($prod->price, 0, ',', '.') }}₫</ins>
-                                                @endif
-                                            </div>
-
-                                            {{-- Màu & Size từ attributeValues --}}
-                                            @if (optional($prod->variantsWithAttributes())->count())
-                                                @php
-                                                    // Lấy danh sách màu
-                                                    $colors = collect();
-                                                    foreach ($prod->variantsWithAttributes() as $variant) {
-                                                        foreach ($variant->attributeValues as $attrVal) {
-                                                            if ($attrVal->attribute->slug === 'color') {
-                                                                $colors->push($attrVal);
-                                                            }
-                                                        }
-                                                    }
-                                                    $colors = $colors->unique('id');
-
-                                                    // Lấy danh sách size
-                                                    $sizes = $prod
-                                                        ->variantsWithAttributes()
-                                                        ->flatMap(
-                                                            fn($v) => $v->attributeValues->filter(
-                                                                fn($val) => $val->attribute->slug === 'size',
-                                                            ),
-                                                        )
-                                                        ->unique('id');
-                                                @endphp
-
-                                                <div class="pi01Variations">
-                                                    @if ($colors->isNotEmpty())
-                                                        <div class="pi01VColor">
-                                                            @foreach ($colors as $color)
-                                                                <div class="colorOptionWrapper">
-                                                                    <input type="radio"
-                                                                        name="color_{{ $prod->id }}"
-                                                                        id="color_{{ $prod->id }}_{{ $color->id }}"
-                                                                        hidden>
-                                                                    <label
-                                                                        for="color_{{ $prod->id }}_{{ $color->id }}"
-                                                                        class="customColorCircle"
-                                                                        style="background-color: {{ Str::start($color->hex, '#') }};"
-                                                                        title="{{ ucfirst($color->value) }}"></label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-
-                                                    @if ($sizes->count())
-                                                        <div class="pi01VSize">
-                                                            @foreach ($sizes as $size)
-                                                                <div class="pi01VSItem">
-                                                                    <input type="radio" name="size_{{ $prod->id }}"
-                                                                        id="size_{{ $prod->id }}_{{ $size->id }}">
-                                                                    <label
-                                                                        for="size_{{ $prod->id }}_{{ $size->id }}">
-                                                                        {{ strtoupper($size->value) }}
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                        </div>
                                     {{-- Actions --}}
                                     <div class="pi01Actions">
                                         <a href="javascript:void(0);" class="pi01QuickView"><i
                                                 class="fa-solid fa-arrows-up-down-left-right"></i></a>
-                                        <a href="{{ route('product.detail', $product->id) }}"><i
+                                        <a href="{{ route('product.detail', $prod->id) }}"><i
                                                 class="fa-solid fa-arrows-up-down-left-right"></i></a>
                                     </div>
 
                                     {{-- Sale label --}}
                                     <div class="productLabels clearfix">
-                                        @if ($prod->is_sale && $prod->sale_price_start_at && $prod->sale_price_end_at && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                        <span
-                                            class="plDis">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
+                                        @if ($is_on_sale)
+                                        <span class="plDis">-{{ round((1 - $displayed_min_price / $min_price) * 100) }}%</span>
                                         <span class="plSale">Sale</span>
                                         @endif
                                     </div>
@@ -674,82 +536,58 @@
                                     </div>
                                     @endif
 
-
                                     {{-- Tên sản phẩm --}}
-                                    <h3>
-                                        <a href="{{ route('product.detail', $prod->id) }}">
+                                    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        title="{{ $prod->name }}">
+                                        <a href="{{ route('product.detail', $prod->id) }}" style="color: inherit; text-decoration: none;">
                                             {{ Str::limit($prod->name, 40) }}
                                         </a>
                                     </h3>
 
                                     {{-- Giá --}}
                                     <div class="pi01Price">
-                                        @if ($prod->is_sale && $prod->sale_price_start_at && $prod->sale_price_end_at && now()->between($prod->sale_price_start_at, $prod->sale_price_end_at))
-                                        <ins>{{ number_format($prod->sale_price, 0, ',', '.') }}₫</ins>
-                                        <del>{{ number_format($prod->price, 0, ',', '.') }}₫</del>
+                                        @if($displayed_min_price !== $displayed_max_price)
+                                        <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}₫ - {{ number_format($displayed_max_price, 0, ',', '.') }}₫</ins>
                                         @else
-                                        <ins>{{ number_format($prod->price, 0, ',', '.') }}₫</ins>
+                                        <ins>{{ number_format($displayed_min_price, 0, ',', '.') }}₫</ins>
+                                        @endif
+                                        @if ($is_on_sale)
+                                        <del>{{ number_format($min_price, 0, ',', '.') }}₫</del>
                                         @endif
                                     </div>
 
-                                     {{-- Màu & Size từ attributeValues --}}
-                                    @if (optional($prod->variantsWithAttributes())->count())
+                                    {{-- Hiển thị Size --}}
                                     @php
-                                    // Lấy danh sách màu - ĐÃ SỬA: Thêm kiểm tra null
-                                    $colors = collect();
-                                    foreach ($prod->variantsWithAttributes() as $variant) {
-                                    foreach ($variant->attributeValues as $attrVal) {
-                                    if ($attrVal->attribute && $attrVal->attribute->slug === 'color') {
-                                    $colors->push($attrVal);
-                                    }
-                                    }
-                                    }
-                                    $colors = $colors->unique('id');
-
-                                    // Lấy danh sách size - ĐÃ SỬA: Thêm kiểm tra null
-                                    $sizes = $prod
-                                    ->variantsWithAttributes()
-                                    ->flatMap(
-                                    fn($v) => $v->attributeValues->filter(
-                                    fn($val) => $val->attribute && $val->attribute->slug === 'size',
-                                    ),
-                                    )
-                                    ->unique('id');
+                                    $sizes = $prod->variants
+                                    ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute && $av->attribute->slug === 'size')->pluck('value'))
+                                    ->unique()
+                                    ->values()
+                                    ->toArray();
                                     @endphp
+                                    @if(count($sizes))
+                                    <div class="product-sizes mt-1">
+                                        <strong>Size:</strong>
+                                        @foreach($sizes as $size)
+                                        <span class="badge bg-light text-dark border">{{ $size }}</span>
+                                        @endforeach
+                                    </div>
+                                    @endif
 
-                                    <div class="pi01Variations">
-                                        @if ($colors->isNotEmpty())
-                                        <div class="pi01VColor">
-                                            @foreach ($colors as $color)
-                                            <div class="colorOptionWrapper">
-                                                <input type="radio"
-                                                    name="color_{{ $prod->id }}"
-                                                    id="color_{{ $prod->id }}_{{ $color->id }}"
-                                                    hidden>
-                                                <label
-                                                    for="color_{{ $prod->id }}_{{ $color->id }}"
-                                                    class="customColorCircle"
-                                                    style="background-color: {{ Str::start($color->hex, '#') }};"
-                                                    title="{{ ucfirst($color->value) }}"></label>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                        @endif
-
-                                        @if ($sizes->count())
-                                        <div class="pi01VSize">
-                                            @foreach ($sizes as $size)
-                                            <div class="pi01VSItem">
-                                                <input type="radio" name="size_{{ $prod->id }}"
-                                                    id="size_{{ $prod->id }}_{{ $size->id }}">
-                                                <label
-                                                    for="size_{{ $prod->id }}_{{ $size->id }}">
-                                                    {{ strtoupper($size->value) }}
-                                                </label>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                        @endif
+                                    {{-- Hiển thị Màu --}}
+                                    @php
+                                    $colors = $prod->variants
+                                    ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute && $av->attribute->slug === 'color')->pluck('hex'))
+                                    ->unique()
+                                    ->values()
+                                    ->toArray();
+                                    @endphp
+                                    @if(count($colors))
+                                    <div class="product-colors mt-1 d-flex gap-1">
+                                        <strong class="me-1">Màu:</strong>
+                                        @foreach($colors as $hex)
+                                        <span class="color-circle"
+                                            style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
+                                        @endforeach
                                     </div>
                                     @endif
 
@@ -786,10 +624,8 @@
 
         // Hàm định dạng giá tiền
         const formatPrice = price => {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(price);
+            const formattedPrice = new Intl.NumberFormat('vi-VN').format(price);
+            return formattedPrice + '₫';
         };
 
         // Hàm tìm biến thể được chọn
@@ -817,6 +653,7 @@
         const updatePriceAndStock = () => {
             const variant = getSelectedVariant();
             const mainImgEl = document.getElementById('main-product-image');
+
 
             if (!variant) {
                 addToCartBtn.disabled = true;
@@ -1084,7 +921,9 @@
     });
 </script>
 <style>
-    .description-scrollable {
+    .description-scrollable,
+    .review-scrollable,
+    .comment-scrollable {
         max-height: 400px;
         /* Đặt chiều cao tối đa cho nội dung */
         overflow-y: auto;
