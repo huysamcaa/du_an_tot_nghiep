@@ -288,12 +288,14 @@
                                                 // Lấy giá thấp nhất và giá sale thấp nhất từ tất cả các biến thể của sản phẩm
                                                 $min_price = $product->variants->min('price');
                                                 $min_sale_price = $product->variants
+                                                    ->where('is_sale', 1)
                                                     ->whereNotNull('sale_price')
                                                     ->min('sale_price');
 
                                                 // Lấy giá cao nhất và giá sale cao nhất từ tất cả các biến thể
                                                 $max_price = $product->variants->max('price');
                                                 $max_sale_price = $product->variants
+                                                    ->where('is_sale', 1)
                                                     ->whereNotNull('sale_price')
                                                     ->max('sale_price');
                                             @endphp
@@ -305,9 +307,10 @@
                                                             'id'         => (int) $v->id,
                                                             'price'      => (int) $v->price,
                                                             'sale_price' => $v->sale_price ? (int) $v->sale_price : null,
-                                                            // 'image'      => $v->image
-                                                            //     ? asset('storage/' . $v->image)
-                                                            //     : asset('storage/' . $product->thumbnail),
+                                                            'is_sale'    => (int) $v->is_sale,
+                                                            'image'      => $v->thumbnail
+                                                                ? asset('storage/' . $v->thumbnail)
+                                                                : asset('storage/' . $product->thumbnail),
                                                         ];
 
                                                         foreach ($v->attributeValues as $attrVal) {
@@ -365,8 +368,10 @@
                                                         </h3>
 
                                                         @php
-                                                            $displayed_min_price = $min_sale_price ?? $min_price;
-                                                            $displayed_max_price = $max_sale_price ?? $max_price;
+                                                            $displayed_min_price = $min_sale_price && $min_sale_price < $min_price
+                                                                ? $min_sale_price : $min_price;
+                                                            $displayed_max_price = $max_sale_price && $max_sale_price < $max_price
+                                                                ? $max_sale_price : $max_price;
                                                         @endphp
                                                         <div class="pi01Price">
                                                             @if ($displayed_min_price !== $displayed_max_price)
@@ -391,7 +396,7 @@
                                                                 @php
                                                                     // Lấy danh sách attribute của sản phẩm
                                                                     $attributesForUI = $variantMatrix->flatMap(function($v) {
-                                                                        return collect($v)->except(['id','price','sale_price']);
+                                                                        return collect($v)->except(['id','price','sale_price','is_sale','image']);
                                                                     })->keys()->unique();
                                                                 @endphp
 
@@ -920,7 +925,8 @@ document.addEventListener("DOMContentLoaded", function () {
             let priceEl = productEl.querySelector(".js-price");
             let compareEl = productEl.querySelector(".js-compare");
 
-            if (match.sale_price && match.sale_price < match.price) {
+            // Chỉ hiển thị giá sale nếu is_sale = 1 và sale_price < price
+            if (match.is_sale && match.sale_price && match.sale_price < match.price) {
                 priceEl.innerText = match.sale_price.toLocaleString("vi-VN") + "đ";
                 compareEl.innerText = match.price.toLocaleString("vi-VN") + "đ";
                 compareEl.classList.remove("d-none");

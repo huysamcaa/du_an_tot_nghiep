@@ -51,7 +51,7 @@
     @php
         // Lấy toàn bộ giá (ưu tiên sale_price nếu có)
         $prices = $product->variants->map(function($variant) {
-            return ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+            return ($variant->is_sale  && $variant->sale_price > 0)
                 ? $variant->sale_price
                 : $variant->price;
         });
