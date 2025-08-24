@@ -197,15 +197,13 @@
                                             <div>
                                                 <h6 class="mb-1 text-dark">{{ $item->name }}</h6>
                                                 <small class="text-muted product-variant-info">
-                                                    @if ($item->variant)
-                                                        @php
-                                                            $color = $item->variant->attributeValues->firstWhere('attribute.name', 'Color')->value ?? '';
-                                                            $size = $item->variant->attributeValues->firstWhere('attribute.name', 'Size')->value ?? '';
-                                                        @endphp
-                                                        @if($color) Màu: {{ $color }} @endif
-                                                        @if($color && $size) | @endif
-                                                        @if($size) Size: {{ $size }} @endif
-                                                    @endif
+                                                    {{-- Hiển thị thông tin biến thể nếu có --}}
+                                                    @foreach ($item->attributes_variant as $key => $variant)
+            <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+        @endforeach
+
+
+                                                    
                                                 </small>
                                             </div>
                                         </div>

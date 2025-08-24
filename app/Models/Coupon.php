@@ -8,7 +8,7 @@ use App\Models\CouponRestriction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Models\Scopes\CouponUserGroupScope;
 class Coupon extends Model
 {
     use HasFactory, SoftDeletes;
@@ -28,11 +28,14 @@ class Coupon extends Model
         'start_date',
         'end_date'
     ];
-
+  protected static function booted(): void
+    {
+        static::addGlobalScope(new CouponUserGroupScope);
+    }
     // Quan hệ 1-1: Mỗi mã có thể có 1 bộ ràng buộc
     public function restriction()
     {
-        
+
         return $this->hasOne(CouponRestriction::class);
     }
 

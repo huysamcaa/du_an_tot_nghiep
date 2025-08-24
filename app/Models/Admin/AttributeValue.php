@@ -34,4 +34,15 @@ class AttributeValue extends Model
     {
         return $this->belongsToMany(ProductVariant::class, 'attribute_value_product_variant');
     }
+    
+    
+    public function productVariants()
+{
+    return $this->belongsToMany(
+        ProductVariant::class,
+        'attribute_value_product_variant', // Tên bảng pivot
+        'attribute_value_id',              // Khóa ngoại của model hiện tại trong bảng pivot
+        'product_variant_id'               // Khóa ngoại của model liên quan trong bảng pivot
+    );
+}
 }
