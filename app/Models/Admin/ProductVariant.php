@@ -50,4 +50,6 @@ class ProductVariant extends Model
         
         return implode(' / ', $parts);
     }
+    
+    
 }
