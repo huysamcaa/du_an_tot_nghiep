@@ -149,29 +149,22 @@ class AdminController extends Controller
         // Danh sách tháng (1-12)
         $months = range(1, 12);
         // Các thống kê khác
-        $baseOrders = Order::whereIn('id', $completedOrderIds);
+        $allTimeOrders = Order::whereIn('id', $completedOrderIds);
         if ($fromDate && $toDate) {
-            $baseOrders->whereBetween('created_at', [$fromDate, $toDate]);
-        } else {
-            $baseOrders->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month);
+            $allTimeOrders->whereBetween('created_at', [$fromDate, $toDate]);
         }
-        $revenue    = $baseOrders->sum('total_amount');
-        $orderCount = $baseOrders->count();
-        // Đếm user theo ngày đăng ký
+        $revenue    = $allTimeOrders->sum('total_amount');
+        $orderCount = $allTimeOrders->count();
+
+
         $userCount = User::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
             $q->whereBetween('created_at', [$fromDate, $toDate]);
-        }, function ($q) use ($year, $month) {
-            $q->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month);
         })
             ->count();
+
         // Đếm sản phẩm theo ngày tạo
         $productCount = Product::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
             $q->whereBetween('created_at', [$fromDate, $toDate]);
-        }, function ($q) use ($year, $month) {
-            $q->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month);
         })
             ->count();
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
@@ -325,6 +318,8 @@ class AdminController extends Controller
                 'userCount' => $userCount,
                 'productCount' => $productCount,
                 'paymentStats' => $paymentStats,
+                'topCoupons' => $topCoupons,
+
                 'topCustomers' => $topCustomers->map(function ($item) {
                     return [
                         'id' => $item->user->id ?? null,
