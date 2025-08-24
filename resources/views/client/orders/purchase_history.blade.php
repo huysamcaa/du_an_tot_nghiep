@@ -9,22 +9,20 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="pageBannerContent text-center">
-                        <h2 class="banner-title">Đơn Hàng Của Tôi</h2>
+                        <h2>Đơn hàng của tôi</h2>
                         <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}">
-                                <i class="fas fa-home me-1"></i>Trang chủ
-                            </a>
-                            <span class="separator">/</span>
-                            <span class="current">Đơn Hàng</span>
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Đơn hàng</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <div class="orderHistorySection py-5">
-        <div class="container">
+
+    </div>
+</section>
+
+        <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-12">
                     @if (session('success'))
@@ -308,13 +306,13 @@
                                                 @if ($order->payment_id == 2)
                                                     <!-- COD -->
                                                     <a href="{{ route('client.orders.cancel-form', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
                                                         <i class="fas fa-times-circle me-1"></i>Hủy Đơn
                                                     </a>
                                                 @elseif ($order->payment_id == 3 || $order->payment_id == 4)
                                                     <!-- Online payment -->
                                                     <a href="{{ route('client.orders.cancel-online', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
                                                         <i class="fas fa-times-circle me-1"></i>Hủy Đơn
                                                     </a>
                                                 @endif
@@ -333,7 +331,7 @@
                                                 </form>
                                             @endif
                                             <a href="{{ route('client.orders.show', $order->code) }}"
-                                                class="btn btn-outline-info btn-sm me-2">
+                                                class="btn btn-sm me-2 rounded-pill detail-btn">
                                                 <i class="fas fa-eye me-1"></i>Chi tiết
                                             </a>
 
@@ -368,7 +366,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <style>
         /* Previous styles remain the same... */
@@ -387,7 +384,6 @@
         }
 
         .pageBannerPath a {
-            color: white;
             text-decoration: none;
             transition: all 0.3s ease;
         }
@@ -471,9 +467,9 @@
         }
 
         .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(135deg, #2b6051 0%, #416760 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
+            box-shadow: 0 5px 15px rgb(150 170 157);
             transform: translateY(-2px);
         }
 
@@ -539,7 +535,7 @@
 
         /* Order Header */
         .order-header {
-            background: linear-gradient(135deg, #ecf5f4 0%, #d1fae5 100%);
+            background: linear-gradient(135deg, #ecf5f4 0%, #3b726270 100%);
             padding: 20px 25px;
             border-bottom: 1px solid rgba(34, 197, 94, 0.1);
             display: flex;
@@ -694,7 +690,7 @@
         .price {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #16a34a;
+            color: #7b9496;
         }
 
         .item-actions {
@@ -704,7 +700,7 @@
             flex-shrink: 0;
         }
 
-        .action-btn {
+        .action-btn,  .detail-btn {
             min-width: 120px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -712,7 +708,13 @@
             padding: 8px 16px;
             transition: all 0.3s ease;
         }
-
+        .detail-btn{
+            border: 1px solid #7b9496;
+        }
+        .detail-btn:hover{
+            background: #7b9496;
+            color: #fff;
+        }
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -740,7 +742,7 @@
         }
 
         .shop-name {
-            color: #16a34a;
+            color: #7b9496;
             font-weight: 600;
         }
 
@@ -765,7 +767,7 @@
         .total-price {
             font-size: 1.4rem;
             font-weight: 700;
-            color: #16a34a;
+            color: #7b9496;
         }
 
         /* Pagination */
@@ -892,7 +894,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #16a34a;
+            border-top: 3px solid #7b9496;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }

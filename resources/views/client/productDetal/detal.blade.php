@@ -211,7 +211,7 @@
                         
                         @foreach($productAttributes as $attrSlug => $attr)
                             <div class="pcVariation">
-                                <span class="mt-2">{{ $attr['label'] }}</span>
+                                <span class="mt-2 me-2">{{ $attr['label'] }}</span>
                                 <div class="pcvContainer">
                                     @foreach($attr['values'] as $value)
                                         <div class="attributeOptionWrapper">
