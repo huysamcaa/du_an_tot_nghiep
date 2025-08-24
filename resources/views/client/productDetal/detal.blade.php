@@ -220,35 +220,7 @@
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                        {{-- <div class="pcVariations">
-                            <div class="pcVariation">
-                                <span>Màu</span>
-                                <div class="pcvContainer">
-                                    @foreach ($colors as $color)
-                                    <div class="colorOptionWrapper">
-                                        <input type="radio" name="color" value="{{ $color->id }}"
-                                            id="color_{{ $color->id }}"
-                                            {{ old('color') == $color->id ? 'checked' : '' }} hidden>
-                                        <label for="color_{{ $color->id }}" class="customColorCircle"
-                                            style="background-color: {{ $color->hex }};"></label>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <div class="pcVariation pcv2">
-                                <span>Size</span>
-                                <div class="pcvContainer">
-                                    @foreach ($sizes as $size)
-                                    <div class="pswItem">
-                                        <input type="radio" name="size" value="{{ $size->id }}"
-                                            id="size_{{ $size->id }}"
-                                            {{ old('size') == $size->id ? 'checked' : '' }}>
-                                        <label for="size_{{ $size->id }}">{{ $size->value }}</label>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div> --}}
+                        
                         @foreach($productAttributes as $attrSlug => $attr)
                             <div class="pcVariation">
                                 <span class="mt-2">{{ $attr['label'] }}</span>
@@ -947,8 +919,8 @@
                     }
 
                     const cartWidgetArea = document.querySelector('.cartWidgetArea');
-                    if (cartWidgetArea && data.cartIcon) {
-                        cartWidgetArea.innerHTML = data.cartIcon;
+                    if (cartWidgetArea && data.cartWidget) {
+                        cartWidgetArea.innerHTML = data.cartWidget;
                     }
                     return Swal.fire({
                         icon: 'success',
