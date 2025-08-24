@@ -8,7 +8,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -20,15 +20,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -74,6 +74,7 @@
                     @endif
                 </div>
                 <div class="text-end">
+                    <div>
                     <button type="button"
                             class="btn btn-outline-primary btn-sm mb-1"
                             data-bs-toggle="modal"
@@ -92,6 +93,7 @@
                                 <i class="bi bi-trash3 me-1"></i> Xoá
                             </button>
                         </form>
+                        </div>
                         <form action="{{ route('user.addresses.set_default', $address->id) }}"
                               method="POST"
                               class="d-inline-block">
@@ -334,7 +336,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -349,15 +351,15 @@
     color: white;
     border: none;
     border-radius: 50px;
-    padding: 6px 18px; 
+    padding: 6px 18px;
     font-weight: bold;
-    font-size: 14px; 
+    font-size: 14px;
     text-transform: uppercase;
-    min-width: 110px; 
+    min-width: 110px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px; 
+    gap: 6px;
     transition: all 0.3s ease;
 }
 
@@ -384,7 +386,7 @@ button:hover,
 }
 
     .text-end {
-    text-align: center !important; 
+    text-align: center !important;
 }
 
 .text-end form,
@@ -393,7 +395,7 @@ button:hover,
 }
 
 .text-end .btn {
-    margin: 4px; 
+    margin: 4px;
 }
 </style>
 @endsection

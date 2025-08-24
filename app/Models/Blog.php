@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Blog extends Model
 {
-    protected $fillable = ['title', 'slug', 'content', 'image'];
+    protected $fillable = ['title', 'slug', 'content', 'image','blog_category_id',];
 
     public function getThumbnailAttribute()
     {
@@ -27,6 +27,11 @@ class Blog extends Model
     preg_match('/<img[^>]+src="([^">]+)"/i', $this->content, $matches);
 
     return $matches[1] ?? null;
+}
+
+public function category()
+{
+    return $this->belongsTo(BlogCategory::class, 'blog_category_id');
 }
 
 }

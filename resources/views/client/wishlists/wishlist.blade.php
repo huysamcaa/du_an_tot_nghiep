@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,15 +19,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -65,7 +65,7 @@
                         <tr>
                             <th class="product-thumbnail">Tên sản phẩm</th>
                             <th class="product-name">&nbsp;</th>
-                            <th class="product-price">Giá</th>
+                            <th class="product-price" style="width:15%">Giá</th>
                             <th class="product-availability">Trạng thái</th>
                             <th class="product-addtocart">&nbsp;</th>
                             <th class="product-remove">&nbsp;</th>
@@ -81,12 +81,20 @@
                                     <a href="{{ route('product.detail', $wishlist->product->id) }}">{{$wishlist->product->name}}</a>
                                 </td>
                                 <td class="product-price">
+                                    @php
+                                        $variantPrices = $wishlist->product->variants
+                                            ->map(function($variant){
+                                                return $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
+                                            });
+
+                                        $minPrice = $variantPrices->min();
+                                        $maxPrice = $variantPrices->max();
+                                    @endphp
                                     <div class="pi01Price">
-                                        @if($wishlist->product->sale_price > 0 && $wishlist->product->sale_price < $wishlist->product->price)
-                                            <ins>{{ number_format($wishlist->product->sale_price, 0, ',', '.') }}₫</ins>
-                                            <del>{{ number_format($wishlist->product->price, 0, ',', '.') }}₫</del>
+                                        @if($minPrice == $maxPrice)
+                                            <ins>{{ number_format($minPrice, 0, ',', '.') }}₫</ins>
                                         @else
-                                            <ins>{{ number_format($wishlist->product->price, 0, ',', '.') }}₫</ins>
+                                            <ins>{{ number_format($minPrice, 0, ',', '.') }}₫ - {{ number_format($maxPrice, 0, ',', '.') }}₫</ins>
                                         @endif
                                     </div>
                                 </td>

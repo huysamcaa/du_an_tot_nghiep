@@ -3247,10 +3247,10 @@
     padding: 0 100px 0 0;
 }
 
-.footerLogo {
+/* .footerLogo {
     position: relative;
     margin: 0 0 28px;
-}
+} */
 
 .footerLogo2 {
     position: relative;
@@ -3259,9 +3259,8 @@
 
 .footerLogo img {
     height: 200px;
-    display: inline-block;
     width: auto;
-    margin-top: -120px;
+    margin-top: -70px;
 }
 
 .footerLogo2 img {

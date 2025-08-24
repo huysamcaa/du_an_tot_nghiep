@@ -276,6 +276,7 @@
 @endsection
 
 @section('scripts')
+
     <script>
         $(function () {
             const table = $('#coupon-table').DataTable({

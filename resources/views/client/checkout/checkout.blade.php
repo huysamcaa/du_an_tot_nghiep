@@ -863,7 +863,7 @@
                     $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                 }
                 $('#mainAddressName').text(fullname || '');
-$('#mainAddressPhone').text('(+84) ' + (phone || ''));
+            $('#mainAddressPhone').text('(+84) ' + (phone || ''));
                 
                 // Đóng modal
                 $('#changeAddressModal').modal('hide');

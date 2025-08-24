@@ -8,12 +8,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Category;
 use App\Models\Blog;
 use App\Models\Admin\Review;
+use App\Models\Coupon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\BlogCategory;
 class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::where('is_active', 1)
+        $products = Product::with(['variants.attributeValues.attribute'])
+            ->where('is_active', 1)
             ->latest()
             ->paginate(8);
 
@@ -30,11 +34,14 @@ class HomeController extends Controller
             ->get();
 
         $blogs = Blog::latest()->take(3)->get();
+        $blogCategories = BlogCategory::where('is_active', 1)->get();
 
         // Sản phẩm mới nhất (có phân trang hoặc limit tùy bạn)
     $newProducts = Product::with(['variants.attributeValues.attribute'])
         ->latest()
+        ->where('is_active', 1)
         ->paginate(8);
+        
 
     // Sản phẩm bán chạy
     $orderCompletedStatusId = DB::table('order_statuses')
@@ -56,6 +63,7 @@ class HomeController extends Controller
 
     $bestSellingProducts = Product::with(['variants.attributeValues.attribute'])
         ->whereIn('id', $bestSellingProductIds)
+        ->where('is_active', 1)
         ->paginate(8);
 
         $reviews = Review::with('user', 'product')
@@ -67,11 +75,31 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
+        $user = Auth::user();
+
+        // Nếu đã đăng nhập → lấy ra danh sách coupon mà user đã nhận
+        $claimedIds = $user
+            ? \DB::table('coupon_user')->where('user_id', $user->id)->pluck('coupon_id')
+            : collect([]);
+
+        // Chỉ lấy các coupon chưa nhận, còn hiệu lực
+        $coupons = Coupon::with('restriction')
+            ->where('is_active', 1)
+            ->whereNotIn('id', $claimedIds) // loại bỏ coupon đã claim
+            ->where(function ($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->latest()
+            ->take(6)
+            ->get();
+
         if ($request->ajax()) {
             return view('client.components.products-list', compact('products'))->render();
         }
 
-        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts'));
+
+        return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','blogCategories', 'coupons'));
+
     }
 
      public function showCategoriesInMegaMenu()
@@ -87,9 +115,8 @@ class HomeController extends Controller
         // để phân bổ vào các cột.
         $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 2));
 
-        // Nếu bạn có 3 cột, bạn có thể chia thành 3 chunks.
-        // $chunks = $parentCategories->chunk(ceil($parentCategories->count() / 3));
 
-        return view('client.partials.mega_menu', compact('chunks'));
-    }
+    return view('client.partials.mega_menu', compact('chunks'));
+}
+
 }
