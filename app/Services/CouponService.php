@@ -33,14 +33,24 @@ class CouponService
                 ->withTrashed()                 // cho phép dùng bản đã claim dù coupon bị soft-delete
                 ->where('coupons.code', $code)  // qualify tên bảng
                 ->withPivot([
-                    'code','title','amount','used_at',
-                    'discount_type','discount_value',
-                    'min_order_value','max_discount_value',
-                    'valid_categories','valid_products',
-                    'start_date','end_date',
-                    'user_group','usage_limit',
-                    'order_id','discount_applied',
-                    'created_at','updated_at',
+                    'code',
+                    'title',
+                    'amount',
+                    'used_at',
+                    'discount_type',
+                    'discount_value',
+                    'min_order_value',
+                    'max_discount_value',
+                    'valid_categories',
+                    'valid_products',
+                    'start_date',
+                    'end_date',
+                    'user_group',
+                    'usage_limit',
+                    'order_id',
+                    'discount_applied',
+                    'created_at',
+                    'updated_at',
                 ])
                 ->first();
 
@@ -56,6 +66,38 @@ class CouponService
                 throw ValidationException::withMessages(['coupon' => 'Mã giảm giá không tồn tại.']);
             }
         }
+        if ($user) {
+    $pivotRow = DB::table('coupon_user')
+        ->where('user_id', $user->id)
+        ->where('coupon_id', $coupon->id)
+        ->first();
+
+    if ($pivotRow) {
+        // ĐÃ DÙNG rồi -> chặn ngay
+        if (!is_null($pivotRow->used_at) || !is_null($pivotRow->order_id)) {
+            throw ValidationException::withMessages(['coupon' => 'Bạn đã sử dụng mã này rồi.']);
+        }
+
+        // CHƯA dùng -> set $pivot như snapshot để các kiểm tra sau dùng đúng dữ liệu đã claim
+        $pivot = (object)[
+            'discount_type'      => $pivotRow->discount_type,
+            'discount_value'     => $pivotRow->discount_value,
+            'min_order_value'    => $pivotRow->min_order_value,
+            'max_discount_value' => $pivotRow->max_discount_value,
+            'valid_products'     => is_string($pivotRow->valid_products)
+                                     ? json_decode($pivotRow->valid_products, true)
+                                     : ($pivotRow->valid_products ?? []),
+            'valid_categories'   => is_string($pivotRow->valid_categories)
+                                     ? json_decode($pivotRow->valid_categories, true)
+                                     : ($pivotRow->valid_categories ?? []),
+            'start_date'         => $pivotRow->start_date,
+            'end_date'           => $pivotRow->end_date,
+            'user_group'         => $pivotRow->user_group,
+            'used_at'            => $pivotRow->used_at,
+            'order_id'           => $pivotRow->order_id,
+        ];
+    }
+}
 
         // 3) Đọc snapshot (ưu tiên pivot)
         $discountType     = $pivot?->discount_type      ?? $coupon->discount_type;
@@ -107,14 +149,14 @@ class CouponService
         }
 
         // 5) Điều kiện giỏ hàng
-        $total = $cartItems->sum(fn ($item) => $item->price * $item->quantity);
+        $total = $cartItems->sum(fn($item) => $item->price * $item->quantity);
 
         if ($minOrderValue && $total < $minOrderValue) {
             throw ValidationException::withMessages(['coupon' => '🛒 Đơn hàng chưa đạt giá trị tối thiểu để dùng mã.']);
         }
 
-        $cartProductIds  = $cartItems->pluck('product_id')->map(fn ($id) => (int) $id);
-        $cartCategoryIds = $cartItems->pluck('category_id')->map(fn ($id) => (int) $id);
+        $cartProductIds  = $cartItems->pluck('product_id')->map(fn($id) => (int) $id);
+        $cartCategoryIds = $cartItems->pluck('category_id')->map(fn($id) => (int) $id);
 
         // Phạm vi OR: chỉ cần khớp sản phẩm HOẶC danh mục
         $passesProduct  = $validProductIds->isEmpty()  || $cartProductIds->intersect($validProductIds)->isNotEmpty();
@@ -147,15 +189,24 @@ class CouponService
      * - Gắn used_at, order_id, discount_applied vào pivot user<->coupon
      * - Tăng usage_count
      */
+    /**
+     * GỌI SAU KHI ĐƠN TẠO THÀNH CÔNG:
+     * - Gắn used_at, order_id, discount_applied vào pivot user<->coupon (atomic, có lock)
+     * - Tăng usage_count (có lock để tránh race-condition)
+     * - Idempotent: nếu đã used/order_id thì return sớm
+     */
     public static function markUsed(User $user, Coupon $coupon, ?Order $order = null, ?float $discountAmount = null): void
     {
         DB::transaction(function () use ($user, $coupon, $order, $discountAmount) {
-            // Khoá row coupon để tránh race-condition
-            $coupon = Coupon::whereKey($coupon->id)->lockForUpdate()->first();
+            // 1) Khóa bản ghi coupon (tránh overuse usage_count)
+            $coupon = Coupon::query()
+                ->whereKey($coupon->id)
+                ->lockForUpdate()
+                ->first();
 
-            // Nếu user chưa claim -> attach snapshot trước
+            // 2) Nếu user CHƯA có pivot -> attach snapshot từ coupon + restriction hiện tại
             if (!$user->coupons()->where('coupon_id', $coupon->id)->exists()) {
-                $restriction = $coupon->restriction;
+                $restriction = $coupon->restriction; // có thể null
 
                 $snapshot = [
                     'amount'             => 1,
@@ -176,30 +227,35 @@ class CouponService
                 $user->coupons()->attach($coupon->id, $snapshot);
             }
 
-            // Lấy pivot
-            $pivot = $user->coupons()->where('coupon_id', $coupon->id)->first()->pivot;
+            // 3) LOCK bản ghi pivot user<->coupon (tránh 2 tab/2 request dùng cùng lúc)
+            $pivotRow = DB::table('coupon_user')
+                ->where('user_id', $user->id)
+                ->where('coupon_id', $coupon->id)
+                ->lockForUpdate()
+                ->first();
 
-            // Nếu đã used hoặc đã gắn order_id -> bỏ qua
-            if ($pivot->used_at || $pivot->order_id) {
+            // 4) Nếu pivot đã used hoặc đã gắn order_id -> coi như đã dùng, bỏ qua (idempotent)
+            if ($pivotRow?->used_at || $pivotRow?->order_id) {
                 return;
             }
 
-            // Kiểm tra quota ngay trước khi set used
+            // 5) Kiểm tra quota toàn cục ngay trước khi đánh dấu đã dùng
             if (!is_null($coupon->usage_limit) && $coupon->usage_count >= $coupon->usage_limit) {
                 throw new \RuntimeException('Mã đã hết lượt sử dụng.');
             }
 
-            // Đánh dấu đã dùng + gắn order + lưu số tiền giảm thực
+            // 6) Đánh dấu đã dùng trên pivot
             $user->coupons()->updateExistingPivot($coupon->id, [
                 'used_at'          => now(),
                 'order_id'         => $order?->id,
-                'discount_applied' => $discountAmount ?? 0.0,
+                'discount_applied' => max(0, (float) ($discountAmount ?? 0.0)),
             ]);
 
-            // Tăng lượt dùng toàn cục
+            // 7) Tăng usage_count (sau khi pivot đã được set used)
             $coupon->increment('usage_count');
         });
     }
+
 
     /**
      * GỌI KHI: Đơn bị huỷ / thanh toán fail (nếu policy cho phép hoàn lượt).
@@ -213,6 +269,11 @@ class CouponService
 
             // Chỉ rollback khi thật sự đã used hoặc có order_id
             if ($pivot && ($pivot->used_at || $pivot->order_id)) {
+                if ($order && $pivot->order_id && $pivot->order_id !== $order->id) {
+                    // Không rollback nếu pivot gắn với order khác
+                    return;
+                }
+
                 $user->coupons()->updateExistingPivot($coupon->id, [
                     'used_at'          => null,
                     'order_id'         => null,

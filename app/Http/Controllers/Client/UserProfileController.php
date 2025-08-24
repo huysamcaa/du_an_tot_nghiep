@@ -6,12 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
 class UserProfileController extends Controller
 {
-    public function show()
+   public function show()
     {
         $user = Auth::user();
+
+        // ✅ Đồng bộ hạng trước khi render
+        $user->refreshGroup();   // cập nhật user_group theo totalSpent()
+
+        // (tuỳ chọn) lấy lại bản ghi mới nhất từ DB để chắc chắn có badge mới
+        $user->refresh();
+
         return view('client.profile.show', compact('user'));
     }
 

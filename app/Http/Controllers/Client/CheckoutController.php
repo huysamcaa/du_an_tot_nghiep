@@ -1205,14 +1205,14 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $order->payment_id = [
-                
+
                 2 => 'Thanh toán khi nhận hàng',
                 3 => 'MoMo',
                 4 => 'VNPay'
             ];
-            
+
             $message = "Đơn hàng #{$order->code} của bạn đã được thanh toán thành công qua {$order->payment_id}. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
@@ -1220,7 +1220,7 @@ protected function createPaymentSuccessNotification($order)
                 'type' => 1, // Loại thông báo thanh toán
                 'read' => 0, // Chưa đọc
             ]);
-            
+
             Log::info('Created payment success notification', [
                 'order_id' => $order->id,
                 'user_id' => $order->user_id
@@ -1233,7 +1233,7 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $message = "Đơn hàng #{$order->code} của bạn đã được tạo thành công. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,

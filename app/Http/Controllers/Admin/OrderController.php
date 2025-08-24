@@ -100,7 +100,7 @@ class OrderController extends Controller
         'statuses.orderStatus', // Đổi tên mối quan hệ từ 'orderOrderStatuses' sang 'statuses' để code nhất quán
         'currentStatus.orderStatus'
     ])->findOrFail($id);
-    
+
     // Nếu bạn không muốn đổi tên mối quan hệ trong model, bạn có thể truyền lại biến:
     $order->statuses = $order->orderOrderStatuses;
 

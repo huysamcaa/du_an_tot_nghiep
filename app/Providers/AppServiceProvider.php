@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Admin\OrderOrderStatus;
+use App\Observers\OrderOrderStatusObserver;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -23,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
+        OrderOrderStatus::observe(OrderOrderStatusObserver::class);
+        
             View::composer('*', function ($view) {
         $footerCategories = Category::where('is_active', 1)
             ->whereNull('parent_id') // nếu bạn chỉ muốn lấy danh mục cha
@@ -35,5 +39,5 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-}
+    }
 }
