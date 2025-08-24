@@ -213,6 +213,9 @@
         transition: opacity 0.25s ease;
         z-index: 2;
     }
+    .productItem01:hover .pi01Actions {
+    opacity: 1;
+}
 
     .pi01Actions a {
         background: #7b9494;
