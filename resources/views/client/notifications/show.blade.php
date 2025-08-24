@@ -70,4 +70,5 @@
         </a>
     </div>
 </div>
+
 @endsection
