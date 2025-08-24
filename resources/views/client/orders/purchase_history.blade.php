@@ -207,11 +207,12 @@
                                                     </h6>
                                                     <p class="product-variant">
                                                         <i class="fas fa-tag me-1"></i>
-                                                        @if ($item->variant)
-                                                            @foreach ($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }}
-                                                            @endforeach
-                                                        @endif
+                                                        @if (is_array($item->attributes_variant))
+    @foreach ($item->attributes_variant as $key => $variant)
+        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+    @endforeach
+@endif
+
                                                     </p>
                                                     <div class="quantity-badge">
                                                         <i class="fas fa-times me-1"></i>{{ $item->quantity }}

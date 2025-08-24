@@ -233,14 +233,19 @@
                                     
                                     <td>
                                         @if ($product && $product->thumbnail)
-                                            <img src="{{ asset('storage/' . $product->thumbnail) }}" width="60" class="img-thumbnail">
+                                             <img src="{{ asset('storage/' . $item->variant->thumbnail) }}" width="60" class="img-thumbnail">
                                         @else
                                             <span class="text-muted">N/A</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="fw-bold">{{ $item->name }}</div>
-                                        <div class="small text-muted">SKU: {{ $product->sku ?? 'N/A' }}</div>
+                                        @isset($item->attributes_variant)
+                                            @foreach ($item->attributes_variant as $key => $variant)
+                                                <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+                                            @endforeach
+                                        @endisset
+
                                         @if ($product)
                                             <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
                                         @endif
