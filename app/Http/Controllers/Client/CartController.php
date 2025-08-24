@@ -61,7 +61,8 @@ class CartController extends Controller
         if ($quantity > $availableStock) {
             return response()->json([
                 'success' => false,
-                'message' => 'Chỉ còn ' . $availableStock . ' sản phẩm'
+                // 'message' => 'Chỉ còn ' . $availableStock . ' sản phẩm'
+                'message' => 'Bạn Cho vào giỏ hàng vượt quá số lượng trong kho. ' 
             ]);
         }
 
