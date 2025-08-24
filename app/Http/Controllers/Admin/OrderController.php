@@ -497,6 +497,12 @@ protected function handleCancelOrder($orderId)
         'created_at' => now(),
         'updated_at' => now(),
     ]);
+    if (!$order->is_paid) {
+        $order->update([
+            'is_paid' => true,
+            
+        ]);
+    }
 
     return redirect()->back()->with('success', 'Đã xác nhận nhận hàng thành công.');
 }
