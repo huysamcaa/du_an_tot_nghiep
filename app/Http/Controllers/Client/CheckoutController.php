@@ -1271,6 +1271,7 @@ protected function createPaymentSuccessNotification($order)
             Log::error('Failed to create order notification: ' . $e->getMessage());
         }
     }
+   
 
 
 
