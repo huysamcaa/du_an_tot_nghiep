@@ -99,7 +99,7 @@
                             $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
                         @endphp
                         <div class="product-attribute mt-1 d-flex gap-1">
-                            <strong class="me-1">{{ $attribute->name }}</strong>
+                            <strong class="mt-2 me-2">{{ $attribute->name }}</strong>
                             {{-- Nếu là màu --}}
                             @if ($attribute->slug === 'color')
                                 <div class="d-flex gap-1">
@@ -116,7 +116,7 @@
                             @else
                                 {{-- Các thuộc tính khác --}}
                                 @foreach ($values->unique('id') as $av)
-                                    <span class="badge bg-light text-dark border attribute-option"
+                                    <span class="attribute-option"
                                         data-id="{{ $av->id }}"
                                         data-attribute="{{ $attribute->slug }}"
                                         data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}">
@@ -126,38 +126,6 @@
                             @endif
                         </div>
                     @endforeach
-                    {{-- @if($sizeValues->count())
-                        <div class="product-sizes mt-1">
-                            <strong>Size:</strong>
-                            @foreach($sizeValues as $av)
-                                <span class="badge bg-light text-dark border size-option"
-                                      data-id="{{ $av->id }}"
-                                      data-size="{{ $av->value }}">
-                                    {{ $av->value }}
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif --}}
-
-                    {{-- Color options --}}
-                    {{-- @php
-                        $colorValues = $product->variants
-                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color'))
-                            ->unique('id')
-                            ->values();
-                    @endphp
-                    @if($colorValues->count())
-                        <div class="product-colors mt-1 d-flex gap-1">
-                            <strong class="me-1">Màu:</strong>
-                            @foreach($colorValues as $av)
-                                <span class="color-circle color-option"
-                                      data-id="{{ $av->id }}"
-                                      data-color="{{ \Illuminate\Support\Str::start($av->hex, '#') }}"
-                                      style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($av->hex, '#') }}; border:1px solid #ccc; cursor:pointer;">
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif --}}
 
                 </div>
             </div>
@@ -310,32 +278,68 @@
 .pi01Thumb:hover::after {
     opacity: 1;
 }
-.attribute-option.selected {
-    color: #dc1515 !important;
+/* ====== SIZE / CHẤT LIỆU ====== */
+.attribute-option:not(.color-option) {
+    display: inline-block;
+    padding: 3px 10px;
+    margin: 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    user-select: none;
 }
 
 
 .color-option.selected {
     border: 3px solid #000 !important; /* Viền đen đậm hơn */
+
+/* Khi được chọn thì đổi màu nền + chữ trắng */
+.attribute-option:not(.color-option).selected {
+    background: #7b9496 !important;
+    color: #fff !important;
+    border-color: #7b9496 !important;
 }
-.color-circle{
-    margin-top: 5px;
+
+/* ====== MÀU SẮC (COLOR CIRCLE) ====== */
+.color-option {
+    display: inline-block;
+    margin-top: 9px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
 }
+
+/* Khi hover thì viền xám đậm hơn */
+.color-option:hover {
+    border-color: #7b9496;
+}
+
+/* Khi chọn thì chỉ viền đen nổi bật */
+.color-option.selected {
+    border: 3px solid #000 !important;
+}
+
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Chọn attribute
+    // Xử lý chọn thuộc tính
     document.querySelectorAll('.attribute-option').forEach(el => {
         el.addEventListener('click', e => {
             let parent = e.target.closest(".product-attribute");
-            parent.querySelectorAll(".attribute-option")
-                .forEach(opt => opt.classList.remove("selected"));
+            parent.querySelectorAll(".attribute-option").forEach(opt => opt.classList.remove("selected"));
             e.target.classList.add("selected");
+
             let productCard = e.target.closest(".productItem01");
             let productId = productCard.querySelector(".piAddToCart").dataset.id;
 
-            // Thu thập tất cả attribute đã chọn
+            // Thu thập các thuộc tính đã chọn
             let selectedIds = [];
             productCard.querySelectorAll(".attribute-option.selected").forEach(sel => {
                 selectedIds.push(sel.dataset.id);
@@ -343,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let requiredCount = productCard.querySelectorAll(".product-attribute").length;
             if (selectedIds.length === requiredCount) {
-                // Gọi checkVariant
                 fetch("{{ route('check.variant') }}", {
                     method: "POST",
                     headers: {
@@ -374,21 +377,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Thêm vào giỏ
+    // Xử lý thêm vào giỏ hàng
     document.querySelectorAll('.piAddToCart').forEach(btn => {
-        if (btn.dataset.bound) return; // tránh gắn trùng
+        if (btn.dataset.bound) return;
         btn.dataset.bound = "true";
+
         btn.addEventListener('click', function (e) {
             e.preventDefault();
-            e.stopPropagation(); // chặn nổi bọt
+            e.stopPropagation();
 
             let productCard = this.closest(".productItem01");
             let productId = this.dataset.id;
 
-            // Lấy attribute đã chọn
+            // Thu thập thuộc tính đã chọn
             let selectedAttributes = {};
-            productCard.querySelectorAll(".attribute-option.selected")
-                .forEach(el => selectedAttributes[el.dataset.attribute] = el.dataset.id);
+            productCard.querySelectorAll(".attribute-option.selected").forEach(el => {
+                selectedAttributes[el.dataset.attribute] = el.dataset.id;
+            });
 
             let requiredCount = productCard.querySelectorAll(".product-attribute").length;
             if (Object.keys(selectedAttributes).length < requiredCount) {
@@ -402,7 +407,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append("attribute_values[]", selectedAttributes[key]);
             }
 
-            // Disable tránh double click
             this.classList.add("disabled");
 
             fetch("{{ route('cart.add') }}", {
@@ -413,21 +417,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     "X-Requested-With": "XMLHttpRequest"
                 }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401) {
+                    alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ!");
+                    return Promise.reject(); // Ngắt luôn, không chạy xuống
+                }
+                return res.json();
+            })
             .then(data => {
                 if (data.success) {
-        //             // Cập nhật số lượng sản phẩm trên icon giỏ
-        document.querySelector(".cart-count").innerText = data.totalProduct;
+                //Cập nhật số lượng sản phẩm trên icon giỏ
+                document.querySelector(".cart-count").innerText = data.totalProduct;
 
-        // Cập nhật lại dropdown / widget giỏ hàng
-        document.querySelector(".cartWidgetArea").innerHTML = data.cartIcon;
+                // Cập nhật lại dropdown / widget giỏ hàng
+                document.querySelector(".cartWidgetArea").innerHTML = data.cartWidget;
                     alert("Đã thêm sản phẩm vào giỏ hàng");
                 } else {
                     alert(data.message || "Có lỗi xảy ra!");
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error("Thêm giỏ hàng lỗi:", err);
                 alert("Không thể thêm sản phẩm vào giỏ");
             })
             .finally(() => {
@@ -436,5 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+</script>
+
 
 </script>

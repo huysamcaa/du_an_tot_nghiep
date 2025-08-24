@@ -98,7 +98,9 @@ class HomeController extends Controller
         }
 
 
+
         return view('client.home', compact('products', 'categories', 'blogs','reviews', 'bestSellingProducts','blogCategories','coupons'));
+
 
     }
 

@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
+    <!-- Summernote CSS -->
+
+    <link href="{{ asset('assets/admin/plugins/summernote/summernote-bs4.min.css') }}" rel="stylesheet">
     {{-- Select2 CSS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
@@ -36,7 +39,7 @@
         <div class="page-wrapper">
             @yield('content')
         </div>
-         <!-- Footer -->
+        <!-- Footer -->
         @include('admin.layouts.footer')
         <!-- /.site-footer -->
     </div>
@@ -46,7 +49,8 @@
 
     {{-- Select2 JS phải đặt sau jQuery --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
+    <!-- Summernote JS -->
+    <script src="{{ asset('assets/admin/plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/feather.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/jquery.slimscroll.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/jquery.dataTables.min.js') }}"></script>
@@ -60,7 +64,8 @@
     <script src="{{ asset('assets/admin/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
     @stack('scripts')
 
-    
+
 </body>
 @yield('scripts')
+
 </html>

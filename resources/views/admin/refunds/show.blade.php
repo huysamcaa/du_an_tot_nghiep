@@ -219,40 +219,48 @@
                                     <div class="mb-3">
                                         <label for="status" class="form-label">Trạng thái yêu cầu</label>
                                         <select name="status" id="status" class="form-select" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
-                                            <option value="{{ $refund->status }}" selected>{{ $statusLabels[$refund->status] }}</option>
+                                            <option value="{{ $refund->status }}" {{ old('status', $refund->status) === $refund->status ? 'selected' : '' }}>
+                                                {{ $statusLabels[$refund->status] }}
+                                            </option>
                                             @if(!$isCompletedOrFinal)
-                                            @foreach($allowedStatuses as $key)
-                                            <option value="{{ $key }}">{{ $statusLabels[$key] }}</option>
-                                            @endforeach
+                                                @foreach($allowedStatuses as $key)
+                                                    <option value="{{ $key }}" {{ old('status', $refund->status) === $key ? 'selected' : '' }}>
+                                                        {{ $statusLabels[$key] }}
+                                                    </option>
+                                                @endforeach
                                             @endif
                                         </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="bank_account_status" class="form-label">Trạng thái TK ngân hàng</label>
                                         <select name="bank_account_status" id="bank_account_status" class="form-select" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
-                                            <option value="{{ $refund->bank_account_status }}" selected>{{ $bankLabels[$refund->bank_account_status] }}</option>
+                                            <option value="{{ $refund->bank_account_status }}" {{ old('bank_account_status', $refund->bank_account_status) === $refund->bank_account_status ? 'selected' : '' }}>
+                                                {{ $bankLabels[$refund->bank_account_status] }}
+                                            </option>
                                             @if(!$isCompletedOrFinal)
-                                            @foreach($allowedBanks as $key)
-                                            <option value="{{ $key }}">{{ $bankLabels[$key] }}</option>
-                                            @endforeach
+                                                @foreach($allowedBanks as $key)
+                                                    <option value="{{ $key }}" {{ old('bank_account_status', $refund->bank_account_status) === $key ? 'selected' : '' }}>
+                                                        {{ $bankLabels[$key] }}
+                                                    </option>
+                                                @endforeach
                                             @endif
                                         </select>
                                     </div>
 
                                     {{-- Trường admin_reason (Lý do từ chối) --}}
-                                    <div class="mb-3" id="admin_reason_group" style="{{ $refund->status === 'rejected' ? 'display:block;' : 'display:none;' }}">
+                                    <div class="mb-3" id="admin_reason_group" style="{{ (old('status', $refund->status) === 'rejected') ? 'display:block;' : 'display:none;' }}">
                                         <label for="admin_reason" class="form-label">Lý do từ chối *</label>
                                         <textarea name="admin_reason" id="admin_reason" class="form-control" rows="2" placeholder="Nhập lý do từ chối">{{ old('admin_reason', $refund->admin_reason) }}</textarea>
                                     </div>
 
                                     {{-- Trường fail_reason (Lý do thất bại) --}}
-                                    <div class="mb-3" id="fail_reason_group" style="{{ $refund->status === 'failed' ? 'display:block;' : 'display:none;' }}">
+                                    <div class="mb-3" id="fail_reason_group" style="{{ (old('status', $refund->status) === 'failed') ? 'display:block;' : 'display:none;' }}">
                                         <label for="fail_reason" class="form-label">Lý do thất bại *</label>
                                         <textarea name="fail_reason" id="fail_reason" class="form-control" rows="2" placeholder="Nhập lý do giao dịch thất bại">{{ old('fail_reason', $refund->fail_reason) }}</textarea>
                                     </div>
 
                                     {{-- Trường upload ảnh bằng chứng --}}
-                                    <div class="mb-3" id="img_upload_group" style="{{ in_array($refund->status, ['completed', 'failed']) ? 'display:block;' : 'display:none;' }}">
+                                    <div class="mb-3" id="img_upload_group" style="{{ in_array(old('status', $refund->status), ['completed', 'failed']) ? 'display:block;' : 'display:none;' }}">
                                         <label id="img_upload_label" for="img_fail_or_completed" class="form-label">
                                             @if($refund->status === 'completed')
                                             Ảnh chuyển khoản
@@ -264,14 +272,12 @@
                                             @if(in_array($refund->status, ['completed', 'failed'])) * @endif
                                         </label>
                                         <input type="file" name="img_fail_or_completed" id="img_fail_or_completed" accept="image/*,video/*" class="form-control" {{ $isCompletedOrFinal ? 'disabled' : '' }}>
+                                        @error('img_fail_or_completed')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
                                         <small class="form-text text-muted" id="img_upload_help">Vui lòng tải lên ảnh/video chứng minh.</small>
                                     </div>
 
-                                    {{-- Checkbox "Đã chuyển tiền" --}}
-                                    <div class="form-check mb-3" id="is_send_money_group" style="{{ $refund->status === 'completed' ? 'display:block;' : 'display:none;' }}">
-                                        <input type="checkbox" name="is_send_money" class="form-check-input" id="is_send_money" value="1" {{ $refund->is_send_money ? 'checked' : '' }} {{ $isCompletedOrFinal ? 'disabled' : '' }}>
-                                        <label class="form-check-label" for="is_send_money">Đã chuyển tiền</label>
-                                    </div>
 
                                     {{-- Nút cập nhật --}}
                                     <div class="d-flex justify-content-end gap-2">
@@ -295,61 +301,55 @@
 @push('scripts')
 <script>
     jQuery(document).ready(function($) {
-        const statusSelect = $('#status');
+        const statusSelect     = $('#status');
         const bankStatusSelect = $('#bank_account_status');
-        const isSendMoneyCheckbox = $('#is_send_money');
-        const isSendMoneyGroup = $('#is_send_money_group');
-        const imgUploadGroup = $('#img_upload_group');
-        const imgUploadLabel = $('#img_upload_label');
+        const imgUploadGroup   = $('#img_upload_group');
+        const imgUploadLabel   = $('#img_upload_label');
         const adminReasonGroup = $('#admin_reason_group');
-        const failReasonGroup = $('#fail_reason_group');
+        const failReasonGroup  = $('#fail_reason_group');
+        const imgInput         = $('#img_fail_or_completed');
 
         function updateFormState() {
-            const currentStatus = statusSelect.val();
+        const currentStatus = statusSelect.val();
 
-            // Ẩn/hiện các trường dựa trên trạng thái chính
-            adminReasonGroup.hide();
-            failReasonGroup.hide();
-            isSendMoneyGroup.hide();
-            imgUploadGroup.hide();
+        // reset
+        adminReasonGroup.hide();
+        failReasonGroup.hide();
+        imgUploadGroup.hide();
+        imgInput.prop('required', false);
+        bankStatusSelect.prop('disabled', false); // reset dropdown bank
 
-            // Logic cũ của bạn
-            switch (currentStatus) {
-                case 'completed':
-                    isSendMoneyGroup.show();
-                    imgUploadGroup.show();
-                    imgUploadLabel.html('Ảnh chuyển khoản <span class="text-danger">*</span>');
-                    break;
-                case 'failed':
-                    failReasonGroup.show();
-                    imgUploadGroup.show();
-                    imgUploadLabel.html('Ảnh chứng minh thất bại <span class="text-danger">*</span>');
-                    break;
-                case 'rejected':
-                    adminReasonGroup.show();
-                    break;
-            }
+        switch (currentStatus) {
+            case 'completed':
+                imgUploadGroup.show();
+                imgUploadLabel.html('Ảnh chuyển khoản <span class="text-danger">*</span>');
+                imgInput.prop('required', true);
 
-            // Logic cũ của bạn
-            // Tự động đồng bộ trạng thái ngân hàng khi tích "Đã chuyển tiền"
-            if (isSendMoneyCheckbox.is(':checked')) {
-                bankStatusSelect.val('sent').trigger('change');
-            }
+                // auto set bank_account_status = 'sent' và disable select
+                bankStatusSelect.val('sent').prop('disabled', true);
+                break;
+
+            case 'failed':
+                failReasonGroup.show();
+                imgUploadGroup.show();
+                imgUploadLabel.html('Ảnh chứng minh thất bại <span class="text-danger">*</span>');
+                imgInput.prop('required', true);
+                break;
+
+            case 'rejected':
+                adminReasonGroup.show();
+                break;
+
+            default:
+                // các trạng thái khác, cho phép chỉnh bank bình thường
+                break;
         }
+    }
 
-        // Sự kiện khi thay đổi trạng thái chính
+
         statusSelect.on('change', updateFormState);
 
-        // Sự kiện khi tích/bỏ tích checkbox "Đã chuyển tiền"
-        isSendMoneyCheckbox.on('change', function() {
-            if ($(this).is(':checked')) {
-                if (statusSelect.val() === 'completed') {
-                    bankStatusSelect.val('sent').trigger('change');
-                }
-            }
-        });
-
-        // Cập nhật trạng thái form ngay khi load trang
+        // chạy ngay khi load (dựa theo old('status', ...) đã bind trong Blade)
         updateFormState();
     });
 </script>

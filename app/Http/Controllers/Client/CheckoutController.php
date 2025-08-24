@@ -147,48 +147,79 @@ use Illuminate\Support\Facades\File;
         }
     }
 
-    protected function prepareOrderData(Request $request, $couponData)
+  protected function prepareOrderData(Request $request, $couponData)
 {
     $userId = auth()->id();
-        $cartItems = CartItem::with(['product', 'variant'])
-            ->where('user_id', $userId)
-            ->whereIn('id', $request->selected_items)
-                ->get();
+    $cartItems = CartItem::with([
+            'product',
+            'variant.attributeValues.attribute' // Thêm eager loading để lấy thông tin biến thể
+        ])
+        ->where('user_id', $userId)
+        ->whereIn('id', $request->selected_items)
+        ->get();
 
-        $total = $this->calculateCartTotal($request->selected_items);
-        $discountedTotal = $total - $couponData['discount'];
-        $totalAmount = max($discountedTotal + 30000, 0);
+    $total = $this->calculateCartTotal($request->selected_items);
+    $discountedTotal = $total - $couponData['discount'];
+    $totalAmount = max($discountedTotal + 30000, 0);
 
-        return [
-                'user_id' => $userId,
-            'payment_id' => $request->paymentMethod,
-            'phone_number' => $request->field5,
-            'email' => $request->field4,
-            'fullname' => $request->field1 . ' ' . $request->field2,
-            'address' => $request->field7,
-            'note' => $request->field14,
-                    'total_amount' => $totalAmount,
-            'is_paid' => false,
-            'coupon_id' => $couponData['coupon']?->id,
-            'coupon_code' => $couponData['coupon']?->code,
-            'coupon_discount' => $couponData['discount'],
-            'coupon_discount_type' => $couponData['coupon']?->discount_type,
-            'coupon_discount_value' => $couponData['coupon']?->discount_value,
-            'cart_items' => $cartItems->map(function ($item) {
-                        return [
-                            'product_id' => $item->product_id,
-                    'product_variant_id' => $item->product_variant_id,
-                    'name' => $item->product->name ?? null,
-                    'price' => $item->variant
-                        ? ($item->variant->sale_price ?? $item->variant->price)
-                        : ($item->product->price ?? 0),
-                    'quantity' => $item->quantity ?? 1,
-                ];
-            })->toArray(),
-            'selected_items' => $request->selected_items,
-            'coupon_data' => $couponData,
-        ];
-    }
+    return [
+        'user_id' => $userId,
+        'payment_id' => $request->paymentMethod,
+        'phone_number' => $request->field5,
+        'email' => $request->field4,
+        'fullname' => $request->field1 . ' ' . $request->field2,
+        'address' => $request->field7,
+        'note' => $request->field14,
+        'total_amount' => $totalAmount,
+        'is_paid' => false,
+        'coupon_id' => $couponData['coupon']?->id,
+        'coupon_code' => $couponData['coupon']?->code,
+        'coupon_discount' => $couponData['discount'],
+        'coupon_discount_type' => $couponData['coupon']?->discount_type,
+        'coupon_discount_value' => $couponData['coupon']?->discount_value,
+        'cart_items' => $cartItems->map(function ($item) {
+            // Lấy thông tin biến thể dưới dạng JSON
+            $variantAttributes = null;
+
+            if ($item->variant && $item->variant->attributeValues) {
+                $variantAttributes = [];
+
+                foreach ($item->variant->attributeValues as $attributeValue) {
+                    if ($attributeValue->attribute) {
+                        $variantAttributes[$attributeValue->attribute->slug] = [
+                            'attribute_id' => $attributeValue->attribute->id,
+                            'attribute_name' => $attributeValue->attribute->name,
+                            'value_id' => $attributeValue->id,
+                            'value' => $attributeValue->value,
+                            'hex' => $attributeValue->hex
+                        ];
+                    }
+                }
+
+                // Lọc bỏ các giá trị null
+                $variantAttributes = array_filter($variantAttributes);
+
+                // Nếu không có thuộc tính nào, set thành null
+                if (empty($variantAttributes)) {
+                    $variantAttributes = null;
+                }
+            }
+
+            return [
+                'product_id' => $item->product_id,
+                'product_variant_id' => $item->product_variant_id,
+                'name' => $item->product->name ?? null,
+                'price' => $item->variant
+                    ? ($item->variant->sale_price ?? $item->variant->price)
+                    : ($item->product->price ?? 0),
+                'quantity' => $item->quantity ?? 1,
+                'variant_attributes' => $variantAttributes,
+            ];
+        })->toArray(),
+        'selected_items' => $request->selected_items,
+        'coupon_data' => $couponData,
+    ];
+}
 
     protected function processMomoPayment(Request $request, $couponData)
     {
@@ -318,41 +349,35 @@ use Illuminate\Support\Facades\File;
         }
     }
 
-    protected function processRegularOrder(Request $request, $couponData)
-    {
-        DB::beginTransaction();
-        try {
-            $orderData = Session::get('pending_order');
-            $order = $this->saveOrderToDatabase($orderData);
-            $this->clearCartItems($orderData['selected_items']);
+   protected function processRegularOrder(Request $request, $couponData)
+{
+    DB::beginTransaction();
+    try {
+        $orderData = Session::get('pending_order');
+        $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
+        $this->clearCartItems($orderData['selected_items']);
 
-             $this->createOrderNotification($order);
-            //Cập nhật trạng thái mã giảm giá
+        $this->createOrderNotification($order);
 
-            $order = $this->saveOrderToDatabase($orderData);
-                if (!empty($order->coupon_id)) {
-                    DB::table('coupon_user')
-                        ->where('user_id', $order->user_id)
-                        ->where('coupon_id', $order->coupon_id)
-                        ->update(['used_at' => now(), 'order_id' => $order->id]);
-                }
-            DB::commit();
-            Session::forget('pending_order');
-            $order = $this->saveOrderToDatabase($orderData);
-                if (!empty($order->coupon_id)) {
-                    DB::table('coupon_user')
-                        ->where('user_id', $order->user_id)
-                        ->where('coupon_id', $order->coupon_id)
-                        ->update(['used_at' => now(), 'order_id' => $order->id]);
-                }
-            return redirect()->route('client.orders.show', $order->code)
-                ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Regular Order Error: ' . $e->getMessage());
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        // Cập nhật trạng thái mã giảm giá
+        if (!empty($order->coupon_id)) {
+            DB::table('coupon_user')
+                ->where('user_id', $order->user_id)
+                ->where('coupon_id', $order->coupon_id)
+                ->update(['used_at' => now(), 'order_id' => $order->id]);
         }
+
+        DB::commit();
+        Session::forget('pending_order');
+
+        return redirect()->route('client.orders.show', $order->code)
+            ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Regular Order Error: ' . $e->getMessage());
+        return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
     }
+}
 
     // ==================== CALLBACK HANDLERS ====================
 
@@ -709,65 +734,66 @@ use Illuminate\Support\Facades\File;
         return null;
     }
 
-    protected function saveOrderToDatabase($orderData)
-        {
-            DB::beginTransaction();
-            try {
-            $orderCode = 'DH' . strtoupper(Str::random(8));
+  protected function saveOrderToDatabase($orderData)
+{
+    DB::beginTransaction();
+    try {
+        $orderCode = 'DH' . strtoupper(Str::random(8));
 
-            $order = Order::create([
-                'code' => $orderCode,
-                'user_id' => $orderData['user_id'],
-                'payment_id' => $orderData['payment_id'],
-                'phone_number' => $orderData['phone_number'],
-                'email' => $orderData['email'],
-                'fullname' => $orderData['fullname'],
-                'address' => $orderData['address'],
-                'note' => $orderData['note'] ?? '',
-                'total_amount' => $orderData['total_amount'],
-                'is_paid' => $orderData['is_paid'] ?? false,
-                'coupon_id' => $orderData['coupon_id'],
-                'coupon_code' => $orderData['coupon_code'],
-                'coupon_discount' => $orderData['coupon_discount'],
-                'coupon_discount_type' => $orderData['coupon_discount_type'],
-                'coupon_discount_value' => $orderData['coupon_discount_value'],
-            ]);
+        $order = Order::create([
+            'code' => $orderCode,
+            'user_id' => $orderData['user_id'],
+            'payment_id' => $orderData['payment_id'],
+            'phone_number' => $orderData['phone_number'],
+            'email' => $orderData['email'],
+            'fullname' => $orderData['fullname'],
+            'address' => $orderData['address'],
+            'note' => $orderData['note'] ?? '',
+            'total_amount' => $orderData['total_amount'],
+            'is_paid' => $orderData['is_paid'] ?? false,
+            'coupon_id' => $orderData['coupon_id'],
+            'coupon_code' => $orderData['coupon_code'],
+            'coupon_discount' => $orderData['coupon_discount'],
+            'coupon_discount_type' => $orderData['coupon_discount_type'],
+            'coupon_discount_value' => $orderData['coupon_discount_value'],
+        ]);
 
-            // Kiểm tra trước khi tạo trạng thái đơn hàng
-            $existingStatus = OrderOrderStatus::where([
+        // Kiểm tra trước khi tạo trạng thái đơn hàng
+        $existingStatus = OrderOrderStatus::where([
+            'order_id' => $order->id,
+            'order_status_id' => 1,
+            'modified_by' => $order->user_id ?? 5
+        ])->first();
+
+        if (!$existingStatus) {
+            OrderOrderStatus::create([
                 'order_id' => $order->id,
                 'order_status_id' => 1,
-                'modified_by' => $order->user_id ?? 5
-            ])->first();
-
-            if (!$existingStatus) {
-                OrderOrderStatus::create([
-                    'order_id' => $order->id,
-                    'order_status_id' => 1,
-                    'modified_by' => $order->user_id ?? 5,
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ]);
-            }
-
-            foreach ($orderData['cart_items'] as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'],
-                    'name' => $item['name'],
-                    'price' => $item['price'],
-                    'quantity' => $item['quantity'],
-                ]);
-            }
-
-                DB::commit();
-            return $order;
-            } catch (\Exception $e) {
-                DB::rollBack();
-            throw $e;
+                'modified_by' => $order->user_id ?? 5,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]);
         }
+
+        foreach ($orderData['cart_items'] as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['product_id'],
+                'product_variant_id' => $item['product_variant_id'],
+                'name' => $item['name'],
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'attributes_variant' => $item['variant_attributes'] ?? null, // Lưu thông tin biến thể
+            ]);
+        }
+
+        DB::commit();
+        return $order;
+    } catch (\Exception $e) {
+        DB::rollBack();
+        throw $e;
     }
+}
 
     protected function verifyMomoSignature($params)
     {
@@ -1205,14 +1231,14 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $order->payment_id = [
-                
+
                 2 => 'Thanh toán khi nhận hàng',
                 3 => 'MoMo',
                 4 => 'VNPay'
             ];
-            
+
             $message = "Đơn hàng #{$order->code} của bạn đã được thanh toán thành công qua {$order->payment_id}. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
@@ -1220,7 +1246,7 @@ protected function createPaymentSuccessNotification($order)
                 'type' => 1, // Loại thông báo thanh toán
                 'read' => 0, // Chưa đọc
             ]);
-            
+
             Log::info('Created payment success notification', [
                 'order_id' => $order->id,
                 'user_id' => $order->user_id
@@ -1233,7 +1259,7 @@ protected function createPaymentSuccessNotification($order)
     {
         try {
             $message = "Đơn hàng #{$order->code} của bạn đã được tạo thành công. Tổng tiền: " . number_format($order->total_amount) . "đ";
-            
+
             Notification::create([
                 'user_id' => $order->user_id,
                 'order_id' => $order->id,
@@ -1245,6 +1271,7 @@ protected function createPaymentSuccessNotification($order)
             Log::error('Failed to create order notification: ' . $e->getMessage());
         }
     }
+   
 
 
 

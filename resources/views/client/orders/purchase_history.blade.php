@@ -3,29 +3,33 @@
 @section('title', 'Lịch sử mua hàng')
 
 @section('content')
-<!-- Banner Section -->
-<section class="pageBannerSection">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pageBannerContent text-center">
-                    <h2>Đơn Hàng Của Tôi</h2>
-                    <div class="pageBannerPath">
-                        <a href="{{route('client.home')}}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Đơn hàng</span>
+    <!-- Banner Section -->
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2>Đơn hàng của tôi</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Đơn hàng</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-                @endif
+
+    </div>
+</section>
+
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
                     @if (session('error'))
                         <div class="alert alert-danger">
@@ -43,114 +47,10 @@
                 </div>
                 @endif --}}
 
-                @if ($orders->isEmpty())
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
-                    <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
-                    <a href="{{ route('client.products.index') }}" class="ulinaBTN">
-                        <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
-                    </a>
-                </div>
-                @else
-                <!-- Filter Tabs -->
-                <div class="order-filters mb-4">
-                    <ul class="nav nav-pills justify-content-center" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active filter-btn" data-filter="all">
-                                <i class="fas fa-list me-2"></i>Tất cả
-                                <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link filter-btn" data-filter="pending">
-                                <i class="fas fa-clock me-2"></i>Chờ xác nhận
-                                <span class="count-badge" id="count-pending">0</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link filter-btn" data-filter="processing">
-                                <i class="fas fa-box me-2"></i>Đang xử lý
-                                <span class="count-badge" id="count-processing">0</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link filter-btn" data-filter="completed">
-                                <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                                <span class="count-badge" id="count-completed">0</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link filter-btn" data-filter="cancelled">
-                                <i class="fas fa-times-circle me-2"></i>Đã hủy
-                                <span class="count-badge" id="count-cancelled">0</span>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Search Box -->
-                <div class="search-box mb-4">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="orderSearch" placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
-                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Orders List -->
-                <div class="orders-container">
-                    @foreach ($orders as $order)
-                    @php
-                    $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
-                    $statusClass = '';
-
-                    // Phân loại trạng thái
-                    switch ($statusName) {
-                    case 'Chờ xử lý':
-                    case 'Chờ Xác Nhận':
-                    case 'Đang chờ xác nhận':
-                    $statusClass = 'pending';
-                    break;
-                    case 'Đang xử lý':
-                    case 'Đang chuẩn bị':
-                    case 'Đang giao hàng':
-                    case 'Đã xác nhận':
-                    case 'Đã gửi hàng':
-                    $statusClass = 'processing';
-                    break;
-                    case 'Đã hoàn thành':
-                    case 'Hoàn thành':
-                    case 'Đã giao hàng':
-                    $statusClass = 'completed';
-                    break;
-                    case 'Hủy Đơn':
-                    case 'Hủy đơn hàng':
-                    $statusClass = 'cancelled';
-                    break;
-                    default:
-                    $statusClass = 'pending';
-                    }
-                    @endphp
-
-                    <div class="order-card" data-status="{{ $statusClass }}" data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
-                        <!-- Order Header -->
-                        <div class="order-header">
-                            <div class="order-info">
-                                <div class="order-code">
-                                    <i class="fas fa-receipt me-2"></i>
-                                    <span class="fw-bold">#{{ $order->code }}</span>
-                                </div>
-                                <div class="order-date">
-                                    <i class="far fa-calendar-alt me-1"></i>
-                                    {{ $order->created_at->format('d/m/Y H:i') }}
-                                </div>
+                    @if ($orders->isEmpty())
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-shopping-bag"></i>
                             </div>
                             <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
                             <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
@@ -305,11 +205,12 @@
                                                     </h6>
                                                     <p class="product-variant">
                                                         <i class="fas fa-tag me-1"></i>
-                                                        @if ($item->variant)
-                                                            @foreach ($item->variant->attributeValues as $attrValue)
-                                                                {{ $attrValue->value }}
-                                                            @endforeach
-                                                        @endif
+                                                        @if (is_array($item->attributes_variant))
+    @foreach ($item->attributes_variant as $key => $variant)
+        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+    @endforeach
+@endif
+
                                                     </p>
                                                     <div class="quantity-badge">
                                                         <i class="fas fa-times me-1"></i>{{ $item->quantity }}
@@ -405,13 +306,13 @@
                                                 @if ($order->payment_id == 2)
                                                     <!-- COD -->
                                                     <a href="{{ route('client.orders.cancel-form', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
                                                         <i class="fas fa-times-circle me-1"></i>Hủy Đơn
                                                     </a>
                                                 @elseif ($order->payment_id == 3 || $order->payment_id == 4)
                                                     <!-- Online payment -->
                                                     <a href="{{ route('client.orders.cancel-online', $order->id) }}"
-                                                        class="btn btn-outline-primary btn-sm action-btn cancel-order-btn">
+                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
                                                         <i class="fas fa-times-circle me-1"></i>Hủy Đơn
                                                     </a>
                                                 @endif
@@ -430,7 +331,7 @@
                                                 </form>
                                             @endif
                                             <a href="{{ route('client.orders.show', $order->code) }}"
-                                                class="btn btn-outline-info btn-sm me-2">
+                                                class="btn btn-sm me-2 rounded-pill detail-btn">
                                                 <i class="fas fa-eye me-1"></i>Chi tiết
                                             </a>
 
@@ -446,51 +347,6 @@
                             @endforeach
                         </div>
 
-
-                        <!-- Order Footer -->
-                        <div class="order-footer">
-                            <div class="shop-info">
-                                <i class="fas fa-store me-2"></i>
-                                <span class="shop-name"> <tr>
-
-                                    <td class="text-end fw-bold pe-4"> <span class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span></td>
-                                </span>
-                            </div>
-
-                            <div class="order-actions">
-                                 @if ($statusName === 'Chờ Xác Nhận')
-                                    @if ($order->payment_id == 2) <!-- COD -->
-                                        <a href="{{ route('client.orders.cancel-form', $order->id) }}" class="ulinaBTN">
-                                            <span>
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
-                                        </a>
-                                    @elseif ($order->payment_id == 3 || $order->payment_id == 4) <!-- Online payment -->
-                                        <a href="{{ route('client.orders.cancel-online', $order->id) }}" class="ulinaBTN">
-                                            <span>
-                                            <i class="fas fa-times-circle me-1"></i>Hủy Đơn</span>
-                                        </a>
-                                    @endif
-                                @endif
-
-                                     @if ($statusName === 'Đang giao hàng')
-                                    <form action="{{ route('client.orders.received', $order->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-outline-success btn-sm action-btn cancel-order-btn" onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                            <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
-                                        </button>
-                                    </form>
-                                    @endif
-                                <a href="{{ route('client.orders.show', $order->code) }}" class="ulinaBTN">
-                                    <span class="">
-                                    <i class="fas fa-eye me-1"></i>Chi tiết</span>
-                                </a>
-
-
-                                <div class="total-amount">
-                                    <span class="total-label">Tổng tiền:</span>
-                                    <span class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
-                                </div>
                         <!-- No Results Message -->
                         <div class="no-results d-none">
                             <div class="text-center py-5">
@@ -510,7 +366,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <style>
         /* Previous styles remain the same... */
@@ -606,16 +461,15 @@
         }
 
         .nav-pills .nav-link:hover {
-            color: #3a6f54;
+            color: #16a34a;
             background-color: #ecf5f4;
             transform: translateY(-2px);
         }
 
         .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #5e7674 0%, #59736e 100%);
+            background: linear-gradient(135deg, #2b6051 0%, #416760 100%);
             color: white;
-            /* color: rgb(158, 187, 189); */
-            box-shadow: 0 5px 15px rgb(157, 173, 170);
+            box-shadow: 0 5px 15px rgb(150 170 157);
             transform: translateY(-2px);
         }
 
@@ -635,7 +489,7 @@
 
         .nav-link.active .count-badge {
             background: rgba(255, 255, 255, 0.9);
-            color: #256b57;
+            color: #16a34a;
         }
 
         /* Search Box */
@@ -681,7 +535,7 @@
 
         /* Order Header */
         .order-header {
-            background: linear-gradient(135deg, #ecf5f4 0%, #d1fae5 100%);
+            background: linear-gradient(135deg, #ecf5f4 0%, #3b726270 100%);
             padding: 20px 25px;
             border-bottom: 1px solid rgba(34, 197, 94, 0.1);
             display: flex;
@@ -836,7 +690,7 @@
         .price {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #16a34a;
+            color: #7b9496;
         }
 
         .item-actions {
@@ -846,7 +700,7 @@
             flex-shrink: 0;
         }
 
-        .action-btn {
+        .action-btn,  .detail-btn {
             min-width: 120px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -854,7 +708,13 @@
             padding: 8px 16px;
             transition: all 0.3s ease;
         }
-
+        .detail-btn{
+            border: 1px solid #7b9496;
+        }
+        .detail-btn:hover{
+            background: #7b9496;
+            color: #fff;
+        }
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -882,7 +742,7 @@
         }
 
         .shop-name {
-            color: #16a34a;
+            color: #7b9496;
             font-weight: 600;
         }
 
@@ -907,7 +767,7 @@
         .total-price {
             font-size: 1.4rem;
             font-weight: 700;
-            color: #16a34a;
+            color: #7b9496;
         }
 
         /* Pagination */
@@ -1034,7 +894,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #16a34a;
+            border-top: 3px solid #7b9496;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }

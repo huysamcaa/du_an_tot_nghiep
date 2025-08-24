@@ -236,9 +236,11 @@ class Product extends Model
     $minSale = $this->variants()->whereNotNull('sale_price')->min('sale_price');
     $maxSale = $this->variants()->whereNotNull('sale_price')->max('sale_price');
 
+
     $minPrice = $this->variants()->min('price');
     $maxPrice = $this->variants()->max('price');
 
+   
     // Giá thấp nhất và cao nhất
     $min = $minSale ?? $minPrice ?? 0;
     $max = $maxSale ?? $maxPrice ?? 0;

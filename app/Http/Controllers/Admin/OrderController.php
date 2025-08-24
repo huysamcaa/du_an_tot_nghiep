@@ -100,7 +100,7 @@ class OrderController extends Controller
         'statuses.orderStatus', // Đổi tên mối quan hệ từ 'orderOrderStatuses' sang 'statuses' để code nhất quán
         'currentStatus.orderStatus'
     ])->findOrFail($id);
-    
+
     // Nếu bạn không muốn đổi tên mối quan hệ trong model, bạn có thể truyền lại biến:
     $order->statuses = $order->orderOrderStatuses;
 
@@ -202,7 +202,7 @@ class OrderController extends Controller
             $order = Order::with('items.variant')->findOrFail($orderId);
 
             // Kiểm tra payment_id = 1 (COD)
-            if ($order->payment_id == 1) {
+            if ($order->payment_id == 2) {
                 foreach ($order->items as $item) {
                     if (!$item->variant) {
                         $connection->rollBack();
