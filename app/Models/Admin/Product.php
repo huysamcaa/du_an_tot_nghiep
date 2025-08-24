@@ -206,5 +206,20 @@ protected function getStatusLabel($status)
 
     return $labels[strtolower($status)] ?? $status;
 }
+ public function getPriceRangeAttribute()
+{
+    // Lấy min/max của sale_price, nếu null thì dùng price
+    $minSale = $this->variants()->whereNotNull('sale_price')->min('sale_price');
+    $maxSale = $this->variants()->whereNotNull('sale_price')->max('sale_price');
+
+    $minPrice = $this->variants()->min('price');
+    $maxPrice = $this->variants()->max('price');
+
+    // Giá thấp nhất và cao nhất
+    $min = $minSale ?? $minPrice ?? 0;
+    $max = $maxSale ?? $maxPrice ?? 0;
+
+    return [$min, $max];
+}
 
 }
