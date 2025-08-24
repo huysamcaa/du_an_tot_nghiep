@@ -7,7 +7,6 @@ use App\Models\BlogCategory; // 👈 nhớ import model blog category
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Admin\OrderOrderStatus;
 use App\Observers\OrderOrderStatusObserver;
@@ -52,10 +51,12 @@ class AppServiceProvider extends ServiceProvider
             // Danh mục blog
             $blogCategories = BlogCategory::all();
 
+
             $view->with([
                 'footerCategories' => $footerCategories,
                 'blogCategories'   => $blogCategories,
             ]);
         });
+
     }
 }
