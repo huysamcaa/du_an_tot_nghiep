@@ -251,7 +251,7 @@
                         </div> --}}
                         @foreach($productAttributes as $attrSlug => $attr)
                             <div class="pcVariation">
-                                <span class="mt-2">{{ $attr['label'] }}</span>
+                                <span class="mt-2 me-2">{{ $attr['label'] }}</span>
                                 <div class="pcvContainer">
                                     @foreach($attr['values'] as $value)
                                         <div class="attributeOptionWrapper">
@@ -947,8 +947,8 @@
                     }
 
                     const cartWidgetArea = document.querySelector('.cartWidgetArea');
-                    if (cartWidgetArea && data.cartIcon) {
-                        cartWidgetArea.innerHTML = data.cartIcon;
+                    if (cartWidgetArea && data.cartWidget) {
+                        cartWidgetArea.innerHTML = data.cartWidget;
                     }
                     return Swal.fire({
                         icon: 'success',

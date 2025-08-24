@@ -7,7 +7,7 @@
         padding: 10px 0;
     }
     .pageBannerContent h2 {
-        
+
         font-size: 72px;
         color:#52586D;
         font-family: 'Jost', sans-serif;
@@ -19,15 +19,15 @@
     .checkoutPage {
     margin-top: 0 !important;
     padding-top: 0 !important;
-    
+
 }
 .pageBannerSection {
-    padding: 20px 0; 
-    min-height: 10px; 
+    padding: 20px 0;
+    min-height: 10px;
 }
 
 .pageBannerSection .pageBannerContent h2 {
-    font-size: 38px; 
+    font-size: 38px;
     margin-bottom: 10px;
 }
 .pageBannerPath {
@@ -76,7 +76,7 @@
             @if ($notification->coupon_id)
                 <p>
                     <strong>Mã giảm giá:</strong>
-                    <a href="{{ route('client.coupons.show', $notification->coupon_id) }}" 
+                    <a href="{{ route('client.coupons.show', $notification->coupon_id) }}"
                        class="btn btn-sm btn-success ms-2">
                         Xem chi tiết
                     </a>
@@ -84,7 +84,7 @@
             @elseif ($notification->order_id)
                 <p>
                     <strong>Đơn hàng:</strong>
-                    <a href="{{ route('client.orders.show', $notification->order_id) }}" 
+                    <a href="{{ route('client.orders.show', $notification->order_id) }}"
                        class="btn btn-sm btn-secondary ms-2">
                         Xem chi tiết
                     </a>

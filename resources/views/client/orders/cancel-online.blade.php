@@ -8,7 +8,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0">Hủy đơn hàng #{{ $order->code }}</h4>
+                    <h4 class="mb-0 text-light">Hủy đơn hàng #{{ $order->code }}</h4>
                 </div>
 
                 <div class="card-body">
@@ -65,7 +65,7 @@
                         @if($order->is_paid)
                         <div class="mb-4">
                             <h5 class="fw-bold border-bottom pb-2 mb-3">2. Thông tin hoàn tiền</h5>
-                            
+
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>
                                 Vui lòng cung cấp thông tin tài khoản ngân hàng để nhận hoàn tiền
@@ -94,7 +94,7 @@
 
                                 <div class="col-md-6">
                                     <label for="account_name" class="form-label">Tên tài khoản <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('account_name') is-invalid @enderror" id="account_name" name="account_name" 
+                                    <input type="text" class="form-control @error('account_name') is-invalid @enderror" id="account_name" name="account_name"
                                         placeholder="Nguyen Van A" value="{{ old('account_name') }}" required>
                                     @error('account_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -103,7 +103,7 @@
 
                                 <div class="col-md-6">
                                     <label for="account_number" class="form-label">Số tài khoản <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('account_number') is-invalid @enderror" id="account_number" name="account_number" 
+                                    <input type="text" class="form-control @error('account_number') is-invalid @enderror" id="account_number" name="account_number"
                                         placeholder="1234567890" value="{{ old('account_number') }}" required>
                                     @error('account_number')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -112,7 +112,7 @@
 
                                 <div class="col-md-6">
                                     <label for="phone_number" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                    <input type="tel" class="form-control @error('phone_number') is-invalid @enderror" id="phone_number" name="phone_number" 
+                                    <input type="tel" class="form-control @error('phone_number') is-invalid @enderror" id="phone_number" name="phone_number"
                                         placeholder="0987654321" value="{{ old('phone_number') }}" required>
                                     @error('phone_number')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -123,10 +123,10 @@
                         @endif
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="{{ route('client.orders.purchase.history') }}" class="btn btn-secondary me-md-2">
+                            <a href="{{ route('client.orders.purchase.history') }}" class="btn btn-outline-secondary me-md-2 rounded-5">
                                 <i class="fas fa-arrow-left me-1"></i> Quay lại
                             </a>
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger rounded-5">
                                 <i class="fas fa-times-circle me-1"></i> Xác nhận hủy
                             </button>
                         </div>
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Gắn sự kiện
     reasonSelect.addEventListener('change', handleReasonChange);
-    
+
     // Khởi tạo trạng thái ban đầu
     handleReasonChange();
 });
@@ -168,26 +168,26 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         border: none;
     }
-    
+
     .card-header {
         border-radius: 10px 10px 0 0 !important;
         padding: 1.5rem;
     }
-    
+
     .form-select, .form-control {
         padding: 0.8rem 1rem;
         font-size: 1rem;
     }
-    
+
     textarea.form-control {
         min-height: 100px;
     }
-    
+
     .btn {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
     }
-    
+
     .border-bottom {
         border-bottom: 2px solid #dee2e6 !important;
     }

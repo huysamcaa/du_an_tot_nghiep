@@ -64,6 +64,25 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+.list-group-item {
+    border-width: 1px !important;     /* ép viền đủ 4 phía */
+    border-style: solid !important;
+    margin-bottom: 12px;              /* tạo khoảng cách giữa các item */
+    border-radius: 12px !important;   /* bo góc */
+}
+
+.list-group-item.bg-light.border-primary {
+    border-color: #0d6efd !important; /* viền xanh khi chưa đọc */
+}
+
+.list-group-item.bg-white.border {
+    border-color: #dee2e6 !important; /* viền xám khi đã đọc */
+}
+
+.list-group {
+    border: none !important; /* xoá border mặc định list-group */
+}
+
 </style>
 <!-- BEGIN: Page Banner Section -->
 <section class="pageBannerSection">
