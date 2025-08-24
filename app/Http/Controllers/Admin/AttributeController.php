@@ -36,14 +36,14 @@ class AttributeController extends Controller
    $request->validate([
     'name' => 'required|string|max:255',
     'slug' => 'required|string|max:255|unique:attributes,slug',
-    'is_variant' => 'required|boolean',
+    
     'is_active' => 'required|boolean',
     'values' => 'nullable|array',
-    'values.*.name' => 'required|string|max:255',
+    'values.*.name' => 'required|string|ma  x:255',
     'values.*.hex' => 'required|string|max:7',
 ]);
 
-    $attribute = Attribute::create($request->only(['name', 'slug', 'is_variant', 'is_active']));
+    $attribute = Attribute::create($request->only(['name', 'slug', 'is_active']));
 
     // Thêm giá trị thuộc tính nếu có
     if ($request->has('values')) {

@@ -12,7 +12,9 @@ class OrderItem extends Model
     protected $guarded = [];
     public $timestamps = false;
     
-
+    protected $casts = [
+        'attributes_variant' => 'array',
+    ];
     public function order()
     {
         return $this->belongsTo(Order::class);

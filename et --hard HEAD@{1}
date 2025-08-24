@@ -1,0 +1,127 @@
+[33ma03981e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mĐỗ-Quang-Huy[m[33m, [m[1;31morigin/Đỗ-Quang-Huy[m[33m)[m HEAD@{0}: commit: gop code
+[33m49d4705[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: pull origin main: Fast-forward
+[33m7234223[m HEAD@{2}: pull origin main: Fast-forward
+[33m7a7e288[m HEAD@{3}: commit (merge): gop code
+[33m0978b28[m HEAD@{4}: commit (merge): gop code
+[33m601f4ad[m HEAD@{5}: commit: fix code
+[33m39e6c7f[m HEAD@{6}: commit: chọn ngân hàng hoàn tiền
+[33ma78719d[m HEAD@{7}: pull origin main: Fast-forward
+[33m19b9a0c[m HEAD@{8}: commit: sửa trạng xhi tiết đơn hàng
+[33meb655d7[m HEAD@{9}: pull origin main: Fast-forward
+[33md0c7c08[m HEAD@{10}: pull origin main: Fast-forward
+[33m5707d84[m HEAD@{11}: reset: moving to HEAD
+[33m5707d84[m HEAD@{12}: pull origin main: Fast-forward
+[33m5f69359[m HEAD@{13}: commit: code giao dien
+[33m44abcf2[m HEAD@{14}: pull origin main: Fast-forward
+[33m7383110[m HEAD@{15}: pull origin main: Fast-forward
+[33m7c61dfb[m HEAD@{16}: pull origin main: Fast-forward
+[33m8a97af5[m HEAD@{17}: commit: code sửa biến thể
+[33mb04bf25[m HEAD@{18}: pull origin main: Fast-forward
+[33m31437c4[m HEAD@{19}: pull origin main: Fast-forward
+[33mdeb4016[m HEAD@{20}: pull origin main: Fast-forward
+[33me1e9f1e[m HEAD@{21}: commit: sale biến thể vs mã giảm giá sửa
+[33m23f74ab[m HEAD@{22}: commit: sửa phần thanh toán
+[33m7dc63e7[m HEAD@{23}: commit: thêm biến thể
+[33m7d83580[m HEAD@{24}: pull origin main: Fast-forward
+[33md7f9536[m HEAD@{25}: pull origin main: Fast-forward
+[33mbf1c016[m HEAD@{26}: commit: sửa lỗi thanh toán
+[33mdcd1979[m HEAD@{27}: commit: Sửa giao diện thanh toán
+[33m9a5b3fe[m HEAD@{28}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33ma990cd4[m HEAD@{29}: commit (merge): sửa giao diện admin
+[33m41db938[m HEAD@{30}: commit (merge): sửa giao diện
+[33mfc56f8c[m HEAD@{31}: commit (merge): code cu
+[33ma01e7b1[m HEAD@{32}: commit (merge): Cập nhật checkout.blade.php
+[33mc49aa01[m HEAD@{33}: commit: Cập nhật checkout.blade.php
+[33m6bfe905[m HEAD@{34}: commit: suatt
+[33mbcb68bd[m HEAD@{35}: pull origin main: Fast-forward
+[33m9f6a159[m HEAD@{36}: pull origin main: Fast-forward
+[33mb7b02fc[m HEAD@{37}: pull origin main: Fast-forward
+[33m7161834[m HEAD@{38}: commit (merge): sủa sản phẩm biến thể
+[33mde688d1[m HEAD@{39}: commit (merge): gop code
+[33mad1c345[m HEAD@{40}: commit (merge): gop code
+[33m4d58d62[m HEAD@{41}: commit (merge): gop cod
+[33ma9fe355[m HEAD@{42}: commit (merge): gop code
+[33m9ec66025[m HEAD@{43}: commit: Sửa OrderController và giao diện refunds
+[33m2377ec4[m HEAD@{44}: pull origin main: Fast-forward
+[33m97f1773[m HEAD@{45}: commit (merge): fix loi
+[33m1e5e297[m HEAD@{46}: commit: gop code
+[33m8ca5bfc[m HEAD@{47}: commit: dia chỉ tt , don hang
+[33me834c27[m HEAD@{48}: commit: gop code
+[33m77c2c14[m HEAD@{49}: commit: hoan thien
+[33m3c1228e[m HEAD@{50}: commit: Làm trạng thái Hủy/Nhận Hàng Client
+[33m4dbf715[m HEAD@{51}: pull origin main: Fast-forward
+[33maa4aee5[m HEAD@{52}: commit: fit thanh toan gop loi
+[33m1d7b508[m HEAD@{53}: pull origin main: Fast-forward
+[33m93d7482[m HEAD@{54}: commit: gop code
+[33m2ee6d16[m HEAD@{55}: pull origin main: Fast-forward
+[33m693ccfe[m HEAD@{56}: commit: fix thanh toan
+[33m47b3bde[m HEAD@{57}: commit: code loi
+[33mb1daa2e[m HEAD@{58}: commit (merge): fix lỗi
+[33m16e51f6[m HEAD@{59}: commit: WIP: chỉnh sửa OrderController
+[33me2394a7[m HEAD@{60}: commit (merge): fix looi
+[33mb3a8683[m HEAD@{61}: commit (merge): fix đè
+[33m955b3b1[m HEAD@{62}: commit (merge): sua de
+[33m4c367ea[m HEAD@{63}: commit: WIP: chỉnh sửa giao diện lịch sử mua hàng
+[33mf17f695[m HEAD@{64}: pull origin main: Fast-forward
+[33m89c70a3[m HEAD@{65}: commit: sửa TT
+[33mb250863[m HEAD@{66}: commit: gop code
+[33mb38d999[m HEAD@{67}: pull origin main: Fast-forward
+[33m8eb3f73[m HEAD@{68}: commit: fix loi
+[33m1d90d7a[m HEAD@{69}: pull origin main: Fast-forward
+[33mb249898[m HEAD@{70}: commit: Gộp code
+[33me13a151[m HEAD@{71}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33mace043e[m HEAD@{72}: commit: fix lỗi
+[33ma24739f[m HEAD@{73}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33m8285e28[m HEAD@{74}: commit (merge): ghepcode
+[33m77d6109[m HEAD@{75}: commit (merge): ghep code
+[33mfc46f8e[m HEAD@{76}: commit (merge): ghép code
+[33ma0f9205[m HEAD@{77}: commit: Thay đổi trong CheckoutController
+[33mb5092fd[m HEAD@{78}: commit: Mô tả thay đổi
+[33mfbe41f2[m HEAD@{79}: commit (merge): Resolve merge conflict
+[33m06a94d8[m HEAD@{80}: commit (merge): Resolve merge conflict
+[33m50173c4[m HEAD@{81}: commit: code 1
+[33m1c52577[m HEAD@{82}: commit: sưa chi tiet sp
+[33m7883113[m HEAD@{83}: pull origin main: Fast-forward
+[33mc5411b8[m HEAD@{84}: pull: Fast-forward
+[33me52a28e[m HEAD@{85}: reset: moving to e52a28e
+[33m7883113[m HEAD@{86}: pull origin main: Fast-forward
+[33mc5411b8[m HEAD@{87}: pull: Fast-forward
+[33me52a28e[m HEAD@{88}: reset: moving to e52a28e
+[33m7883113[m HEAD@{89}: pull origin main: Fast-forward
+[33mc5411b8[m HEAD@{90}: commit: sua thanh toan
+[33m01bd592[m HEAD@{91}: pull origin main: Fast-forward
+[33m1f96548[m HEAD@{92}: pull origin main: Fast-forward
+[33me52a28e[m HEAD@{93}: commit (merge): sửa lại lịch sử mua hàng
+[33m3c40ffe[m HEAD@{94}: commit: Hoàn tất Thanh Toán Online
+[33m1ce42ef[m HEAD@{95}: commit: Phần Lịch Sửa Đơn Hàng
+[33mb38a510[m HEAD@{96}: pull origin main: Fast-forward
+[33me6c1544[m HEAD@{97}: commit: Phần Lịch sử mua hàng
+[33m1971eef[m HEAD@{98}: pull origin main: Fast-forward
+[33mb5738fd[m HEAD@{99}: pull origin main: Fast-forward
+[33me1f9241[m HEAD@{100}: commit: Mô tả nội dung thay đổi
+[33m5c9b7b1[m HEAD@{101}: pull origin main: Fast-forward
+[33m771121d[m HEAD@{102}: pull: Fast-forward
+[33me648e27[m HEAD@{103}: commit: sửa lỗi tt
+[33m9aa610c[m HEAD@{104}: reset: moving to ORIG_HEAD
+[33m74062f9[m HEAD@{105}: reset: moving to ORIG_HEAD
+[33m9aa610c[m HEAD@{106}: commit (merge): Merge branch 'main' into Đỗ-Quang-Huy
+[33m74062f9[m HEAD@{107}: commit: Lưu thay đổi trước khi merge
+[33m9cc3ebc[m HEAD@{108}: commit: Lưu thay đổi trước khi merge
+[33me6b9762[m HEAD@{109}: pull origin main: updating HEAD
+[33me6b9762[m HEAD@{110}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33m430045d[m HEAD@{111}: commit (merge): Hoàn tất merge sau khi xử lý xung đột
+[33mf18acb8[m HEAD@{112}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33m42fd7f6[m HEAD@{113}: commit (merge): Hoàn tất merge sau khi giải quyết xung đột
+[33mb5dfb2a[m HEAD@{114}: commit (merge): Giải quyết xung đột và kết thúc merge
+[33m6330748[m HEAD@{115}: commit (merge): Giải quyết xung đột file index.blade.php
+[33m80c3dd8[m HEAD@{116}: commit: Lưu thay đổi trước khi merge
+[33m95f3c39[m HEAD@{117}: pull origin main: updating HEAD
+[33m95f3c39[m HEAD@{118}: commit (merge): Hoàn tất merge
+[33m2d715b1[m HEAD@{119}: commit (merge): Hoàn tất merge
+[33mf09aa48[m HEAD@{120}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into Đỗ-Quang-Huy
+[33mddcd996[m HEAD@{121}: commit: Lưu thay đổi trước khi merge
+[33m2ab5c51[m HEAD@{122}: pull origin main: Fast-forward
+[33m142e269[m HEAD@{123}: commit (merge): huy fix bug
+[33m156aea4[m HEAD@{124}: commit: Chỉnh sửa chi tiết sản phẩm
+[33mc6d8eaf[m HEAD@{125}: pull origin main: Fast-forward
+[33meda00bb[m HEAD@{126}: commit (merge): Merge branch 'main' of https://github.com/huysamcaa/du_an_tot_nghiep into 

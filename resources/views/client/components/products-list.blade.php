@@ -126,38 +126,6 @@
                             @endif
                         </div>
                     @endforeach
-                    {{-- @if($sizeValues->count())
-                        <div class="product-sizes mt-1">
-                            <strong>Size:</strong>
-                            @foreach($sizeValues as $av)
-                                <span class="badge bg-light text-dark border size-option"
-                                      data-id="{{ $av->id }}"
-                                      data-size="{{ $av->value }}">
-                                    {{ $av->value }}
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif --}}
-
-                    {{-- Color options --}}
-                    {{-- @php
-                        $colorValues = $product->variants
-                            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color'))
-                            ->unique('id')
-                            ->values();
-                    @endphp
-                    @if($colorValues->count())
-                        <div class="product-colors mt-1 d-flex gap-1">
-                            <strong class="me-1">Màu:</strong>
-                            @foreach($colorValues as $av)
-                                <span class="color-circle color-option"
-                                      data-id="{{ $av->id }}"
-                                      data-color="{{ \Illuminate\Support\Str::start($av->hex, '#') }}"
-                                      style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($av->hex, '#') }}; border:1px solid #ccc; cursor:pointer;">
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif --}}
 
                 </div>
             </div>
@@ -339,17 +307,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Chọn attribute
+    // Xử lý chọn thuộc tính
     document.querySelectorAll('.attribute-option').forEach(el => {
         el.addEventListener('click', e => {
             let parent = e.target.closest(".product-attribute");
-            parent.querySelectorAll(".attribute-option")
-                .forEach(opt => opt.classList.remove("selected"));
+            parent.querySelectorAll(".attribute-option").forEach(opt => opt.classList.remove("selected"));
             e.target.classList.add("selected");
+
             let productCard = e.target.closest(".productItem01");
             let productId = productCard.querySelector(".piAddToCart").dataset.id;
 
-            // Thu thập tất cả attribute đã chọn
+            // Thu thập các thuộc tính đã chọn
             let selectedIds = [];
             productCard.querySelectorAll(".attribute-option.selected").forEach(sel => {
                 selectedIds.push(sel.dataset.id);
@@ -357,7 +325,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let requiredCount = productCard.querySelectorAll(".product-attribute").length;
             if (selectedIds.length === requiredCount) {
-                // Gọi checkVariant
                 fetch("{{ route('check.variant') }}", {
                     method: "POST",
                     headers: {
@@ -388,21 +355,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Thêm vào giỏ
+    // Xử lý thêm vào giỏ hàng
     document.querySelectorAll('.piAddToCart').forEach(btn => {
-        if (btn.dataset.bound) return; // tránh gắn trùng
+        if (btn.dataset.bound) return;
         btn.dataset.bound = "true";
+
         btn.addEventListener('click', function (e) {
             e.preventDefault();
-            e.stopPropagation(); // chặn nổi bọt
+            e.stopPropagation();
 
             let productCard = this.closest(".productItem01");
             let productId = this.dataset.id;
 
-            // Lấy attribute đã chọn
+            // Thu thập thuộc tính đã chọn
             let selectedAttributes = {};
-            productCard.querySelectorAll(".attribute-option.selected")
-                .forEach(el => selectedAttributes[el.dataset.attribute] = el.dataset.id);
+            productCard.querySelectorAll(".attribute-option.selected").forEach(el => {
+                selectedAttributes[el.dataset.attribute] = el.dataset.id;
+            });
 
             let requiredCount = productCard.querySelectorAll(".product-attribute").length;
             if (Object.keys(selectedAttributes).length < requiredCount) {
@@ -416,7 +385,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append("attribute_values[]", selectedAttributes[key]);
             }
 
-            // Disable tránh double click
             this.classList.add("disabled");
 
             fetch("{{ route('cart.add') }}", {
@@ -430,18 +398,25 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-        //             // Cập nhật số lượng sản phẩm trên icon giỏ
-        document.querySelector(".cart-count").innerText = data.totalProduct;
+                    // Kiểm tra và cập nhật số lượng sản phẩm
+                    const cartCountEl = document.querySelector(".cart-count");
+                    if (cartCountEl && data.totalProduct !== undefined) {
+                        cartCountEl.innerText = data.totalProduct;
+                    }
 
-        // Cập nhật lại dropdown / widget giỏ hàng
-        document.querySelector(".cartWidgetArea").innerHTML = data.cartIcon;
+                    // Cập nhật widget giỏ hàng
+                    const cartWidgetEl = document.querySelector(".cartWidgetArea");
+                    if (cartWidgetEl && data.cartIcon) {
+                        cartWidgetEl.innerHTML = data.cartIcon;
+                    }
+
                     alert("Đã thêm sản phẩm vào giỏ hàng");
                 } else {
                     alert(data.message || "Có lỗi xảy ra!");
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error("Thêm giỏ hàng lỗi:", err);
                 alert("Không thể thêm sản phẩm vào giỏ");
             })
             .finally(() => {
@@ -450,5 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+</script>
+
 
 </script>
