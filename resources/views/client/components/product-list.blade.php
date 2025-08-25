@@ -190,8 +190,6 @@
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" name="variant_id" value="">
-                            <input type="hidden" name="size" value="">
-                            <input type="hidden" name="color" value="">
                         </form>
                         <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
                     </div>
@@ -218,41 +216,34 @@
                         @endif
                     </div>
 
-                    {{-- Sizes --}}
-                    @php
-                        $sizeValues = $product->variants
-                            ->flatMap(fn($v) => $v->attributeValues->where('attribute.slug', 'size'))
-                            ->unique('id')
-                            ->values();
-                    @endphp
-                    @if($sizeValues->count())
-                        <div class="product-sizes mt-1">
-                            <strong>Size:</strong>
-                            @foreach($sizeValues as $av)
-                                <span class="badge bg-light text-dark border size-option"
-                                      data-id="{{ $av->id }}">{{ $av->value }}</span>
-                            @endforeach
-                        </div>
-                    @endif
+@php
+    $attributesGrouped = $product->variants
+        ->flatMap(fn($v) => $v->attributeValues)
+        ->groupBy(fn($av) => $av->attribute->slug);
+@endphp
 
-                    {{-- Colors --}}
-                    @php
-                        $colorValues = $product->variants
-                            ->flatMap(fn($v) => $v->attributeValues->where('attribute.slug', 'color'))
-                            ->unique('id')
-                            ->values();
-                    @endphp
-                    @if($colorValues->count())
-                        <div class="product-colors mt-1 d-flex gap-1">
-                            <strong class="me-1">Màu:</strong>
-                            @foreach($colorValues as $av)
-                                <span class="color-circle color-option"
-                                      data-id="{{ $av->id }}"
-                                      style="width:16px;height:16px;border-radius:50%;background:{{ \Illuminate\Support\Str::start($av->hex, '#') }};border:1px solid #ccc;cursor:pointer;">
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif
+@foreach($attributesGrouped as $slug => $values)
+<div class="product-attribute mt-1 d-flex align-items-center gap-1 flex-wrap">
+    <strong class="me-1">{{ ucfirst($slug) }}:</strong>
+    @foreach($values->unique('id') as $av)
+        @if($slug === 'color')
+            <span class="attr-option color-option"
+                  data-attr="{{ $slug }}"
+                  data-id="{{ $av->id }}"
+                  style="width:16px;height:16px;border-radius:50%;background:{{ \Illuminate\Support\Str::start($av->hex, '#') }};border:1px solid #ccc;cursor:pointer;">
+            </span>
+        @else
+            <span class="badge bg-light text-dark border attr-option"
+                  data-attr="{{ $slug }}"
+                  data-id="{{ $av->id }}">
+                {{ $av->value }}
+            </span>
+        @endif
+    @endforeach
+</div>
+
+@endforeach
+
                 </div>
             </div>
         </div>
@@ -401,19 +392,34 @@
     .pi01Thumb:hover::after {
         opacity: 1;
     }
+/* Size, material (badge) */
+.attr-option.selected:not(.color-option) {
+    background: #7b9494 !important;
+    color: #fff !important;
+    border: 1px solid #7b9494 !important;
+}
 
-    .size-option.selected {
-        background: #7b9494 !important;
-        color: #fff !important;
-    }
+/* Circle (color) */
+.color-option {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #ccc;
+    transition: all 0.2s ease;
+}
 
-    .color-option.selected {
-        border: 2px solid #7b9494 !important;
-    }
+/* Hover */
+.color-option:hover {
+    border-color: #7b9494;
+}
 
-    .color-circle {
-        margin-top: 5px;
-    }
+/* Khi chọn màu: không đổi background, chỉ thêm viền nổi bật */
+.color-option.selected {
+    border: 3px solid #000 !important;
+}
+
 </style>
 
 <script>
@@ -422,21 +428,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updatePriceAndForm(card){
         const variants = JSON.parse(card.dataset.variants || '[]');
-        const sizeId = card.querySelector('.size-option.selected')?.dataset.id;
-        const colorId = card.querySelector('.color-option.selected')?.dataset.id;
-        const form = card.querySelector('form');
+        const selected = {};
 
-        if(!sizeId || !colorId){
-            form.variant_id.value = '';
-            form.size.value = sizeId||'';
-            form.color.value = colorId||'';
-            return;
+        // Thu thập attr đã chọn
+        card.querySelectorAll('.attr-option.selected').forEach(el=>{
+            selected[el.dataset.attr] = el.dataset.id;
+        });
+
+        const form = card.querySelector('form');
+        form.variant_id.value = '';
+
+        // 🔥 Xóa hết hidden cũ
+        form.querySelectorAll('input[name="attribute_values[]"]').forEach(e=>e.remove());
+
+        // Tạo lại hidden cho mỗi attr đã chọn
+        Object.values(selected).forEach(id=>{
+            let hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'attribute_values[]';
+            hidden.value = id;
+            form.appendChild(hidden);
+        });
+
+        // Tính tổng attr cần chọn
+        const allAttrs = [...new Set(variants.flatMap(v => Object.keys(v.attrs)))];
+        const totalAttrs = allAttrs.length;
+
+        if(Object.keys(selected).length < totalAttrs){
+            return; // chưa chọn đủ thì thoát
         }
 
-        const matched = variants.find(v =>
-            String(v.attrs.size||'')===String(sizeId) &&
-            String(v.attrs.color||'')===String(colorId)
-        );
+        // Tìm variant phù hợp
+        const matched = variants.find(v=>{
+            return Object.entries(selected).every(([attr,id]) =>
+                String(v.attrs[attr]||'') === String(id)
+            );
+        });
+
         if(matched){
             const priceBox = card.querySelector('.pi01Price');
             const html = matched.sale_price
@@ -444,40 +472,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 : `<ins>${formatVND(matched.price)}</ins>`;
             priceBox.innerHTML = html;
 
-            form.variant_id.value = matched.id;
-            form.size.value = sizeId;
-            form.color.value = colorId;
+            form.variant_id.value = matched.id; // quan trọng: gán variant_id
         }
     }
 
-    document.querySelectorAll('.size-option').forEach(el=>{
+
+    // Chọn thuộc tính (dùng chung cho mọi loại attr)
+    document.querySelectorAll('.attr-option').forEach(el=>{
         el.addEventListener('click',()=>{
-            el.parentNode.querySelectorAll('.size-option').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-            updatePriceAndForm(el.closest('.productItem01'));
-        });
-    });
-    document.querySelectorAll('.color-option').forEach(el=>{
-        el.addEventListener('click',()=>{
-            el.parentNode.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));
+            const group = el.closest('.product-attribute');
+            group.querySelectorAll('.attr-option').forEach(x=>x.classList.remove('selected'));
             el.classList.add('selected');
             updatePriceAndForm(el.closest('.productItem01'));
         });
     });
 
+    // Thêm vào giỏ
     document.querySelectorAll('.piAddToCart').forEach(btn=>{
         btn.addEventListener('click',()=>{
             const form = document.getElementById('add-to-cart-form-'+btn.dataset.id);
             if(!form.variant_id.value){
-                alert('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng!');
+                alert('Vui lòng chọn đầy đủ thuộc tính trước khi thêm vào giỏ hàng!');
                 return;
             }
             fetch("{{ route('cart.add') }}",{
                 method:'POST',body:new FormData(form),
                 headers:{'X-CSRF-TOKEN':form._token.value,'X-Requested-With':'XMLHttpRequest'}
-            }).then(r=>r.json()).then(d=>{
-                if(d.success) alert('Đã thêm sản phẩm vào giỏ hàng!');
-                else alert(d.message||'Có lỗi xảy ra!');
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // cập nhật số lượng trên icon giỏ
+                    document.querySelector(".cart-count").innerText = data.totalProduct;
+
+                    // cập nhật lại dropdown giỏ hàng
+                    document.querySelector(".cartWidgetArea").innerHTML = data.cartWidget;
+
+                    alert("Đã thêm sản phẩm vào giỏ hàng");
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra!');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Có lỗi kết nối server!');
             });
         });
     });
