@@ -4,7 +4,7 @@
             <div class="col-lg-12">
                 <div class="headerInner01">
                     <div class="logo">
-                        <a href="index.html">
+                        <a href="{{ route('client.home') }}">
                             <img src="{{ asset('assets/images/logo.png') }}" alt="FreshFit" class="logo-img" />
                         </a>
                     </div>
@@ -15,7 +15,7 @@
                             </li>
 
                           <li class="menu-item-has-children">
-                                <a href="javascript:void(0);">Danh Mục </a>
+                                <a href="javascript:void(0)">Danh Mục </a>
                                 <div class="megaMenu">
                                     <div class="row">
                                         {{-- Lặp qua từng nhóm danh mục (chunks) để tạo các cột --}}
@@ -403,5 +403,5 @@
         }
     });
 
-    
+
 </script>

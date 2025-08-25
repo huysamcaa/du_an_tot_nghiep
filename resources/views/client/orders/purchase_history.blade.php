@@ -19,25 +19,25 @@
         </div>
 
 
-    </div>
-</section>
+        </div>
+    </section>
 
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
-                    @if (session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
-                        </div>
-                    @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
-                    {{-- @if ($errors->any())
+                {{-- @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
@@ -47,325 +47,326 @@
                 </div>
                 @endif --}}
 
-                    @if ($orders->isEmpty())
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-shopping-bag"></i>
-                            </div>
-                            <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
-                            <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
-                            <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
-                            </a>
+                @if ($orders->isEmpty())
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-shopping-bag"></i>
                         </div>
-                    @else
-                        <!-- Filter Tabs -->
-                        <div class="order-filters mb-4">
-                            <ul class="nav nav-pills justify-content-center" role="tablist">
-                                <li class="nav-item">
-                                    <button class="nav-link active filter-btn" data-filter="all">
-                                        <i class="fas fa-list me-2"></i>Tất cả
-                                        <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="pending">
-                                        <i class="fas fa-clock me-2"></i>Chờ xác nhận
-                                        <span class="count-badge" id="count-pending">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="processing">
-                                        <i class="fas fa-box me-2"></i>Đang xử lý
-                                        <span class="count-badge" id="count-processing">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="completed">
-                                        <i class="fas fa-check-circle me-2"></i>Hoàn thành
-                                        <span class="count-badge" id="count-completed">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link filter-btn" data-filter="cancelled">
-                                        <i class="fas fa-times-circle me-2"></i>Đã hủy
-                                        <span class="count-badge" id="count-cancelled">0</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Search Box -->
-                        <div class="search-box mb-4">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" id="orderSearch"
-                                    placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
-                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                    <i class="fas fa-times"></i>
+                        <h4 class="empty-state-title">Chưa có đơn hàng nào</h4>
+                        <p class="empty-state-text">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên của bạn!</p>
+                        <a href="{{ route('client.products.index') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>Khám phá sản phẩm
+                        </a>
+                    </div>
+                @else
+                    <!-- Filter Tabs -->
+                    <div class="order-filters mb-4">
+                        <ul class="nav nav-pills justify-content-center" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active filter-btn" data-filter="all">
+                                    <i class="fas fa-list me-2"></i>Tất cả
+                                    <span class="count-badge" id="count-all">{{ $orders->count() }}</span>
                                 </button>
-                            </div>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link filter-btn" data-filter="pending">
+                                    <i class="fas fa-clock me-2"></i>Chờ xác nhận
+                                    <span class="count-badge" id="count-pending">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link filter-btn" data-filter="processing">
+                                    <i class="fas fa-box me-2"></i>Đang xử lý
+                                    <span class="count-badge" id="count-processing">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link filter-btn" data-filter="completed">
+                                    <i class="fas fa-check-circle me-2"></i>Hoàn thành
+                                    <span class="count-badge" id="count-completed">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link filter-btn" data-filter="cancelled">
+                                    <i class="fas fa-times-circle me-2"></i>Đã hủy
+                                    <span class="count-badge" id="count-cancelled">0</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="search-box mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="orderSearch"
+                                placeholder="Tìm kiếm theo mã đơn hàng hoặc tên sản phẩm...">
+                            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
+                    </div>
 
-                        <!-- Orders List -->
-                        <div class="orders-container">
-                            @foreach ($orders as $order)
-                                @php
-                                    $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
-                                    $statusClass = '';
+                    <!-- Orders List -->
+                    <div class="orders-container">
+                        @foreach ($orders as $order)
+                            @php
+                                $statusName = $order->currentStatus->orderStatus->name ?? 'Chưa có trạng thái';
+                                $statusClass = '';
 
-                                    // Phân loại trạng thái
-                                    switch ($statusName) {
-                                        case 'Chờ xử lý':
-                                        case 'Chờ Xác Nhận':
-                                        case 'Đang chờ xác nhận':
-                                            $statusClass = 'pending';
-                                            break;
-                                        case 'Đang xử lý':
-                                        case 'Đang chuẩn bị':
-                                        case 'Đang giao hàng':
-                                        case 'Đã xác nhận':
-                                        case 'Đã gửi hàng':
-                                            $statusClass = 'processing';
-                                            break;
-                                        case 'Đã hoàn thành':
-                                        case 'Hoàn thành':
-                                        case 'Đã giao hàng':
-                                            $statusClass = 'completed';
-                                            break;
-                                        case 'Hủy Đơn':
-                                        case 'Hủy đơn hàng':
-                                            $statusClass = 'cancelled';
-                                            break;
-                                        default:
-                                            $statusClass = 'pending';
-                                    }
-                                @endphp
+                                // Phân loại trạng thái
+                                switch ($statusName) {
+                                    case 'Chờ xử lý':
+                                    case 'Chờ Xác Nhận':
+                                    case 'Đang chờ xác nhận':
+                                        $statusClass = 'pending';
+                                        break;
+                                    case 'Đang xử lý':
+                                    case 'Đang chuẩn bị':
+                                    case 'Đang giao hàng':
+                                    case 'Đã xác nhận':
+                                    case 'Đã gửi hàng':
+                                        $statusClass = 'processing';
+                                        break;
+                                    case 'Đã hoàn thành':
+                                    case 'Hoàn thành':
+                                    case 'Đã giao hàng':
+                                        $statusClass = 'completed';
+                                        break;
+                                    case 'Hủy Đơn':
+                                    case 'Hủy đơn hàng':
+                                        $statusClass = 'cancelled';
+                                        break;
+                                    default:
+                                        $statusClass = 'pending';
+                                }
+                            @endphp
 
-                                <div class="order-card" data-status="{{ $statusClass }}"
-                                    data-order-code="{{ $order->code }}" data-order-id="{{ $order->id }}">
-                                    <!-- Order Header -->
-                                    <div class="order-header">
-                                        <div class="order-info">
-                                            <div class="order-code">
-                                                <i class="fas fa-receipt me-2"></i>
-                                                <span class="fw-bold">#{{ $order->code }}</span>
-                                            </div>
-                                            <div class="order-date">
-                                                <i class="far fa-calendar-alt me-1"></i>
-                                                {{ $order->created_at->format('d/m/Y H:i') }}
-                                            </div>
+                            <div class="order-card" data-status="{{ $statusClass }}" data-order-code="{{ $order->code }}"
+                                data-order-id="{{ $order->id }}">
+                                <!-- Order Header -->
+                                <div class="order-header">
+                                    <div class="order-info">
+                                        <div class="order-code">
+                                            <i class="fas fa-receipt me-2"></i>
+                                            <span class="fw-bold">#{{ $order->code }}</span>
                                         </div>
-
-                                        <div class="order-status-badges">
-                                            <!-- Payment Status -->
-                                            @if ($order->is_paid)
-                                                <span class="status-badge paid">
-                                                    <i class="fas fa-check-circle me-1"></i>Đã thanh toán
-                                                </span>
-                                            @else
-                                                <span class="status-badge unpaid">
-                                                    <i class="fas fa-clock me-1"></i>
-                                                </span>
-                                            @endif
-
-                                            <!-- Order Status -->
-                                            <span class="status-badge order-status status-{{ $statusClass }}">
-                                                {{ $statusName }}
-                                            </span>
+                                        <div class="order-date">
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            {{ $order->created_at->format('d/m/Y H:i') }}
                                         </div>
                                     </div>
 
-                                    <!-- Order Items -->
-                                    <div class="order-body">
-                                        @foreach ($order->items as $item)
-                                            @php
-                                                $key = $order->id . '-' . ($item->product->id ?? 'null');
-                                                $alreadyReviewed = $reviewedMap[$key] ?? false;
-                                                $review = $reviewDataMap[$key] ?? null;
-                                            @endphp
+                                    <div class="order-status-badges">
+                                        <!-- Payment Status -->
+                                        @if ($order->is_paid)
+                                            <span class="status-badge paid">
+                                                <i class="fas fa-check-circle me-1"></i>Đã thanh toán
+                                            </span>
+                                        @else
+                                            <span class="status-badge unpaid">
+                                                <i class="fas fa-clock me-1"></i>
+                                            </span>
+                                        @endif
 
-                                            <div class="order-item" data-product-name="{{ $item->name ?? '' }}">
-                                                <div class="item-image">
-                                                    @if ($item->variant && $item->variant->thumbnail)
-                                                        <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
-                                                            alt="{{ $item->variant->name }}" class="product-thumbnail">
-                                                    @else
-                                                        <div class="product-placeholder">
-                                                            <i class="fas fa-image"></i>
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                        <!-- Order Status -->
+                                        <span class="status-badge order-status status-{{ $statusClass }}">
+                                            {{ $statusName }}
+                                        </span>
+                                    </div>
+                                </div>
 
-                                                <div class="item-details">
-                                                    <h6 class="product-name">
-                                                        {{ $item->name ?? 'Sản phẩm không tồn tại' }}
-                                                    </h6>
-                                                    <p class="product-variant">
-                                                        <i class="fas fa-tag me-1"></i>
-                                                        @if (is_array($item->attributes_variant))
-    @foreach ($item->attributes_variant as $key => $variant)
-        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
-    @endforeach
-@endif
+                                <!-- Order Items -->
+                                <div class="order-body">
+                                    @foreach ($order->items as $item)
+                                        @php
+                                            $key = $order->id . '-' . ($item->product->id ?? 'null');
+                                            $alreadyReviewed = $reviewedMap[$key] ?? false;
+                                            $review = $reviewDataMap[$key] ?? null;
+                                        @endphp
 
-                                                    </p>
-                                                    <div class="quantity-badge">
-                                                        <i class="fas fa-times me-1"></i>{{ $item->quantity }}
+                                        <div class="order-item" data-product-name="{{ $item->name ?? '' }}">
+                                            <div class="item-image">
+                                                @if ($item->variant && $item->variant->thumbnail)
+                                                    <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
+                                                        alt="{{ $item->variant->name }}" class="product-thumbnail">
+                                                @else
+                                                    <div class="product-placeholder">
+                                                        <i class="fas fa-image"></i>
                                                     </div>
-                                                </div>
+                                                @endif
+                                            </div>
 
-                                                <div class="item-price">
-                                                    <span
-                                                        class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
-                                                </div>
-
-                                                <div class="item-actions">
-                                                    @php
-                                                        $pending = $order->refunds->firstWhere('status', 'pending');
-                                                    @endphp
-
-                                                    @if ($pending)
-                                                        {{-- Form hủy yêu cầu hoàn đơn --}}
-                                                        <form id="refund-cancel-{{ $pending->id }}"
-                                                            action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-                                                            method="POST" style="display:none">
-                                                            @csrf
-                                                        </form>
-
-                                                        <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn"
-                                                            onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-                                                            <i class="fas fa-times me-1"></i>Hủy hoàn
-                                                        </button>
-                                                    @elseif (
-                                                        $statusName === 'Đã hoàn thành' &&
-                                                            $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-                                                        {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                                        <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                            class="btn btn-outline-warning btn-sm action-btn">
-                                                            <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
-                                                        </a>
+                                            <div class="item-details">
+                                                <h6 class="product-name">
+                                                    {{ $item->name ?? 'Sản phẩm không tồn tại' }}
+                                                </h6>
+                                                <p class="product-variant">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    @if (is_array($item->attributes_variant))
+                                                        @foreach ($item->attributes_variant as $key => $variant)
+                                                            <span>{{ $variant['attribute_name'] }}:
+                                                                {{ $variant['value'] }}</span> |
+                                                        @endforeach
                                                     @endif
 
-
-
-                                                    <button class="btn btn-outline-success btn-sm action-btn">
-                                                        <i class="fas fa-comments me-1"></i>Chat
-                                                    </button>
-
-                                                    @if ($statusClass === 'completed')
-                                                        @php
-                                                            $orderId = (int) $order->id;
-                                                            $productId = (int) ($item->product->id ?? 0);
-                                                            $variantId = (int) ($item->product_variant_id ?? 0);
-
-                                                            $mapKey = "{$orderId}-{$productId}-{$variantId}";
-                                                            $alreadyReviewed = $reviewedMap[$mapKey] ?? false;
-                                                        @endphp
-
-                                                        @if ($alreadyReviewed)
-                                                            <button class="btn btn-outline-warning btn-sm action-btn"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#reviewModal-{{ $orderId }}-{{ $productId }}-{{ $variantId }}">
-                                                                <i class="fas fa-star me-1"></i> Xem Đánh Giá Shop
-                                                            </button>
-                                                        @else
-                                                            <button class="btn btn-outline-success btn-sm action-btn"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#reviewFormModal-{{ $orderId }}-{{ $productId }}-{{ $variantId }}">
-                                                                <i class="fas fa-pen me-1"></i> Đánh Giá
-                                                            </button>
-                                                        @endif
-                                                    @endif
+                                                </p>
+                                                <div class="quantity-badge">
+                                                    <i class="fas fa-times me-1"></i>{{ $item->quantity }}
                                                 </div>
                                             </div>
-                                        @endforeach
 
+                                            <div class="item-price">
+                                                <span
+                                                    class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</span>
+                                            </div>
 
-                                    </div>
+                                            <div class="item-actions">
+                                                @php
+                                                    $pending = $order->refunds->firstWhere('status', 'pending');
+                                                @endphp
 
+                                                @if ($pending)
+                                                    {{-- Form hủy yêu cầu hoàn đơn --}}
+                                                    <form id="refund-cancel-{{ $pending->id }}"
+                                                        action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
+                                                        method="POST" style="display:none">
+                                                        @csrf
+                                                    </form>
 
-                                    <!-- Order Footer -->
-                                    <div class="order-footer">
-                                        <div class="shop-info">
-                                            <i class="fas fa-store me-2"></i>
-                                            <span class="shop-name">
-                                                <tr>
-
-                                                    <td class="text-end fw-bold pe-4"> <span
-                                                            class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span>
-                                                    </td>
-                                            </span>
-                                        </div>
-
-                                        <div class="order-actions">
-                                            @if ($statusName === 'Chờ Xác Nhận')
-                                                @if ($order->payment_id == 2)
-                                                    <!-- COD -->
-                                                    <a href="{{ route('client.orders.cancel-form', $order->id) }}"
-                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
-                                                        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
-                                                    </a>
-                                                @elseif ($order->payment_id == 3 || $order->payment_id == 4)
-                                                    <!-- Online payment -->
-                                                    <a href="{{ route('client.orders.cancel-online', $order->id) }}"
-                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
-                                                        <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                                    <button type="submit" form="refund-cancel-{{ $pending->id }}"
+                                                        class="btn btn-outline-warning btn-sm action-btn"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                                        <i class="fas fa-times me-1"></i>Hủy hoàn
+                                                    </button>
+                                                @elseif (
+                                                    $statusName === 'Đã hoàn thành' &&
+                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                    {{-- Nút tạo yêu cầu hoàn đơn --}}
+                                                    <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+                                                        class="btn btn-outline-warning btn-sm action-btn">
+                                                        <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                                     </a>
                                                 @endif
-                                            @endif
-
-                                            @if ($statusName === 'Đang giao hàng')
-                                                <form action="{{ route('client.orders.received', $order->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('POST')
-                                                    <button type="submit"
-                                                        class="btn btn-outline-success btn-sm action-btn cancel-order-btn"
-                                                        onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
-                                                        <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
-                                                    </button>
-                                                </form>
-                                            @endif
-                                            <a href="{{ route('client.orders.show', $order->code) }}"
-                                                class="btn btn-sm me-2 rounded-pill detail-btn">
-                                                <i class="fas fa-eye me-1"></i>Chi tiết
-                                            </a>
 
 
-                                            <div class="total-amount">
-                                                <span class="total-label">Tổng tiền:</span>
-                                                <span
-                                                    class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
+
+                                                <button class="btn btn-outline-success btn-sm action-btn">
+                                                    <i class="fas fa-comments me-1"></i>Chat
+                                                </button>
+
+                                                @if ($statusClass === 'completed')
+                                                    @php
+                                                        $orderId = (int) $order->id;
+                                                        $productId = (int) ($item->product->id ?? 0);
+                                                        $variantId = (int) ($item->product_variant_id ?? 0);
+
+                                                        $mapKey = "{$orderId}-{$productId}-{$variantId}";
+                                                        $alreadyReviewed = $reviewedMap[$mapKey] ?? false;
+                                                    @endphp
+
+                                                    @if ($alreadyReviewed)
+                                                        <button class="btn btn-outline-warning btn-sm action-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reviewModal-{{ $orderId }}-{{ $productId }}-{{ $variantId }}">
+                                                            <i class="fas fa-star me-1"></i> Xem Đánh Giá Shop
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-outline-success btn-sm action-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reviewFormModal-{{ $orderId }}-{{ $productId }}-{{ $variantId }}">
+                                                            <i class="fas fa-pen me-1"></i> Đánh Giá
+                                                        </button>
+                                                    @endif
+                                                @endif
                                             </div>
+                                        </div>
+                                    @endforeach
+
+
+                                </div>
+
+
+                                <!-- Order Footer -->
+                                <div class="order-footer">
+                                    <div class="shop-info">
+                                        <i class="fas fa-store me-2"></i>
+                                        <span class="shop-name">
+                                            <tr>
+
+                                                <td class="text-end fw-bold pe-4"> <span
+                                                        class="shop-name">{{ $order->coupon_code ? 'Mã :' . $order->coupon_code . '(Giảm : ' . number_format($order->coupon_discount_value, 0, ',', '.') . 'đ)' : '' }}</span>
+                                                </td>
+                                        </span>
+                                    </div>
+
+                                    <div class="order-actions">
+                                        @if ($statusName === 'Chờ Xác Nhận')
+                                            @if ($order->payment_id == 2)
+                                                <!-- COD -->
+                                                <a href="{{ route('client.orders.cancel-form', $order->id) }}"
+                                                    class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
+                                                    <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                                </a>
+                                            @elseif ($order->payment_id == 3 || $order->payment_id == 4)
+                                                <!-- Online payment -->
+                                                <a href="{{ route('client.orders.cancel-online', $order->id) }}"
+                                                    class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
+                                                    <i class="fas fa-times-circle me-1"></i>Hủy Đơn
+                                                </a>
+                                            @endif
+                                        @endif
+
+                                        @if ($statusName === 'Đang giao hàng')
+                                            <form action="{{ route('client.orders.received', $order->id) }}"
+                                                method="POST" class="d-inline">
+                                                @csrf
+                                                @method('POST')
+                                                <button type="submit"
+                                                    class="btn btn-outline-success btn-sm action-btn cancel-order-btn"
+                                                    onclick="return confirm('Bạn có chắc chắn đã nhận được đơn hàng này?')">
+                                                    <i class="fas fa-check-circle me-1"></i>Đã Nhận Được Hàng
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('client.orders.show', $order->code) }}"
+                                            class="btn btn-sm me-2 rounded-pill detail-btn">
+                                            <i class="fas fa-eye me-1"></i>Chi tiết
+                                        </a>
+
+
+                                        <div class="total-amount">
+                                            <span class="total-label">Tổng tiền:</span>
+                                            <span
+                                                class="total-price">{{ number_format($order->total_amount, 0, ',', '.') }}đ</span>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-
-                        <!-- No Results Message -->
-                        <div class="no-results d-none">
-                            <div class="text-center py-5">
-                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">Không tìm thấy đơn hàng nào</h5>
-                                <p class="text-muted">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
                             </div>
-                        </div>
+                        @endforeach
+                    </div>
 
-                        <!-- Pagination -->
-                        @if ($orders->hasPages())
-                            <div class="pagination-wrapper">
-                                {{ $orders->links() }}
-                            </div>
-                        @endif
+                    <!-- No Results Message -->
+                    <div class="no-results d-none">
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không tìm thấy đơn hàng nào</h5>
+                            <p class="text-muted">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if ($orders->hasPages())
+                        <div class="pagination-wrapper">
+                            {{ $orders->links() }}
+                        </div>
                     @endif
-                </div>
+                @endif
             </div>
         </div>
+    </div>
 
     <style>
         /* Previous styles remain the same... */
@@ -700,7 +701,8 @@
             flex-shrink: 0;
         }
 
-        .action-btn,  .detail-btn {
+        .action-btn,
+        .detail-btn {
             min-width: 120px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -708,13 +710,16 @@
             padding: 8px 16px;
             transition: all 0.3s ease;
         }
-        .detail-btn{
+
+        .detail-btn {
             border: 1px solid #7b9496;
         }
-        .detail-btn:hover{
+
+        .detail-btn:hover {
             background: #7b9496;
             color: #fff;
         }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -908,93 +913,114 @@
                 transform: rotate(360deg);
             }
         }
+
         /* ==== Shopee-like star rating ==== */
-/* ==== Shopee-like star rating (đã bỏ viền đen) ==== */
-.rating-stars {
-  --star-size: 42px;
-  --star-gap: 6px;
-  --star-color: #ffce3d; /* vàng Shopee */
-  --star-color-dim: #e5e7eb; /* xám nhạt */
-}
+        /* ==== Shopee-like star rating (đã bỏ viền đen) ==== */
+        .rating-stars {
+            --star-size: 42px;
+            --star-gap: 6px;
+            --star-color: #ffce3d;
+            /* vàng Shopee */
+            --star-color-dim: #e5e7eb;
+            /* xám nhạt */
+        }
 
-.rating-stars .star-btn {
-  width: var(--star-size);
-  height: var(--star-size);
-  border-radius: 12px;
-  border: none; /* bỏ border đen */
-  background: transparent;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  position: relative;
-  transition: transform .12s ease, background .2s ease;
-}
+        .rating-stars .star-btn {
+            width: var(--star-size);
+            height: var(--star-size);
+            border-radius: 12px;
+            border: none;
+            /* bỏ border đen */
+            background: transparent;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            position: relative;
+            transition: transform .12s ease, background .2s ease;
+        }
 
-.rating-stars .star-btn i {
-  font-size: 22px;
-  color: var(--star-color-dim);
-  transition: color .18s ease, text-shadow .18s ease, transform .12s ease;
-  will-change: color, transform;
-}
+        .rating-stars .star-btn i {
+            font-size: 22px;
+            color: var(--star-color-dim);
+            transition: color .18s ease, text-shadow .18s ease, transform .12s ease;
+            will-change: color, transform;
+        }
 
-/* hover: sáng dần */
-.rating-stars .star-btn.hovered i {
-  color: var(--star-color);
-  text-shadow: 0 0 10px rgba(255, 206, 61, .45);
-  transform: translateY(-1px);
-}
+        /* hover: sáng dần */
+        .rating-stars .star-btn.hovered i {
+            color: var(--star-color);
+            text-shadow: 0 0 10px rgba(255, 206, 61, .45);
+            transform: translateY(-1px);
+        }
 
-/* đã chọn */
-.rating-stars .star-btn.active i {
-  color: var(--star-color);
-  text-shadow: 0 0 12px rgba(255, 206, 61, .5);
-}
+        /* đã chọn */
+        .rating-stars .star-btn.active i {
+            color: var(--star-color);
+            text-shadow: 0 0 12px rgba(255, 206, 61, .5);
+        }
 
-/* hover background nhẹ (nếu không muốn có nền thì bỏ luôn dòng này) */
-.rating-stars .star-btn:hover {
-  background: rgba(255, 206, 61, .06);
-}
+        /* hover background nhẹ (nếu không muốn có nền thì bỏ luôn dòng này) */
+        .rating-stars .star-btn:hover {
+            background: rgba(255, 206, 61, .06);
+        }
 
-/* hiệu ứng “pop” khi click */
-@keyframes star-pop {
-  0%   { transform: scale(1);   }
-  40%  { transform: scale(1.22);}
-  100% { transform: scale(1);   }
-}
-.rating-stars .star-btn.pop i {
-  animation: star-pop .22s ease-out;
-}
+        /* hiệu ứng “pop” khi click */
+        @keyframes star-pop {
+            0% {
+                transform: scale(1);
+            }
 
-/* tia sáng vòng ngoài khi click */
-@keyframes star-burst {
-  0%   { opacity: .6; transform: scale(.6); }
-  100% { opacity: 0;  transform: scale(1.35); }
-}
-.rating-stars .star-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  border: none; /* bỏ border burst nếu muốn hoàn toàn không có viền */
-  pointer-events: none;
-}
-.rating-stars .star-btn.burst::after {
-  border: 2px solid rgba(255, 206, 61, .6);
-  animation: star-burst .28s ease-out forwards;
-}
+            40% {
+                transform: scale(1.22);
+            }
 
-/* khoảng cách */
-.rating-stars .star-btn + .star-btn {
-  margin-left: var(--star-gap);
-}
+            100% {
+                transform: scale(1);
+            }
+        }
 
-/* trạng thái disabled */
-.rating-stars .rating-input:disabled + .star-btn {
-  opacity: .55;
-  cursor: not-allowed;
-}
+        .rating-stars .star-btn.pop i {
+            animation: star-pop .22s ease-out;
+        }
 
+        /* tia sáng vòng ngoài khi click */
+        @keyframes star-burst {
+            0% {
+                opacity: .6;
+                transform: scale(.6);
+            }
 
+            100% {
+                opacity: 0;
+                transform: scale(1.35);
+            }
+        }
+
+        .rating-stars .star-btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            border: none;
+            /* bỏ border burst nếu muốn hoàn toàn không có viền */
+            pointer-events: none;
+        }
+
+        .rating-stars .star-btn.burst::after {
+            border: 2px solid rgba(255, 206, 61, .6);
+            animation: star-burst .28s ease-out forwards;
+        }
+
+        /* khoảng cách */
+        .rating-stars .star-btn+.star-btn {
+            margin-left: var(--star-gap);
+        }
+
+        /* trạng thái disabled */
+        .rating-stars .rating-input:disabled+.star-btn {
+            opacity: .55;
+            cursor: not-allowed;
+        }
     </style>
 
     <script>
@@ -1337,57 +1363,61 @@
                 });
             });
         });
-        document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.rating-stars').forEach(initStarGroup);
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.rating-stars').forEach(initStarGroup);
 
-  function initStarGroup(groupEl) {
-    const inputs = Array.from(groupEl.querySelectorAll('.rating-input'));
-    const labels = Array.from(groupEl.querySelectorAll('.star-btn'));
-    if (inputs.length !== labels.length || inputs.length === 0) return;
+            function initStarGroup(groupEl) {
+                const inputs = Array.from(groupEl.querySelectorAll('.rating-input'));
+                const labels = Array.from(groupEl.querySelectorAll('.star-btn'));
+                if (inputs.length !== labels.length || inputs.length === 0) return;
 
-    function syncFromChecked() {
-      const checked = inputs.find(i => i.checked);
-      const val = checked ? parseInt(checked.value) : 0;
-      labels.forEach((lb, idx) => {
-        const rank = idx + 1;
-        lb.classList.toggle('active', rank <= val);
-        lb.classList.remove('hovered');
-      });
-    }
-    function highlightUpTo(value) {
-      labels.forEach((lb, idx) => {
-        const rank = idx + 1;
-        lb.classList.toggle('hovered', rank <= value);
-      });
-    }
+                function syncFromChecked() {
+                    const checked = inputs.find(i => i.checked);
+                    const val = checked ? parseInt(checked.value) : 0;
+                    labels.forEach((lb, idx) => {
+                        const rank = idx + 1;
+                        lb.classList.toggle('active', rank <= val);
+                        lb.classList.remove('hovered');
+                    });
+                }
 
-    labels.forEach((labelEl, idx) => {
-      const value = parseInt(labelEl.dataset.value);
+                function highlightUpTo(value) {
+                    labels.forEach((lb, idx) => {
+                        const rank = idx + 1;
+                        lb.classList.toggle('hovered', rank <= value);
+                    });
+                }
 
-      labelEl.addEventListener('mouseenter', () => highlightUpTo(value));
-      labelEl.addEventListener('mouseleave', () => syncFromChecked());
+                labels.forEach((labelEl, idx) => {
+                    const value = parseInt(labelEl.dataset.value);
 
-      labelEl.addEventListener('click', (e) => {
-        e.preventDefault();
-        const radio = inputs[idx];
-        if (radio && !radio.disabled) {
-          radio.checked = true;
+                    labelEl.addEventListener('mouseenter', () => highlightUpTo(value));
+                    labelEl.addEventListener('mouseleave', () => syncFromChecked());
 
-          // pop
-          labelEl.classList.remove('pop'); void labelEl.offsetWidth; labelEl.classList.add('pop');
-          // burst
-          labelEl.classList.remove('burst'); void labelEl.offsetWidth; labelEl.classList.add('burst');
+                    labelEl.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const radio = inputs[idx];
+                        if (radio && !radio.disabled) {
+                            radio.checked = true;
 
-          syncFromChecked();
-        }
-      });
-    });
+                            // pop
+                            labelEl.classList.remove('pop');
+                            void labelEl.offsetWidth;
+                            labelEl.classList.add('pop');
+                            // burst
+                            labelEl.classList.remove('burst');
+                            void labelEl.offsetWidth;
+                            labelEl.classList.add('burst');
 
-    inputs.forEach(i => i.addEventListener('change', syncFromChecked));
-    syncFromChecked();
-  }
-});
+                            syncFromChecked();
+                        }
+                    });
+                });
 
+                inputs.forEach(i => i.addEventListener('change', syncFromChecked));
+                syncFromChecked();
+            }
+        });
     </script>
 @endsection
 @section('modals')
@@ -1459,11 +1489,16 @@
                                         <strong>{{ $reviewUser->name ?? 'Ẩn danh' }}</strong>
                                     </div>
 
+                                    {{-- RATING --}}
                                     <div class="mb-3">
                                         <label class="form-label">Đánh giá sao:</label>
-                                        <div class="rating-stars d-flex align-items-center gap-1">
+
+                                        <div
+                                            class="rating-stars d-flex align-items-center gap-1
+      {{ $errors->has($ratingField) ? 'border border-danger rounded-3 p-2' : '' }}">
                                             @for ($i = 1; $i <= 5; $i++)
-                                                <input type="radio" class="btn-check rating-input"
+                                                <input type="radio"
+                                                    class="btn-check rating-input @error($ratingField) is-invalid @enderror"
                                                     name="{{ $ratingField }}"
                                                     id="star{{ $i }}-{{ $orderId }}-{{ $productId }}-{{ $variantId }}"
                                                     value="{{ $i }}"
@@ -1476,8 +1511,10 @@
                                                 </label>
                                             @endfor
                                         </div>
+
                                         @error($ratingField)
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block" id="err-{{ $ratingField }}">
+                                                {{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -1605,3 +1642,28 @@
         @endforeach
     @endforeach
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if ($errors->any() && old('order_id') && old('product_id') !== null)
+                // Ghép lại id modal giống lúc bạn đặt
+                var modalId =
+                    'reviewFormModal-{{ old('order_id') }}-{{ old('product_id') }}-{{ old('variant_id', 0) }}';
+                var el = document.getElementById(modalId);
+                if (el) {
+                    var m = new bootstrap.Modal(el);
+                    m.show();
+
+                    // Cuộn tới field lỗi đầu tiên (nếu có)
+                    setTimeout(function() {
+                        var firstError = el.querySelector('.is-invalid, .text-danger');
+                        if (firstError) firstError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }, 150);
+                }
+            @endif
+        });
+    </script>
+@endpush

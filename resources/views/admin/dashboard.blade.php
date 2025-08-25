@@ -199,7 +199,7 @@
                                                     <td>{{ $coupon->code }}</td>
                                                     <td>
                                                         @if ($coupon->discount_type === 'percent')
-                                                            {{ $coupon->value }}%
+                                                            {{ $coupon->discount_value }}%
                                                         @else
                                                             {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
                                                         @endif
