@@ -98,8 +98,8 @@
                         @php
                             $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
                         @endphp
-                        <div class="product-attribute mt-1 d-flex gap-1">
-                            <strong class="mt-2 me-2">{{ $attribute->name }}</strong>
+                        <div class="product-attribute d-flex gap-1">
+                            <strong class="mt-1 me-2">{{ $attribute->name }}</strong>
                             {{-- Nếu là màu --}}
                             @if ($attribute->slug === 'color')
                                 <div class="d-flex gap-1">
