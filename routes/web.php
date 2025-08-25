@@ -135,6 +135,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('client.orders.cancel-form');
     Route::get('/orders/{order}/cancel-online', [OrderController::class, 'showCancelForm2'])
         ->name('client.orders.cancel-online');
+    Route::get('/orders/{order}/cancel-online-refunds', [OrderController::class, 'cancel_online_refunds'])
+        ->name('client.orders.cancel-online-refunds');
         
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');

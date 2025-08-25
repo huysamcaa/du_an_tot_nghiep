@@ -116,16 +116,7 @@ class OrderController extends Controller
     // Truyền biến 'statuses' đã được chuẩn bị vào view
     return view('admin.orders.show', compact('order', 'statuses', 'usedStatusIds', 'nextStatusId', 'currentStatusId'));
 }
-    // protected function handleCancelOrder($orderId)
-    // {
-    //     // Ví dụ logic đơn giản: hủy đơn hàng thì cập nhật cờ is_paid = false (nếu cần)
-    //     $order = Order::find($orderId);
-    //     if ($order) {
-    //         $order->is_paid = false; // hoặc các hành động khác
-    //         $order->save();
-    //     }
-    // }
-    // Xác nhận đã thanh toán COD
+   
     public function confirm($id)
     {
         $order = Order::findOrFail($id);
@@ -649,6 +640,18 @@ public function listCancelledOrders(Request $request)
     } catch (\Exception $e) {
         return redirect()->back()->with('error', 'Lỗi khi tải danh sách đơn hủy: '.$e->getMessage());
     }
+}
+public function cancel_online_refunds(Order $order)
+{
+     $order->load([
+            'user:id,name',
+            'currentStatus:order_id,cancel_reason,bank_name,account_name,account_number,phone_number,notes'
+        ]);
+        
+
+    return view('client.orders.cancel-online-refunds', [
+        'order' => $order
+    ]);
 }
 
 }
