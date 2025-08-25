@@ -19,7 +19,7 @@
         </div>
 
 
-        </div>
+
     </section>
 
     <div class="container py-5">
@@ -816,24 +816,48 @@
             flex: 1 1 auto;
         }
 
-        .modal-footer {
-            flex-shrink: 0;
-            background-color: #fff;
-            border-top: 1px solid #dee2e6;
+
+
+        /* nền tối + nhẹ blur cho nổi khối
+                .modal-backdrop.show {
+                    background-color: rgba(0, 0, 0, .5) !important; */
+        /* hoặc .65 nếu muốn đậm hơn */
+        /* backdrop-filter: blur(2px);
+                    z-index: 1050 !important;
+                } */
+
+        .modal {
+            z-index: 2000!important;
         }
 
-        .modal-backdrop.show {
-            background-color: transparent !important;
-            backdrop-filter: none !important;
-            z-index: 1050 !important;
-        }
+        /* nổi hơn backdrop */
+
 
         .modal.show {
-            z-index: 1055 !important;
+            z-index: 1990 !important;
             /* cao hơn mọi thứ khác */
         }
 
 
+/* Không cho modal cao quá viewport, phần body cuộn, header/footer luôn hiển thị */
+.modal-dialog {
+  margin: 2.5rem auto;
+}
+
+.modal-dialog.modal-dialog-scrollable .modal-content{
+  max-height: calc(150vh - 5rem);   /* trừ margin trên/dưới */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body{
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.modal-footer{
+  flex-shrink: 0;
+}
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -893,7 +917,13 @@
         .order-card:nth-child(even) {
             animation-delay: 0.2s;
         }
-
+        .modal-footer {
+    display: flex; /* Đảm bảo sử dụng flexbox */
+    justify-content: flex-end; /* Căn các nút về bên phải */
+    align-items: center; /* Căn giữa các nút theo chiều dọc */
+    gap: 10px; /* Thêm khoảng cách giữa các nút */
+    /* Các style khác của bạn */
+}
         /* Loading animation */
         .loading-spinner {
             display: inline-block;
@@ -1542,10 +1572,12 @@
                                 </div>
 
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-success"><i
-                                            class="fas fa-paper-plane me-1"></i>Gửi đánh giá</button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                                    </button>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                                 </div>
+                                <br>
                             </form>
                         </div>
                     </div>
@@ -1581,7 +1613,7 @@
                                 </div>
                             </div>
 
-                            <div class="modal-body overflow-auto" style="max-height:70vh;">
+                            <div class="modal-body overflow-auto">
                                 <div class="d-flex align-items-start gap-3 mb-3">
                                     @if ($item->product?->thumbnail)
                                         <img src="{{ asset('storage/' . $item->product->thumbnail) }}" class="rounded"

@@ -5,7 +5,7 @@
                 <div class="headerInner01">
                     <div class="logo">
                         <a href="{{ route('client.home') }}">
-                            <img src="{{ asset('assets/images/logo.png') }}" alt="FreshFit" class="logo-img" />
+                            <img src="{{ asset('assets/images/logo1.png') }}" alt="FreshFit" class="logo-img" />
                         </a>
                     </div>
                     <div class="mainMenu">
