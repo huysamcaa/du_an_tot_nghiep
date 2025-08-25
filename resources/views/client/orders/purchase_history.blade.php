@@ -76,7 +76,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <button class="nav-link filter-btn" data-filter="processing">
-                                        <i class="fas fa-box me-2"></i>Đang xử lý
+                                        <i class="fas fa-box me-2"></i>Đang giao hàng
                                         <span class="count-badge" id="count-processing">0</span>
                                     </button>
                                 </li>
@@ -333,7 +333,7 @@
                                                 @endif
                                             @endif
 
-                                            @if ($statusName === 'Đang giao hàng')
+                                            @if ($statusName === 'Đã giao hàng')
                                                 <form action="{{ route('client.orders.received', $order->id) }}"
                                                     method="POST" class="d-inline">
                                                     @csrf

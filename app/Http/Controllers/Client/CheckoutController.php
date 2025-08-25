@@ -508,7 +508,7 @@ use Illuminate\Support\Facades\File;
 
             if (!$existingStatus) {
         OrderOrderStatus::create([
-            'order_id' => $order->id,
+                    'order_id' => $order->id,
                     'order_status_id' => 1,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua MoMo thành công',
