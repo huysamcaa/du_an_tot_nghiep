@@ -127,7 +127,6 @@
                     </a>
                     <ul>
                         <li><a href="{{ route('admin.users.index') }}">Tài khoản</a></li>
-                        <li><a href="{{ route('admin.users.locked') }}">Tài khoản bị khóa</a></li>
                     </ul>
                 </li>
 

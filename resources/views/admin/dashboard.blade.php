@@ -162,8 +162,11 @@
                                                         <div class="round-img">
                                                             <a href="#">
                                                                 <img class="rounded-circle"
-                                                                    src="{{ asset($order->user->avatar ?? 'images/avatar/default.jpg') }}"
-                                                                    alt="" style="width:40px; height:40px;">
+                                                                src="{{ $order->user->avatar
+                                                                        ? asset('storage/' . $order->user->avatar)
+                                                                        : asset('assets/images/default.png') }}"
+                                                                alt="Avatar"
+                                                                style="width:40px; height:40px; object-fit:cover;">
                                                             </a>
                                                         </div>
                                                     </td>
@@ -199,7 +202,7 @@
                                                     <td>{{ $coupon->code }}</td>
                                                     <td>
                                                         @if ($coupon->discount_type === 'percent')
-                                                            {{ $coupon->value }}%
+                                                           {{ $coupon->discount_value }}%
                                                         @else
                                                             {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
                                                         @endif
@@ -512,7 +515,12 @@
                                 tbodyCustomer.innerHTML += `
                                 <tr>
                                     <td>${index+1}</td>
-                                    <td><img src="${item.avatar}" width="40" class="rounded-circle"></td>
+                                   <td>
+                                    <img src="${item.avatar}"
+                                        class="rounded-circle"
+                                        style="width:40px; height:40px; object-fit:cover;"
+                                        alt="Avatar">
+                                    </td>
                                     <td>#${item.id}</td>
                                     <td>${item.name}</td>
                                     <td>${new Intl.NumberFormat('vi-VN').format(item.total_amount)} đ</td>
@@ -530,8 +538,8 @@
                                             <td>${coupon.code}</td>
                                             <td>
                                                 ${coupon.discount_type === 'percent'
-                                                    ? coupon.value + '%'
-                                                    : new Intl.NumberFormat('vi-VN').format(coupon.value) + ' đ'}
+                                                    ? coupon.discount_value + '%'
+                                                    : new Intl.NumberFormat('vi-VN').format(coupon.discount_value) + ' đ'}
                                             </td>
                                             <td>${coupon.total_uses}</td>
                                             <td>${new Intl.NumberFormat('vi-VN').format(coupon.total_revenue)} đ</td>
@@ -548,11 +556,14 @@
                             let tbodySales = document.querySelector("#topProductsBySales");
                             tbodySales.innerHTML = "";
                             data.topProductsBySales.forEach((item, index) => {
+                                let thumbnail = item.thumbnail ?
+                                    `{{ asset('storage') }}/${item.thumbnail}` :
+                                    `{{ asset('assets/admin/img/product/no-image.png') }}`;
                                 tbodySales.innerHTML += `
                                 <tr>
                                     <td>${index+1}</td>
                                     <td>${item.name}</td>
-                                    <td><img src="${item.thumbnail}" width="20"></td>
+                                    <td><img src="${thumbnail}" width="20"></td>
                                     <td>${item.total}</td>
                                 </tr>`;
                             });
@@ -561,11 +572,14 @@
                             let tbodyFav = document.querySelector("#topProductsByFavorites");
                             tbodyFav.innerHTML = "";
                             data.topProductsByFavorites.forEach((item, index) => {
+                                let thumbnail = item.thumbnail ?
+                                    `{{ asset('storage') }}/${item.thumbnail}` :
+                                    `{{ asset('assets/admin/img/product/no-image.png') }}`;
                                 tbodyFav.innerHTML += `
                                 <tr>
                                     <td>${index+1}</td>
                                     <td>${item.name}</td>
-                                    <td><img src="${item.thumbnail}" width="20"></td>
+                                    <td><img src="${thumbnail}" width="20"></td>
                                     <td>${item.total}</td>
                                 </tr>`;
                             });

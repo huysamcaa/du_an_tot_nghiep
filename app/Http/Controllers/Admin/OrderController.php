@@ -500,7 +500,7 @@ protected function handleCancelOrder($orderId)
     if (!$order->is_paid) {
         $order->update([
             'is_paid' => true,
-            
+
         ]);
     }
 

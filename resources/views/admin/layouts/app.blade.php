@@ -19,6 +19,14 @@
     <link href="{{ asset('assets/admin/plugins/summernote/summernote-bs4.min.css') }}" rel="stylesheet">
     {{-- Select2 CSS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<style>
+    .user-img img {
+    width: 40px;         /* hoặc 35px tùy giao diện */
+    height: 40px;
+    border-radius: 50%;  /* bo tròn */
+    object-fit: cover;   /* giữ tỉ lệ ảnh */
+}
+</style>
 </head>
 
 <body>

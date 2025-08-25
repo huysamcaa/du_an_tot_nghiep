@@ -151,7 +151,7 @@ use Illuminate\Support\Facades\File;
 {
     $userId = auth()->id();
     $cartItems = CartItem::with([
-            'product', 
+            'product',
             'variant.attributeValues.attribute' // Thêm eager loading để lấy thông tin biến thể
         ])
         ->where('user_id', $userId)
@@ -180,10 +180,10 @@ use Illuminate\Support\Facades\File;
         'cart_items' => $cartItems->map(function ($item) {
             // Lấy thông tin biến thể dưới dạng JSON
             $variantAttributes = null;
-            
+
             if ($item->variant && $item->variant->attributeValues) {
                 $variantAttributes = [];
-                
+
                 foreach ($item->variant->attributeValues as $attributeValue) {
                     if ($attributeValue->attribute) {
                         $variantAttributes[$attributeValue->attribute->slug] = [
@@ -195,16 +195,16 @@ use Illuminate\Support\Facades\File;
                         ];
                     }
                 }
-                
+
                 // Lọc bỏ các giá trị null
                 $variantAttributes = array_filter($variantAttributes);
-                
+
                 // Nếu không có thuộc tính nào, set thành null
                 if (empty($variantAttributes)) {
                     $variantAttributes = null;
                 }
             }
-            
+
             return [
                 'product_id' => $item->product_id,
                 'product_variant_id' => $item->product_variant_id,
@@ -358,7 +358,7 @@ use Illuminate\Support\Facades\File;
         $this->clearCartItems($orderData['selected_items']);
 
         $this->createOrderNotification($order);
-        
+
         // Cập nhật trạng thái mã giảm giá
         if (!empty($order->coupon_id)) {
             DB::table('coupon_user')
@@ -366,10 +366,10 @@ use Illuminate\Support\Facades\File;
                 ->where('coupon_id', $order->coupon_id)
                 ->update(['used_at' => now(), 'order_id' => $order->id]);
         }
-        
+
         DB::commit();
         Session::forget('pending_order');
-        
+
         return redirect()->route('client.orders.show', $order->code)
             ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
     } catch (\Exception $e) {
@@ -507,7 +507,7 @@ use Illuminate\Support\Facades\File;
 
             if (!$existingStatus) {
         OrderOrderStatus::create([
-            'order_id' => $order->id,
+                    'order_id' => $order->id,
                     'order_status_id' => 1,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua MoMo thành công',

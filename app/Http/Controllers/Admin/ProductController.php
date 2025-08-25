@@ -159,6 +159,7 @@ class ProductController extends Controller
         $colors = AttributeValue::whereHas('attribute', function ($q) {
             $q->where('slug', 'color');
         })->get();
+        $product->load(['variants.attributeValues', 'galleries']);
 
         $sizes = AttributeValue::whereHas('attribute', function ($q) {
             $q->where('slug', 'size');
@@ -234,10 +235,17 @@ class ProductController extends Controller
         $product->update($data);
 
         // Xử lý bộ sưu tập ảnh (gallery)
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $imageFile) {
-                $path = $imageFile->store('uploads/gallery', 'public');
-                $product->galleries()->create(['image' => $path]);
+        if ($request->has('existing_images')) {
+            $keepIds = $request->existing_images;
+            $product->galleries()->whereNotIn('id', $keepIds)->each(function ($gallery) {
+                Storage::disk('public')->delete($gallery->image);
+                $gallery->delete();
+            });
+        } else {
+            // Nếu user bỏ hết ảnh
+            foreach ($product->galleries as $gallery) {
+                Storage::disk('public')->delete($gallery->image);
+                $gallery->delete();
             }
         }
 
@@ -335,58 +343,58 @@ class ProductController extends Controller
     }
 
     public function show(Product $product)
-{
-    // Load các quan hệ cần thiết
-    $product->load([
-        'variants.attributeValues.attribute',
-        'galleries',
-        // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
-    ]);
-    
-    // Tính tổng stock từ các biến thể
-    $totalStock = $product->variants->sum('stock');
+    {
+        // Load các quan hệ cần thiết
+        $product->load([
+            'variants.attributeValues.attribute',
+            'galleries',
+            // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
+        ]);
 
-    // Lấy tất cả order items của sản phẩm
-    $orderItems = $product->orderItems;
+        // Tính tổng stock từ các biến thể
+        $totalStock = $product->variants->sum('stock');
 
-    $orderStats = $product->getOrderStatusStats();
+        // Lấy tất cả order items của sản phẩm
+        $orderItems = $product->orderItems;
 
-    // Nhóm thống kê theo trạng thái đơn hàng
-    $orderStats = $orderItems->groupBy('order.status')
-        ->map(function ($items, $status) {
-            return [
-                'status'         => $status,
-                'order_count'    => $items->unique('order_id')->count(),
-                'total_quantity' => $items->sum('quantity'),
-                'total_revenue'  => $items->sum(function ($item) {
-                    return $item->price * $item->quantity;
-                }),
-            ];
-        })->values();
+        $orderStats = $product->getOrderStatusStats();
 
-    // Tính tổng các thống kê
-    $totalOrders  = $orderStats->sum('order_count');
-    $totalSold    = $orderStats->sum('total_quantity');
-    $totalRevenue = $orderStats->sum('total_revenue');
+        // Nhóm thống kê theo trạng thái đơn hàng
+        $orderStats = $orderItems->groupBy('order.status')
+            ->map(function ($items, $status) {
+                return [
+                    'status'         => $status,
+                    'order_count'    => $items->unique('order_id')->count(),
+                    'total_quantity' => $items->sum('quantity'),
+                    'total_revenue'  => $items->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    }),
+                ];
+            })->values();
 
-    // Lấy danh sách đơn hàng gần nhất (10 đơn)
-    $recentOrders = $orderItems->sortByDesc('created_at')
-        ->take(10)
-        ->groupBy('order_id')
-        ->map(function ($items) {
-            return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
-        });
+        // Tính tổng các thống kê
+        $totalOrders  = $orderStats->sum('order_count');
+        $totalSold    = $orderStats->sum('total_quantity');
+        $totalRevenue = $orderStats->sum('total_revenue');
 
-    return view('admin.products.show', compact(
-        'product',
-        'totalStock', // Thêm biến totalStock vào compact
-        'orderStats',
-        'totalOrders',
-        'totalSold',
-        'totalRevenue',
-        'recentOrders'
-    ));
-}
+        // Lấy danh sách đơn hàng gần nhất (10 đơn)
+        $recentOrders = $orderItems->sortByDesc('created_at')
+            ->take(10)
+            ->groupBy('order_id')
+            ->map(function ($items) {
+                return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
+            });
+
+        return view('admin.products.show', compact(
+            'product',
+            'totalStock', // Thêm biến totalStock vào compact
+            'orderStats',
+            'totalOrders',
+            'totalSold',
+            'totalRevenue',
+            'recentOrders'
+        ));
+    }
 
     public function destroy(Product $product)
     {
@@ -430,20 +438,30 @@ class ProductController extends Controller
         }
 
         if ($product->stock > 0) {
-            return redirect()->back()->with('error', 'Không thể xóa sản phẩm  vẫn còn số lượng!');
+            return redirect()->back()->with('error', 'Không thể xóa sản phẩm vẫn còn số lượng!');
         }
+
         // Xóa ảnh chính nếu có
         if ($product->thumbnail) {
             Storage::disk('public')->delete($product->thumbnail);
         }
+
+        // Xóa gallery
+        foreach ($product->galleries as $gallery) {
+            Storage::disk('public')->delete($gallery->image);
+            $gallery->delete();
+        }
+
         // Xóa các ảnh biến thể
         foreach ($product->variants as $variant) {
             if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
-                Storage::disk('public')->delete($product->thumbnail);
+                Storage::disk('public')->delete($variant->thumbnail);
             }
+            $variant->delete(); // xóa bản ghi variant
         }
-        $product->variants()->delete();
-        $product->delete();
+
+        // Xóa hẳn product
+        $product->forceDelete();
 
         return redirect()->route('admin.products.trashed')->with('success', 'Đã xóa vĩnh viễn sản phẩm!');
     }
