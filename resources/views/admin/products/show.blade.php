@@ -213,7 +213,11 @@
                                         @foreach($recentOrders as $orderItem)
                                         <tr>
                                             <td><a href="{{ route('admin.orders.show', $orderItem->order_id) }}" class="text-primary">#{{ $orderItem->order->code ?? 'N/A' }}</a></td>
-                                            <td><span class="d-inline-block text-truncate" style="max-width: 100px;">{{ $orderItem->order->customer->name ?? 'Huy Đỗ' }}</span></td>
+                                            <td class="align-middle">
+    <span class="d-inline-block text-truncate" style="max-width: 100px;">
+        {{ optional(optional($orderItem->order)->user)->name ?? 'N/A' }}
+    </span>
+</td>
                                             <td class="text-end">{{ $orderItem->quantity }}</td>
                                             <td>
                                                 {{-- @switch($orderItem->order->status)
