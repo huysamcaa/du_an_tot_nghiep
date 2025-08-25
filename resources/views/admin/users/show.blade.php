@@ -14,13 +14,6 @@
             <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary me-2">
                 <i class="fa fa-arrow-left me-1"></i> Quay lại
             </a>
-
-            @if(Route::has('admin.users.edit'))
-                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
-                    <i class="fa fa-edit me-1"></i> Chỉnh sửa
-                </a>
-            @endif
-
             @if($user->status === 'active')
                 <form action="{{ route('admin.users.lock', $user->id) }}" method="POST" class="d-inline"
                       onsubmit="return confirm('Khóa tài khoản này?')">

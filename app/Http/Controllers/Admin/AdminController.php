@@ -58,7 +58,7 @@ class AdminController extends Controller
         if ($fromDate && $toDate) {
             $diffInDays = $from->diffInDays($to);
 
-            if ($diffInDays > 90) {
+            if ($diffInDays > 60) {
                 // Gom theo tháng
                 $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
                     ->whereBetween('created_at', [$fromDate, $toDate])
@@ -209,12 +209,12 @@ class AdminController extends Controller
                     ->groupBy('user_id');
             })
             ->pluck('status', 'user_id');
-
-        $topCustomers = $customerOrders->map(function ($order) use ($lastStatuses) {
-            $order->last_order_status = $lastStatuses[$order->user_id] ?? null;
-            return $order;
-        });
-
+        $topCustomers = $customerOrders
+            ->filter(fn($order) => $order->user !== null) // loại bỏ user đã xóa
+            ->map(function ($order) use ($lastStatuses) {
+                $order->last_order_status = $lastStatuses[$order->user_id] ?? null;
+                return $order;
+            });
         // --- Top Products By Sales ---
         $topProductsBySales = DB::table('orders')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
@@ -249,17 +249,14 @@ class AdminController extends Controller
                 'coupons.code',
                 'coupons.discount_type',
                 'coupons.discount_value',
-                DB::raw('COUNT(DISTINCT orders.id) as total_uses'),
-                DB::raw('SUM(DISTINCT orders.total_amount) as total_revenue')
+                DB::raw('COUNT( orders.id) as total_uses'),
+                DB::raw('SUM(orders.total_amount) as total_revenue')
             )
             ->groupBy('coupons.id', 'coupons.code', 'coupons.discount_type', 'coupons.discount_value')
             ->orderByDesc('total_revenue')
             ->limit(5);
 
         $topCoupons = $this->applyDateFilter($topCoupons, $fromDate, $toDate, $year, $month, 'orders')->get();
-
-
-
         // Doanh thu theo kênh thanh toán
         $paymentRevenue = Order::select('payment_id', DB::raw('SUM(total_amount) as total'))
             ->whereIn('id', $completedOrderIds) // chỉ lấy đơn hoàn thành
@@ -324,14 +321,20 @@ class AdminController extends Controller
                     return [
                         'id' => $item->user->id ?? null,
                         'name' => $item->user->name ?? null,
-                        'avatar' => $item->user->avatar ?? null,
+                        'avatar' => $item->user->avatar ? asset('storage/' . $item->user->avatar) : asset('assets/images/default.png'),
                         'total_amount' => $item->total_amount,
                         'total_orders' => $item->total_orders,
                         'last_order_status' => $item->last_order_status ?? null,
                     ];
                 }),
-                'topProductsBySales' => $topProductsBySales,
-                'topProductsByFavorites' => $topProductsByFavorites,
+                'topProductsBySales' => $topProductsBySales->map(function ($item) {
+                    $item->thumbnail_url = $item->thumbnail ? asset('storage/' . $item->thumbnail) : asset('assets/admin/img/product/no-image.png');
+                    return $item;
+                }),
+                'topProductsByFavorites' => $topProductsByFavorites->map(function ($item) {
+                    $item->thumbnail_url = $item->thumbnail ? asset('storage/' . $item->thumbnail) : asset('assets/admin/img/product/no-image.png');
+                    return $item;
+                }),
                 'revenueToday' => $revenueToday,
             ]);
         }

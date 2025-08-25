@@ -469,7 +469,7 @@ protected function handleCancelOrder($orderId)
 
     // Kiểm tra trạng thái đơn hàng (chỉ cho phép xác nhận khi ở trạng thái "Đã hoàn thành")
     $currentStatus = $order->currentStatus->orderStatus->name ?? '';
-    if ($currentStatus !== 'Đang giao hàng') {
+    if ($currentStatus !== 'Đã giao hàng') {
         return redirect()->back()->with('error', 'Chỉ có thể xác nhận đã nhận hàng khi đơn ở trạng thái "Đang giao hàng".');
     }
 
@@ -491,7 +491,7 @@ protected function handleCancelOrder($orderId)
     if (!$order->is_paid) {
         $order->update([
             'is_paid' => true,
-            
+
         ]);
     }
 

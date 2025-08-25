@@ -474,6 +474,7 @@ use Illuminate\Support\Facades\File;
                         'order_status_id' => 1,
                         'modified_by' => $order->user_id ?? 5,
                         'notes' => 'Thanh toán qua MoMo thành công',
+                        'is_current' => 1,
                         'updated_at' => now(),
                         'created_at' => now(),
                     ]);
@@ -507,10 +508,11 @@ use Illuminate\Support\Facades\File;
 
             if (!$existingStatus) {
         OrderOrderStatus::create([
-            'order_id' => $order->id,
+                    'order_id' => $order->id,
                     'order_status_id' => 1,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua MoMo thành công',
+                    'is_current' => 1,
                     'updated_at' => now(),
                     'created_at' => now(),
                 ]);
@@ -615,6 +617,7 @@ use Illuminate\Support\Facades\File;
                     'order_status_id' => 1,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua VNPay thành công',
+                    'is_current' => 1,
                     'updated_at' => now(),
                     'created_at' => now(),
                 ]);
@@ -706,6 +709,7 @@ use Illuminate\Support\Facades\File;
                     'order_status_id' => 9,
                     'modified_by' => $order->user_id ?? 5,
                     'notes' => 'Thanh toán qua MoMo thành công (IPN)',
+                    'is_current' => 1,
                     'updated_at' => now(),
                     'created_at' => now(),
                 ]);
@@ -770,6 +774,8 @@ use Illuminate\Support\Facades\File;
                 'order_id' => $order->id,
                 'order_status_id' => 1,
                 'modified_by' => $order->user_id ?? 5,
+                'is_current' => 1,
+                'is_current' => 1,
                 'updated_at' => now(),
                 'created_at' => now(),
             ]);
