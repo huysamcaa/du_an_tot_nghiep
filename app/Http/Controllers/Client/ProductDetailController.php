@@ -61,6 +61,7 @@ class ProductDetailController extends Controller
                 'attribute_values' => $variant->attributeValues->pluck('id')->toArray(),
                 'price' => $variant->price,
                 'sale_price' => $variant->sale_price,
+                'is_sale' => $variant->is_sale,
                 'stock' => $variant->stock,
                 'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : asset('storage/' . $product->thumbnail),
                 'current_price' => $currentPrice,

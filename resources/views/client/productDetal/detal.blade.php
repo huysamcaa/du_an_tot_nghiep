@@ -154,6 +154,18 @@
 
                     {{-- Logic hiển thị giá sản phẩm theo khoảng giá của biến thể --}}
                     <div class="pi01Price">
+                        @php
+                        $minPrice = $product->variants->min(function($variant) {
+                            return $variant->is_sale ? $variant->sale_price : $variant->price;
+                        });
+                        $maxPrice = $product->variants->max(function($variant) {
+                            return $variant->is_sale ? $variant->sale_price : $variant->price;
+                        });
+
+                        $minOriginalPrice = $product->variants->min('price');
+                        $maxOriginalPrice = $product->variants->max('price');
+                        @endphp
+
                         <ins id="sale-price">
                             @if ($minPrice == $maxPrice)
                             {{ number_format($minPrice, 0, ',', '.') }}₫
@@ -171,7 +183,7 @@
                             @endif
                         </del>
                         @else
-                        <del id="original-price" style="display:none;"></del>
+                            <del id="original-price" style="display:none;"></del>
                         @endif
                     </div>
 
@@ -208,7 +220,7 @@
                     <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                        
+
                         @foreach($productAttributes as $attrSlug => $attr)
                             <div class="pcVariation">
                                 <span class="mt-2 me-2">{{ $attr['label'] }}</span>
@@ -666,7 +678,7 @@
             }
 
             // Có variant => cập nhật giá
-            if (variant.sale_price > 0 && variant.sale_price < variant.price) {
+            if (variant.is_sale && variant.sale_price > 0) {
                 saleEl.textContent = formatPrice(variant.sale_price);
                 saleEl.style.display = 'inline';
                 priceEl.textContent = formatPrice(variant.price);

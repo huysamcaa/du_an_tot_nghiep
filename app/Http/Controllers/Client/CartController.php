@@ -84,11 +84,9 @@ class CartController extends Controller
                 $variant = $item->variant;
 
                 if ($variant) {
-                    $price = ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
-                        ? $variant->sale_price
-                        : $variant->price;
+                    $price = $variant->is_sale ? $variant->sale_price : $variant->price;
                 } else {
-                    $price = $item->product->price; // fallback
+                    $price = $item->product->is_sale ? $item->product->sale_price : $item->product->price;
                 }
                 return $price * $item->quantity;
             });
@@ -135,7 +133,9 @@ class CartController extends Controller
         $item->save();
 
         // Tính lại giá của sản phẩm hiện tại
-        $itemPrice = $item->variant->sale_price ?? $item->variant->price;
+        $itemPrice = $item->variant->is_sale
+            ? $item->variant->sale_price
+            : $item->variant->price;
 
         return response()->json([
             'success' => true,
@@ -177,10 +177,7 @@ class CartController extends Controller
             return response()->json(['found' => false]);
         }
 
-        // Tính giá hiển thị (ưu tiên sale_price)
-        $price = ($variant->sale_price > 0 && $variant->sale_price < $variant->price)
-            ? $variant->sale_price
-            : $variant->price;
+        $price = $variant->is_sale ? $variant->sale_price : $variant->price;
 
         return response()->json([
             'found' => true,

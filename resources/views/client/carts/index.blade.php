@@ -97,14 +97,14 @@
                             @php
                                 if ($item->variant) {
                                     // Nếu có biến thể
-                                    $price = ($item->variant->sale_price > 0 && $item->variant->sale_price < $item->variant->price)
+                                    $price = $item->variant->is_sale
                                         ? $item->variant->sale_price
                                         : $item->variant->price;
 
                                     $isOutOfStock = $item->variant->stock == 0;
                                 } else {
                                     // Nếu không có biến thể
-                                    $price = ($item->product->sale_price > 0 && $item->product->sale_price < $item->product->price)
+                                    $price = $item->product->is_sale
                                         ? $item->product->sale_price
                                         : $item->product->price;
 
