@@ -152,10 +152,83 @@
                                             <button type="submit" class="btn btn-primary btn-sm">Xem</button>
                                         </div> --}}
                                 </form>
-
                             </div>
                             <div class="card-body">
                                 <canvas id="revenueChart" height="150"></canvas>
+
+                                <div class="table-stats order-table ov-h">
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th>Stt</th>
+                                                <th>Avatar</th>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Giá</th>
+                                                <th>Số lượng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="topCustomers">
+                                            @foreach ($topCustomers as $index => $order)
+                                                <tr>
+                                                    <td class="serial">{{ $index + 1 }}.</td>
+                                                    <td class="avatar">
+                                                        <div class="round-img">
+                                                            <a href="#">
+                                                                <img class="rounded-circle"
+                                                                    src="{{ asset($order->user->avatar ?? 'images/avatar/default.jpg') }}"
+                                                                    alt="" style="width:40px; height:40px;">
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                    <td>#{{ $order->user->id }}</td>
+                                                    <td><span class="name">{{ $order->user->name }}</span></td>
+                                                    <td><span
+                                                            class="product">{{ number_format($order->total_amount, 0, ',', '.') }}
+                                                            đ</span></td>
+                                                    <td><span class="count">{{ $order->total_orders }}</span></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div> <!-- /.table-stats -->
+                            </div>
+                            <div class="card-body">
+                                <h4 class="box-title">Mã khuyến mãi </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-stats order-table ov-h">
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã khuyến mãi</th>
+                                                <th>Giá trị khuyến mãi</th>
+                                                <th>Số lần sử dụng</th>
+                                                <th>Doanh thu từ mã</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="topCoupons">
+                                            @forelse($topCoupons as $coupon)
+                                                <tr>
+                                                    <td>{{ $coupon->code }}</td>
+                                                    <td>
+                                                        @if ($coupon->discount_type === 'percent')
+                                                            {{ $coupon->discount_value }}%
+                                                        @else
+                                                            {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $coupon->total_uses }}</td>
+                                                    <td>{{ number_format($coupon->total_revenue, 0, ',', '.') }} đ</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Chưa có dữ liệu</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div> <!-- /.table-stats -->
                             </div>
                         </div>
 

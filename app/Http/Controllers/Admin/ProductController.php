@@ -157,10 +157,10 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::whereDoesntHave('children')->get();
-
         $brands     = Brand::where('is_active', 1)->get();
         // Lấy tất cả các thuộc tính đang hoạt động để sử dụng trong form
         $attributes = Attribute::with('attributeValues')->where('is_active', 1)->get();
+
         $product->load(['variants.attributeValues', 'galleries']);
 
         return view('admin.products.edit', compact('product', 'attributes', 'categories', 'brands'));
@@ -242,6 +242,7 @@ class ProductController extends Controller
 
         // Cập nhật thông tin sản phẩm
         $product->update($data);
+
         // --- LOGIC XỬ LÝ BỘ SƯU TẬP ẢNH (GALLERY) ---
         $keptImageIds = explode(',', $request->input('kept_images', ''));
         $keptImageIds = array_filter($keptImageIds);
@@ -377,7 +378,6 @@ class ProductController extends Controller
             'galleries',
             // 'orderItems.order.customer' // Load cả customer để hiển thị sau này
         ]);
-
         // Tính tổng stock từ các biến thể
         $totalStock = $product->variants->sum('stock');
 
@@ -411,6 +411,7 @@ class ProductController extends Controller
             ->map(function ($items) {
                 return $items->first(); // Lấy 1 item đại diện cho mỗi đơn
             });
+
         return view('admin.products.show', compact(
             'product',
             'totalStock', // Thêm biến totalStock vào compact
@@ -464,30 +465,20 @@ class ProductController extends Controller
         }
 
         if ($product->stock > 0) {
-            return redirect()->back()->with('error', 'Không thể xóa sản phẩm vẫn còn số lượng!');
+            return redirect()->back()->with('error', 'Không thể xóa sản phẩm  vẫn còn số lượng!');
         }
-
         // Xóa ảnh chính nếu có
         if ($product->thumbnail) {
             Storage::disk('public')->delete($product->thumbnail);
         }
-
-        // Xóa gallery
-        foreach ($product->galleries as $gallery) {
-            Storage::disk('public')->delete($gallery->image);
-            $gallery->delete();
-        }
-
         // Xóa các ảnh biến thể
         foreach ($product->variants as $variant) {
             if ($variant->thumbnail && $variant->thumbnail != $product->thumbnail) {
-                Storage::disk('public')->delete($variant->thumbnail);
+                Storage::disk('public')->delete($product->thumbnail);
             }
-            $variant->delete(); // xóa bản ghi variant
         }
-
-        // Xóa hẳn product
-        $product->forceDelete();
+        $product->variants()->delete();
+        $product->delete();
 
         return redirect()->route('admin.products.trashed')->with('success', 'Đã xóa vĩnh viễn sản phẩm!');
     }
