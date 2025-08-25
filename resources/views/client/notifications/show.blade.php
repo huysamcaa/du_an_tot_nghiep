@@ -9,6 +9,33 @@
         background-color: #22c55e; color:#fff; border-radius:999px; padding:6px 12px;
         font-weight:600; display:inline-flex; align-items:center; gap:6px; font-size:13px;
     }
+    .pageBannerContent h2 {
+
+        font-size: 72px;
+        color:#52586D;
+        font-family: 'Jost', sans-serif;
+    }
+    .pageBannerPath a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .checkoutPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+
+}
+.pageBannerSection {
+    padding: 20px 0;
+    min-height: 10px;
+}
+
+.pageBannerSection .pageBannerContent h2 {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+.pageBannerPath {
+    font-size: 14px;
+}
     .card-rounded { border-radius: 16px; }
     .custom-btn {
         background-color:#94B7B9; color:#fff; border:none; border-radius:20px;

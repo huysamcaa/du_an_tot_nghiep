@@ -8,8 +8,8 @@
             @php
             $variant = $item->variant;
             $price = ($variant && $variant->exists)
-                ? (($variant->sale_price > 0 && $variant->sale_price < $variant->price) ? $variant->sale_price : $variant->price)
-                : $item->product->price;
+                ? ($variant->is_sale ? $variant->sale_price : $variant->price)
+                : ($item->product->is_sale ? $item->product->sale_price : $item->product->price);
 
             @endphp
                 <span class="price">{{ number_format($price) }}đ</span>

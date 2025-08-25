@@ -57,7 +57,7 @@ class Product extends Model
     // Quan hệ với các biến thể sản phẩm
     public function variants(): HasMany
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
     // Quan hệ với các biến thể kèm thuộc tính
@@ -96,6 +96,7 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
     // Quan hệ với cart items
     public function cartItems()
     {
@@ -107,6 +108,7 @@ class Product extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
     // Helper: Lấy các thuộc tính dùng cho biến thể
     public function variantAttributes()
     {
@@ -116,14 +118,13 @@ class Product extends Model
             ->get();
     }
 
-
     // Helper: Lấy các giá trị thuộc tính biến thể khả dụng
     public function availableVariantValues(string $attributeSlug)
     {
         return $this->attributeValues()
             ->whereHas('attribute', function ($query) use ($attributeSlug) {
                 $query->where('slug', $attributeSlug)
-                    ->where('is_variant', true);
+                      ->where('is_variant', true);
             })
             ->active()
             ->get();
@@ -140,7 +141,6 @@ class Product extends Model
     }
 
     // === Scopes ===
-
     public function scopeOnSale($query)
     {
         return $query->where('is_sale', true)
@@ -162,49 +162,89 @@ class Product extends Model
     {
         return $query->where('is_active', true);
     }
-    // Thêm vào model Product
-// Thêm vào model Product
-public function getOrderStatusStats()
+
+    // === Helper thống kê order status ===
+    public function getOrderStatusStats()
+    {
+        return $this->orderItems()
+            ->selectRaw('
+                order_statuses.name as status_name,
+                COUNT(DISTINCT order_items.order_id) as order_count,
+                SUM(order_items.quantity) as total_quantity,
+                SUM(order_items.price * order_items.quantity) as total_amount
+            ')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', function($join) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                     ->where('order_order_status.is_current', true);
+            })
+            ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+            ->groupBy('order_statuses.name')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    $item->status_name => [
+                        'order_count' => $item->order_count,
+                        'total_quantity' => $item->total_quantity,
+                        'total_amount' => $item->total_amount,
+                        'status_label' => $this->getStatusLabel($item->status_name)
+                    ]
+                ];
+            });
+    }
+
+    protected function getStatusLabel($status)
+    {
+        $labels = [
+            '1' => 'Chờ xử lý',
+            '2' => 'Đang xử lý',
+            '3' => 'Đã giao hàng',
+            '4' => 'Hoàn thành',
+            '5' => 'Đã hủy',
+            '6' => 'Trả hàng'
+        ];
+
+        return $labels[strtolower($status)] ?? $status;
+    }
+
+    // === Accessors hiển thị giá ===
+    public function getDisplayPriceAttribute()
+    {
+        $minSale = $this->variants()->whereNotNull('sale_price')->min('sale_price');
+        $minPrice = $this->variants()->min('price');
+
+        if ($minSale !== null) {
+            return $minSale;
+        }
+
+        return $minPrice ?? 0;
+    }
+
+    public function getDisplayPricesAttribute()
+    {
+        $minPrice = $this->variants()->min('price');
+        $minSale  = $this->variants()->whereNotNull('sale_price')->min('sale_price');
+
+        return [
+            'price'      => $minPrice ?? 0,
+            'sale_price' => $minSale,
+        ];
+    }
+    public function getPriceRangeAttribute()
 {
-    return $this->orderItems()
-        ->selectRaw('
-            order_statuses.name as status_name,
-            COUNT(DISTINCT order_items.order_id) as order_count,
-            SUM(order_items.quantity) as total_quantity,
-            SUM(order_items.price * order_items.quantity) as total_amount
-        ')
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->join('order_order_status', function($join) {
-            $join->on('orders.id', '=', 'order_order_status.order_id')
-                 ->where('order_order_status.is_current', true);
-        })
-        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-        ->groupBy('order_statuses.name')
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [
-                $item->status_name => [
-                    'order_count' => $item->order_count,
-                    'total_quantity' => $item->total_quantity,
-                    'total_amount' => $item->total_amount,
-                    'status_label' => $this->getStatusLabel($item->status_name)
-                ]
-            ];
-        });
+    // Lấy min/max của sale_price, nếu null thì dùng price
+    $minSale = $this->variants()->whereNotNull('sale_price')->min('sale_price');
+    $maxSale = $this->variants()->whereNotNull('sale_price')->max('sale_price');
+
+
+    $minPrice = $this->variants()->min('price');
+    $maxPrice = $this->variants()->max('price');
+
+   
+    // Giá thấp nhất và cao nhất
+    $min = $minSale ?? $minPrice ?? 0;
+    $max = $maxSale ?? $maxPrice ?? 0;
+
+    return [$min, $max];
 }
-
-protected function getStatusLabel($status)
-{
-    $labels = [
-        '1' => 'Chờ xử lý',
-        '2' => 'Đang xử lý',
-        '3' => 'Đã giao hàng',
-        '4' => 'Hoàn thành',
-        '5' => 'Đã hủy',
-        '6' => 'Trả hàng'
-    ];
-
-    return $labels[strtolower($status)] ?? $status;
-}
-
 }

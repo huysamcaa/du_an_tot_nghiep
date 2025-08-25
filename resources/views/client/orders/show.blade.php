@@ -203,7 +203,7 @@
         @endforeach
 
 
-                                                    
+
                                                 </small>
                                             </div>
                                         </div>
@@ -313,22 +313,6 @@
         color: #6c757d;
     }
 
-    /* Banner Section */
-    .pageBannerSection {
-        background-color: #ecf5f4;
-        padding: 80px 0;
-        margin-bottom: 40px;
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
-        box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .pageBannerContent h2 {
-        font-size: 3rem;
-        font-weight: 700;
-        color: #343a40;
-        margin-bottom: 10px;
-    }
 
     .pageBannerPath {
         color: #6c757d;

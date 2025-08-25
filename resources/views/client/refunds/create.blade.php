@@ -17,6 +17,7 @@
     </div>
 </section>
 
+<br>
 <section class="checkoutPage py-5">
     <div class="container">
         @if(session('success'))
@@ -39,48 +40,66 @@
                                     <th>Giá</th>
                                 </tr>
                             </thead>
+                            @php
+                                // Tính trước các giá trị dùng chung
+                                $orderItems = $order->items; // collection order items
+                                $totalItemPrice = $orderItems->sum(fn($i) => $i->price * $i->quantity);
+                                $shippingFee = $order->shipping_fee ?? 30000;
+                                $paidForItems = $order->total_amount - $shippingFee;
+                                $discountTotal = max(0, $totalItemPrice - $paidForItems);
+
+                                $totalRefund = 0;
+                            @endphp
+
                             <tbody>
-                                @php $totalRefund = 0; @endphp
                                 @foreach($selectedItems as $item)
-                                @php $totalRefund += $item->price; @endphp
-                                <tr>
-                                    <td class="text-start d-flex align-items-center">
-                                        {{-- Kiểm tra và hiển thị ảnh --}}
-                                        @if(optional($item->variant)->thumbnail)
-                                        <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
-                                            alt="{{ $item->name }}"
-                                            class="me-3"
-                                            style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
-                                        @else
-                                        <img src="{{ asset('storage/default-product.png') }}"
-                                            alt="{{ $item->name }}"
-                                            class="me-3"
-                                            style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
-                                        @endif
-                                        <div>
-                                            {{-- Hiển thị tên sản phẩm, có thể dùng tên từ OrderItem để an toàn hơn --}}
-                                            <div class="fw-semibold">{{ $item->name }}</div>
-                                            {{-- Hiển thị phân loại sản phẩm --}}
-                                            @if($item->variant && $item->variant->attributeValues->count())
-                                            <small class="text-muted">
-                                                {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
-                                            </small>
+                                    @php
+                                        // Nếu selectedItems đã được "expand" (mỗi phần tử = 1 đơn vị) thì qty = 1
+                                        // Nếu không, bạn có thể thay bằng $qty = $item->quantity tương ứng
+                                        $qty = 1;
+
+                                        $itemUnitPrice = $item->price; // giá gốc 1 đơn vị
+                                        // phân bổ voucher theo tỉ lệ so với tổng giá gốc (tránh chia cho 0)
+                                        $unitDiscount = $totalItemPrice > 0 ? ($itemUnitPrice / $totalItemPrice) * $discountTotal : 0;
+                                        $unitRealPaid = round(max(0, $itemUnitPrice - $unitDiscount)); // số tiền thực trả cho 1 đơn vị (làm tròn)
+                                        $totalRefund += $unitRealPaid * $qty;
+                                    @endphp
+
+                                    <tr>
+                                        <td class="text-start d-flex align-items-center">
+                                            @if(optional($item->variant)->thumbnail)
+                                                <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
+                                                    alt="{{ $item->name }}"
+                                                    class="me-3"
+                                                    style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                                            @else
+                                                <img src="{{ asset('storage/default-product.png') }}"
+                                                    alt="{{ $item->name }}"
+                                                    class="me-3"
+                                                    style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
                                             @endif
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @if($item->variant && $item->variant->attributeValues->count())
-                                        {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
-                                        @else
-                                        <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="text-danger fw-semibold">
-                                            {{ number_format($item->price) }}đ
-                                        </div>
-                                    </td>
-                                </tr>
+                                            <div>
+                                                <div class="fw-semibold">{{ $item->name }}</div>
+                                                @if($item->variant && $item->variant->attributeValues->count())
+                                                    <small class="text-muted">
+                                                        {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                                    </small>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if($item->variant && $item->variant->attributeValues->count())
+                                                {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="text-danger fw-semibold">
+                                                {{ number_format($unitRealPaid) }}đ
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                             <tfoot class="table-light">
@@ -136,6 +155,7 @@
                                 @enderror
                             </div>
 
+
                            <div class="col-md-6 mb-3">
                                 <label for="bank_name" class="form-label">Ngân hàng <span class="text-danger">*</span></label>
                                 <select class="form-select @error('bank_name') is-invalid @enderror" id="bank_name" name="bank_name" required>
@@ -154,7 +174,8 @@
                                 @error('bank_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>  
+                            </div>
+
                             <div class="col-md-6 mb-3">
                                 <label for="phone_number" class="form-label">Số điện thoại</label>
                                 <input type="text" name="phone_number" id="phone_number"

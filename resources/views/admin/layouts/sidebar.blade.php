@@ -121,12 +121,13 @@
 
                 <!-- Người dùng -->
                 <li class="submenu">
-                    <a href="javascript:void(0);">
+                    <a href="{{ route('admin.users.index') }}">
                         <img src="{{ asset('assets/admin/img/icons/users1.svg') }}" alt="img">
                         <span> Người dùng</span> <span class="menu-arrow"></span>
                     </a>
                     <ul>
                         <li><a href="{{ route('admin.users.index') }}">Tài khoản</a></li>
+
                     </ul>
                 </li>
 
