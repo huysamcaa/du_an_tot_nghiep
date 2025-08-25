@@ -287,11 +287,6 @@
                                 </div>
                                 <div class="form-group mb-3">
                                     <label class="d-block mb-1">Tùy chọn</label>
-                                    <div class="form-check form-check-inline me-4">
-                                        <input class="form-check-input" type="checkbox" name="is_sale" value="1"
-                                            id="is_sale" {{ old('is_sale', $product->is_sale) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="is_sale">Đang sale</label>
-                                    </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="is_active" value="1"
                                             id="is_active" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>

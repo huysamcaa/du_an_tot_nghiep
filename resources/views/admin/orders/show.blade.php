@@ -153,10 +153,10 @@
                            
                             {{-- Hiển thị thông tin biến thể nếu có --}}
                             @isset($item->attributes_variant)
-    @foreach ($item->attributes_variant as $key => $variant)
-        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
-    @endforeach
-@endisset
+                                @foreach ($item->attributes_variant as $key => $variant)
+                                    <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+                                @endforeach
+                            @endisset
 
 
                             @if ($product)

@@ -205,11 +205,11 @@
                                                     </h6>
                                                     <p class="product-variant">
                                                         <i class="fas fa-tag me-1"></i>
-                                                        @if (is_array($item->attributes_variant))
-    @foreach ($item->attributes_variant as $key => $variant)
-        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
-    @endforeach
-@endif
+                                                            @if (is_array($item->attributes_variant))
+                                                                @foreach ($item->attributes_variant as $key => $variant)
+                                                                    <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+                                                                @endforeach
+                                                            @endif
 
                                                     </p>
                                                     <div class="quantity-badge">
@@ -249,12 +249,27 @@
                                                             <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
                                                         </a>
                                                     @endif
+                                                    
 
+                                                       @if ($statusName === 'Hủy Đơn')
+                                                
+                                                    <!-- COD -->
+                                                    
+                                                            <button class="btn btn-outline-success btn-sm action-btn">
+                                                                <a href="{{ route('client.orders.cancel-online-refunds', ['order' => $order->id]) }}">
+                                                                    Hoàn tiền Khi Hủy Đơn
+                                                                </a>
+                                                            </button>
+                                                        @endif
+                                                        @if ($statusName === 'Trả hàng/Hoàn tiền' && $order->refunds->isNotEmpty())
+                                                            <button class="btn btn-outline-success btn-sm action-btn">
+                                                               <a href="{{ route('refunds.show', $order->refunds->first()->id) }}" >
+                                                                    <span>Hoàn tiền Khi Hoàn Đơn</span>
+                                                                </a>
+                                                            </button>
+                                                        @endif
 
-
-                                                    <button class="btn btn-outline-success btn-sm action-btn">
-                                                        <i class="fas fa-comments me-1"></i>Chat
-                                                    </button>
+                                                  
 
                                                     @if ($statusClass === 'completed')
                                                         @php
