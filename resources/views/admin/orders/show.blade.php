@@ -171,7 +171,6 @@
                                                     @endforeach
                                                 @endisset
 
-
                                                 @if ($product)
                                                     <div class="small text-muted">Thương hiệu:
                                                         {{ $product->brand->name ?? 'N/A' }}</div>
