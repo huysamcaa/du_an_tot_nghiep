@@ -1,5 +1,5 @@
 @extends('client.layouts.app')
-
+@section('title','Chi tiết người dùng')
 @section('content')
     <style>
         .pageBannerSection {

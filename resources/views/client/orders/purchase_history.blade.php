@@ -212,6 +212,7 @@
                                                         @endforeach
                                                     @endif
 
+
                                                 </p>
                                                 <div class="quantity-badge">
                                                     <i class="fas fa-times me-1"></i>{{ $item->quantity }}

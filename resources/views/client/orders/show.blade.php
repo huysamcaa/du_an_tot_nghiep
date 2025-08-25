@@ -199,8 +199,8 @@
                                                 <small class="text-muted product-variant-info">
                                                     {{-- Hiển thị thông tin biến thể nếu có --}}
                                                     @foreach ($item->attributes_variant as $key => $variant)
-            <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
-        @endforeach
+                                                        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+                                                    @endforeach
 
 
 
