@@ -122,7 +122,7 @@ class ReviewController extends Controller
         //
         $request->validate(
             [
-                'rating' => 'required|integer|min:1|max:5',
+                $ratingField   => 'bail|required|integer|between:1,5',
                 'review_text' => 'required|string|min:10|max:500',
                 'product_id' => 'required|exists:products,id',
                 'variant_id' => 'nullable|integer',
@@ -130,10 +130,9 @@ class ReviewController extends Controller
                 'media.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4',
             ],
             [
-                'rating.required' => 'Vui lòng chọn số sao đánh giá.',
-                'rating.integer' => 'Số sao phải là một số nguyên.',
-                'rating.min' => 'Số sao thấp nhất là 1.',
-                'rating.max' => 'Số sao cao nhất là 5.',
+                "{$ratingField}.required" => 'Vui lòng chọn số sao đánh giá.',
+                "{$ratingField}.integer"  => 'Số sao phải là một số nguyên.',
+                "{$ratingField}.between"  => 'Số sao phải từ 1 đến 5.',
 
                 'review_text.required' => 'Vui lòng nhập nội dung đánh giá.',
                 'review_text.min' => 'Nội dung đánh giá phải có ít nhất 10 ký tự.',

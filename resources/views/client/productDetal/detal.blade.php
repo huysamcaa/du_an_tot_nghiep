@@ -341,7 +341,7 @@
                                                 <div class="input-group input-group-sm" style="min-width: 200px;">
                                                     <label class="input-group-text bg-light"><i
                                                             class="fa-solid fa-sort"></i></label>
-                                                    <select name="sort" class="form-select" onchange="this.form.submit()">
+                                                    <select name="sort" class="form-select js-review-sort">
                                                         <option value="">Sắp xếp theo</option>
                                                         <option value="latest"
                                                             {{ request('sort') == 'latest' ? 'selected' : '' }}>Mới
@@ -931,6 +931,96 @@
             }
         });
     });
+    (function () {
+  const reviewsEl = document.getElementById('reviews');
+  if (!reviewsEl) return;
+
+  function getSection(root) {
+    return root.querySelector('#reviews .productReviewArea');
+  }
+
+  async function loadReviews(url) {
+    const container = getSection(document);
+    if (!container) return;
+
+    container.classList.add('is-loading');
+
+    try {
+      const res = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Cache-Control': 'no-cache' },
+        credentials: 'same-origin'
+      });
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const newSection = getSection(doc);
+
+      if (newSection) {
+        container.innerHTML = newSection.innerHTML;
+
+        // cập nhật URL để back/forward vẫn giữ filter
+        const u = new URL(url, window.location.origin);
+        u.hash = 'reviews';
+        history.pushState({}, '', u);
+
+        // giữ tab "Đánh giá" đang mở
+        const tabBtn = document.querySelector('[data-bs-target="#reviews"]');
+        if (tabBtn && !tabBtn.classList.contains('active')) tabBtn.click();
+
+        // kéo tới đầu khu vực đánh giá
+        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      container.classList.remove('is-loading');
+    }
+  }
+
+  // 1) Bắt click: sao / "Tất cả" / phân trang (đều có #reviews trong href)
+  reviewsEl.addEventListener('click', function (e) {
+    const link = e.target.closest('.pagination a, a[href*="#reviews"]');
+    if (!link) return;
+    e.preventDefault();
+    const clean = link.href.replace(/#reviews$/, '');
+    loadReviews(clean);
+  });
+
+  // 2) Bắt đổi "Sắp xếp theo" (AJAX, không submit form)
+  reviewsEl.addEventListener('change', function (e) {
+    const select = e.target.closest('select[name="sort"]');
+    if (!select) return;
+
+    const url = new URL(window.location.href);
+    const val = select.value;
+
+    if (val) url.searchParams.set('sort', val);
+    else url.searchParams.delete('sort');
+
+    url.searchParams.delete('page'); // về trang 1 khi đổi sort
+    url.hash = 'reviews';
+    loadReviews(url.toString());
+  });
+
+  // 3) Chặn submit form do inline `onchange="this.form.submit()"`
+  reviewsEl.addEventListener('submit', function (e) {
+    if (e.target.matches('form') && e.target.querySelector('select[name="sort"]')) {
+      e.preventDefault();
+    }
+  });
+
+  // 4) Hỗ trợ nút back/forward
+  window.addEventListener('popstate', function () {
+    const u = new URL(location.href);
+    if (u.hash === '#reviews') loadReviews(u.toString());
+  });
+
+  // 5) Nếu URL đã có #reviews thì mở đúng tab
+  if (location.hash === '#reviews') {
+    const tabBtn = document.querySelector('[data-bs-target="#reviews"]');
+    if (tabBtn && !tabBtn.classList.contains('active')) tabBtn.click();
+  }
+  
+})();
 </script>
 <style>
     .description-scrollable,

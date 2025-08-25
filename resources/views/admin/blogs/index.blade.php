@@ -133,12 +133,12 @@
     <script>
         $(document).ready(function() {
             $('#blogs-table').DataTable({
-                "order": [[ 0, "asc" ]], 
+                "order": [[ 0, "asc" ]],
                 "paging": false,
                 "searching": false,
                 "info": false,
                 "columnDefs": [
-                    { "orderable": false, "targets": [1, 2] } 
+                    { "orderable": false, "targets": [1, 2] }
                 ],
                 "language": {
                     "emptyTable": "Không có bài viết nào trong bảng",
