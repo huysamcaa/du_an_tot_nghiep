@@ -99,14 +99,14 @@
                             $attribute = $values->first()->attribute; // vì cùng 1 attribute nên lấy cái đầu tiên
                         @endphp
                         <div class="product-attribute mt-1 d-flex gap-1">
-                            <strong class="mt-2 me-2">{{ $attribute->name }}</strong>
+                            <strong class="mt-2 me-2">{{ optional($attribute)->name }}</strong>
                             {{-- Nếu là màu --}}
-                            @if ($attribute->slug === 'color')
+                            @if (optional($attribute)->slug === 'color')
                                 <div class="d-flex gap-1">
                                     @foreach ($values->unique('id') as $av)
                                     <span class="color-option color-circle attribute-option"
                                         data-id="{{$av->id}}"
-                                        data-attribute="{{$attribute->slug}}"
+                                        data-attribute="{{ optional($attribute)->slug }}"
                                         data-color="{{ \Illuminate\Support\Str::start($av->hex, '#') }}"
                                         data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}"
                                         style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($av->hex, '#') }}; border:1px solid #ccc; cursor:pointer;">
@@ -118,7 +118,7 @@
                                 @foreach ($values->unique('id') as $av)
                                     <span class="attribute-option"
                                         data-id="{{ $av->id }}"
-                                        data-attribute="{{ $attribute->slug }}"
+                                        data-attribute="{{ optional($attribute)->slug }}"
                                         data-image="{{ $avImageMap[$av->id] ?? asset('storage/' . $variant->thumbnail) }}">
                                         {{ $av->value }}
                                     </span>
