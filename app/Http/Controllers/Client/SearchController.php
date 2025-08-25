@@ -30,13 +30,13 @@ class SearchController extends Controller
         $selectedCategory = $request->query('category_id', null);
         $sort             = $request->query('sort', null);
 
-        // 4. Base product query (search + price filter)
+        // 4. Base product query (search + price filter từ bảng variants)
         $productsQuery = Product::where('is_active', 1)
             ->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', '%' . $keyword . '%')
                     ->orWhere('description', 'like', '%' . $keyword . '%');
             })
-            ->where(function ($q) use ($min, $max) {
+            ->whereHas('variants', function ($q) use ($min, $max) {
                 $q->where(function ($q2) use ($min, $max) {
                     $q2->whereNotNull('sale_price')
                         ->whereBetween('sale_price', [$min, $max]);
@@ -72,13 +72,17 @@ class SearchController extends Controller
             $productsQuery->where('category_id', $selectedCategory);
         }
 
-        // 9. Sort
+        // 9. Sort theo giá variants hoặc mặc định
         switch ($sort) {
             case 'price_desc':
-                $productsQuery->orderByRaw('COALESCE(sale_price, price) DESC');
+                $productsQuery->withMin('variants', 'price')
+                    ->withMin('variants', 'sale_price')
+                    ->orderByRaw('COALESCE(MIN(product_variants.sale_price), MIN(product_variants.price)) DESC');
                 break;
             case 'price_asc':
-                $productsQuery->orderByRaw('COALESCE(sale_price, price) ASC');
+                $productsQuery->withMin('variants', 'price')
+                    ->withMin('variants', 'sale_price')
+                    ->orderByRaw('COALESCE(MIN(product_variants.sale_price), MIN(product_variants.price)) ASC');
                 break;
             case 'newest':
                 $productsQuery->orderBy('created_at', 'desc');

@@ -245,6 +245,23 @@
     border-color: #7b9494;
 }
 
+
+    /* Nút hành động */
+    .pi01Actions {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        z-index: 2;
+    }
+    .productItem01:hover .pi01Actions {
+    opacity: 1;
+}
+
 .pi01Details {
     padding-left: 15px;
 }
@@ -274,6 +291,10 @@
     user-select: none;
 }
 
+
+.color-option.selected {
+    border: 3px solid #000 !important; /* Viền đen đậm hơn */
+
 /* Khi được chọn thì đổi màu nền + chữ trắng */
 .attribute-option:not(.color-option).selected {
     background: #7b9496 !important;
@@ -291,6 +312,7 @@
     border: 2px solid #ddd;
     cursor: pointer;
     transition: all 0.2s ease;
+
 }
 
 /* Khi hover thì viền xám đậm hơn */

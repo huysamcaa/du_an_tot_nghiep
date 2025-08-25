@@ -156,90 +156,108 @@
 
     <!-- Danh sách sản phẩm -->
     <div class="col-lg-9 col-md-8">
-        <div class="row">
-            @foreach ($products as $product)
-                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                    <div class="productItem01">
+<div class="row">
+    @foreach ($products as $product)
+        @php
+            // Chuẩn bị toàn bộ variants dưới dạng JSON cho JS
+            $variantMap = $product->variants
+                ->map(function ($v) {
+                    return [
+                        'id' => $v->id,
+                        'price' => (float) $v->price,
+                        'sale_price' =>
+                            $v->sale_price > 0 && $v->sale_price < $v->price ? (float) $v->sale_price : null,
+                        'attrs' => $v->attributeValues->mapWithKeys(function ($av) {
+                            return [$av->attribute->slug => $av->id];
+                        }),
+                    ];
+                })
+                ->values();
+        @endphp
 
-                        <div class="pi01Thumb" style="height: auto; overflow: hidden;">
-                            <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                style="width: 100%; height: auto; object-fit: cover;" />
-                                  <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                style="width: 100%; height: auto; object-fit: cover;" />
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="productItem01" data-product-id="{{ $product->id }}" data-variants='@json($variantMap)'>
+                <div class="pi01Thumb">
+                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
+                         style="width: 100%; height: auto; object-fit: cover;" />
 
-
-                            <div class="pi01Actions" data-product-id="{{ $product->id }}">
-                                                                   <a href="javascript:void(0)" class="piAddToCart"
-                                data-id="{{ $product->id }}">
-                                    <i class="fa-solid fa-shopping-cart"></i>
-                                </a>
-                                <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                </form>
-                                <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
-                            </div>
-                            @if ($product->sale_price && $product->price > $product->sale_price)
-                                <div class="productLabels clearfix">
-                                    <span class="plDis">-{{ number_format($product->price - $product->sale_price, 0, ',', '.') }}đ</span>
-                                    <span class="plSale">SALE</span>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="pi01Details">
-    <h3 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $product->name }}">
-        <a href="{{ route('product.detail', $product->id) }}" style="color: inherit; text-decoration: none;">
-            {{ $product->name }}
-        </a>
-    </h3>
-
-    <div class="pi01Price">
-        <ins>{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ</ins>
-        @if ($product->sale_price && $product->price > $product->sale_price)
-            <del>{{ number_format($product->price, 0, ',', '.') }}đ</del>
-        @endif
-    </div>
-
-    {{-- Hiển thị Size --}}
-    @php
-        $sizes = $product->variants
-            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'size')->pluck('value'))
-            ->unique()
-            ->values()
-            ->toArray();
-    @endphp
-    @if(count($sizes))
-        <div class="product-sizes mt-1">
-            <strong>Size:</strong>
-            @foreach($sizes as $size)
-                <span class="badge bg-light text-dark border">{{ $size }}</span>
-            @endforeach
-        </div>
-    @endif
-
-    {{-- Hiển thị Màu --}}
-    @php
-        $colors = $product->variants
-            ->flatMap(fn($v) => $v->attributeValues->filter(fn($av) => $av->attribute->slug === 'color')->pluck('hex'))
-            ->unique()
-            ->values()
-            ->toArray();
-    @endphp
-    @if(count($colors))
-        <div class="product-colors mt-1 d-flex gap-1">
-            <strong class="me-1">Màu:</strong>
-            @foreach($colors as $hex)
-                <span class="color-circle" style="display:inline-block; width:16px; height:16px; border-radius:50%; background-color: {{ \Illuminate\Support\Str::start($hex, '#') }}; border:1px solid #ccc;"></span>
-            @endforeach
-        </div>
-    @endif
-</div>
-
+                    <div class="pi01Actions" data-product-id="{{ $product->id }}">
+                        <a href="javascript:void(0)" class="piAddToCart" data-id="{{ $product->id }}">
+                            <i class="fa-solid fa-shopping-cart"></i>
+                        </a>
+                        <form id="add-to-cart-form-{{ $product->id }}" style="display:none;">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="variant_id" value="">
+                            <input type="hidden" name="size" value="">
+                            <input type="hidden" name="color" value="">
+                        </form>
+                        <a href="{{ route('product.detail', $product->id) }}"><i class="fa-solid fa-eye"></i></a>
                     </div>
                 </div>
-            @endforeach
+
+                <div class="pi01Details">
+                    <h3 title="{{ $product->name }}">
+                        <a href="{{ route('product.detail', $product->id) }}">{{ $product->name }}</a>
+                    </h3>
+
+                    {{-- Hiển thị khoảng giá ban đầu --}}
+                    @php
+                        $prices = $product->variants->map(fn($v) =>
+                            $v->sale_price > 0 && $v->sale_price < $v->price ? $v->sale_price : $v->price
+                        );
+                        $minPrice = $prices->min();
+                        $maxPrice = $prices->max();
+                    @endphp
+                    <div class="pi01Price">
+                        @if ($minPrice != $maxPrice)
+                            <ins>{{ number_format($minPrice, 0, ',', '.') }}đ - {{ number_format($maxPrice, 0, ',', '.') }}đ</ins>
+                        @else
+                            <ins>{{ number_format($minPrice, 0, ',', '.') }}đ</ins>
+                        @endif
+                    </div>
+
+                    {{-- Sizes --}}
+                    @php
+                        $sizeValues = $product->variants
+                            ->flatMap(fn($v) => $v->attributeValues->where('attribute.slug', 'size'))
+                            ->unique('id')
+                            ->values();
+                    @endphp
+                    @if($sizeValues->count())
+                        <div class="product-sizes mt-1">
+                            <strong>Size:</strong>
+                            @foreach($sizeValues as $av)
+                                <span class="badge bg-light text-dark border size-option"
+                                      data-id="{{ $av->id }}">{{ $av->value }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Colors --}}
+                    @php
+                        $colorValues = $product->variants
+                            ->flatMap(fn($v) => $v->attributeValues->where('attribute.slug', 'color'))
+                            ->unique('id')
+                            ->values();
+                    @endphp
+                    @if($colorValues->count())
+                        <div class="product-colors mt-1 d-flex gap-1">
+                            <strong class="me-1">Màu:</strong>
+                            @foreach($colorValues as $av)
+                                <span class="color-circle color-option"
+                                      data-id="{{ $av->id }}"
+                                      style="width:16px;height:16px;border-radius:50%;background:{{ \Illuminate\Support\Str::start($av->hex, '#') }};border:1px solid #ccc;cursor:pointer;">
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
+    @endforeach
+</div>
 
         <div class="d-flex justify-content-center mt-4">
             {{ $products->links() }}
@@ -248,216 +266,222 @@
 </div>
 
 <style>
-    /* 1. Cho container wrap xuống hàng */
-    .pi01Variations {
+    /* ===== PAGINATION ===== */
+    .pagination {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        /* khoảng cách giữa color và size */
+        justify-content: center;
+        margin-top: 20px;
     }
 
-    /* 2. Cho nhóm color & size tự wrap và cuộn khi quá cao */
-    .pi01VColor,
-    .pi01VSize {
+    .pagination .page-link {
+        color: #7b9494;
+        border: 1px solid #c5d0d0;
+        background-color: transparent;
+        border-radius: 50% !important;
+        width: 60px;
+        height: 60px;
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-        /* khoảng cách giữa từng item */
-        max-height: 4rem;
-        /* cao tối đa ~2 hàng */
-        overflow-y: auto;
-        /* cuộn dọc khi vượt */
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0;
+        font-size: 22px;
     }
 
-    /* 3. Giữ kích thước swatch/mỗi label ổn định */
-    .pi01VCItem label {
-        width: 24px;
-        height: 24px;
-        display: block;
-        border-radius: 50%;
+    .pagination .page-link:hover {
+        background-color: #7b9494;
+        color: white;
+        border-color: #7b9494;
     }
 
-    .pi01VSItem label {
-        padding: 0.1rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
+    .pagination .active .page-link {
+        background-color: #7b9494;
+        border-color: #7b9494;
+        color: white;
     }
 
+    .pagination .page-item {
+        margin: 0 4px;
+    }
+
+    .pagination .disabled .page-link {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    /* ===== PRODUCT ITEM ===== */
     .pi01Thumb {
- position: relative;
-    overflow: hidden;
-}
+        position: relative;
+        overflow: hidden;
+    }
 
+    .pi01Thumb img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+        /* Cho hiệu ứng mượt */
+        position: relative;
+        z-index: 0;
+    }
 
-.pi01Thumb img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    transition: transform 0.3s ease; /* Cho hiệu ứng mượt */
-    position: relative;
-    z-index: 0;
-}
+    /* Nút hành động */
+    .pi01Actions {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        opacity: 1;
+        transition: opacity 0.25s ease;
+        z-index: 2;
+    }
 
-/* Nếu theme dùng pseudo-element hoặc ảnh thứ 2 */
-.pi01Thumb:hover img,
-.pi01Thumb::before,
-.pi01Thumb::after {
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-.pi01Actions {
-      position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  z-index: 2;
-}
+    .pi01Actions a {
+        background: #7b9494;
+        color: #fff;
+        padding: 8px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+    }
 
-.pi01Actions a {
-    background: #7b9494;
-    color: #fff;
-    padding: 8px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease;
-}
+    .pi01Actions a:hover {
+        background: #5d7373;
+    }
 
-.pi01Actions a:hover {
-    background: #5d7373;
-}
-.pi01Thumb:hover .pi01Actions {
-    opacity: 1;
+    /* Hover hiện nút và phóng ảnh */
+    .pi01Thumb:hover .pi01Actions {
+        opacity: 1;
 
-}
-.productItem01:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-}
+    }
 
-.productItem01 a:hover img {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-}
-.productItem01 {
-     background: #f9f9f9;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    border: 1px solid #eee;
-}
+    .productItem01:hover .pi01Thumb img {
+        opacity: 0.8;
+        /* Mờ nhẹ thôi */
+        transform: scale(1.05);
+    }
 
-.productItem01:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    border-color: #7b9494;
-}
-.productItem01:hover .pi01Thumb img {
-        opacity: 0.8; /* Mờ nhẹ thôi */
-    transform: scale(1.05);
-}
-.pi01Details {
-    padding-left: 15px; /* dịch sang phải 10px */
-}
-.color-circle{
-    margin-top: 5px;
-}
-.pi01Details {
-    padding-left: 15px;
-}
-.pi01Thumb::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(255,255,255,0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-.pi01Thumb:hover::after {
-    opacity: 1;
-}
+    .productItem01 {
+        background: #f9f9f9;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border: 1px solid #eee;
+    }
 
+    .productItem01:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border-color: #7b9494;
+    }
 
+    .pi01Details {
+        padding-left: 15px;
+    }
+
+    .pi01Thumb::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+    }
+
+    .pi01Thumb:hover::after {
+        opacity: 1;
+    }
+
+    .size-option.selected {
+        background: #7b9494 !important;
+        color: #fff !important;
+    }
+
+    .color-option.selected {
+        border: 2px solid #7b9494 !important;
+    }
+
+    .color-circle {
+        margin-top: 5px;
+    }
 </style>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var slider = document.getElementById('sliderRange');
+document.addEventListener('DOMContentLoaded', () => {
+    function formatVND(n){ return new Intl.NumberFormat('vi-VN').format(Math.round(n)) + 'đ'; }
 
-    // Khởi tạo noUiSlider
-    noUiSlider.create(slider, {
-        start: [{{ $min }}, {{ $max }}],
-        connect: true,
-        step: 10000, // Bước nhảy 10,000 VNĐ
-        range: {
-            'min': 0,
-            'max': 5000000
+    function updatePriceAndForm(card){
+        const variants = JSON.parse(card.dataset.variants || '[]');
+        const sizeId = card.querySelector('.size-option.selected')?.dataset.id;
+        const colorId = card.querySelector('.color-option.selected')?.dataset.id;
+        const form = card.querySelector('form');
+
+        if(!sizeId || !colorId){
+            form.variant_id.value = '';
+            form.size.value = sizeId||'';
+            form.color.value = colorId||'';
+            return;
         }
+
+        const matched = variants.find(v =>
+            String(v.attrs.size||'')===String(sizeId) &&
+            String(v.attrs.color||'')===String(colorId)
+        );
+        if(matched){
+            const priceBox = card.querySelector('.pi01Price');
+            const html = matched.sale_price
+                ? `<del>${formatVND(matched.price)}</del> <ins>${formatVND(matched.sale_price)}</ins>`
+                : `<ins>${formatVND(matched.price)}</ins>`;
+            priceBox.innerHTML = html;
+
+            form.variant_id.value = matched.id;
+            form.size.value = sizeId;
+            form.color.value = colorId;
+        }
+    }
+
+    document.querySelectorAll('.size-option').forEach(el=>{
+        el.addEventListener('click',()=>{
+            el.parentNode.querySelectorAll('.size-option').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            updatePriceAndForm(el.closest('.productItem01'));
+        });
+    });
+    document.querySelectorAll('.color-option').forEach(el=>{
+        el.addEventListener('click',()=>{
+            el.parentNode.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));
+            el.classList.add('selected');
+            updatePriceAndForm(el.closest('.productItem01'));
+        });
     });
 
-    var amount = document.getElementById('amount');
-    var priceMinInput = document.getElementById('price_min');
-    var priceMaxInput = document.getElementById('price_max');
-
-    // Hàm format tiền Việt
-    function formatVND(number) {
-        return number.toLocaleString('vi-VN') + '₫';
-    }
-
-    // Cập nhật khi kéo slider
-    slider.noUiSlider.on('update', function (values) {
-        var min = Math.round(values[0]);
-        var max = Math.round(values[1]);
-
-        amount.textContent = formatVND(min) + ' - ' + formatVND(max);
-        priceMinInput.value = min;
-        priceMaxInput.value = max;
-    });
-});
-
-    document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.piAddToCart').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            let productId = this.getAttribute('data-id');
-            let form = document.getElementById('add-to-cart-form-' + productId);
-            let formData = new FormData(form);
-
-
-            fetch("{{ route('cart.add') }}", {
-    method: 'POST',
-    body: formData,
-    headers: {
-        'X-CSRF-TOKEN': formData.get('_token'),
-        'X-Requested-With': 'XMLHttpRequest' // <--- thêm dòng này
-    }
-})
-.then(res => res.json())
-.then(data => {
-    if (data.success) {
-        alert('Đã thêm vào giỏ hàng!');
-    } else {
-        alert(data.message || 'Có lỗi xảy ra!');
-    }
-})
-.catch(err => {
-    console.error(err);
-    alert('Không thể thêm sản phẩm vào giỏ!');
-});
+    document.querySelectorAll('.piAddToCart').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            const form = document.getElementById('add-to-cart-form-'+btn.dataset.id);
+            if(!form.variant_id.value){
+                alert('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng!');
+                return;
+            }
+            fetch("{{ route('cart.add') }}",{
+                method:'POST',body:new FormData(form),
+                headers:{'X-CSRF-TOKEN':form._token.value,'X-Requested-With':'XMLHttpRequest'}
+            }).then(r=>r.json()).then(d=>{
+                if(d.success) alert('Đã thêm sản phẩm vào giỏ hàng!');
+                else alert(d.message||'Có lỗi xảy ra!');
+            });
         });
     });
 });
-
 </script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
-
