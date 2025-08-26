@@ -654,4 +654,58 @@ public function cancel_online_refunds(Order $order)
     ]);
 }
 
+
+public function showChangeAddressForm($orderId)
+{
+    $order = \App\Models\Shared\Order::where('id', $orderId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+        
+    // Chỉ cho phép đổi khi trạng thái là "Chờ xác nhận" và chưa đổi lần nào
+    if (
+        !in_array($order->currentStatus->orderStatus->name ?? '', ['Chờ xác nhận', 'Chờ Xác Nhận', 'Chờ xử lý'])
+        || $order->check_refund_cancel // đã đổi rồi
+    ) {
+        return redirect()->route('client.orders.purchase.history')
+            ->with('error', 'Bạn không thể thay đổi địa chỉ cho đơn hàng này.');
+    }
+
+    return view('client.orders.change_address', compact('order'));
+}
+
+public function changeAddress(Request $request, $orderId)
+{
+    $order = \App\Models\Shared\Order::where('id', $orderId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    // Kiểm tra trạng thái và đã đổi chưa
+    if (
+        !in_array($order->currentStatus->orderStatus->name ?? '', ['Chờ xác nhận', 'Chờ Xác Nhận', 'Chờ xử lý'])
+        || $order->check_refund_cancel
+    ) {
+        return redirect()->route('client.orders.purchase.history')
+            ->with('error', 'Bạn không thể thay đổi địa chỉ cho đơn hàng này.');
+    }
+
+    $validated = $request->validate([
+        'fullname' => 'required|string|max:255',
+        'phone_number' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'address' => 'required|string|max:255',
+    ]);
+
+    $order->update([
+        'fullname' => $validated['fullname'],
+        'phone_number' => $validated['phone_number'],
+        'email' => $validated['email'],
+        'address' => $validated['address'],
+        'check_refund_cancel' => 1, // Đánh dấu đã đổi địa chỉ 1 lần
+    ]);
+
+    return redirect()->route('client.orders.purchase.history')
+        ->with('success', 'Cập nhật địa chỉ thành công!');
+}
+
 }
