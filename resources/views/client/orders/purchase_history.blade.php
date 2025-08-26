@@ -76,7 +76,7 @@
                             </li>
                             <li class="nav-item">
                                 <button class="nav-link filter-btn" data-filter="processing">
-                                    <i class="fas fa-box me-2"></i>Đang xử lý
+                                    <i class="fas fa-box me-2"></i>Đang giao hàng
                                     <span class="count-badge" id="count-processing">0</span>
                                 </button>
                             </li>
@@ -90,6 +90,12 @@
                                 <button class="nav-link filter-btn" data-filter="cancelled">
                                     <i class="fas fa-times-circle me-2"></i>Đã hủy
                                     <span class="count-badge" id="count-cancelled">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link filter-btn" data-filter="cancelled-processing">
+                                    <i class="fas fa-times-circle me-2"></i> Hoàn đơn
+                                    <span class="count-badge" id="cancelled-processing">0</span>
                                 </button>
                             </li>
                         </ul>
@@ -138,6 +144,9 @@
                                     case 'Hủy Đơn':
                                     case 'Hủy đơn hàng':
                                         $statusClass = 'cancelled';
+                                        break;
+                                    case 'Trả hàng/Hoàn tiền':
+                                        $statusClass = 'cancelled-processing';
                                         break;
                                     default:
                                         $statusClass = 'pending';
@@ -252,7 +261,12 @@
                                                     </a>
                                                 @endif
 
-
+                                                @if ($statusName === 'Chờ Xác Nhận' && !$order->check_refund_cancel)
+                                                    <a href="{{ route('client.orders.change-address-form', $order->id) }}"
+                                                    class="btn btn-outline-primary btn-sm action-btn">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>Đổi địa chỉ nhận hàng
+                                                    </a>
+                                                @endif
 
                                                 <button class="btn btn-outline-success btn-sm action-btn">
                                                     <i class="fas fa-comments me-1"></i>Chat
@@ -320,7 +334,7 @@
                                             @endif
                                         @endif
 
-                                        @if ($statusName === 'Đang giao hàng')
+                                        @if ($statusName === 'Đã giao hàng')
                                             <form action="{{ route('client.orders.received', $order->id) }}"
                                                 method="POST" class="d-inline">
                                                 @csrf
@@ -608,10 +622,13 @@
         .status-badge.status-completed {
             background: linear-gradient(135deg, #10b981, #059669);
         }
-
+        .status-badge.status-cancelled-processing {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
         .status-badge.status-cancelled {
             background: linear-gradient(135deg, #ef4444, #dc2626);
         }
+        
 
         .status-badge.no-status {
             background: #6c757d;
@@ -1070,6 +1087,7 @@
                 processing: 0,
                 completed: 0,
                 cancelled: 0
+                
             };
 
             // Count each status
