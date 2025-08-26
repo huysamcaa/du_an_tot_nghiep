@@ -230,7 +230,7 @@ class RefundController extends Controller
                         'product_id'       => $item->product_id,
                         'variant_id'       => $item->product_variant_id,
                         'name'             => $item->name,
-                        'name_variant'     => optional($item->variant)->name ?? 'Không có phân loại',
+                        // 'name_variant'     => optional($item->variant)->name ?? 'Không có phân loại',
                         'thumbnail'        => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
                         'quantity'         => $quantity,
                         'price'            => $item->price,

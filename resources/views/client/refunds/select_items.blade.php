@@ -39,7 +39,6 @@
                                 <th class="product-name">Tên sản phẩm</th>
                                 <th class="product-variation">Phân loại</th>
                                 <th class="product-category">Danh mục</th>
-                                <th class="product-status">Trạng thái</th>
                                 <th class="product-quantity">Số lượng</th>
                                 <th class="product-price">Giá</th>
                             </tr>
@@ -69,9 +68,6 @@
                                         </td>
                                         <td class="product-category">
                                             {{ $item->product->category->name ?? 'Không có' }}
-                                        </td>
-                                        <td class="product-status">
-                                            {{-- {{ $order->order_order_status->order_status_id ?? 'Chưa xác định' }} --}}
                                         </td>
                                         <td class="product-quantity">
                                             x1
