@@ -1,5 +1,5 @@
 @extends('client.layouts.app')
-
+@section('title','Danh Sách Mã Khuyến mãi Đã Nhận')
 @section('content')
 <style>
     .pageBannerSection {

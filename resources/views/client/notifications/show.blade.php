@@ -1,5 +1,5 @@
 @extends('client.layouts.app')
-
+@section('title','Chi tiết thông báo')
 @section('content')
 <style>
     .pageBannerSection { background:#ECF5F4; padding: 10px 0; }
