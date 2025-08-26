@@ -332,6 +332,13 @@
                                                     </a>
                                                 @endif
                                             @endif
+                                            @if ($statusName === 'Chờ Xác Nhận')
+                                                    <!-- COD -->
+                                                    <a href="{{ route('client.orders.cancel-form', $order->id) }}"
+                                                        class="btn btn-outline-danger btn-sm action-btn cancel-order-btn">
+                                                        <i class="fas fa-times-circle me-1"></i>Đổi Địa Chỉ Giao Hàng
+                                                    </a>
+                                            @endif
 
                                             @if ($statusName === 'Đã giao hàng')
                                                 <form action="{{ route('client.orders.received', $order->id) }}"
