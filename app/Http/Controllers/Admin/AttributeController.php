@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Attribute;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class AttributeController extends Controller
 {
@@ -98,8 +100,21 @@ class AttributeController extends Controller
 }
 
     public function destroy(Attribute $attribute)
-    {
-        $attribute->delete();
-        return redirect()->route('admin.attributes.index')->with('success', 'Xóa thuộc tính thành công!');
-    }
+{
+    // Lấy tất cả attribute values của attribute này
+    $attributeValueIds = $attribute->values()->pluck('id');
+    
+    // Xóa các liên kết trong bảng trung gian
+    DB::table('attribute_value_product_variant')
+        ->whereIn('attribute_value_id', $attributeValueIds)
+        ->delete();
+    
+    // Xóa các giá trị thuộc tính
+    $attribute->values()->delete();
+    
+    // Xóa thuộc tính
+    $attribute->delete();
+    
+    return redirect()->route('admin.attributes.index')->with('success', 'Xóa thuộc tính thành công!');
+}
 }
