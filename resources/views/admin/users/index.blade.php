@@ -122,7 +122,16 @@
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->phone_number }}</td>
-                                    <td>{{ ucfirst($user->gender) }}</td>
+                                    <td>
+                                        @if ($user->gender === 'male')
+                                            Nam
+                                        @elseif ($user->gender === 'female')
+                                            Nữ
+                                        @else
+                                            Khác
+                                        @endif
+                                    </td>
+
                                     <td><span>{{ ucfirst($user->role) }}</span></td>
 
                                     <td>

@@ -98,7 +98,7 @@
                     <div class="sticky-left">
                         <div class="card mb-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4>Thống kê doanh thu</h4>
+                                <h4>Biểu đồ doanh thu</h4>
                             </div>
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <form id="filterForm" class="row g-2 align-items-end">
@@ -581,7 +581,7 @@
                         tbodySales.innerHTML += `
                                 <tr>
                                     <td>${index+1}</td>
-                                    <td>${item.name}</td>
+                                  <td><span class="product-name" title="${item.name}">${item.name}</span></td>
                                     <td><img src="${thumbnail}" width="20"></td>
                                     <td>${item.total}</td>
                                 </tr>`;
@@ -597,7 +597,7 @@
                         tbodyFav.innerHTML += `
                                 <tr>
                                     <td>${index+1}</td>
-                                    <td>${item.name}</td>
+                                    <td><span class="product-name" title="${item.name}">${item.name}</span></td>
                                     <td><img src="${thumbnail}" width="20"></td>
                                     <td>${item.total}</td>
                                 </tr>`;

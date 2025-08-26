@@ -40,15 +40,10 @@ class RefundController extends Controller
         if (!is_numeric($orderId) || $orderId <= 0) {
             abort(404);
         }
-
-        $order = Order::with([
-            'items.product',
-            'items.variant.attributeValues.attribute',
-        ])
+        $order = Order::with('items') // chỉ load order_items
             ->where('user_id', auth()->id())
             ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'đã hoàn thành'))
             ->findOrFail($orderId);
-
         return view('client.refunds.select_items', compact('order'));
     }
 
@@ -209,7 +204,7 @@ class RefundController extends Controller
                 'bank_name'          => $validated['bank_name'],
                 'total_amount'       => $refundTotal,   // <-- sửa ở đây: dùng $refundTotal
                 'status'             => 'pending',
-                'bank_account_status'=> 'unverified',
+                'bank_account_status' => 'unverified',
                 'is_send_money'      => 0,
             ];
 

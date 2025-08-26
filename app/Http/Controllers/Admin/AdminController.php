@@ -10,14 +10,15 @@ use App\Models\Shared\OrderItem;
 use App\Models\Admin\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admin\OrderOrderStatus;
-use App\Models\Admin\Comment;
+
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    private function applyDateFilter($query, $fromDate, $toDate, $year, $month, $table = 'orders')
+    private function applyDateFilter($query, $from, $to, $year, $month, $table = 'orders')
     {
-        if ($fromDate && $toDate) {
-            return $query->whereBetween("$table.created_at", [$fromDate, $toDate]);
+        if ($from && $to) {
+            return $query->whereBetween("$table.created_at", [$from, $to]);
         } elseif ($year) {
             $query->whereYear("$table.created_at", $year);
             if ($month) {
@@ -37,10 +38,9 @@ class AdminController extends Controller
         $view = $request->get('view', 'month');
         $fromDate = $request->get('from_date');
         $toDate = $request->get('to_date');
-        $from = $fromDate ? \Carbon\Carbon::parse($fromDate) : null;
-        $to   = $toDate   ? \Carbon\Carbon::parse($toDate)   : null;
+        $from = $fromDate ? Carbon::parse($fromDate)->startOfDay() : null;
+        $to   = $toDate   ? Carbon::parse($toDate)->endOfDay()   : null;
         $diffInDays = $from && $to ? $from->diffInDays($to) : null;
-
         // Lấy các order_id đã hoàn thành
         $orderCompletedStatusId = DB::table('order_statuses')->where('name', 'Đã hoàn thành')->value('id');
 
@@ -57,11 +57,24 @@ class AdminController extends Controller
 
         if ($fromDate && $toDate) {
             $diffInDays = $from->diffInDays($to);
-
-            if ($diffInDays > 60) {
+            if ($diffInDays <= 30) {
+                // Gom theo ngày
+                $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
+                    ->whereBetween('created_at', [$from, $to])
+                    ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total'))
+                    ->groupBy('date')
+                    ->orderBy('date')
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'label' => \Carbon\Carbon::parse($item->date)->format('d/m/Y'),
+                            'total' => $item->total,
+                        ];
+                    });
+            } elseif ($diffInDays <= 365) {
                 // Gom theo tháng
                 $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
-                    ->whereBetween('created_at', [$fromDate, $toDate])
+                    ->whereBetween('created_at', [$from, $to])
                     ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as period'), DB::raw('SUM(total_amount) as total'))
                     ->groupBy('period')
                     ->orderBy('period')
@@ -69,22 +82,21 @@ class AdminController extends Controller
                     ->map(function ($item) {
                         return [
                             'label' => \Carbon\Carbon::createFromFormat('Y-m', $item->period)->format('m/Y'),
-                            'total' => $item->total
-
+                            'total' => $item->total,
                         ];
                     });
             } else {
-                // Gom theo ngày
+                // Gom theo năm
                 $revenueByPeriod = Order::whereIn('id', $completedOrderIds)
-                    ->whereBetween('created_at', [$fromDate, $toDate])
-                    ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total_amount) as total'))
-                    ->groupBy('date')
-                    ->orderBy('date')
+                    ->whereBetween('created_at', [$from, $to])
+                    ->select(DB::raw('YEAR(created_at) as year'), DB::raw('SUM(total_amount) as total'))
+                    ->groupBy('year')
+                    ->orderBy('year')
                     ->get()
                     ->map(function ($item) {
                         return [
-                            'label' => \Carbon\Carbon::parse($item->date)->format('d/m/Y'), // ✅ đổi lại dd/mm/yyyy
-                            'total' => $item->total
+                            'label' => $item->year,
+                            'total' => $item->total,
                         ];
                     });
             }
@@ -150,29 +162,29 @@ class AdminController extends Controller
         $months = range(1, 12);
         // Các thống kê khác
         $allTimeOrders = Order::whereIn('id', $completedOrderIds);
-        if ($fromDate && $toDate) {
-            $allTimeOrders->whereBetween('created_at', [$fromDate, $toDate]);
+        if ($from && $to) {
+            $allTimeOrders->whereBetween('created_at', [$from, $to]);
         }
         $revenue    = $allTimeOrders->sum('total_amount');
         $orderCount = $allTimeOrders->count();
 
 
-        $userCount = User::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
-            $q->whereBetween('created_at', [$fromDate, $toDate]);
+        $userCount = User::when($from && $to, function ($q) use ($from, $to) {
+            $q->whereBetween('created_at', [$from, $to]);
         })
             ->count();
-
         // Đếm sản phẩm theo ngày tạo
-        $productCount = Product::when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
-            $q->whereBetween('created_at', [$fromDate, $toDate]);
+        $productCount = Product::when($from && $to, function ($q) use ($from, $to) {
+            $q->whereBetween('created_at', [$from, $to]);
         })
+
             ->count();
         $orderStatusStats = OrderOrderStatus::where('order_order_status.is_current', 1)
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
             ->join('orders', 'orders.id', '=', 'order_order_status.order_id');
 
-        if ($fromDate && $toDate) {
-            $orderStatusStats->whereBetween('orders.created_at', [$fromDate, $toDate]);
+        if ($from && $to) {
+            $orderStatusStats->whereBetween('orders.created_at', [$from, $to]);
         } else {
             $orderStatusStats->whereYear('orders.created_at', $year)
                 ->whereMonth('orders.created_at', $month);
@@ -182,8 +194,8 @@ class AdminController extends Controller
             ->groupBy('order_statuses.id', 'order_statuses.name')
             ->get();
         $customerOrders = Order::whereIn('id', $completedOrderIds)
-            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
-                $q->whereBetween('created_at', [$fromDate, $toDate]);
+            ->when($from && $to, function ($q) use ($from, $to) {
+                $q->whereBetween('created_at', [$from, $to]);
             }, function ($q) use ($year, $month) {
                 $q->whereYear('created_at', $year)
                     ->whereMonth('created_at', $month);
@@ -194,7 +206,6 @@ class AdminController extends Controller
             ->orderByDesc('total_amount')
             ->limit(5)
             ->get();
-
         // Lấy last status cho top customers
         $userIds = $customerOrders->pluck('user_id');
         $lastStatuses = DB::table('orders as o')
@@ -272,8 +283,8 @@ class AdminController extends Controller
 
         // Chuẩn hóa dữ liệu
         $paymentStats = Order::whereIn('id', $completedOrderIds)
-            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
-                $q->whereBetween('orders.created_at', [$fromDate, $toDate]);
+            ->when($from && $to, function ($q) use ($from, $to) {
+                $q->whereBetween('orders.created_at', [$from, $to]);
             }, function ($q) use ($year, $month) {
                 $q->whereYear('orders.created_at', $year)
                     ->whereMonth('orders.created_at', $month);
@@ -286,12 +297,6 @@ class AdminController extends Controller
             ->groupBy('payment_id')
             ->get();
 
-        // Map payment_id sang tên
-        $paymentMethods = [
-            2 => 'COD',
-            3 => 'MoMo',
-            4 => 'VNPay',
-        ];
 
         // Chuẩn hóa dữ liệu
         $paymentStats = $paymentStats->map(function ($item) use ($paymentMethods) {
