@@ -876,6 +876,7 @@ use Illuminate\Support\Facades\File;
             })
             ->get();
         }
+    
 
         protected function processCoupon($couponCode, $total)
         {
@@ -893,9 +894,10 @@ use Illuminate\Support\Facades\File;
         if (!$coupon) {
             throw new \Exception('Mã giảm giá không hợp lệ hoặc đã hết hạn');
         }
+        
 
             $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
-
+            
             if ($restriction && $restriction->min_order_value > $total) {
                 throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng mã giảm giá');
             }
@@ -907,7 +909,7 @@ use Illuminate\Support\Facades\File;
             if ($restriction && $restriction->max_discount_value) {
                 $discount = min($discount, $restriction->max_discount_value);
             }
-
+            
             return [
                 'discount' => $discount,
             'coupon' => $coupon

@@ -813,227 +813,189 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        const subtotal = {{ $total }};
-        const shippingFee = 30000;
-        let currentTotal = subtotal + shippingFee;
-        let currentDiscount = 0;
+   <script>
+$(document).ready(function () {
+    const subtotal = parseInt($('#subtotal').text().replace(/[^\d]/g, '')) || 0;
+    const shippingFee = 30000;
+    let currentTotal = subtotal + shippingFee;
+    let currentDiscount = 0;
 
-        // Xử lý chọn địa chỉ
-        $('#addressSelect').change(function() {
-            const selectedOption = $(this).find('option:selected');
-            const address = selectedOption.data('address');
-            const phone = selectedOption.data('phone');
-            const fullname = selectedOption.data('fullname');
-           
-            // Cập nhật các trường ẩn
-            $('#hiddenField7').val(address);
-            $('#hiddenField5').val(phone ? phone : '{{ auth()->user()->phone_number ?? '' }}');
-           
-            if (fullname) {
-                const nameParts = fullname.split(' ');
-                $('#hiddenField1').val(nameParts[0] || '');
-                $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
-            }
-             // Thêm đoạn này để cập nhật giao diện
-    $('#mainAddressName').text(fullname || '');
-    $('#mainAddressPhone').text('(+84) ' + (phone || ''));
-        });
+    // Hàm cập nhật tổng tiền
+    function updateTotal() {
+        const finalTotal = subtotal + shippingFee - currentDiscount;
+        $('#final-total').text(finalTotal.toLocaleString('vi-VN') + 'đ');
+    }
 
-        // Xử lý thay đổi địa chỉ
-        $('#saveAddressChange').on('click', function() {
-            const selectedAddress = $('input[name="selected_address"]:checked');
-            if (selectedAddress.length > 0) {
-                const addressId = selectedAddress.val();
-                const address = selectedAddress.data('address');
-                const phone = selectedAddress.data('phone');
-                const fullname = selectedAddress.data('fullname');
-                
-                // Cập nhật select
-                $('#addressSelect').val(addressId);
-                
-                // Cập nhật các trường ẩn
-                $('#hiddenField7').val(address);
-                $('#hiddenField5').val(phone);
-                
-                if (fullname) {
-                    const nameParts = fullname.split(' ');
-                    $('#hiddenField1').val(nameParts[0] || '');
-                    $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
-                }
-                $('#mainAddressName').text(fullname || '');
-            $('#mainAddressPhone').text('(+84) ' + (phone || ''));
-                
-                // Đóng modal
-                $('#changeAddressModal').modal('hide');
-            }
-        });
+    // Xử lý chọn địa chỉ
+    $('#addressSelect').on('change', function () {
+        const selected = $(this).find('option:selected');
+        const address = selected.data('address');
+        const phone = selected.data('phone');
+        const fullname = selected.data('fullname');
 
-        // Xử lý thay đổi mã giảm giá
-        $('#saveCouponChange').on('click', function() {
-            const selectedCoupon = $('input[name="selected_coupon"]:checked');
-            if (selectedCoupon.length > 0) {
-                const couponCode = selectedCoupon.val();
-                applyCoupon(couponCode, selectedCoupon);
-                
-                // Đóng modal
-                $('#changeCouponModal').modal('hide');
-            }
-        });
+        $('#hiddenField7').val(address);
+        $('#hiddenField5').val(phone || '{{ auth()->user()->phone_number ?? '' }}');
 
-        // Xử lý áp dụng mã giảm giá mới
-        $('#applyNewCoupon').on('click', function() {
-            const couponCode = $('#newCouponCode').val().trim();
-            if (couponCode) {
-                // Giả lập kiểm tra mã giảm giá (trong thực tế sẽ gọi API)
-                const couponMessage = $('#couponMessage');
-                couponMessage.removeClass('text-danger text-success').html('');
-                
-                // Giả lập mã hợp lệ
-                setTimeout(function() {
-                    couponMessage.addClass('text-success').html('<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
-                    
-                    // Tạo một option giả lập cho mã mới
-                    applyCoupon(couponCode, {
-                        data: function(key) {
-                            if (key === 'discount-type') return 'percent';
-                            if (key === 'discount-value') return 10;
-                            if (key === 'max-discount') return 50000;
-                            return '';
-                        }
-                    });
-                    
-                    // Đóng modal sau 1 giây
-                    setTimeout(function() {
-                        $('#addCouponModal').modal('hide');
-                    }, 1000);
-                }, 800);
-            }
-        });
-
-        // Hàm áp dụng mã giảm giá
-        function applyCoupon(couponCode, couponElement) {
-            let discount = 0;
-            
-            if (couponCode && couponCode !== '') {
-                const discountType = couponElement.data('discount-type');
-                const discountValue = parseFloat(couponElement.data('discount-value'));
-                const maxDiscount = parseFloat(couponElement.data('max-discount')) || 0;
-
-                if (discountType === 'percent') {
-                    discount = (subtotal * discountValue) / 100;
-                    if (maxDiscount > 0 && discount > maxDiscount) {
-                        discount = maxDiscount;
-                    }
-                } else if (discountType === 'fixed') {
-                    discount = discountValue;
-                }
-
-                if (discount > subtotal) {
-                    discount = subtotal;
-                }
-
-                // Cập nhật giao diện
-                $('#appliedCouponBadge').text(couponCode).show();
-                $('#couponDetails').html(`
-                    ${discountType === 'percent' ? `Giảm ${discountValue}%` : `Giảm ${discountValue.toLocaleString('vi-VN')}₫`}
-                    ${maxDiscount > 0 ? ` • Tối đa ${maxDiscount.toLocaleString('vi-VN')}₫` : ''}
-                `);
-                $('#couponValue').text(`-${discount.toLocaleString('vi-VN')}₫`).show();
-                
-                $('#discount-row').show();
-                $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
-            } else {
-                // Không sử dụng mã
-                $('#appliedCouponBadge').hide();
-                $('#couponDetails').text('Chọn hoặc nhập mã giảm giá để tiết kiệm hơn');
-                $('#couponValue').hide();
-                
-                $('#discount-row').hide();
-                discount = 0;
-            }
-
-            // Cập nhật tổng tiền
-            currentDiscount = discount;
-            currentTotal = subtotal + shippingFee - discount;
-            $('#final-total').text(Math.round(currentTotal).toLocaleString('vi-VN') + 'đ');
-            
-            // Lưu mã đã chọn vào trường ẩn
-            $('#selectedCoupon').val(couponCode);
-            $('#couponDiscount').val(discount);
+        if (fullname) {
+            const parts = fullname.split(' ');
+            $('#hiddenField1').val(parts[0] || '');
+            $('#hiddenField2').val(parts.slice(1).join(' ') || '');
         }
 
-        // Xử lý khi thêm địa chỉ thành công
-        $('#addAddressForm').on('submit', function(e) {
-            e.preventDefault();
-           
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'POST',
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        // Thêm option mới vào select
-                        const newOption = new Option(
-                            response.data.address,
-                            response.data.id,
-                            false,
-                            response.data.is_default
-                        );
-                       
-                        $(newOption).attr({
-                            'data-address': response.data.address,
-                            'data-phone': response.data.phone_number,
-                            'data-fullname': response.data.fullname
-                        });
-                       
-                        $('#addressSelect').append(newOption);
-                       
-                        // Nếu là địa chỉ mặc định, chọn nó
-                        if (response.data.is_default) {
-                            $('#addressSelect').val(response.data.id).trigger('change');
-                        }
-                       
-                        // Đóng modal
-                        $('#addAddressModal').modal('hide');
-                       
-                        // Hiển thị thông báo
-                        alert('Thêm địa chỉ thành công!');
-                    }
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        const errors = xhr.responseJSON.errors;
-                        alert('Vui lòng kiểm tra lại thông tin: ' + Object.values(errors).join('\n'));
-                    } else {
-                        alert('Có lỗi xảy ra. Vui lòng thử lại!');
-                    }
-                }
-            });
-        });
+        $('#mainAddressName').text(fullname || '');
+        $('#mainAddressPhone').text('(+84) ' + (phone || ''));
+    });
 
-        // Xử lý modal địa chỉ
-        const vnLocationsData = @json($vnLocationsData);
-        const provinceSelectAdd = document.getElementById("province-add");
-        const wardSelectAdd = document.getElementById("ward-add");
+    // Xử lý lưu thay đổi địa chỉ
+    $('#saveAddressChange').on('click', function () {
+        const selected = $('input[name="selected_address"]:checked');
+        if (selected.length > 0) {
+            const id = selected.val();
+            const address = selected.data('address');
+            const phone = selected.data('phone');
+            const fullname = selected.data('fullname');
 
-        if (provinceSelectAdd) {
-            provinceSelectAdd.addEventListener("change", function() {
-                const selectedProvinceName = this.value;
-                wardSelectAdd.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-                if (selectedProvinceName) {
-                    const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
-                    if (selectedProvince) {
-                        const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
-                        allWards.forEach(ward => {
-                            wardSelectAdd.add(new Option(ward.Name, ward.Name));
-                        });
-                    }
-                }
-            });
+            $('#addressSelect').val(id).trigger('change');
+            $('#hiddenField7').val(address);
+            $('#hiddenField5').val(phone);
+
+            if (fullname) {
+                const parts = fullname.split(' ');
+                $('#hiddenField1').val(parts[0] || '');
+                $('#hiddenField2').val(parts.slice(1).join(' ') || '');
+            }
+
+            $('#mainAddressName').text(fullname || '');
+            $('#mainAddressPhone').text('(+84) ' + (phone || ''));
+
+            bootstrap.Modal.getInstance(document.getElementById('changeAddressModal')).hide();
         }
     });
-    </script>
+
+    // Xử lý lưu mã giảm giá
+    $('#saveCouponChange').on('click', function () {
+        const selected = $('input[name="selected_coupon"]:checked');
+        if (selected.length > 0) {
+            const code = selected.val();
+            applyCoupon(code, selected);
+            bootstrap.Modal.getInstance(document.getElementById('changeCouponModal')).hide();
+        }
+    });
+
+    // Xử lý áp dụng mã mới
+    $('#applyNewCoupon').on('click', function () {
+        const code = $('#newCouponCode').val().trim();
+        if (code) {
+            const msg = $('#couponMessage');
+            msg.removeClass('text-danger text-success').html('');
+
+            setTimeout(() => {
+                msg.addClass('text-success').html('<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
+                applyCoupon(code, {
+                    data: function (key) {
+                        if (key === 'discount-type') return 'percent';
+                        if (key === 'discount-value') return 10;
+                        if (key === 'max-discount') return 50000;
+                        return '';
+                    }
+                });
+
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('addCouponModal')).hide();
+                }, 1000);
+            }, 800);
+        }
+    });
+
+    // Hàm áp dụng mã giảm giá
+    function applyCoupon(code, el) {
+        let discount = 0;
+        const type = el.data('discount-type');
+        const value = parseFloat(el.data('discount-value'));
+        const max = parseFloat(el.data('max-discount')) || 0;
+
+        if (type === 'percent') {
+            discount = subtotal * value / 100;
+            if (max > 0 && discount > max) discount = max;
+        } else if (type === 'fixed') {
+            discount = value;
+        }
+
+        if (discount > subtotal) discount = subtotal;
+
+        currentDiscount = discount;
+        updateTotal();
+
+        $('#appliedCouponBadge').text(code).show();
+        $('#couponDetails').html(`${type === 'percent' ? `Giảm ${value}%` : `Giảm ${value.toLocaleString('vi-VN')}₫`} ${max > 0 ? ` • Tối đa ${max.toLocaleString('vi-VN')}₫` : ''}`);
+        $('#couponValue').text(`-${discount.toLocaleString('vi-VN')}₫`).show();
+        $('#discount-row').show();
+        $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
+
+        $('#selectedCoupon').val(code);
+        $('#couponDiscount').val(discount);
+    }
+
+    // Xử lý thêm địa chỉ mới
+    $('#addAddressForm').on('submit', function (e) {
+        e.preventDefault();
+        const form = $(this);
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function (res) {
+                if (res.success) {
+                    const opt = new Option(res.data.address, res.data.id, false, res.data.is_default);
+                    $(opt).attr({
+                        'data-address': res.data.address,
+                        'data-phone': res.data.phone_number,
+                        'data-fullname': res.data.fullname
+                    });
+
+                    $('#addressSelect').append(opt);
+
+                    if (res.data.is_default) {
+                        $('#addressSelect').val(res.data.id).trigger('change');
+                    }
+
+                    bootstrap.Modal.getInstance(document.getElementById('addAddressModal')).hide();
+                    form[0].reset();
+                    alert('Thêm địa chỉ thành công!');
+                }
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+                    alert('Vui lòng kiểm tra lại thông tin:\n' + Object.values(errors).join('\n'));
+                } else {
+                    alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                }
+            }
+        });
+    });
+
+    // Xử lý chọn tỉnh → cập nhật xã/phường
+    const vnLocationsData = @json($vnLocationsData);
+    const provinceSelectAdd = document.getElementById("province-add");
+    const wardSelectAdd = document.getElementById("ward-add");
+
+    if (provinceSelectAdd) {
+        provinceSelectAdd.addEventListener("change", function () {
+            const selectedProvinceName = this.value;
+            wardSelectAdd.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
+            if (selectedProvince) {
+                const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
+                allWards.forEach(ward => {
+                    wardSelectAdd.add(new Option(ward.Name, ward.Name));
+                });
+            }
+        });
+    }
+});
+</script>
+
 </body>
 </html>

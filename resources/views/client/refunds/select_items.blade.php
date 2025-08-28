@@ -36,7 +36,7 @@
                         </th>
                         <th class="product-thumbnail">Ảnh</th>
                         <th class="product-name">Tên sản phẩm</th>
-                        <th class="product-variation">Phân loại</th>
+                        <th class="product-variation">Biến thể</th>
                         <th class="product-category">Danh mục</th>
                         <th class="product-status">Trạng thái</th>
                         <th class="product-quantity">Số lượng</th>
@@ -63,11 +63,12 @@
                                 {{ $item->name }}
                             </td>
                             <td class="product-variation">
-                                @if($item->variant && $item->variant->attributeValues->count())
-                                {{ $item->variant->attributeValues->pluck('value')->implode(' - ') }}
-                                @else
-                                <span class="text-muted">-</span>
-                                @endif
+                                 
+                                                    {{-- Hiển thị thông tin biến thể nếu có --}}
+                                                    @foreach ($item->attributes_variant as $key => $variant)
+                                                        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
+                                                    @endforeach
+                                
                             </td>
                             <td class="product-category">
                                 {{ $item->product->category->name ?? 'Không có' }}
