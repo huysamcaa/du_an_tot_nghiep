@@ -235,12 +235,14 @@
                                                 <a href="{{ route('client.orders.purchase.history') }}">
                                                     <i class="fa-solid fa-user-circle"></i> Đơn Hàng
                                                 </a>
-
+                                                 <a href="{{ route('refunds.index') }}">
+                                                        <i class="fa-solid fa-map-location-dot"></i> Đơn hoàn 
+                                                    </a>
 
                                                     <a href="{{ route('user.addresses.index') }}">
                                                         <i class="fa-solid fa-map-location-dot"></i> Địa chỉ của tôi
                                                     </a>
-
+                                                   
 
                                             </div>
 

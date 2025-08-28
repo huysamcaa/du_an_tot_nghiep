@@ -154,9 +154,7 @@
                                 </form>
                             </div>
                             <div class="card-body">
-
                                 <canvas id="revenueChart" height="150"></canvas>
-
                             </div>
                         </div>
                         <!-- Orders -->

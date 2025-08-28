@@ -142,16 +142,12 @@
                         @if (!empty($coupon->pivot->user_group))
                             <p><strong>Nhóm áp dụng:</strong> {{ ucfirst($coupon->pivot->user_group) }}</p>
                         @endif
-                        @if (!empty($coupon->pivot->usage_limit))
-                            <p><strong>Số lần sử dụng tối đa:</strong> {{ $coupon->pivot->usage_limit }}</p>
-                        @endif
+                      
                     @else
                         @if (!empty($coupon->user_group))
                             <p><strong>Nhóm áp dụng:</strong> {{ ucfirst($coupon->user_group) }}</p>
                         @endif
-                        @if (!empty($coupon->usage_limit))
-                            <p><strong>Số lần sử dụng tối đa:</strong> {{ $coupon->usage_limit }}</p>
-                        @endif
+
                     @endif
                 </div>
 
