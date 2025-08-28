@@ -2,6 +2,22 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Controller;
+use App\Models\Admin\CartItem;
+use App\Models\Admin\OrderOrderStatus;
+use App\Models\Admin\Product;
+use App\Models\Admin\ProductVariant;
+use App\Models\Client\UserAddress;
+use App\Models\Coupon;
+use App\Models\CouponRestriction;
+use App\Models\Shared\Order;
+use App\Models\Shared\OrderItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use App\Models\Coupon;
 use Illuminate\Support\Str;
@@ -21,6 +37,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderPlacedMail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Admin\OrderOrderStatus;
@@ -98,8 +116,6 @@ class CheckoutController extends Controller
                     ->orWhere('coupon_user.end_date', '>=', now());
             })
             ->get();
-
-
         return view('client.checkout.checkout', [
             'cartItems' => $cartItems,
             'total' => $total,
@@ -382,38 +398,44 @@ class CheckoutController extends Controller
     }
 
     protected function processRegularOrder(Request $request, $couponData)
-    {
-        $order = null;
+{
+    $order = null;
 
-        DB::beginTransaction();
+    DB::beginTransaction();
+    try {
+        $orderData = Session::get('pending_order');
+        $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
+        $this->clearCartItems($orderData['selected_items']);
+
+        $this->createOrderNotification($order);
+
+        // Cập nhật trạng thái mã giảm giá (idempotent)
+        $this->markCouponUsedForOrder($order);
+
+        DB::commit();
+        Session::forget('pending_order');
+
+        // 👉 Gửi mail xác nhận (sau khi commit, tránh deadlock)
         try {
-            $orderData = Session::get('pending_order');
-            $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
-            $this->clearCartItems($orderData['selected_items']);
-
-            $this->createOrderNotification($order);
-
-            // Cập nhật trạng thái mã giảm giá (idempotent)
-            $this->markCouponUsedForOrder($order);
-
-            DB::commit();
-            Session::forget('pending_order');
-
-            return redirect()->route('client.orders.show', $order->code)
-                ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('Regular Order Error: ' . $e->getMessage());
-
-            // Hoàn mã nếu trước đó đã đánh dấu dùng
-            if ($order) {
-                $this->rollbackCouponForOrder($order);
-            }
-
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            Mail::to($order->email)->send(new OrderPlacedMail($order));
+        } catch (\Exception $mailEx) {
+            Log::error('Send Mail Order Error: ' . $mailEx->getMessage());
         }
-    }
 
+        return redirect()->route('client.orders.show', $order->code)
+            ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        Log::error('Regular Order Error: ' . $e->getMessage());
+
+        // Hoàn mã nếu trước đó đã đánh dấu dùng
+        if ($order) {
+            $this->rollbackCouponForOrder($order);
+        }
+
+        return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+    }
+}
 
     // ==================== CALLBACK HANDLERS ====================
 
@@ -421,7 +443,6 @@ class CheckoutController extends Controller
      * MoMo IPN (Instant Payment Notification) - Server to Server
      * Đây là callback từ MoMo server gọi đến server của bạn
      */
-
     public function momoIPN(Request $request)
     {
         Log::info('MoMo IPN Received', $request->all());
@@ -518,8 +539,6 @@ class CheckoutController extends Controller
                         'created_at' => now(),
                     ]);
                 }
-
-
                 Session::forget(['pending_order', 'momo_order_code', 'momo_request_id']);
                 return redirect()->route('client.orders.show', $order->code)
                     ->with('success', 'Thanh toán thành công!');
@@ -639,7 +658,6 @@ class CheckoutController extends Controller
                 $this->clearCartItems($orderData['selected_items']);
             }
             $this->markCouponUsedForOrder($order);
-
 
 
             // Kiểm tra trạng thái đã tồn tại chưa
@@ -812,6 +830,14 @@ class CheckoutController extends Controller
                     'created_at'      => now(),
                 ]);
             }
+            $order = $this->saveOrderToDatabase($orderData);
+            if (!empty($order->coupon_id)) {
+                DB::table('coupon_user')
+                    ->where('user_id', $order->user_id)
+                    ->where('coupon_id', $order->coupon_id)
+                    ->update(['used_at' => now(), 'order_id' => $order->id]);
+            }
+
 
             DB::commit();
             Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);
@@ -968,6 +994,7 @@ class CheckoutController extends Controller
             })
             ->get();
 
+
     }
 
 
@@ -987,8 +1014,6 @@ class CheckoutController extends Controller
         if (!$coupon) {
             throw new \Exception('Mã giảm giá không hợp lệ hoặc đã hết hạn');
         }
-        
-
 
         $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
 
@@ -1337,6 +1362,7 @@ class CheckoutController extends Controller
             'selected_items' => 'required|array',
         ]);
 
+
         $cart = $this->buildCartCollection($request->selected_items);
 
         try {
@@ -1402,6 +1428,7 @@ class CheckoutController extends Controller
             Log::error('Failed to create order notification: ' . $e->getMessage());
         }
     }
+
     public function cancelOrder(\Illuminate\Http\Request $request, string $code)
     {
         $userId = auth()->id();
