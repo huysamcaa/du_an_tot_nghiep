@@ -152,9 +152,7 @@
                                             <button type="submit" class="btn btn-primary btn-sm">Xem</button>
                                         </div> --}}
                                 </form>
-
                             </div>
-
                             <div class="card-body">
 
                                 <canvas id="revenueChart" height="150"></canvas>
@@ -182,10 +180,10 @@
                                         @foreach ($topCustomers as $index => $order)
                                             <tr>
                                                 <td class="serial">{{ $index + 1 }}.</td>
-                                                <td >
+                                                <td>
                                                     <img src="{{ $order->user->avatar ? asset('storage/' . $order->user->avatar) : asset('assets/images/default.png') }}"
-                                                        class="rounded-circle"
-                                                        style=" width: 40px; object-fit:cover;" alt="Avatar">
+                                                        class="rounded-circle" style=" width: 40px; object-fit:cover;"
+                                                        alt="Avatar">
                                                 </td>
                                                 <td>#{{ $order->user->id }}</td>
                                                 <td><span class="name">{{ $order->user->name }}</span></td>
@@ -219,7 +217,7 @@
                                                 <td>{{ $coupon->code }}</td>
                                                 <td>
                                                     @if ($coupon->discount_type === 'percent')
-                                                        {{ $coupon->discount_value }}%
+                                                        {{ (int) $coupon->discount_value }}%
                                                     @else
                                                         {{ number_format($coupon->discount_value, 0, ',', '.') }} đ
                                                     @endif

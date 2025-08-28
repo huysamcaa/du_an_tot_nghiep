@@ -234,8 +234,6 @@ class RefundController extends Controller
                         'thumbnail'        => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
                         'quantity'         => $quantity,
                         'price'            => $item->price,
-                        'price_variant'    => optional($item->variant)->sale_price ?? 0,
-                        'quantity_variant' => $quantity,
                     ]);
                 }
             }
