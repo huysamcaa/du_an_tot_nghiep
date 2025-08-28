@@ -967,7 +967,9 @@ class CheckoutController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->get();
+
     }
+
 
     protected function processCoupon($couponCode, $total)
     {
@@ -985,6 +987,8 @@ class CheckoutController extends Controller
         if (!$coupon) {
             throw new \Exception('Mã giảm giá không hợp lệ hoặc đã hết hạn');
         }
+        
+
 
         $restriction = CouponRestriction::where('coupon_id', $coupon->id)->first();
 
@@ -992,9 +996,11 @@ class CheckoutController extends Controller
             throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng mã giảm giá');
         }
 
+
         $discount = $coupon->discount_type === 'percent'
             ? $total * ($coupon->discount_value / 100)
             : $coupon->discount_value;
+
 
         if ($restriction && $restriction->max_discount_value) {
             $discount = min($discount, $restriction->max_discount_value);
