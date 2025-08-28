@@ -114,6 +114,8 @@ Route::middleware(['auth'])->group(function () {
     // Payment status and cancel
     Route::get('/payment/status/{orderCode}', [CheckoutController::class, 'checkPaymentStatus'])->name('payment.status');
     Route::post('/payment/cancel', [CheckoutController::class, 'cancelPayment'])->name('payment.cancel');
+     Route::get('orders/{order}/change-address', [OrderController::class, 'showChangeAddressForm'])->name('client.orders.change-address-form');
+    Route::post('orders/{order}/change-address', [OrderController::class, 'changeAddress'])->name('client.orders.change-address');
 });
 
 // MoMo callback routes (không cần auth middleware)
