@@ -88,7 +88,7 @@ Route::get('/category/{slug}', [ClientCategoryController::class, 'show'])
 Route::get('/contact', [ClientContactController::class, 'index'])
     ->name('client.contact.index');
 
-    Route::post('/contact', [ClientContactController::class, 'submit'])
+Route::post('/contact', [ClientContactController::class, 'submit'])
     ->name('client.contact.submit');
 
 Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -109,7 +109,8 @@ Route::post('/cart/delete-selected', [CartController::class, 'deleteSelected'])-
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
-
+    Route::post('/checkout/coupons/preview', [CheckoutController::class, 'previewCoupon'])
+        ->name('checkout.coupons.preview');
     // Payment status and cancel
     Route::get('/payment/status/{orderCode}', [CheckoutController::class, 'checkPaymentStatus'])->name('payment.status');
     Route::post('/payment/cancel', [CheckoutController::class, 'cancelPayment'])->name('payment.cancel');
@@ -137,7 +138,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('client.orders.cancel-online');
     Route::get('/orders/{order}/cancel-online-refunds', [OrderController::class, 'cancel_online_refunds'])
         ->name('client.orders.cancel-online-refunds');
-        
 });
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/purchase-history', [CheckoutController::class, 'purchaseHistory'])->name('client.orders.purchase.history');
@@ -289,9 +289,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
     Route::get('coupon/trashed',        [CouponController::class, 'trashed'])->name('coupon.trashed');
     Route::post('coupon/{id}/restore',  [CouponController::class, 'restore'])->whereNumber('id')->name('coupon.restore');
     Route::get('coupon/{id}/show',      [CouponController::class, 'show'])->whereNumber('id')->name('coupon.show');
-// routes/web.php (trong group 'admin' -> name('admin.'), đã có coupon.show)
-Route::get('coupon/{id}/claims', [CouponController::class, 'claims'])->name('coupon.claims');   // danh sách đã nhận
-Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('coupon.usages');   // danh sách đã dùng
+    // routes/web.php (trong group 'admin' -> name('admin.'), đã có coupon.show)
+    Route::get('coupon/{id}/claims', [CouponController::class, 'claims'])->name('coupon.claims');   // danh sách đã nhận
+    Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('coupon.usages');   // danh sách đã dùng
 
     // Cuối cùng mới đến resource
     Route::resource('coupon', CouponController::class)->except(['show']);
@@ -356,5 +356,5 @@ Route::get('coupon/{id}/usages', [CouponController::class, 'usages'])->name('cou
 
     //Blogs
     Route::resource('blogs', BlogController::class);
-Route::resource('blog_categories', BlogCategoryController::class);
+    Route::resource('blog_categories', BlogCategoryController::class);
 });
