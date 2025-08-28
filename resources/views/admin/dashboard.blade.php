@@ -155,7 +155,7 @@
 
                             </div>
                             <div class="card-body">
-<<<<<<< HEAD
+
                                 <div class="table-stats order-table ov-h">
                                     <table class="table ">
                                         <thead>
@@ -230,9 +230,9 @@
                                     </table>
                                     </table>
                                 </div> <!-- /.table-stats -->
-=======
+
                                 <canvas id="revenueChart" height="150"></canvas>
->>>>>>> ea6905c85330241c2758eb9426655b1d3e7c8ea0
+
                             </div>
                         </div>
                         <!-- Orders -->

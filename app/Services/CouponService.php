@@ -21,7 +21,7 @@ class CouponService
             ->where('coupon_id', $couponId)
             ->where(function ($w) {
                 $w->whereNotNull('used_at')
-                  ->orWhereNotNull('order_id');
+                    ->orWhereNotNull('order_id');
             })
             ->exists();
     }
@@ -61,10 +61,24 @@ class CouponService
                 ->withTrashed()
                 ->where('coupons.code', $code)
                 ->withPivot([
-                    'code','title','amount','used_at','discount_type','discount_value',
-                    'min_order_value','max_discount_value','valid_categories','valid_products',
-                    'start_date','end_date','user_group','usage_limit','order_id',
-                    'discount_applied','created_at','updated_at',
+                    'code',
+                    'title',
+                    'amount',
+                    'used_at',
+                    'discount_type',
+                    'discount_value',
+                    'min_order_value',
+                    'max_discount_value',
+                    'valid_categories',
+                    'valid_products',
+                    'start_date',
+                    'end_date',
+                    'user_group',
+                    'usage_limit',
+                    'order_id',
+                    'discount_applied',
+                    'created_at',
+                    'updated_at',
                 ])
                 ->first();
 
@@ -159,9 +173,15 @@ class CouponService
             return $price * $quantity;
         });
 
-        if ($minOrderValue && $total < $minOrderValue) {
-            throw ValidationException::withMessages(['coupon' => '🛒 Đơn hàng chưa đạt giá trị tối thiểu để dùng mã.']);
+        if ($minOrderValue > 0 && $total < $minOrderValue) {
+            $minFmt   = number_format($minOrderValue, 0, ',', '.');
+            $totalFmt = number_format($total, 0, ',', '.');
+
+            throw ValidationException::withMessages([
+                'coupon' => "🛒 Đơn hàng hiện tại ({$totalFmt} VNĐ) chưa đạt giá trị tối thiểu {$minFmt} VNĐ để sử dụng mã."
+            ]);
         }
+
 
         $cartProductIds  = $cartItems->pluck('product_id')->map(fn($id) => (int) $id);
         $cartCategoryIds = $cartItems->pluck('category_id')->map(fn($id) => (int) $id);
@@ -212,18 +232,18 @@ class CouponService
         $public = Coupon::query()
             ->where(function ($q) use ($user) {
                 $q->whereNull('user_group')
-                  ->orWhere('user_group', $user->user_group ?? 'guest');
+                    ->orWhere('user_group', $user->user_group ?? 'guest');
             })
-            ->get(['id','code','title']);
+            ->get(['id', 'code', 'title']);
 
         $claimed = DB::table('coupon_user as cu')
             ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
             ->where('cu.user_id', $user->id)
-            ->get(['c.id','c.code','c.title']);
+            ->get(['c.id', 'c.code', 'c.title']);
 
         $candidates = collect($public)->concat($claimed)
             ->unique('id')
-            ->reject(fn ($c) => self::userHasUsedCoupon($user, $c->id))
+            ->reject(fn($c) => self::userHasUsedCoupon($user, $c->id))
             ->values();
 
         $usable = [];
