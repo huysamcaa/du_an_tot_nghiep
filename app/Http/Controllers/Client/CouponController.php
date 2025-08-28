@@ -45,18 +45,22 @@ public function index()
 }
 
 
-    public function received(Request $request)
+// App\Http\Controllers\Client/CouponController.php
+public function received(Request $request)
 {
-    if (!Auth::check()) {
-        return redirect()
-            ->route('login')
-            ->with('warning', 'Vui lòng đăng nhập để xem mã đã nhận.');
-    }
+    $user = auth()->user();
 
-    $user = Auth::user();
-    $status = $request->query('status');
-
-    $couponQuery = $user->coupons()
+    $query = $user->coupons()
+        ->withPivot([
+            'id','code','title','discount_type','discount_value',
+            'min_order_value','max_discount_value',
+            'valid_categories','valid_products',
+            'start_date','end_date','user_group',
+            'usage_limit','amount',
+            'used_at','order_id','discount_applied',
+            'created_at','updated_at',
+        ])
+        // còn hiệu lực theo thời gian (nếu cần)
         ->where(function ($q) {
             $q->whereNull('coupon_user.start_date')
               ->orWhere('coupon_user.start_date', '<=', now());
@@ -66,42 +70,16 @@ public function index()
               ->orWhere('coupon_user.end_date', '>=', now());
         });
 
-    // Sửa logic used/unused: xét cả used_at và order_id
-  $couponQuery = $user->coupons()
-    ->where(function ($q) {
-        $q->whereNull('coupon_user.start_date')
-          ->orWhere('coupon_user.start_date', '<=', now());
-    })
-    ->where(function ($q) {
-        $q->whereNull('coupon_user.end_date')
-          ->orWhere('coupon_user.end_date', '>=', now());
-    })
-    ->whereNull('coupon_user.used_at')     // chỉ lấy chưa dùng
-    ->whereNull('coupon_user.order_id');   // chỉ lấy chưa gắn vào order
+    // Mặc định: CHỈ hiện mã chưa dùng (để “đã dùng thì biến mất”)
+    $query->whereNull('coupon_user.used_at')
+          ->whereNull('coupon_user.order_id');
 
-
-    $coupons = $couponQuery
-        ->orderByDesc('coupon_user.created_at')
-        ->get();
-
-    // Lấy tên danh mục & sản phẩm từ ID lưu trong pivot (đã cast array)
-    foreach ($coupons as $coupon) {
-        $pivot = $coupon->pivot;
-
-        $categoryIds = $pivot->valid_categories ?? [];
-        $productIds  = $pivot->valid_products ?? [];
-
-        $pivot->category_names = is_array($categoryIds)
-            ? \App\Models\Admin\Category::whereIn('id', $categoryIds)->pluck('name')->toArray()
-            : [];
-
-        $pivot->product_names = is_array($productIds)
-            ? \App\Models\Admin\Product::whereIn('id', $productIds)->pluck('name')->toArray()
-            : [];
-    }
+    $coupons = $query->get();
 
     return view('client.coupons.received', compact('coupons'));
 }
+
+
     public function show($id)
     {
         $user = Auth::user();
