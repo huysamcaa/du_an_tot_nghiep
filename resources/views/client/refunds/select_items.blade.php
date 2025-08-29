@@ -38,7 +38,6 @@
                         <th class="product-name">Tên sản phẩm</th>
                         <th class="product-variation">Biến thể</th>
                         <th class="product-category">Danh mục</th>
-                        <th class="product-status">Trạng thái</th>
                         <th class="product-quantity">Số lượng</th>
                         <th class="product-price">Giá</th>
                     </tr>
@@ -63,18 +62,15 @@
                                 {{ $item->name }}
                             </td>
                             <td class="product-variation">
-                                 
+
                                                     {{-- Hiển thị thông tin biến thể nếu có --}}
                                                     @foreach ($item->attributes_variant as $key => $variant)
                                                         <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span> |
                                                     @endforeach
-                                
+
                             </td>
                             <td class="product-category">
                                 {{ $item->product->category->name ?? 'Không có' }}
-                            </td>
-                            <td class="product-status">
-                                {{-- {{ $order->order_order_status->order_status_id ?? 'Chưa xác định' }} --}}
                             </td>
                             <td class="product-quantity">
                                 x1
@@ -114,3 +110,81 @@
     });
 </script>
 @endpush
+<style>
+    /* Căn chỉnh bảng chọn sản phẩm */
+.shop_table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Quan trọng để ellipsis hoạt động */
+}
+
+.shop_table th,
+.shop_table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #444;
+}
+
+/* Đặt độ rộng cho từng cột */
+.shop_table th.product-select,
+.shop_table td.product-select {
+    width: 60px;
+}
+
+.shop_table th.product-thumbnail,
+.shop_table td.product-thumbnail {
+    width: 80px;
+}
+
+.shop_table th.product-name,
+.shop_table td.product-name {
+    width: 250px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shop_table th.product-variation,
+.shop_table td.product-variation {
+    width: 180px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shop_table th.product-category,
+.shop_table td.product-category {
+    width: 120px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shop_table th.product-quantity,
+.shop_table td.product-quantity {
+    width: 80px;
+}
+
+.shop_table th.product-price,
+.shop_table td.product-price {
+    width: 60px;
+    font-weight: 600;
+    color: #222;
+
+
+}
+
+/* Ảnh sản phẩm */
+.shop_table td.product-thumbnail img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+</style>

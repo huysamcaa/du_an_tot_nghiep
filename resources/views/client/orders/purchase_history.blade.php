@@ -253,7 +253,9 @@
                                                     </button>
                                                 @elseif (
                                                     $statusName === 'Đã hoàn thành' &&
-                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed', 'cancel'])->count() === 0 &&
+                                                        \Carbon\Carbon::parse($order->delivered_at)->addDays(7)->isFuture()
+                                                    )
                                                     {{-- Nút tạo yêu cầu hoàn đơn --}}
                                                     <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
                                                         class="btn btn-outline-warning btn-sm action-btn">
@@ -261,9 +263,9 @@
                                                     </a>
                                                 @endif
 
-                                                @if ($statusName === 'Chờ Xác Nhận' && !$order->check_refund_cancel)
+                                                @if ($statusName === 'Chờ Xác Nhận' && empty($order->check_refund_cancel))
                                                     <a href="{{ route('client.orders.change-address-form', $order->id) }}"
-                                                    class="btn btn-outline-primary btn-sm action-btn">
+                                                        class="btn btn-outline-primary btn-sm action-btn">
                                                         <i class="fas fa-map-marker-alt me-1"></i>Đổi địa chỉ nhận hàng
                                                     </a>
                                                 @endif
@@ -628,7 +630,7 @@
         .status-badge.status-cancelled {
             background: linear-gradient(135deg, #ef4444, #dc2626);
         }
-        
+
 
         .status-badge.no-status {
             background: #6c757d;
@@ -1087,7 +1089,7 @@
                 processing: 0,
                 completed: 0,
                 cancelled: 0
-                
+
             };
 
             // Count each status

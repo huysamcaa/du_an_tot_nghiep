@@ -40,15 +40,21 @@ class RefundController extends Controller
         if (!is_numeric($orderId) || $orderId <= 0) {
             abort(404);
         }
-
-        $order = Order::with([
-            'items.product',
-            'items.variant.attributeValues.attribute',
-        ])
+        $order = Order::with('items') // chỉ load order_items
             ->where('user_id', auth()->id())
             ->whereHas('currentStatus.orderStatus', fn($q) => $q->where('name', 'đã hoàn thành'))
             ->findOrFail($orderId);
 
+        $deliveredAt = DB::table('order_order_status')
+        ->where('order_id', $orderId)
+        ->where('order_status_id', 5)
+        ->orderBy('created_at', 'desc')
+        ->value('created_at');
+
+        if (!$deliveredAt || \Carbon\Carbon::parse($deliveredAt)->addDays(7)->isPast()) {
+            return redirect()->route('orders.show', $orderId)
+                ->withErrors(['general' => 'Đơn hàng đã quá 7 ngày kể từ khi hoàn thành, không thể hoàn tiền.']);
+        }
         return view('client.refunds.select_items', compact('order'));
     }
 
@@ -131,7 +137,6 @@ class RefundController extends Controller
             'reason'         => 'required|string|max:500',
             'bank_account'   => 'required|string|min:8|max:20',
             'user_bank_name' => 'required|string|max:255',
-            'phone_number'   => ['required', 'regex:/^0\d{9}$/'],
             'bank_name'      => 'required|string|max:100',
             'reason_image'   => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,avi|max:10240',
             'item_ids'       => 'required|array|min:1',
@@ -146,11 +151,11 @@ class RefundController extends Controller
 
         // Tránh duplicate pending refund
         $existing = Refund::where('order_id', $validated['order_id'])
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'approved', 'finished', 'cancel'])
             ->first();
 
         if ($existing) {
-            return back()->withErrors(['general' => 'Bạn đã gửi yêu cầu hoàn cho đơn hàng này rồi.']);
+            return back()->withErrors(['general' => 'Đơn hàng này đã có yêu cầu hoàn tiền, không thể tạo thêm.']);
         }
 
         $selectedItemIds = $validated['item_ids'];
@@ -205,11 +210,11 @@ class RefundController extends Controller
                 'reason'             => $validated['reason'],
                 'bank_account'       => $validated['bank_account'],
                 'user_bank_name'     => $validated['user_bank_name'],
-                'phone_number'       => $validated['phone_number'],
+                'phone_number'       => auth()->user()->phone_number,
                 'bank_name'          => $validated['bank_name'],
-                'total_amount'       => $refundTotal,   // <-- sửa ở đây: dùng $refundTotal
+                'total_amount'       => $refundTotal,
                 'status'             => 'pending',
-                'bank_account_status'=> 'unverified',
+                'bank_account_status' => 'unverified',
                 'is_send_money'      => 0,
             ];
 
@@ -235,12 +240,10 @@ class RefundController extends Controller
                         'product_id'       => $item->product_id,
                         'variant_id'       => $item->product_variant_id,
                         'name'             => $item->name,
-                        'name_variant'     => optional($item->variant)->name ?? 'Không có phân loại',
+                        // 'name_variant'     => optional($item->variant)->name ?? 'Không có phân loại',
                         'thumbnail'        => optional($item->variant)->thumbnail ?? 'path/to/default/image.jpg',
                         'quantity'         => $quantity,
                         'price'            => $item->price,
-                        'price_variant'    => optional($item->variant)->sale_price ?? 0,
-                        'quantity_variant' => $quantity,
                     ]);
                 }
             }
@@ -296,9 +299,16 @@ class RefundController extends Controller
                 'admin_reason' => 'Khách tự hủy',
             ]);
 
-            $refund->load('order');
+            $refund->refresh(); // <-- refresh lại model để lấy status mới
+
             if ($refund->order) {
-                $refund->order->update(['is_refund' => 0]);
+                if ($refund->status === 'cancel') {
+                    $refund->order->update(['is_refund' => 1]); // chặn hoàn lại
+                }
+
+                if ($refund->status === 'rejected') {
+                    $refund->order->update(['is_refund' => 0]); // cho hoàn lại
+                }
             }
 
             DB::commit();
