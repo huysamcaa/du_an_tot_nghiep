@@ -55,6 +55,7 @@ class RefundController extends Controller
             return redirect()->route('orders.show', $orderId)
                 ->withErrors(['general' => 'Đơn hàng đã quá 7 ngày kể từ khi hoàn thành, không thể hoàn tiền.']);
         }
+
         return view('client.refunds.select_items', compact('order'));
     }
 

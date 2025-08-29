@@ -3,29 +3,30 @@
 @section('title', 'Chọn sản phẩm lỗi — Đơn #' . $order->code)
 
 @section('content')
-<section class="pageBannerSection">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pageBannerContent text-center">
-                    <h2>Chọn sản phẩm lỗi</h2>
-                    <div class="pageBannerPath">
-                        <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Hoàn đơn #{{ $order->code }}</span>
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2>Chọn sản phẩm lỗi</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Hoàn đơn
+                                #{{ $order->code }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="cartPageSection woocommerce py-5">
-    <div class="container">
-        <form action="{{ route('refunds.confirm_items', $order->id) }}" method="POST">
-            @csrf
+    <section class="cartPageSection woocommerce py-5">
+        <div class="container">
+            <form action="{{ route('refunds.confirm_items', $order->id) }}" method="POST">
+                @csrf
 
-            @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
 
             @if($order->items->count())
             <table class="shop_table cart_table">
@@ -86,29 +87,28 @@
                 </tbody>
             </table>
 
-            @error('items')
-            <div class="text-danger mt-2">{{ $message }}</div>
-            @enderror
+                    @error('items')
+                        <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
 
-            <div class="text-end mt-4">
-                <button type="submit" class="ulinaBTN"><span>TIẾP TỤC</span></button>
-            </div>
-
-            @else
-            <p>Không có sản phẩm nào trong đơn hàng này.</p>
-            @endif
-        </form>
-    </div>
-</section>
+                    <div class="text-end mt-4">
+                        <button type="submit" class="ulinaBTN"><span>TIẾP TỤC</span></button>
+                    </div>
+                @else
+                    <p>Không có sản phẩm nào trong đơn hàng này.</p>
+                @endif
+            </form>
+        </div>
+    </section>
 @endsection
 
 @push('scripts')
-<script>
-    // Chọn tất cả
-    document.getElementById('select-all').addEventListener('change', function() {
-        document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
-    });
-</script>
+    <script>
+        // Chọn tất cả
+        document.getElementById('select-all').addEventListener('change', function() {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = this.checked);
+        });
+    </script>
 @endpush
 <style>
     /* Căn chỉnh bảng chọn sản phẩm */
