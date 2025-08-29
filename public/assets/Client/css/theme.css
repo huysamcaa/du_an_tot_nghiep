@@ -740,8 +740,6 @@
 }
 
 .cartWidgetProduct img {
-    width: 60px;
-    height: 70px;
     position: absolute;
     border-radius: 3px;
     left: 0;

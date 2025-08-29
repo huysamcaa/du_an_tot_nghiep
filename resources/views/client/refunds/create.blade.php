@@ -2,6 +2,7 @@
 @section('title','Xác nhận hoàn đơn #'.$order->code)
 
 @section('content')
+
 <section class="pageBannerSection">
     <div class="container">
         <div class="row">
@@ -157,7 +158,7 @@
 
 
                            <div class="col-md-6 mb-3">
-                                <label for="bank_name" class="form-label">Ngân hàng <span class="text-danger">*</span></label>
+                                <label for="bank_name" class="form-label ">Ngân hàng <span class="text-danger">*</span></label>
                                 <select class="form-select @error('bank_name') is-invalid @enderror" id="bank_name" name="bank_name" required>
                                     <option value="" selected disabled>-- Chọn ngân hàng --</option>
                                     <option value="Vietcombank" {{ old('bank_name') == 'Vietcombank' ? 'selected' : '' }}>Vietcombank</option>
@@ -178,12 +179,10 @@
 
                             <div class="col-md-6 mb-3">
                                 <label for="phone_number" class="form-label">Số điện thoại</label>
-                                <input type="text" name="phone_number" id="phone_number"
-                                    class="form-control @error('phone_number') is-invalid @enderror"
-                                    value="{{ old('phone_number') }}" placeholder="Nhập số điện thoại">
-                                @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <input type="text" id="phone_number"
+                                    class="form-control bg-white text-dark"
+                                    value="{{ auth()->user()->phone_number }}"
+                                    readonly>
                             </div>
 
                             <div class="col-lg-12 mb-3">

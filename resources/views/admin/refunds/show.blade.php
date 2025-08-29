@@ -194,8 +194,8 @@
                                 {{-- Form cập nhật --}}
                                 @php
                                 $statusTransitions = [
-                                'pending' => ['receiving', 'rejected', 'failed', 'cancel'],
-                                'receiving' => ['completed', 'rejected', 'failed', 'cancel'],
+                                'pending' => ['receiving', 'rejected', 'failed'],
+                                'receiving' => ['completed', 'rejected', 'failed'],
                                 'completed' => [],
                                 'rejected' => [],
                                 'failed' => [],

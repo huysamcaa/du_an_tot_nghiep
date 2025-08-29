@@ -115,7 +115,7 @@ class RefundController extends Controller
 {
     // Xác thực dữ liệu cơ bản
     $rules = [
-        'status' => 'required|in:pending,receiving,completed,rejected,failed,cancel',
+        'status' => 'required|in:pending,receiving,completed,rejected,failed',
         'bank_account_status' => $request->status === 'completed'
             ? 'nullable|in:unverified,sent,verified'
             : 'required|in:unverified,sent,verified',
