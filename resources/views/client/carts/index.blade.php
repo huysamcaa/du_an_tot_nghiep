@@ -78,8 +78,8 @@
                         <thead>
                             <tr>
                                 <th class="product-select" style="width:10%"><input type="checkbox" id="select-all" > Chọn</th>
-                                <th class="product-name">Ảnh</th>
-                                <th class="product-thumbnail">Tên sản phẩm</th>
+                                <th class="product-name" style="text-align: center">Ảnh</th>
+                                <th class="product-thumbnail" style="text-align: center">Tên sản phẩm</th>
                                 <th class="product-variation">Phân loại</th>
                                 <th class="product-price">Giá tiền</th>
                                 <th class="product-quantity">Số lượng</th>
@@ -128,7 +128,7 @@
                                 <td class="product-thumbnail">
                                     <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}" style="height:100%; width:auto" alt="Cart Item"></a>
                                 </td>
-                                <td class="product-name">
+                                <td class="product-name" style="height: 0%; width: 22%;">
                                     <a href="{{ route('product.detail', $item->product->id) }}">{{ $item->product->name }}</a>
                                     @if (!$item->product || !$item->product->is_active)
                                     <div class="cart-item disabled text-danger">
