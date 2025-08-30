@@ -209,10 +209,12 @@
                                         </div>
                                     </td>
                                     <td class="text-end py-3 text-dark price-cell">
-                                        @if($item->variant)
-                                            {{ number_format($item->variant->price) }}₫
+                                        @if($item->variant->sale_price && $item->variant->sale_price < $item->variant->price)
+                                            <span class="text-decoration-line-through text-muted me-2">{{ number_format($item->variant->price) }}₫</span>
+                                            <span class="text-danger fw-bold">{{ number_format($item->variant->sale_price) }}₫</span>
                                         @else
-                                            {{ number_format($item->product->price) }}₫
+                                        
+                                            {{ number_format($item->variant->price) }}₫
                                         @endif
                                     </td>
                                     <td class="text-center py-3 text-dark">{{ $item->quantity }}</td>

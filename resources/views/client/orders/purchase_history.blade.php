@@ -238,28 +238,7 @@
                                                     $pending = $order->refunds->firstWhere('status', 'pending');
                                                 @endphp
 
-                                                @if ($pending)
-                                                    {{-- Form hủy yêu cầu hoàn đơn --}}
-                                                    <form id="refund-cancel-{{ $pending->id }}"
-                                                        action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
-                                                        method="POST" style="display:none">
-                                                        @csrf
-                                                    </form>
-
-                                                    <button type="submit" form="refund-cancel-{{ $pending->id }}"
-                                                        class="btn btn-outline-warning btn-sm action-btn"
-                                                        onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
-                                                        <i class="fas fa-times me-1"></i>Hủy hoàn
-                                                    </button>
-                                                @elseif (
-                                                    $statusName === 'Đã hoàn thành' &&
-                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
-                                                    {{-- Nút tạo yêu cầu hoàn đơn --}}
-                                                    <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
-                                                        class="btn btn-outline-warning btn-sm action-btn">
-                                                        <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
-                                                    </a>
-                                                @endif
+                                                
 
                                                 @if ($statusName === 'Chờ Xác Nhận' && !$order->check_refund_cancel)
                                                     <a href="{{ route('client.orders.change-address-form', $order->id) }}"
@@ -346,6 +325,28 @@
                                                 </button>
                                             </form>
                                         @endif
+                                        @if ($pending)
+                                                    {{-- Form hủy yêu cầu hoàn đơn --}}
+                                                    <form id="refund-cancel-{{ $pending->id }}"
+                                                        action="{{ route('refunds.cancel', ['id' => $pending->id]) }}"
+                                                        method="POST" style="display:none">
+                                                        @csrf
+                                                    </form>
+
+                                                    <button type="submit" form="refund-cancel-{{ $pending->id }}"
+                                                        class="btn btn-outline-warning btn-sm action-btn"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn hủy yêu cầu này?');">
+                                                        <i class="fas fa-times me-1"></i>Hủy hoàn
+                                                    </button>
+                                                @elseif (
+                                                    $statusName === 'Đã hoàn thành' &&
+                                                        $order->refunds->whereIn('status', ['pending', 'receiving', 'completed'])->count() === 0)
+                                                    {{-- Nút tạo yêu cầu hoàn đơn --}}
+                                                    <a href="{{ route('refunds.select_items', ['order_id' => $order->id]) }}"
+                                                        class="btn btn-outline-warning btn-sm action-btn">
+                                                        <i class="fas fa-undo-alt me-1"></i>Hoàn đơn
+                                                    </a>
+                                                @endif
                                         <a href="{{ route('client.orders.show', $order->code) }}"
                                             class="btn btn-sm me-2 rounded-pill detail-btn">
                                             <i class="fas fa-eye me-1"></i>Chi tiết
