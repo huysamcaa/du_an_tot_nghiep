@@ -2,22 +2,6 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-use App\Models\Admin\CartItem;
-use App\Models\Admin\OrderOrderStatus;
-use App\Models\Admin\Product;
-use App\Models\Admin\ProductVariant;
-use App\Models\Client\UserAddress;
-use App\Models\Coupon;
-use App\Models\CouponRestriction;
-use App\Models\Shared\Order;
-use App\Models\Shared\OrderItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use App\Models\Coupon;
 use Illuminate\Support\Str;
@@ -34,14 +18,14 @@ use App\Models\Client\UserAddress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Mail\OrderPlacedMail;
 use App\Models\Admin\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\OrderPlacedMail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Admin\OrderOrderStatus;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
@@ -344,7 +328,10 @@ class CheckoutController extends Controller
         try {
             $orderData = $this->prepareOrderData($request, $couponData);
             $orderCode = 'DH' . strtoupper(Str::random(8));
+            $sessionId = session()->getId();
 
+        // Lưu vào cache để phòng session bị mất
+        Cache::put('vnpay_order_' . $sessionId, $orderData, 3600); // 1 giờ
             // Thêm timestamp để kiểm soát thời gian sống
             $orderData['created_at'] = now()->timestamp;
 
@@ -392,10 +379,10 @@ class CheckoutController extends Controller
 
             return redirect()->away($this->vnpayConfig['vnp_Url'] . '?' . http_build_query($paymentData));
         } catch (\Exception $e) {
-            Log::error('VNPay Payment Error: ' . $e->getMessage());
-            return back()->with('error', 'Không thể khởi tạo thanh toán VNPay: ' . $e->getMessage());
-        }
+        Log::error('VNPay Payment Error: ' . $e->getMessage());
+        return back()->with('error', 'Không thể khởi tạo thanh toán VNPay: ' . $e->getMessage());
     }
+}
 
     protected function processRegularOrder(Request $request, $couponData)
 {
@@ -493,7 +480,7 @@ class CheckoutController extends Controller
      * MoMo Return URL - User redirect back
      * Đây là khi user được redirect về từ MoMo
      */
-    public function momoReturn(Request $request)
+     public function momoReturn(Request $request)
     {
         Log::info('MoMo Return', $request->all());
 
@@ -591,10 +578,11 @@ class CheckoutController extends Controller
         }
     }
 
+
     /**
      * VNPay Return URL - User redirect back
      */
-    public function vnpayReturn(Request $request)
+     public function vnpayReturn(Request $request)
     {
         Log::info('VNPay Return - Full Request Data:', $request->all());
         Log::debug('Session data before:', session()->all());
@@ -659,7 +647,6 @@ class CheckoutController extends Controller
             }
             $this->markCouponUsedForOrder($order);
 
-
             // Kiểm tra trạng thái đã tồn tại chưa
             $existingStatus = OrderOrderStatus::where([
                 'order_id' => $order->id,
@@ -681,6 +668,13 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            // 👉 GỬI MAIL XÁC NHẬN CHO THANH TOÁN VNPAY
+            try {
+                Mail::to($order->email)->send(new OrderPlacedMail($order));
+            } catch (\Exception $mailEx) {
+                Log::error('Send Mail Order Error (VNPay): ' . $mailEx->getMessage());
+            }
+
             // Xóa session sau khi xử lý thành công
             Session::forget(['pending_order', 'vnpay_order_data', 'vnpay_order_code']);
             Session::save();
@@ -698,36 +692,54 @@ class CheckoutController extends Controller
     }
 
     protected function reconstructOrderFromVNPayData($vnpayData)
-    {
-        try {
-            $orderInfo = json_decode($vnpayData['vnp_OrderInfo'] ?? '{}', true);
-            if (empty($orderInfo)) {
-                return null;
-            }
-
-            // Lấy thông tin cơ bản
-            $userId = $orderInfo['user_id'] ?? null;
-            $orderCode = $vnpayData['vnp_TxnRef'] ?? null;
-            $amount = ($vnpayData['vnp_Amount'] ?? 0) / 100;
-
-            if (!$userId || !$orderCode) {
-                return null;
-            }
-
-            // Tạo lại dữ liệu đơn hàng cơ bản
-            return [
-                'user_id' => $userId,
-                'payment_id' => 4, // VNPay
-                'total_amount' => $amount,
-                'is_paid' => true,
-                'created_at' => $orderInfo['timestamp'] ?? now()->timestamp,
-                // Các thông tin khác có thể thêm nếu cần
-            ];
-        } catch (\Exception $e) {
-            Log::error('Failed to reconstruct order from VNPay data: ' . $e->getMessage());
+{
+    try {
+        $orderInfo = json_decode($vnpayData['vnp_OrderInfo'] ?? '{}', true);
+        if (empty($orderInfo)) {
             return null;
         }
+
+        // Lấy thông tin cơ bản từ VNPay
+        $userId = $orderInfo['user_id'] ?? null;
+        $orderCode = $vnpayData['vnp_TxnRef'] ?? null;
+        $amount = ($vnpayData['vnp_Amount'] ?? 0) / 100;
+        $sessionId = $orderInfo['session_id'] ?? null;
+
+        if (!$userId || !$orderCode) {
+            return null;
+        }
+
+        // Thử lấy thông tin từ cache hoặc session cũ (nếu có mechanism)
+        $cachedData = null;
+        if ($sessionId) {
+            $cachedData = Cache::get('vnpay_order_' . $sessionId);
+        }
+
+        if ($cachedData) {
+            return $cachedData;
+        }
+
+        // Tạo lại dữ liệu đơn hàng cơ bản (fallback)
+        return [
+            'user_id' => $userId,
+            'payment_id' => 4, // VNPay
+            'total_amount' => $amount,
+            'is_paid' => true,
+            'created_at' => $orderInfo['timestamp'] ?? now()->timestamp,
+            'selected_items' => [], // Không thể lấy lại, để array rỗng
+            'cart_items' => [], // Không thể lấy lại, để array rỗng
+            'phone_number' => 'N/A', // Giá trị mặc định
+            'email' => User::find($userId)->email ?? 'N/A',
+            'fullname' => User::find($userId)->name ?? 'Khách hàng',
+            'address' => 'Địa chỉ không xác định',
+            // Thêm các field khác nếu cần
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error('Failed to reconstruct order from VNPay data: ' . $e->getMessage());
+        return null;
     }
+}
     // === COUPON HELPERS =======================================================
     protected function markCouponUsedForOrder(\App\Models\Shared\Order $order): void
     {
@@ -847,6 +859,8 @@ class CheckoutController extends Controller
             throw $e;
         }
     }
+
+
 
 
     protected function getOrderDataFromCache($orderCode)
@@ -971,19 +985,25 @@ class CheckoutController extends Controller
         return $isValid;
     }
 
+    
     protected function calculateCartTotal($selectedItems)
-    {
-        return CartItem::with(['product', 'variant'])
-            ->where('user_id', auth()->id())
-            ->whereIn('id', $selectedItems)
-            ->get()
-            ->sum(function ($item) {
-                $price = $item->variant
-                    ? ($item->variant->sale_price ?? $item->variant->price)
-                    : ($item->product->price ?? 0);
-                return $price * $item->quantity;
-            });
-    }
+{
+    return CartItem::with(['product', 'variant'])
+        ->where('user_id', auth()->id())
+        ->whereIn('id', $selectedItems)
+        ->get()
+        ->sum(function ($item) {
+            // Nếu có variant và variant đang active
+            if ($item->variant && $item->variant->is_active == 1) {
+                $price = $item->variant->sale_price ?? $item->variant->price;
+            } 
+            // Nếu có variant nhưng không active, hoặc không có variant
+            else {
+                $price = $item->variant->price ?? 0;
+            }
+            return $price * $item->quantity;
+        });
+}
 
     protected function getAvailableCoupons()
     {

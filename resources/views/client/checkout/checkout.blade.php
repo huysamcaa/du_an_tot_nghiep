@@ -4,32 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Thanh toán</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body {
             background-color: #f5f5f5;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .checkout-container {
+        .pageBannerSection {
+            background: #ECF5F4;
             padding: 20px 0;
         }
 
-        .checkout-header {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        .pageBannerContent h2 {
+            font-size: 38px;
+            color: #52586D;
+            font-family: 'Jost', sans-serif;
+            margin-bottom: 10px;
         }
 
-        .checkout-header h2 {
-            font-size: 22px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 0;
+        .pageBannerPath a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .pageBannerPath {
+            font-size: 14px;
+        }
+
+        .checkout-container {
+            padding: 20px 0;
         }
 
         .checkout-card {
@@ -66,50 +74,29 @@
             padding: 20px;
         }
 
-        .address-item,
-        .coupon-item {
-            display: flex;
-            padding: 15px 0;
-            border-bottom: 1px solid #f2f2f2;
+        .address-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fff;
+            margin-bottom: 15px;
         }
 
-        .address-item:last-child,
-        .coupon-item:last-child {
-            border-bottom: none;
-        }
-
-        .address-info,
-        .coupon-info {
+        .address-info {
             flex-grow: 1;
         }
 
-        .address-name,
-        .coupon-code {
+        .address-name {
             font-weight: 600;
             margin-bottom: 5px;
             color: #2c3e50;
         }
 
         .address-details,
-        .coupon-details {
+        .address-phone {
             color: #666;
             font-size: 14px;
             margin-bottom: 5px;
-        }
-
-        .address-phone,
-        .coupon-value {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .select-address,
-        .select-coupon {
-            color: #3498db;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
         }
 
         .product-item {
@@ -224,58 +211,22 @@
         }
 
         .checkout-btn {
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background: #96b6b8;
             color: #fff;
             border: none;
             width: 100%;
             padding: 15px;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 50px;
             cursor: pointer;
             margin-top: 20px;
             transition: all 0.3s;
         }
 
         .checkout-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-        }
-
-        .voucher-input {
-            display: flex;
-            margin-top: 10px;
-        }
-
-        .voucher-input input {
-            flex-grow: 1;
-            border: 1px solid #ddd;
-            padding: 12px;
-            border-radius: 6px 0 0 6px;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .voucher-input button {
-            background: linear-gradient(to right, #3498db, #2980b9);
-            color: #fff;
-            border: none;
-            padding: 0 20px;
-            border-radius: 0 6px 6px 0;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .add-address-btn,
-        .add-coupon-btn {
-            color: #3498db;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            margin-top: 10px;
-            font-weight: 500;
+            background-color: #82a1a3;
+            transform: translateY(-1px);
         }
 
         .note-input {
@@ -290,38 +241,49 @@
         }
 
         .default-badge {
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background: #96b6b8;
             color: white;
             font-size: 11px;
             padding: 3px 8px;
             border-radius: 12px;
             margin-left: 10px;
+        }
+
+        .coupon-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .coupon-info {
+            flex-grow: 1;
+        }
+
+        .coupon-code {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .coupon-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .coupon-value {
+            color: #27ae60;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .discount-badge {
-            background: linear-gradient(to right, #27ae60, #2ecc71);
+            background: #27ae60;
             color: white;
             font-size: 11px;
             padding: 3px 8px;
             border-radius: 12px;
             margin-left: 10px;
-        }
-
-        .address-select,
-        .coupon-select {
-            width: 100%;
-            border: none;
-            padding: 0;
-            color: #666;
-            font-size: 14px;
-            background: transparent;
-        }
-
-        .coupon-select {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
         }
 
         .address-actions,
@@ -332,46 +294,31 @@
         }
 
         .change-address-btn,
-        .change-coupon-btn {
-            color: #3498db;
+        .select-address,
+        .change-coupon-btn,
+        .select-coupon {
+            background-color: #96b6b8;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 6px 18px;
+            font-weight: bold;
             font-size: 14px;
-            cursor: pointer;
-            display: flex;
+            text-transform: uppercase;
+            display: inline-flex;
             align-items: center;
-            font-weight: 500;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
         }
 
-        .voucher-section {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-
-        .voucher-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .voucher-title {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .voucher-toggle {
-            color: #3498db;
-            cursor: pointer;
-        }
-
-        .voucher-form {
-            display: none;
-            margin-top: 10px;
-        }
-
-        .voucher-form.active {
-            display: block;
+        .change-address-btn:hover,
+        .select-address:hover,
+        .change-coupon-btn:hover,
+        .select-coupon:hover {
+            background-color: #82a1a3;
+            color: white;
+            transform: translateY(-1px);
         }
 
         .modal-header {
@@ -397,20 +344,42 @@
             border: 1px solid #ddd;
         }
 
-        .btn-primary {
-            background: linear-gradient(to right, #3498db, #2980b9);
+        .btn-primary,
+        .btn-danger {
+            background: #96b6b8;
             border: none;
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 50px;
             font-weight: 600;
+            color: white;
+        }
+
+        .btn-primary:hover,
+        .btn-danger:hover {
+            background: #82a1a3;
+            color: white;
         }
 
         .btn-secondary {
             background: #95a5a6;
             border: none;
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 50px;
             font-weight: 600;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            color: white;
+        }
+
+        .no-address-message {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 15px;
         }
 
         .coupon-list {
@@ -445,19 +414,30 @@
         .text-success {
             color: #27ae60 !important;
         }
+        
     </style>
 </head>
 
 <body>
+    <section class="pageBannerSection">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pageBannerContent text-center">
+                        <h2>Thanh toán đơn hàng</h2>
+                        <div class="pageBannerPath">
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thanh toán</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="checkout-container">
         <div class="container">
-            <div class="checkout-header">
-                <h2><i class="fas fa-shopping-cart me-2"></i> Thanh toán đơn hàng</h2>
-            </div>
-
             <form action="{{ route('checkout.placeOrder') }}" method="POST" id="checkoutForm">
                 @csrf
-                <!-- Các trường ẩn giữ nguyên logic cũ -->
                 <input type="hidden" name="field1" id="hiddenField1"
                     value="{{ auth()->user()->name ? explode(' ', auth()->user()->name)[0] : '' }}">
                 <input type="hidden" name="field2" id="hiddenField2"
@@ -478,46 +458,53 @@
                                 <h3>Địa Chỉ Nhận Hàng</h3>
                             </div>
                             <div class="checkout-card-body">
-                                <div class="address-item">
-                                    <div class="address-info">
-                                        <div class="address-name" id="mainAddressName">
-                                            {{ auth()->user()->name ?? '' }}
-                                            @if ($defaultAddress)
-                                                <span class="default-badge">Mặc định</span>
-                                            @endif
+                                @if($userAddresses->count() > 0)
+                                    <div class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
+                                        <div class="address-info flex-grow-1 pe-3">
+                                            <div class="address-name fw-bold mb-1" id="mainAddressName">
+                                                {{ $defaultAddress ? $defaultAddress->fullname : (auth()->user()->name ?? '') }}
+                                                @if ($defaultAddress)
+                                                    <span class="default-badge">Mặc định</span>
+                                                @endif
+                                            </div>
+                                            <div class="address-phone text-muted small mb-1" id="mainAddressPhone">
+                                                (+84) {{ $defaultAddress ? $defaultAddress->phone_number : (auth()->user()->phone_number ?? '') }}
+                                            </div>
+                                            <div class="address-details small text-wrap">
+                                                <select name="address_id" class="address-select form-select" id="addressSelect" required>
+                                                    @foreach ($userAddresses as $address)
+                                                        <option value="{{ $address->id }}"
+                                                            {{ $defaultAddress && $defaultAddress->id == $address->id ? 'selected' : '' }}
+                                                            data-address="{{ $address->address }}"
+                                                            data-phone="{{ $address->phone_number }}"
+                                                            data-fullname="{{ $address->fullname }}">
+                                                            {{ $address->address }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div class="address-phone" id="mainAddressPhone">(+84)
-                                            {{ auth()->user()->phone_number ?? '' }}</div>
-                                        <div class="address-details">
-                                            <select name="address_id" class="address-select" id="addressSelect"
-                                                required>
-                                                @foreach ($userAddresses as $address)
-                                                    <option value="{{ $address->id }}"
-                                                        {{ $defaultAddress && $defaultAddress->id == $address->id ? 'selected' : '' }}
-                                                        data-address="{{ $address->address }}"
-                                                        data-phone="{{ $address->phone_number }}"
-                                                        data-fullname="{{ $address->fullname }}">
-                                                        {{ $address->address }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                        <div class="address-actions text-end">
+                                            <button type="button" class="btn change-address-btn" data-bs-toggle="modal" data-bs-target="#changeAddressModal">
+                                                <i class="bi bi-pencil-square me-1"></i> Thay đổi
+                                            </button>
+                                            <button type="button" class="btn select-address" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                                <i class="bi bi-plus-circle me-1"></i> Thêm mới
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="address-actions">
-                                        <div class="change-address-btn" data-bs-toggle="modal"
-                                            data-bs-target="#changeAddressModal">
-                                            <i class="fas fa-edit me-1"></i> Thay đổi
-                                        </div>
-                                        <div class="select-address" data-bs-toggle="modal"
-                                            data-bs-target="#addAddressModal">
-                                            <i class="fas fa-plus me-1"></i> Thêm mới
-                                        </div>
+                                @else
+                                    <div class="no-address-message">
+                                        <p>Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ để tiếp tục thanh toán.</p>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                            <i class="bi bi-plus-circle me-1"></i> Thêm địa chỉ mới
+                                        </button>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
 
-                        <!-- Phần mã giảm giá (thiết kế giống phần địa chỉ) -->
+                        <!-- Phần mã giảm giá -->
                         <div class="checkout-card">
                             <div class="checkout-card-header">
                                 <i class="fas fa-tag icon"></i>
@@ -528,25 +515,20 @@
                                     <div class="coupon-info">
                                         <div class="coupon-code">
                                             Chưa áp dụng mã giảm giá
-                                            <span class="discount-badge" id="appliedCouponBadge"
-                                                style="display: none;"></span>
+                                            <span class="discount-badge" id="appliedCouponBadge" style="display: none;"></span>
                                         </div>
                                         <div class="coupon-details" id="couponDetails">
                                             Chọn hoặc nhập mã giảm giá để tiết kiệm hơn
                                         </div>
-                                        <div class="coupon-value text-success fw-bold" id="couponValue"
-                                            style="display: none;">
-                                        </div>
+                                        <div class="coupon-value text-success fw-bold" id="couponValue" style="display: none;"></div>
                                     </div>
-                                    <div class="coupon-actions">
-                                        <div class="change-coupon-btn" data-bs-toggle="modal"
-                                            data-bs-target="#changeCouponModal">
-                                            <i class="fas fa-edit me-1"></i> Chọn Mã
-                                        </div>
-                                        <div class="select-coupon" data-bs-toggle="modal"
-                                            data-bs-target="#addCouponModal">
-                                            <i class="fas fa-plus me-1"></i> Nhập Mã
-                                        </div>
+                                    <div class="coupon-actions text-end">
+                                        <button type="button" class="btn change-coupon-btn" data-bs-toggle="modal" data-bs-target="#changeCouponModal">
+                                            <i class="bi bi-pencil-square me-1"></i> Chọn Mã
+                                        </button>
+                                        <button type="button" class="btn select-coupon" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                                            <i class="bi bi-plus-circle me-1"></i> Nhập Mã
+                                        </button>
                                     </div>
                                 </div>
                                 <input type="hidden" name="coupon_code" id="selectedCoupon" value="">
@@ -566,8 +548,7 @@
                                         <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}"
                                             class="product-image rounded border" alt="Cart Item">
                                         <div class="product-info">
-                                            <div class="product-name fw-bold mb-1"
-                                                title="{{ $item->product->name }}">
+                                            <div class="product-name fw-bold mb-1" title="{{ $item->product->name }}">
                                                 {{ $item->product->name }}
                                             </div>
                                             @if ($item->variant)
@@ -614,7 +595,7 @@
                                     <input type="radio" value="4" name="paymentMethod" id="paymentMethod04"
                                         class="payment-radio" required>
                                     <img src="https://th.bing.com/th/id/OIP.pn3RUm1xk1HiAxWIgC6CIwHaHa?w=161&h=180&c=7&r=0&o=7&pid=1.7&rm=3"
-                                        alt="VNPay" alt="VNPay" class="payment-icon">
+                                        alt="VNPay" class="payment-icon">
                                     <div class="payment-info">
                                         <label for="paymentMethod04" class="payment-name">VNPay</label>
                                         <div class="payment-desc">
@@ -628,8 +609,7 @@
                                     <img src="https://th.bing.com/th/id/OIP.sdjsIUIEBcdxUtOdhD8iOAAAAA?w=162&h=180&c=7&r=0&o=7&pid=1.7&rm=3"
                                         alt="COD" class="payment-icon">
                                     <div class="payment-info">
-                                        <label for="paymentMethod02" class="payment-name">Thanh toán khi nhận
-                                            hàng</label>
+                                        <label for="paymentMethod02" class="payment-name">Thanh toán khi nhận hàng</label>
                                         <div class="payment-desc">
                                             Thanh toán bằng tiền mặt khi giao hàng.
                                         </div>
@@ -661,25 +641,20 @@
                                     <span class="price-label">Tạm tính</span>
                                     <span class="price-value" id="subtotal">{{ number_format($total) }}đ</span>
                                 </div>
-
                                 <div class="price-row">
                                     <span class="price-label">Phí vận chuyển</span>
                                     <span class="price-value" id="shipping-fee">30,000đ</span>
                                 </div>
-
                                 <div class="price-row" id="discount-row" style="display: none;">
                                     <span class="price-label">Giảm giá</span>
                                     <span class="price-value discount" id="discount-amount">-0đ</span>
                                 </div>
-
                                 <div class="price-row"
                                     style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
                                     <span class="price-label">Tổng cộng</span>
-                                    <span class="price-value total"
-                                        id="final-total">{{ number_format($total + 30000) }}đ</span>
+                                    <span class="price-value total" id="final-total">{{ number_format($total + 30000) }}đ</span>
                                 </div>
-
-                                <button type="submit" class="checkout-btn">
+                                <button type="submit" class="checkout-btn" id="submitOrderBtn">
                                     <i class="fas fa-check-circle me-2"></i> ĐẶT HÀNG
                                 </button>
                             </div>
@@ -691,8 +666,7 @@
     </section>
 
     <!-- Modal Thêm Địa Chỉ Mới -->
-    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -700,31 +674,24 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST"
-                        novalidate>
+                    <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
                         @csrf
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Họ và tên</label>
-                                <input type="text" name="fullname" class="form-control"
-                                    placeholder="Nhập họ và tên" value="{{ old('fullname') }}" required>
+                                <input type="text" name="fullname" class="form-control" placeholder="Họ và tên"
+                                    value="{{ old('fullname') }}" required>
                                 @error('fullname')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-
                             <div class="col-md-6">
-                                <label class="form-label">Số điện thoại</label>
-                                <input type="tel" name="phone_number" class="form-control"
-                                    placeholder="Nhập số điện thoại" value="{{ old('phone_number') }}"
-                                    pattern="^0[0-9]{9}$" required>
+                                <input type="tel" name="phone_number" class="form-control" placeholder="Số điện thoại"
+                                    value="{{ old('phone_number') }}" pattern="^0[0-9]{9}$" required>
                                 @error('phone_number')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-
                             <div class="col-md-6">
-                                <label class="form-label">Tỉnh/Thành phố</label>
                                 <select id="province-add" name="province" class="form-select" required>
                                     <option value="">Chọn Tỉnh/Thành phố</option>
                                     @foreach ($vnLocationsData as $province)
@@ -739,7 +706,6 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Phường/Xã</label>
                                 <select id="ward-add" name="ward" class="form-select" required>
                                     <option value="">Chọn Phường/Xã</option>
                                     @if (old('province') && ($selectedProvince = collect($vnLocationsData)->firstWhere('Name', old('province'))))
@@ -755,16 +721,13 @@
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-
                             <div class="col-12">
-                                <label class="form-label">Địa chỉ cụ thể</label>
                                 <input type="text" name="address" id="addressInput-add" class="form-control"
-                                    placeholder="Số nhà, tên đường..." value="{{ old('address') }}" required>
+                                    placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="{{ old('address') }}" required>
                                 @error('address')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-
                             <div class="col-12">
                                 <div class="form-check">
                                     <input type="checkbox" name="is_default" id="is_default" value="1"
@@ -773,10 +736,9 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-                            <button type="submit" class="btn btn-primary">Lưu địa chỉ</button>
+                            <button type="submit" class="btn btn-danger">Hoàn thành</button>
                         </div>
                     </form>
                 </div>
@@ -785,8 +747,7 @@
     </div>
 
     <!-- Modal Thay Đổi Địa Chỉ -->
-    <div class="modal fade" id="changeAddressModal" tabindex="-1" aria-labelledby="changeAddressModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="changeAddressModal" tabindex="-1" aria-labelledby="changeAddressModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -796,25 +757,24 @@
                 <div class="modal-body">
                     <div class="address-list">
                         @foreach ($userAddresses as $address)
-                            <div class="address-item">
-                                <div class="form-check">
-                                    <input class="form-check-input address-radio" type="radio"
-                                        name="selected_address" value="{{ $address->id }}"
-                                        id="address{{ $address->id }}"
+                            <div class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
+                                <div class="form-check flex-grow-1 pe-3">
+                                    <input class="form-check-input address-radio" type="radio" name="selected_address"
+                                        value="{{ $address->id }}" id="address{{ $address->id }}"
                                         {{ $defaultAddress && $defaultAddress->id == $address->id ? 'checked' : '' }}
                                         data-address="{{ $address->address }}"
                                         data-phone="{{ $address->phone_number }}"
                                         data-fullname="{{ $address->fullname }}">
                                     <label class="form-check-label w-100" for="address{{ $address->id }}">
                                         <div class="address-info ms-2">
-                                            <div class="address-name">
+                                            <div class="address-name fw-bold mb-1">
                                                 {{ $address->fullname }}
                                                 @if ($address->is_default)
                                                     <span class="default-badge">Mặc định</span>
                                                 @endif
                                             </div>
-                                            <div class="address-phone">(+84) {{ $address->phone_number }}</div>
-                                            <div class="address-details">{{ $address->address }}</div>
+                                            <div class="address-phone text-muted small mb-1">(+84) {{ $address->phone_number }}</div>
+                                            <div class="address-details small text-wrap">{{ $address->address }}</div>
                                         </div>
                                     </label>
                                 </div>
@@ -823,7 +783,7 @@
                     </div>
                     <div class="text-end mt-3">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Huỷ</button>
-                        <button type="button" class="btn btn-primary" id="saveAddressChange">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-danger" id="saveAddressChange">Lưu thay đổi</button>
                     </div>
                 </div>
             </div>
@@ -831,8 +791,7 @@
     </div>
 
     <!-- Modal Thêm Mã Giảm Giá Mới -->
-    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -843,9 +802,8 @@
                     <div class="mb-3">
                         <label class="form-label">Nhập mã giảm giá</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="newCouponCode"
-                                placeholder="Nhập mã giảm giá">
-                            <button class="btn btn-primary" type="button" id="applyNewCoupon">Áp dụng</button>
+                            <input type="text" class="form-control" id="newCouponCode" placeholder="Nhập mã giảm giá">
+                            <button class="btn btn-danger" type="button" id="applyNewCoupon">Áp dụng</button>
                         </div>
                         <div id="couponMessage" class="mt-2"></div>
                     </div>
@@ -855,8 +813,7 @@
     </div>
 
     <!-- Modal Thay Đổi Mã Giảm Giá -->
-    <div class="modal fade" id="changeCouponModal" tabindex="-1" aria-labelledby="changeCouponModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="changeCouponModal" tabindex="-1" aria-labelledby="changeCouponModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -865,48 +822,42 @@
                 </div>
                 <div class="modal-body">
                     <div class="coupon-list">
-  {{-- Không dùng mã --}}
-  <div class="form-check mb-3">
-    <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="" id="couponNone" checked>
-    <label class="form-check-label w-100" for="couponNone">
-      <div class="coupon-option">
-        <div class="coupon-code">Không sử dụng mã giảm giá</div>
-      </div>
-    </label>
-  </div>
-
-  {{-- Mã khả dụng --}}
-  @foreach(($couponOptions['usable'] ?? []) as $c)
-    <div class="form-check mb-3">
-      <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="{{ $c['code'] }}" id="coupon_{{ $c['id'] }}">
-      <label class="form-check-label w-100" for="coupon_{{ $c['id'] }}">
-        <div class="coupon-option">
-          <div class="coupon-code">
-            {{ $c['code'] }}
-            <span class="discount-badge">Ước tính giảm {{ number_format($c['discount']) }}₫</span>
-          </div>
-        </div>
-      </label>
-    </div>
-  @endforeach
-
-  {{-- Mã không khả dụng + lý do --}}
-  @foreach(($couponOptions['disabled'] ?? []) as $c)
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="radio" disabled>
-      <label class="form-check-label w-100">
-        <div class="coupon-option opacity-50">
-          <div class="coupon-code">{{ $c['code'] }}</div>
-          <div class="coupon-desc text-danger small">{{ $c['reason'] }}</div>
-        </div>
-      </label>
-    </div>
-  @endforeach
-</div>
-
+                        <div class="form-check mb-3">
+                            <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="" id="couponNone" checked>
+                            <label class="form-check-label w-100" for="couponNone">
+                                <div class="coupon-option">
+                                    <div class="coupon-code">Không sử dụng mã giảm giá</div>
+                                </div>
+                            </label>
+                        </div>
+                        @foreach(($couponOptions['usable'] ?? []) as $c)
+                            <div class="form-check mb-3">
+                                <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="{{ $c['code'] }}" id="coupon_{{ $c['id'] }}">
+                                <label class="form-check-label w-100" for="coupon_{{ $c['id'] }}">
+                                    <div class="coupon-option">
+                                        <div class="coupon-code">
+                                            {{ $c['code'] }}
+                                            <span class="discount-badge">Ước tính giảm {{ number_format($c['discount']) }}₫</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        @endforeach
+                        @foreach(($couponOptions['disabled'] ?? []) as $c)
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" disabled>
+                                <label class="form-check-label w-100">
+                                    <div class="coupon-option opacity-50">
+                                        <div class="coupon-code">{{ $c['code'] }}</div>
+                                        <div class="coupon-desc text-danger small">{{ $c['reason'] }}</div>
+                                    </div>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                     <div class="text-end mt-3">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Huỷ</button>
-                        <button type="button" class="btn btn-primary" id="saveCouponChange">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-danger" id="saveCouponChange">Lưu thay đổi</button>
                     </div>
                 </div>
             </div>
@@ -915,13 +866,45 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         $(document).ready(function() {
             const subtotal = {{ $total }};
             const shippingFee = 30000;
             let currentTotal = subtotal + shippingFee;
             let currentDiscount = 0;
+
+            // Xử lý khởi tạo địa chỉ khi trang tải
+            function initializeAddress() {
+                const selectedOption = $('#addressSelect').find('option:selected');
+                if (selectedOption.length > 0) {
+                    const address = selectedOption.data('address');
+                    const phone = selectedOption.data('phone');
+                    const fullname = selectedOption.data('fullname');
+                    
+                    $('#hiddenField7').val(address || '');
+                    $('#hiddenField5').val(phone || '{{ auth()->user()->phone_number ?? '' }}');
+                    
+                    if (fullname) {
+                        const nameParts = fullname.split(' ');
+                        $('#hiddenField1').val(nameParts[0] || '');
+                        $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
+                    }
+                    
+                    $('#mainAddressName').text(fullname || '{{ auth()->user()->name ?? '' }}');
+                    $('#mainAddressPhone').text('(+84) ' + (phone || '{{ auth()->user()->phone_number ?? '' }}'));
+                } else {
+                    $('#hiddenField7').val('{{ $defaultAddress->address ?? '' }}');
+                    $('#hiddenField5').val('{{ $defaultAddress->phone_number ?? (auth()->user()->phone_number ?? '') }}');
+                }
+            }
+
+            initializeAddress();
 
             // Xử lý chọn địa chỉ
             $('#addressSelect').change(function() {
@@ -930,7 +913,6 @@
                 const phone = selectedOption.data('phone');
                 const fullname = selectedOption.data('fullname');
 
-                // Cập nhật các trường ẩn
                 $('#hiddenField7').val(address);
                 $('#hiddenField5').val(phone ? phone : '{{ auth()->user()->phone_number ?? '' }}');
 
@@ -939,7 +921,7 @@
                     $('#hiddenField1').val(nameParts[0] || '');
                     $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                 }
-                // Thêm đoạn này để cập nhật giao diện
+                
                 $('#mainAddressName').text(fullname || '');
                 $('#mainAddressPhone').text('(+84) ' + (phone || ''));
             });
@@ -953,10 +935,7 @@
                     const phone = selectedAddress.data('phone');
                     const fullname = selectedAddress.data('fullname');
 
-                    // Cập nhật select
                     $('#addressSelect').val(addressId);
-
-                    // Cập nhật các trường ẩn
                     $('#hiddenField7').val(address);
                     $('#hiddenField5').val(phone);
 
@@ -965,10 +944,10 @@
                         $('#hiddenField1').val(nameParts[0] || '');
                         $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                     }
+                    
                     $('#mainAddressName').text(fullname || '');
                     $('#mainAddressPhone').text('(+84) ' + (phone || ''));
 
-                    // Đóng modal
                     $('#changeAddressModal').modal('hide');
                 }
             });
@@ -1001,28 +980,30 @@
                 });
             });
 
-
             // Xử lý áp dụng mã giảm giá mới
-           $('#applyNewCoupon').on('click', function() {
-    const couponCode = $('#newCouponCode').val().trim();
-    if (!couponCode) return;
+            $('#applyNewCoupon').on('click', function() {
+                const couponCode = $('#newCouponCode').val().trim();
+                if (!couponCode) {
+                    $('#couponMessage').addClass('text-danger').text('Vui lòng nhập mã giảm giá');
+                    return;
+                }
 
-    const selectedItems = $('input[name="selected_items[]"]').map(function(){return $(this).val();}).get();
-    const couponMessage = $('#couponMessage').removeClass('text-danger text-success').html('Đang kiểm tra...');
+                const selectedItems = $('input[name="selected_items[]"]').map(function(){return $(this).val();}).get();
+                const couponMessage = $('#couponMessage').removeClass('text-danger text-success').html('Đang kiểm tra...');
 
-    $.post('{{ route('checkout.coupons.preview') }}', {
-        _token: '{{ csrf_token() }}',
-        code: couponCode,
-        selected_items: selectedItems
-    }).done(function(res) {
-        couponMessage.addClass('text-success').html('<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
-        applyCouponUI(couponCode, res.discount, res.coupon);
-        setTimeout(() => $('#addCouponModal').modal('hide'), 700);
-    }).fail(function(xhr) {
-        const msg = xhr.responseJSON?.message || 'Mã giảm giá không hợp lệ';
-        couponMessage.addClass('text-danger').text(msg);
-    });
-});
+                $.post('{{ route('checkout.coupons.preview') }}', {
+                    _token: '{{ csrf_token() }}',
+                    code: couponCode,
+                    selected_items: selectedItems
+                }).done(function(res) {
+                    couponMessage.addClass('text-success').html('<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
+                    applyCouponUI(couponCode, res.discount, res.coupon);
+                    setTimeout(() => $('#addCouponModal').modal('hide'), 700);
+                }).fail(function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'Mã giảm giá không hợp lệ';
+                    couponMessage.addClass('text-danger').text(msg);
+                });
+            });
 
             // Hàm áp dụng mã giảm giá
             function applyCouponUI(code, discount, couponMeta) {
@@ -1060,16 +1041,58 @@
             // Xử lý khi thêm địa chỉ thành công
             $('#addAddressForm').on('submit', function(e) {
                 e.preventDefault();
+                
+                // Kiểm tra dữ liệu phía client
+                const fullnameInput = $('[name="fullname"]');
+                const phoneInput = $('[name="phone_number"]');
+                const provinceInput = $('[name="province"]');
+                const wardInput = $('[name="ward"]');
+                const addressInput = $('[name="address"]');
+                const phonePattern = /^0[0-9]{9}$/;
+                
+                $('.error-message').remove();
+                let hasError = false;
+
+                if (!fullnameInput.val().trim()) {
+                    fullnameInput.after('<div class="text-danger small mt-1 error-message">Họ và tên là bắt buộc.</div>');
+                    hasError = true;
+                }
+                if (!phonePattern.test(phoneInput.val())) {
+                    phoneInput.after('<div class="text-danger small mt-1 error-message">Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.</div>');
+                    hasError = true;
+                }
+                if (!provinceInput.val()) {
+                    provinceInput.after('<div class="text-danger small mt-1 error-message">Vui lòng chọn tỉnh/thành phố.</div>');
+                    hasError = true;
+                }
+                if (!wardInput.val()) {
+                    wardInput.after('<div class="text-danger small mt-1 error-message">Vui lòng chọn phường/xã.</div>');
+                    hasError = true;
+                }
+                if (!addressInput.val().trim()) {
+                    addressInput.after('<div class="text-danger small mt-1 error-message">Địa chỉ cụ thể là bắt buộc.</div>');
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    return;
+                }
+
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
 
                 $.ajax({
                     url: $(this).attr('action'),
                     type: 'POST',
                     data: $(this).serialize(),
+                    dataType: 'json',
                     success: function(response) {
-                        if (response.success) {
-                            // Thêm option mới vào select
+                        submitBtn.prop('disabled', false).html(originalText);
+                        
+                        if (response && response.success && response.data) {
                             const newOption = new Option(
-                                response.data.address,
+                                response.data.full_address || response.data.address,
                                 response.data.id,
                                 false,
                                 response.data.is_default
@@ -1083,26 +1106,47 @@
 
                             $('#addressSelect').append(newOption);
 
-                            // Nếu là địa chỉ mặc định, chọn nó
                             if (response.data.is_default) {
                                 $('#addressSelect').val(response.data.id).trigger('change');
                             }
 
-                            // Đóng modal
+                            $('#addAddressForm')[0].reset();
+                            $('#ward-add').html('<option value="">Chọn Phường/Xã</option>');
+                            $('#province-add').val('');
+                            $('.error-message').remove();
                             $('#addAddressModal').modal('hide');
-
-                            // Hiển thị thông báo
                             alert('Thêm địa chỉ thành công!');
+                        } else {
+                            alert('Có lỗi xảy ra: ' + (response.message || 'Dữ liệu trả về không hợp lệ. Vui lòng kiểm tra server.'));
                         }
                     },
                     error: function(xhr) {
+                        submitBtn.prop('disabled', false).html(originalText);
+                        $('.error-message').remove();
+                        
+                        let errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại!';
                         if (xhr.status === 422) {
-                            const errors = xhr.responseJSON.errors;
-                            alert('Vui lòng kiểm tra lại thông tin: ' + Object.values(errors)
-                                .join('\n'));
+                            const errors = xhr.responseJSON?.errors || {};
+                            const errorMessages = [];
+                            for (const field in errors) {
+                                const input = $(`[name="${field}"]`);
+                                if (input.length) {
+                                    input.after(`<div class="text-danger small mt-1 error-message">${errors[field][0]}</div>`);
+                                }
+                                errorMessages.push(errors[field][0]);
+                            }
+                            if (errorMessages.length > 0) {
+                                errorMessage = 'Vui lòng kiểm tra: \n' + errorMessages.join('\n');
+                            }
+                        } else if (xhr.status === 419) {
+                            errorMessage = 'Phiên làm việc hết hạn. Vui lòng tải lại trang!';
+                        } else if (xhr.status === 500) {
+                            errorMessage = 'Lỗi server: ' + (xhr.responseJSON?.message || 'Vui lòng kiểm tra log server.');
                         } else {
-                            alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                            errorMessage = 'Bạn Chắc Chắn Đây Là Địa Chỉ Của Mình Chứ?';
                         }
+                        
+                        alert(errorMessage);
                     }
                 });
             });
@@ -1112,24 +1156,147 @@
             const provinceSelectAdd = document.getElementById("province-add");
             const wardSelectAdd = document.getElementById("ward-add");
 
+            if (!vnLocationsData || !Array.isArray(vnLocationsData)) {
+                console.error('Dữ liệu vnLocationsData không hợp lệ:', vnLocationsData);
+                alert('Lỗi dữ liệu tỉnh/thành phố. Vui lòng liên hệ quản trị viên.');
+                return;
+            }
+
             if (provinceSelectAdd) {
                 provinceSelectAdd.addEventListener("change", function() {
                     const selectedProvinceName = this.value;
                     wardSelectAdd.innerHTML = '<option value="">Chọn Phường/Xã</option>';
                     if (selectedProvinceName) {
                         const selectedProvince = vnLocationsData.find(p => p.Name === selectedProvinceName);
-                        if (selectedProvince) {
-                            const allWards = selectedProvince.Districts.flatMap(d => d.Wards);
-                            allWards.forEach(ward => {
-                                wardSelectAdd.add(new Option(ward.Name, ward.Name));
-                            });
+                        if (selectedProvince && selectedProvince.Districts) {
+                            const allWards = selectedProvince.Districts.flatMap(d => d.Wards || []);
+                            if (allWards.length === 0) {
+                                wardSelectAdd.innerHTML = '<option value="">Không có phường/xã</option>';
+                            } else {
+                                allWards.forEach(ward => {
+                                    if (ward && ward.Name) {
+                                        wardSelectAdd.add(new Option(ward.Name, ward.Name));
+                                    }
+                                });
+                            }
+                        } else {
+                            wardSelectAdd.innerHTML = '<option value="">Không có phường/xã</option>';
                         }
                     }
                 });
             }
+
+            // Kiểm tra địa chỉ trước khi submit
+            $('#checkoutForm').on('submit', function(e) {
+                if ($('#addressSelect').val() === '' || $('#addressSelect').find('option').length === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng thêm địa chỉ giao hàng trước khi thanh toán');
+                    $('#addAddressModal').modal('show');
+                }
+            });
+
+            // Reset form khi modal địa chỉ đóng
+            $('#addAddressModal').on('hidden.bs.modal', function() {
+                $('#addAddressForm')[0].reset();
+                $('#ward-add').html('<option value="">Chọn Phường/Xã</option>');
+                $('#province-add').val('');
+                $('.error-message').remove();
+            });
+
+            // Xử lý lỗi validation khi tải trang
+            @if ($errors->any())
+                let addModalEl = document.getElementById('addAddressModal');
+                let addModal = new bootstrap.Modal(addModalEl);
+                addModal.show();
+            @endif
         });
     </script>
+    <script>
+    // Xử lý submit form thêm địa chỉ bằng AJAX
+    $(function() {
+        $('#addAddressForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const url = form.attr('action');
+            const method = form.attr('method') || 'POST';
+
+            // Xóa thông báo lỗi cũ
+            form.find('.is-invalid').removeClass('is-invalid');
+            form.find('.invalid-feedback.ajax-error').remove();
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: form.serialize(),
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    // Mong controller trả JSON { success: true, address: {...} }
+                    if (response && response.success) {
+                        // Thêm option mới vào select địa chỉ và chọn nó
+                        const addr = response.address;
+                        const option = $('<option>')
+                            .val(addr.id)
+                            .text(addr.address)
+                            .attr('data-address', addr.address)
+                            .attr('data-phone', addr.phone_number)
+                            .attr('data-fullname', addr.fullname);
+                        $('#addressSelect').append(option).val(addr.id).trigger('change');
+
+                        // Cập nhật hiển thị tên/sdt/ẩn
+                        $('#mainAddressName').text(addr.fullname || '');
+                        $('#mainAddressPhone').text('(+84) ' + (addr.phone_number || ''));
+                        $('#hiddenField7').val(addr.address || '');
+                        $('#hiddenField5').val(addr.phone_number || '');
+                        if (addr.fullname) {
+                            const parts = addr.fullname.split(' ');
+                            $('#hiddenField1').val(parts[0] || '');
+                            $('#hiddenField2').val(parts.slice(1).join(' ') || '');
+                        }
+
+                        // Đóng modal (Bootstrap 5)
+                        const addModalEl = document.getElementById('addAddressModal');
+                        const addModal = bootstrap.Modal.getInstance(addModalEl) || new bootstrap.Modal(addModalEl);
+                        addModal.hide();
+
+                        // Reset form
+                        form[0].reset();
+
+                        // Thông báo
+                        if (window.toastr) toastr.success(response.message || 'Thêm địa chỉ thành công');
+                    } else {
+                        // Nếu controller trả redirect HTML, fallback reload
+                        if (response && response.redirect) {
+                            window.location.href = response.redirect;
+                        } else {
+                            window.location.reload();
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        const errors = xhr.responseJSON.errors;
+                        // Hiển thị error tương ứng dưới input
+                        Object.keys(errors).forEach(function (key) {
+                            const input = form.find('[name="' + key + '"]');
+                            if (!input.length) {
+                                // nếu field dạng nested (eg: province[id]) thử select bằng contains
+                                const alt = form.find('[name^="' + key + '"]');
+                                if (alt.length) input = alt.first();
+                            }
+                            if (input.length) {
+                                input.addClass('is-invalid');
+                                const msg = $('<div class="invalid-feedback ajax-error"></div>').text(errors[key][0]);
+                                input.after(msg);
+                            }
+                        });
+                    } else {
+                        console.error('Add address error', xhr);
+                        if (window.toastr) toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                }
+            });
+        });
+    });
+</script>
 </body>
-
 </html>
-

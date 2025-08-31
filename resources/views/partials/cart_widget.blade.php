@@ -1,7 +1,8 @@
 @foreach ($cartItems as $item)
     <div class="cartWidgetProduct">
         <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}"
-            alt="ảnh" style="height:50px; width:50px"/>
+
+            alt="ảnh" style="height:70%; width:auto"/>
         <a
             href="{{ route('product.detail', ['id' => $item->product->id]) }}" style="font-size: small;">{{ $item->product->name }}</a>
         <div class="cartProductPrice clearfix">

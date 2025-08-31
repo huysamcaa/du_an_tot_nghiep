@@ -81,6 +81,7 @@
                                 <th class="product-name" style="width:10px; text-align:center">Ảnh</th>
                                 <th class="product-thumbnail" style="width:25%">Tên sản phẩm</th>
                                 <th class="product-variation" style="width:15%">Phân loại</th>
+
                                 <th class="product-price">Giá tiền</th>
                                 <th class="product-quantity">Số lượng</th>
                                 <th class="product-subtotal">Tổng tiền</th>
@@ -128,7 +129,7 @@
                                 <td class="product-thumbnail">
                                     <a href="{{ route('product.detail', $item->product->id) }}"><img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}" style="height:100%; width:auto" alt="Cart Item"></a>
                                 </td>
-                                <td class="product-name">
+                                <td class="product-name" style="height: 0%; width: 22%;">
                                     <a href="{{ route('product.detail', $item->product->id) }}">{{ $item->product->name }}</a>
                                     @if (!$item->product || !$item->product->is_active)
                                     <div class="cart-item disabled text-danger">

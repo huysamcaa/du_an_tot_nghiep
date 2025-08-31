@@ -27,7 +27,6 @@
                 @if (session('error'))
                     <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
-
             @if($order->items->count())
             <table class="shop_table cart_table">
                 <thead>
@@ -86,7 +85,6 @@
                         @endforeach
                 </tbody>
             </table>
-
                     @error('items')
                         <div class="text-danger mt-2">{{ $message }}</div>
                     @enderror
