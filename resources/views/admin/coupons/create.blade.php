@@ -237,6 +237,36 @@
     if (window.jQuery && typeof jQuery.fn.select2 === 'function') {
       jQuery('.select2').select2({ placeholder:'Chọn...', allowClear:true, width: '100%' });
     }
+    // Ràng buộc "Có thời hạn" <-> ngày bắt đầu/kết thúc
+const chkTime = document.getElementById('is_expired');
+const startEl = document.getElementById('start_date');
+const endEl   = document.getElementById('end_date');
+
+function applyTimeLimitUI() {
+  if (!chkTime || !startEl || !endEl) return;
+  const on = chkTime.checked;
+  [startEl, endEl].forEach(el => {
+    el.disabled = !on;
+    el.required =  on;
+    if (!on) el.value = '';
+  });
+}
+
+if (chkTime) {
+  chkTime.addEventListener('change', applyTimeLimitUI);
+}
+// Nếu người dùng nhập ngày -> auto tick
+[startEl, endEl].forEach(el => {
+  if (!el) return;
+  el.addEventListener('input', () => {
+    if ((startEl.value || endEl.value) && !chkTime.checked) {
+      chkTime.checked = true;
+    }
+    applyTimeLimitUI();
+  });
+});
+applyTimeLimitUI();
+
   });
 </script>
 @endpush

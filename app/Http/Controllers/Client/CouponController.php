@@ -9,129 +9,107 @@ use App\Models\Admin\Product;
 use App\Models\Admin\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Notifications\CouponClaimedNotification;
 
 class CouponController extends Controller
 {
+    // Tất cả mã giảm giá công khai (chỉ còn hiệu lực)
+    public function index()
+    {
+        $user = Auth::user();
 
-    // Tất cả mã giảm giá công khai
-public function index()
-{
-    $user = Auth::user();
+        $claimedIds = CouponUser::where('user_id', $user?->id)->pluck('coupon_id');
 
-    // Lấy danh sách ID mã đã nhận
-    $claimedIds = CouponUser::where('user_id', $user?->id)->pluck('coupon_id');
+        $coupons = Coupon::query()
+            ->with('restriction')
+            ->valid() // chỉ lấy coupon còn hiệu lực (is_active, quota, is_expired/end_date)
+            ->whereNotIn('id', $claimedIds)
+            ->where(function ($q) { // chưa tới ngày bắt đầu thì bỏ
+                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) use ($user) { // đúng group
+                $q->whereNull('user_group')
+                  ->orWhere('user_group', $user?->user_group ?? 'guest');
+            })
+            ->orderByDesc('created_at')
+            ->get();
 
-    // Lấy các mã CHƯA nhận, còn hiệu lực, chưa bị xóa
-    $coupons = Coupon::query()
-        ->with('restriction')
-        ->whereNotIn('id', $claimedIds) // Chỉ mã chưa nhận
-        ->where('is_active', true)
-        ->whereNull('deleted_at')       // Bỏ mã đã bị soft delete
-        ->where(function ($query) {
-            $query->whereNull('start_date')->orWhere('start_date', '<=', now());
-        })
-        ->where(function ($query) {
-            $query->whereNull('end_date')->orWhere('end_date', '>=', now());
-        })
-        ->where(function ($query) use ($user) {
-            $query->whereNull('user_group')
-                ->orWhere('user_group', $user?->user_group ?? 'guest');
-        })
-        ->orderByDesc('created_at')
-        ->get();
+        return view('client.coupons.index', compact('coupons'));
+    }
 
-    return view('client.coupons.index', compact('coupons'));
-}
+    // Mã đã nhận (chỉ còn hiệu lực, chưa dùng)
+    public function received(Request $request)
+    {
+        $user = auth()->user();
 
+        $query = $user->coupons()
+            ->withPivot([
+                'id','code','title','discount_type','discount_value',
+                'min_order_value','max_discount_value',
+                'valid_categories','valid_products',
+                'start_date','end_date','user_group',
+                'usage_limit','amount',
+                'used_at','order_id','discount_applied',
+                'created_at','updated_at',
+            ])
+            ->where(function ($q) { // còn hiệu lực thời gian
+                $q->whereNull('coupon_user.start_date')
+                  ->orWhere('coupon_user.start_date', '<=', now());
+            })
+            ->where(function ($q) { // còn hạn
+                $q->whereNull('coupon_user.end_date')
+                  ->orWhere('coupon_user.end_date', '>=', now());
+            })
+            ->whereNull('coupon_user.used_at')   // chưa dùng
+            ->whereNull('coupon_user.order_id'); // chưa gắn đơn hàng
 
-// App\Http\Controllers\Client/CouponController.php
-public function received(Request $request)
-{
-    $user = auth()->user();
+        $coupons = $query->get();
 
-    $query = $user->coupons()
-        ->withPivot([
-            'id','code','title','discount_type','discount_value',
-            'min_order_value','max_discount_value',
-            'valid_categories','valid_products',
-            'start_date','end_date','user_group',
-            'usage_limit','amount',
-            'used_at','order_id','discount_applied',
-            'created_at','updated_at',
-        ])
-        // còn hiệu lực theo thời gian (nếu cần)
-        ->where(function ($q) {
-            $q->whereNull('coupon_user.start_date')
-              ->orWhere('coupon_user.start_date', '<=', now());
-        })
-        ->where(function ($q) {
-            $q->whereNull('coupon_user.end_date')
-              ->orWhere('coupon_user.end_date', '>=', now());
-        });
+        return view('client.coupons.received', compact('coupons'));
+    }
 
-    // Mặc định: CHỈ hiện mã chưa dùng (để “đã dùng thì biến mất”)
-    $query->whereNull('coupon_user.used_at')
-          ->whereNull('coupon_user.order_id');
-
-    $coupons = $query->get();
-
-    return view('client.coupons.received', compact('coupons'));
-}
-
-
+    // Xem chi tiết coupon
     public function show($id)
     {
         $user = Auth::user();
 
-        // Ưu tiên bản đã nhận (đã snapshot)
         $coupon = $user?->coupons()->withTrashed()->where('coupons.id', $id)->first();
-
-
         $isClaimed = true;
 
         if (!$coupon) {
-            // Fallback: bản public
+            // fallback: chỉ tìm trong coupon còn hiệu lực
             $coupon = Coupon::with('restriction')
-                ->where('id', $id)
-                ->where('is_active', true)
-                ->where(function ($query) {
-                    $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+                ->valid()
+                ->where(function ($q) {
+                    $q->whereNull('start_date')->orWhere('start_date', '<=', now());
                 })
-                ->where(function ($query) {
-                    $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+                ->where(function ($q) use ($user) {
+                    $q->whereNull('user_group')
+                      ->orWhere('user_group', $user?->user_group ?? 'guest');
                 })
-                ->where(function ($query) use ($user) {
-                    $query->whereNull('user_group')->orWhere('user_group', $user?->user_group ?? 'guest');
-                })
-                ->where(function ($query) {
-                    $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-                })
+                ->whereKey($id)
                 ->firstOrFail();
 
             $isClaimed = false;
         }
 
-        // Dùng danh sách từ pivot nếu đã nhận, ngược lại lấy từ coupon.restriction
         $categories = Category::whereIn(
             'id',
             $isClaimed
-                ? $coupon->pivot->valid_categories ?? []
-                : $coupon->restriction?->valid_categories ?? []
+                ? ($coupon->pivot->valid_categories ?? [])
+                : ($coupon->restriction?->valid_categories ?? [])
         )->get();
 
         $products = Product::whereIn(
             'id',
             $isClaimed
-                ? $coupon->pivot->valid_products ?? []
-                : $coupon->restriction?->valid_products ?? []
+                ? ($coupon->pivot->valid_products ?? [])
+                : ($coupon->restriction?->valid_products ?? [])
         )->get();
 
         return view('client.coupons.show', compact('coupon', 'categories', 'products', 'isClaimed'));
     }
 
-
-
+    // Nhận coupon (chỉ còn hiệu lực)
     public function claim($id, Request $request)
     {
         if (!Auth::check()) {
@@ -140,48 +118,43 @@ public function received(Request $request)
 
         $user = auth()->user();
 
-        $coupon = Coupon::with('restriction')->where('id', $id)
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+        $coupon = Coupon::with('restriction')
+            ->valid()
+            ->where(function ($q) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
             })
-            ->where(function ($query) {
-                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+            ->where(function ($q) use ($user) {
+                $q->whereNull('user_group')
+                  ->orWhere('user_group', $user?->user_group ?? 'guest');
             })
-            ->where(function ($query) use ($user) {
-                return $query->whereNull('user_group')->orWhere('user_group', $user?->user_group ?? 'guest');
-            })
-            ->where(function ($query) {
-                $query->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
-            })
+            ->whereKey($id)
             ->first();
 
         if (!$coupon) {
-            return redirect()->back()->with('warning', 'Mã không hợp lệ hoặc đã hết lượt.');
+            return redirect()->back()->with('warning', 'Mã không hợp lệ hoặc đã hết hạn.');
         }
 
         if ($user->coupons()->where('coupon_id', $id)->exists()) {
             return redirect()->back()->with('warning', 'Bạn đã nhận mã này.');
         }
 
-        // Lưu snapshot tại thời điểm nhận
+        // Snapshot
         $user->coupons()->attach($id, [
-            'amount' => 1,
-            'code' => $coupon->code,
-            'title' => $coupon->title,
-            'discount_type' => $coupon->discount_type,
-            'discount_value' => $coupon->discount_value,
-            'start_date' => $coupon->start_date,
-            'end_date' => $coupon->end_date,
-            'min_order_value' => $coupon->restriction->min_order_value ?? 0,
+            'amount'             => 1,
+            'code'               => $coupon->code,
+            'title'              => $coupon->title,
+            'discount_type'      => $coupon->discount_type,
+            'discount_value'     => $coupon->discount_value,
+            'start_date'         => $coupon->start_date,
+            'end_date'           => $coupon->end_date,
+            'min_order_value'    => $coupon->restriction->min_order_value ?? 0,
             'max_discount_value' => $coupon->restriction->max_discount_value ?? null,
-            'valid_products' => $coupon->restriction->valid_products ?? [],
-            'valid_categories' => $coupon->restriction->valid_categories ?? [],
-            'user_group' => $coupon->user_group,
-            'usage_limit' => $coupon->usage_limit,
+            'valid_products'     => $coupon->restriction->valid_products ?? [],
+            'valid_categories'   => $coupon->restriction->valid_categories ?? [],
+            'user_group'         => $coupon->user_group,
+            'usage_limit'        => $coupon->usage_limit,
         ]);
 
         return redirect()->back()->with('success', 'Bạn đã nhận mã thành công!');
     }
-
 }

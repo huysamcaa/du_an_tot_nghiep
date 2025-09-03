@@ -64,6 +64,34 @@ public function categories()
 {
     return $this->belongsToMany(Category::class, 'coupon_category');
 }
+// HẾT HẠN thật (không lưu DB): do hết ngày (nếu có thời hạn) hoặc hết lượt
+public function getExpiredAttribute(): bool
+{
+    $overByTime = $this->is_expired
+        && $this->end_date
+        && now()->greaterThan($this->end_date);
+
+    $overByUsage = !is_null($this->usage_limit)
+        && (int)$this->usage_count >= (int)$this->usage_limit;
+
+    return $overByTime || $overByUsage;
+}
+
+// Lọc các coupon còn dùng được (tiện cho truy vấn)
+public function scopeValid($q)
+{
+    return $q->where('is_active', true)
+             ->where(function ($qq) {
+                 $qq->whereNull('usage_limit')
+                    ->orWhereColumn('usage_count', '<', 'usage_limit');
+             })
+             ->where(function ($qq) {
+                 // không có thời hạn -> pass | có thời hạn -> end_date chưa qua
+                 $qq->where('is_expired', false)
+                    ->orWhereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+             });
+}
 
 }
 
