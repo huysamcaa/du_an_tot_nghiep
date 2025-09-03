@@ -225,57 +225,70 @@ class CouponService
      *   'disabled' => [ ['code'=>..., 'title'=>..., 'reason'=>'Đã sử dụng'|'Hết hạn'|...], ... ],
      * ]
      */
-    public static function getCheckoutOptions(Collection $cartItems, User $user): array
-    {
-        // A) Ứng viên = (mã public đúng group) U (mã user đã claim)
-        //    Nhưng loại ngay các mã đã dùng.
-        $public = Coupon::query()
-            ->where(function ($q) use ($user) {
-                $q->whereNull('user_group')
-                    ->orWhere('user_group', $user->user_group ?? 'guest');
-            })
-            ->get(['id', 'code', 'title']);
+   public static function getCheckoutOptions(Collection $cartItems, User $user): array
+{
+    // 1) Ứng viên = (mã public đúng group & CHƯA HẾT HẠN THEO NGÀY)
+    $public = Coupon::query()
+        ->where(function ($q) use ($user) {
+            $q->whereNull('user_group')
+              ->orWhere('user_group', $user->user_group ?? 'guest');
+        })
+        // ❗ Chỉ ẩn mã đã hết hạn theo NGÀY
+        ->where(function ($q) {
+            $q->whereNull('end_date')
+              ->orWhere('end_date', '>=', now());
+        })
+        ->get(['id', 'code', 'title']);
 
-        $claimed = DB::table('coupon_user as cu')
-            ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
-            ->where('cu.user_id', $user->id)
-            ->get(['c.id', 'c.code', 'c.title']);
+    // 2) Mã đã claim của user (lọc theo snapshot ở pivot, CHỈ ẨN mã hết hạn theo ngày)
+    $claimed = DB::table('coupon_user as cu')
+        ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
+        ->where('cu.user_id', $user->id)
+        // ❗ Chỉ ẩn mã đã hết hạn theo NGÀY dựa trên snapshot (cu.end_date)
+        ->where(function ($q) {
+            $q->whereNull('cu.end_date')
+              ->orWhere('cu.end_date', '>=', now());
+        })
+        ->get(['c.id', 'c.code', 'c.title']);
 
-        $candidates = collect($public)->concat($claimed)
-            ->unique('id')
-            ->reject(fn($c) => self::userHasUsedCoupon($user, $c->id))
-            ->values();
+    // 3) Gộp + loại bỏ mã mà user đã dùng
+    $candidates = collect($public)->concat($claimed)
+        ->unique('id')
+        ->reject(fn($c) => self::userHasUsedCoupon($user, $c->id))
+        ->values();
 
-        $usable = [];
-        $disabled = [];
+    $usable = [];
+    $disabled = [];
 
-        foreach ($candidates as $c) {
-            try {
-                // chạy validate để tính thử giảm giá
-                $res = self::validateAndApply($c->code, $cartItems, $user);
-                $usable[] = [
-                    'id'       => $c->id,
-                    'code'     => $c->code,
-                    'title'    => $c->title,
-                    'discount' => $res['discount'],
-                ];
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                // map lý do gọn gàng cho UI
-                $msg = collect($e->errors())->flatten()->first() ?? 'Không thể áp dụng mã này.';
-                $disabled[] = [
-                    'id'     => $c->id,
-                    'code'   => $c->code,
-                    'title'  => $c->title,
-                    'reason' => $msg,
-                ];
-            }
+    // 4) Thử validate từng mã để biết "usable" hay "disabled" (và lý do)
+    foreach ($candidates as $c) {
+        try {
+            $res = self::validateAndApply($c->code, $cartItems, $user);
+
+            $usable[] = [
+                'id'       => $c->id,
+                'code'     => $c->code,
+                'title'    => $c->title,
+                'discount' => $res['discount'],
+            ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $msg = collect($e->errors())->flatten()->first() ?? 'Không thể áp dụng mã này.';
+
+            $disabled[] = [
+                'id'     => $c->id,
+                'code'   => $c->code,
+                'title'  => $c->title,
+                'reason' => $msg,
+            ];
         }
-
-        // Sắp usable theo discount giảm dần cho đẹp
-        usort($usable, fn($a, $b) => $b['discount'] <=> $a['discount']);
-
-        return compact('usable', 'disabled');
     }
+
+    // 5) Sắp usable theo discount giảm dần
+    usort($usable, fn($a, $b) => $b['discount'] <=> $a['discount']);
+
+    return compact('usable', 'disabled');
+}
+
 
     /** ====== ĐÁNH DẤU ĐÃ DÙNG / ROLLBACK ================================= */
 

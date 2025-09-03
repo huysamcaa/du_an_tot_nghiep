@@ -15,58 +15,59 @@ use Illuminate\Validation\Rule;
 
 
 use Illuminate\Support\Facades\Schema;
+
 class CouponController extends Controller
 {
-public function index(Request $request)
-{
-    $perPage      = max(1, (int) $request->input('perPage', 10));
-    $search       = trim((string) $request->input('search'));
-    $isActive     = $request->input('is_active');        // '', '1', '0'
-    $discountType = $request->input('discount_type');    // '', 'percent', 'fixed'
-    $startDate    = $request->input('start_date');       // YYYY-MM-DD
-    $endDate      = $request->input('end_date');         // YYYY-MM-DD
+    public function index(Request $request)
+    {
+        $perPage      = max(1, (int) $request->input('perPage', 10));
+        $search       = trim((string) $request->input('search'));
+        $isActive     = $request->input('is_active');        // '', '1', '0'
+        $discountType = $request->input('discount_type');    // '', 'percent', 'fixed'
+        $startDate    = $request->input('start_date');       // YYYY-MM-DD
+        $endDate      = $request->input('end_date');         // YYYY-MM-DD
 
-    $query = Coupon::query();
+        $query = Coupon::query();
 
-    // Tìm kiếm theo mã / tiêu đề
-    if ($search !== '') {
-        $query->where(function ($q) use ($search) {
-            $q->where('code', 'like', "%{$search}%")
-              ->orWhere('title', 'like', "%{$search}%");
-        });
+        // Tìm kiếm theo mã / tiêu đề
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%");
+            });
+        }
+
+        // Trạng thái hoạt động
+        if ($isActive === '1') {
+            $query->where('is_active', 1);
+        } elseif ($isActive === '0') {
+            $query->where('is_active', 0);
+        }
+
+        // Loại mã
+        if (in_array($discountType, ['percent', 'fixed'], true)) {
+            $query->where('discount_type', $discountType);
+        }
+
+        // Lọc theo ngày bắt đầu/kết thúc (đã rút gọn)
+        if ($startDate && $endDate && $endDate < $startDate) {
+            // Hoán đổi nếu nhập ngược
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+        if ($startDate) {
+            $query->whereDate('start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('end_date', '<=', $endDate);
+        }
+
+        $coupons = $query
+            ->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        return view('admin.coupons.index', compact('coupons'));
     }
-
-    // Trạng thái hoạt động
-    if ($isActive === '1') {
-        $query->where('is_active', 1);
-    } elseif ($isActive === '0') {
-        $query->where('is_active', 0);
-    }
-
-    // Loại mã
-    if (in_array($discountType, ['percent', 'fixed'], true)) {
-        $query->where('discount_type', $discountType);
-    }
-
-    // Lọc theo ngày bắt đầu/kết thúc (đã rút gọn)
-    if ($startDate && $endDate && $endDate < $startDate) {
-        // Hoán đổi nếu nhập ngược
-        [$startDate, $endDate] = [$endDate, $startDate];
-    }
-    if ($startDate) {
-        $query->whereDate('start_date', '>=', $startDate);
-    }
-    if ($endDate) {
-        $query->whereDate('end_date', '<=', $endDate);
-    }
-
-    $coupons = $query
-        ->orderByDesc('created_at')
-        ->paginate($perPage)
-        ->appends($request->query());
-
-    return view('admin.coupons.index', compact('coupons'));
-}
 
 
 
@@ -189,8 +190,8 @@ public function index(Request $request)
             'is_expired' => 'boolean',
             'is_active' => 'boolean',
             'is_notified' => 'boolean',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+            'start_date'       => 'nullable|date|required_if:is_expired,1',
+            'end_date'         => 'nullable|date|required_if:is_expired,1|after_or_equal:start_date',
             'min_order_value' => 'nullable|numeric|min:0',
             'max_discount_value' => 'nullable|numeric|min:0',
         ];
@@ -211,41 +212,42 @@ public function index(Request $request)
             'end_date.date' => 'Ngày kết thúc không hợp lệ.',
             'min_order_value.min' => 'Giá trị đơn hàng tối thiểu không được nhỏ hơn 0.',
             'max_discount_value.min' => 'Số tiền giảm tối đa không được nhỏ hơn 0.',
+
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
         $validator->after(function ($validator) use ($request, $id) {
-    $type = $request->input('discount_type');
-    $discountValue = $this->sanitizeNumber($request->input('discount_value'));
-    $maxDiscountValue = $this->sanitizeNumber($request->input('max_discount_value'));
+            $type = $request->input('discount_type');
+            $discountValue = $this->sanitizeNumber($request->input('discount_value'));
+            $maxDiscountValue = $this->sanitizeNumber($request->input('max_discount_value'));
 
-    // Nếu giảm phần trăm
-    if ($type === 'percent') {
-        if ($discountValue > 100) {
-            $validator->errors()->add('discount_value', 'Giá trị phần trăm không được vượt quá 100%.');
-        }
+            // Nếu giảm phần trăm
+            if ($type === 'percent') {
+                if ($discountValue > 100) {
+                    $validator->errors()->add('discount_value', 'Giá trị phần trăm không được vượt quá 100%.');
+                }
 
-        if (!is_null($maxDiscountValue) && $maxDiscountValue <= 0) {
-            $validator->errors()->add('max_discount_value', 'Số tiền giảm tối đa phải lớn hơn 0 khi chọn giảm theo phần trăm.');
-        }
-    }
+                if (!is_null($maxDiscountValue) && $maxDiscountValue <= 0) {
+                    $validator->errors()->add('max_discount_value', 'Số tiền giảm tối đa phải lớn hơn 0 khi chọn giảm theo phần trăm.');
+                }
+            }
 
-    // Nếu giảm cố định (fixed amount)
-    if ($type === 'fixed') {
-        if (!is_null($maxDiscountValue)) {
-            $validator->errors()->add('max_discount_value', 'Không cần nhập "Số tiền giảm tối đa" khi giảm giá cố định.');
-        }
-    }
+            // Nếu giảm cố định (fixed amount)
+            if ($type === 'fixed') {
+                if (!is_null($maxDiscountValue)) {
+                    $validator->errors()->add('max_discount_value', 'Không cần nhập "Số tiền giảm tối đa" khi giảm giá cố định.');
+                }
+            }
 
-    // Kiểm tra ngày
-    if (
-        $request->filled('start_date') && $request->filled('end_date') &&
-        strtotime($request->input('end_date')) < strtotime($request->input('start_date'))
-    ) {
-        $validator->errors()->add('end_date', 'Ngày kết thúc phải sau ngày bắt đầu.');
-    }
-});
+            // Kiểm tra ngày
+            if (
+                $request->filled('start_date') && $request->filled('end_date') &&
+                strtotime($request->input('end_date')) < strtotime($request->input('start_date'))
+            ) {
+                $validator->errors()->add('end_date', 'Ngày kết thúc phải sau ngày bắt đầu.');
+            }
+        });
 
 
         $validator->validate();
@@ -256,54 +258,62 @@ public function index(Request $request)
 
 
 
-    protected function couponData(Request $request)
-    {
-        $data = $request->only([
-            'title',
-            'description',
-            'discount_type',
-            'usage_limit',
-            'user_group',
-            'start_date',
-            'end_date',
-        ]);
+   protected function couponData(Request $request)
+{
+    $data = $request->only([
+        'title',
+        'description',
+        'discount_type',
+        'usage_limit',
+        'user_group',
+        'start_date',
+        'end_date',
+    ]);
 
-        $data['code'] = $request->filled('code')
-            ? trim($request->input('code'))
-            : $this->generateRandomCode();
+    $data['code'] = $request->filled('code')
+        ? trim($request->input('code'))
+        : $this->generateRandomCode();
 
-        $data['is_expired'] = $request->has('is_expired');
-        $data['is_active'] = $request->has('is_active');
-        $data['is_notified'] = $request->has('is_notified');
+    // Checkbox -> boolean
+    $data['is_expired']  = $request->boolean('is_expired');  // = "Có thời hạn"
+    $data['is_active']   = $request->boolean('is_active');
+    $data['is_notified'] = $request->boolean('is_notified');
 
-        // ✅ Sử dụng hàm sanitizeNumber chuẩn hóa
-        $data['discount_value'] = $this->sanitizeNumber($request->input('discount_value'));
+    // Chuẩn hoá số
+    $data['discount_value'] = $this->sanitizeNumber($request->input('discount_value'));
 
-        return $data;
+    // Nếu không có thời hạn -> reset ngày
+    if (!$data['is_expired']) {
+        $data['start_date'] = null;
+        $data['end_date']   = null;
     }
 
-
-
-
-   protected function restrictionData(Request $request)
-{
-    $validProducts = $request->input('valid_products', []);
-
-    // Tìm danh mục từ các sản phẩm được chọn
-    $validCategories = \App\Models\Admin\Product::whereIn('id', $validProducts)
-        ->pluck('category_id')
-        ->unique()
-        ->filter()
-        ->values()
-        ->toArray();
-
-    return [
-        'min_order_value'    => $this->sanitizeNumber($request->input('min_order_value')),
-        'max_discount_value' => $this->sanitizeNumber($request->input('max_discount_value')),
-        'valid_categories'   => $validCategories,
-        'valid_products'     => array_map('intval', (array) $validProducts),
-    ];
+    return $data;
 }
+
+
+
+
+
+    protected function restrictionData(Request $request)
+    {
+        $validProducts = $request->input('valid_products', []);
+
+        // Tìm danh mục từ các sản phẩm được chọn
+        $validCategories = \App\Models\Admin\Product::whereIn('id', $validProducts)
+            ->pluck('category_id')
+            ->unique()
+            ->filter()
+            ->values()
+            ->toArray();
+
+        return [
+            'min_order_value'    => $this->sanitizeNumber($request->input('min_order_value')),
+            'max_discount_value' => $this->sanitizeNumber($request->input('max_discount_value')),
+            'valid_categories'   => $validCategories,
+            'valid_products'     => array_map('intval', (array) $validProducts),
+        ];
+    }
 
 
 
@@ -338,129 +348,145 @@ public function index(Request $request)
 
         return redirect()->route('admin.coupon.trashed')->with('success', 'Mã giảm giá đã được khôi phục thành công!');
     }
-public function show($id)
-{
-    $coupon = Coupon::with('restriction')->findOrFail($id);
+    public function show($id)
+    {
+        $coupon = Coupon::with('restriction')->findOrFail($id);
 
-    // Phạm vi áp dụng
-    $categories = Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
-    $products   = Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
+        // Phạm vi áp dụng
+        $categories = Category::whereIn('id', $coupon->restriction->valid_categories ?? [])->get();
+        $products   = Product::whereIn('id', $coupon->restriction->valid_products ?? [])->get();
 
-    // ====== THỐNG KÊ ======
-    $claimedTotal = DB::table('coupon_user')->where('coupon_id', $coupon->id)->count();
+        // ====== THỐNG KÊ ======
+        $claimedTotal = DB::table('coupon_user')->where('coupon_id', $coupon->id)->count();
 
-    $usedTotal = DB::table('coupon_user')
-        ->where('coupon_id', $coupon->id)
-        ->where(function ($q) {
-            $q->whereNotNull('used_at')->orWhereNotNull('order_id');
-        })
-        ->count();
+        $usedTotal = DB::table('coupon_user')
+            ->where('coupon_id', $coupon->id)
+            ->where(function ($q) {
+                $q->whereNotNull('used_at')->orWhereNotNull('order_id');
+            })
+            ->count();
 
-    $unusedTotal = max(0, $claimedTotal - $usedTotal);
+        $unusedTotal = max(0, $claimedTotal - $usedTotal);
 
-    $revenue = (float) DB::table('coupon_user')
-        ->where('coupon_id', $coupon->id)
-        ->sum('discount_applied');
+        $revenue = (float) DB::table('coupon_user')
+            ->where('coupon_id', $coupon->id)
+            ->sum('discount_applied');
 
-    $usageRate = $claimedTotal > 0 ? round($usedTotal * 100 / $claimedTotal, 1) : 0.0;
+        $usageRate = $claimedTotal > 0 ? round($usedTotal * 100 / $claimedTotal, 1) : 0.0;
 
-    $groupCounts = DB::table('coupon_user')
-        ->select('user_group', DB::raw('COUNT(*) as cnt'))
-        ->where('coupon_id', $coupon->id)
-        ->groupBy('user_group')
-        ->pluck('cnt', 'user_group')
-        ->toArray();
+        $groupCounts = DB::table('coupon_user')
+            ->select('user_group', DB::raw('COUNT(*) as cnt'))
+            ->where('coupon_id', $coupon->id)
+            ->groupBy('user_group')
+            ->pluck('cnt', 'user_group')
+            ->toArray();
 
-    $groupBreakdown = [
-        'guest'  => $groupCounts['guest']  ?? 0,
-        'member' => $groupCounts['member'] ?? 0,
-        'vip'    => $groupCounts['vip']    ?? 0,
-        'khác'   => ($groupCounts[''] ?? 0) + ($groupCounts[null] ?? 0),
-    ];
+        $groupBreakdown = [
+            'guest'  => $groupCounts['guest']  ?? 0,
+            'member' => $groupCounts['member'] ?? 0,
+            'vip'    => $groupCounts['vip']    ?? 0,
+            'khác'   => ($groupCounts[''] ?? 0) + ($groupCounts[null] ?? 0),
+        ];
 
-    $timeline = DB::table('coupon_user')
-        ->select(DB::raw('DATE(COALESCE(used_at, created_at)) as d'), DB::raw('COUNT(*) as cnt'))
-        ->where('coupon_id', $coupon->id)
-        ->where(function ($q) { $q->whereNotNull('used_at')->orWhereNotNull('order_id'); })
-        ->groupBy('d')
-        ->orderBy('d')
-        ->get();
+        $timeline = DB::table('coupon_user')
+            ->select(DB::raw('DATE(COALESCE(used_at, created_at)) as d'), DB::raw('COUNT(*) as cnt'))
+            ->where('coupon_id', $coupon->id)
+            ->where(function ($q) {
+                $q->whereNotNull('used_at')->orWhereNotNull('order_id');
+            })
+            ->groupBy('d')
+            ->orderBy('d')
+            ->get();
 
-    $timelineLabels = $timeline->pluck('d')->map(fn ($d) => \Carbon\Carbon::parse($d)->format('d/m'))->values();
-    $timelineValues = $timeline->pluck('cnt')->values();
+        $timelineLabels = $timeline->pluck('d')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m'))->values();
+        $timelineValues = $timeline->pluck('cnt')->values();
 
-    // ====== Fallback cột orders cho các truy vấn join ======
-    $hasOrderCode   = Schema::hasColumn('orders', 'code');
-    $hasOrderStatus = Schema::hasColumn('orders', 'status') || Schema::hasColumn('orders', 'current_status');
+        // ====== Fallback cột orders cho các truy vấn join ======
+        $hasOrderCode   = Schema::hasColumn('orders', 'code');
+        $hasOrderStatus = Schema::hasColumn('orders', 'status') || Schema::hasColumn('orders', 'current_status');
 
-    // cột tổng tiền có thể là total_amount | total | grand_total
-    $totalCol = null;
-    foreach (['total_amount', 'total', 'grand_total'] as $col) {
-        if (Schema::hasColumn('orders', $col)) { $totalCol = $col; break; }
+        // cột tổng tiền có thể là total_amount | total | grand_total
+        $totalCol = null;
+        foreach (['total_amount', 'total', 'grand_total'] as $col) {
+            if (Schema::hasColumn('orders', $col)) {
+                $totalCol = $col;
+                break;
+            }
+        }
+
+        // ---- recentUsage (join users + orders) ----
+        $recentSelects = [
+            'cu.id',
+            'cu.user_id',
+            'cu.order_id',
+            'cu.code',
+            'cu.discount_applied',
+            'cu.used_at',
+            'cu.created_at',
+            'u.name as user_name',
+            'u.email as user_email',
+        ];
+        $recentSelects[] = $hasOrderCode   ? DB::raw('o.code as order_code')         : DB::raw('NULL as order_code');
+        if (Schema::hasColumn('orders', 'status')) {
+            $recentSelects[] = DB::raw('o.status as order_status');
+        } elseif (Schema::hasColumn('orders', 'current_status')) {
+            $recentSelects[] = DB::raw('o.current_status as order_status');
+        } else {
+            $recentSelects[] = DB::raw('NULL as order_status');
+        }
+        $recentSelects[] = $totalCol ? DB::raw("o.$totalCol as order_total") : DB::raw('NULL as order_total');
+
+        $recentUsage = DB::table('coupon_user as cu')
+            ->leftJoin('users as u', 'u.id', '=', 'cu.user_id')
+            ->leftJoin('orders as o', 'o.id', '=', 'cu.order_id')
+            ->select($recentSelects)
+            ->where('cu.coupon_id', $coupon->id)
+            ->orderByRaw('COALESCE(cu.used_at, cu.updated_at, cu.created_at) DESC')
+            ->limit(10)
+            ->get();
+
+        // ---- ordersUsingCoupon (chỉ các đơn có order_id) ----
+        $ordersSelects = ['o.id', 'cu.discount_applied', 'cu.used_at'];
+        $ordersSelects[] = $hasOrderCode ? 'o.code' : DB::raw('NULL as code');
+
+        if (Schema::hasColumn('orders', 'status')) {
+            $ordersSelects[] = DB::raw('o.status as status');
+        } elseif (Schema::hasColumn('orders', 'current_status')) {
+            $ordersSelects[] = DB::raw('o.current_status as status');
+        } else {
+            $ordersSelects[] = DB::raw('NULL as status');
+        }
+
+        $ordersSelects[] = $totalCol ? DB::raw("o.$totalCol as total_amount") : DB::raw('NULL as total_amount');
+
+        $ordersUsingCoupon = DB::table('coupon_user as cu')
+            ->join('orders as o', 'o.id', '=', 'cu.order_id')
+            ->select($ordersSelects)
+            ->where('cu.coupon_id', $coupon->id)
+            ->orderByDesc('cu.used_at')
+            ->limit(10)
+            ->get();
+
+        $stats = [
+            'claimed_total' => $claimedTotal,
+            'used_total'    => $usedTotal,
+            'unused_total'  => $unusedTotal,
+            'usage_rate'    => $usageRate,
+            'revenue'       => $revenue,
+        ];
+
+        return view('admin.coupons.show', compact(
+            'coupon',
+            'categories',
+            'products',
+            'stats',
+            'groupBreakdown',
+            'timelineLabels',
+            'timelineValues',
+            'recentUsage',
+            'ordersUsingCoupon'
+        ));
     }
-
-    // ---- recentUsage (join users + orders) ----
-    $recentSelects = [
-        'cu.id', 'cu.user_id', 'cu.order_id', 'cu.code',
-        'cu.discount_applied', 'cu.used_at', 'cu.created_at',
-        'u.name as user_name', 'u.email as user_email',
-    ];
-    $recentSelects[] = $hasOrderCode   ? DB::raw('o.code as order_code')         : DB::raw('NULL as order_code');
-    if (Schema::hasColumn('orders', 'status')) {
-        $recentSelects[] = DB::raw('o.status as order_status');
-    } elseif (Schema::hasColumn('orders', 'current_status')) {
-        $recentSelects[] = DB::raw('o.current_status as order_status');
-    } else {
-        $recentSelects[] = DB::raw('NULL as order_status');
-    }
-    $recentSelects[] = $totalCol ? DB::raw("o.$totalCol as order_total") : DB::raw('NULL as order_total');
-
-    $recentUsage = DB::table('coupon_user as cu')
-        ->leftJoin('users as u', 'u.id', '=', 'cu.user_id')
-        ->leftJoin('orders as o', 'o.id', '=', 'cu.order_id')
-        ->select($recentSelects)
-        ->where('cu.coupon_id', $coupon->id)
-        ->orderByRaw('COALESCE(cu.used_at, cu.updated_at, cu.created_at) DESC')
-        ->limit(10)
-        ->get();
-
-    // ---- ordersUsingCoupon (chỉ các đơn có order_id) ----
-    $ordersSelects = ['o.id', 'cu.discount_applied', 'cu.used_at'];
-    $ordersSelects[] = $hasOrderCode ? 'o.code' : DB::raw('NULL as code');
-
-    if (Schema::hasColumn('orders', 'status')) {
-        $ordersSelects[] = DB::raw('o.status as status');
-    } elseif (Schema::hasColumn('orders', 'current_status')) {
-        $ordersSelects[] = DB::raw('o.current_status as status');
-    } else {
-        $ordersSelects[] = DB::raw('NULL as status');
-    }
-
-    $ordersSelects[] = $totalCol ? DB::raw("o.$totalCol as total_amount") : DB::raw('NULL as total_amount');
-
-    $ordersUsingCoupon = DB::table('coupon_user as cu')
-        ->join('orders as o', 'o.id', '=', 'cu.order_id')
-        ->select($ordersSelects)
-        ->where('cu.coupon_id', $coupon->id)
-        ->orderByDesc('cu.used_at')
-        ->limit(10)
-        ->get();
-
-    $stats = [
-        'claimed_total' => $claimedTotal,
-        'used_total'    => $usedTotal,
-        'unused_total'  => $unusedTotal,
-        'usage_rate'    => $usageRate,
-        'revenue'       => $revenue,
-    ];
-
-    return view('admin.coupons.show', compact(
-        'coupon', 'categories', 'products',
-        'stats', 'groupBreakdown',
-        'timelineLabels', 'timelineValues',
-        'recentUsage', 'ordersUsingCoupon'
-    ));
-}
 
 
     protected function generateRandomCode($length = 8)
@@ -542,28 +568,26 @@ public function show($id)
         }
     }
     public function bulkRestore(Request $request)
-{
-    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
-    if (empty($ids)) return back()->with('success', 'Không có mục nào được chọn.');
+    {
+        $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
+        if (empty($ids)) return back()->with('success', 'Không có mục nào được chọn.');
 
-    $restored = Coupon::onlyTrashed()->whereIn('id', $ids)->restore();
-    return back()->with('success', "Đã khôi phục {$restored} mã.");
-}
-
-public function bulkDestroy(Request $request)
-{
-    // Lấy danh sách id hợp lệ
-    $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
-
-    if (empty($ids)) {
-        return back()->with('warning', 'Không có mục nào được chọn.');
+        $restored = Coupon::onlyTrashed()->whereIn('id', $ids)->restore();
+        return back()->with('success', "Đã khôi phục {$restored} mã.");
     }
 
-    // Soft delete hàng loạt
-    $deleted = Coupon::whereIn('id', $ids)->delete();
+    public function bulkDestroy(Request $request)
+    {
+        // Lấy danh sách id hợp lệ
+        $ids = array_filter((array) $request->input('ids', []), 'is_numeric');
 
-    return back()->with('success', "Đã xóa thành công {$deleted} mã giảm giá.");
-}
+        if (empty($ids)) {
+            return back()->with('warning', 'Không có mục nào được chọn.');
+        }
 
+        // Soft delete hàng loạt
+        $deleted = Coupon::whereIn('id', $ids)->delete();
 
+        return back()->with('success', "Đã xóa thành công {$deleted} mã giảm giá.");
+    }
 }
