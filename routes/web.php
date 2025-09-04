@@ -310,6 +310,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin', 'check.user.status'
 
     // Quản lý biến thể sản phẩm
     Route::prefix('products/{product}')->name('products.')->group(function () {
+    Route::resource('variants', ProductVariantController::class);
+});
+    Route::prefix('products/{product}')->name('products.')->group(function () {
         Route::resource('variants', ProductVariantController::class)->except(['show']);
     });
 

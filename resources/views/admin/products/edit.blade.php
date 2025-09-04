@@ -553,25 +553,32 @@
             const variantId = button.data('variant-id');
 
             $.ajax({
-                url: `{{ url('admin/products/variants') }}/${variantId}`,
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        row.remove();
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error('Lỗi khi xóa biến thể: ' + response.message);
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error('Lỗi server: ' + (xhr.responseJSON.message ||
-                        'Có lỗi xảy ra.'));
+        url: `{{ url('admin/products') }}/{{ $product->id }}/variants/${variantId}`,
+        type: 'DELETE',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                row.remove();
+                toastr.success(response.message);
+                
+                // Nếu không còn biến thể nào, hiển thị thông báo
+                if ($('#existing-variants-table-body tr').length === 0) {
+                    $('#existing-variants-table-body').html(
+                        '<tr><td colspan="10" class="text-center text-muted">Sản phẩm này chưa có biến thể nào.</td></tr>'
+                    );
                 }
-            });
-        });
+            } else {
+                toastr.error('Lỗi khi xóa biến thể: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            toastr.error('Lỗi server: ' + (xhr.responseJSON?.message || 'Có lỗi xảy ra.'));
+        }
+    });
+});
 
         // Thêm biến thể mới
         let newVariantCount = 0;

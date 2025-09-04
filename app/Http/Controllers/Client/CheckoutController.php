@@ -859,10 +859,6 @@ class CheckoutController extends Controller
             throw $e;
         }
     }
-
-
-
-
     protected function getOrderDataFromCache($orderCode)
     {
         // Implement cache mechanism nếu cần

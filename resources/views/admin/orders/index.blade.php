@@ -169,7 +169,10 @@
                                     <span class="d-block">{{ $order->fullname }}</span>
                                     <i class="fas fa-chevron-down toggle-icon ms-2"></i>
                                 </td>
-                                <td>{{ number_format($order->total_amount, 0, ',', '.') }} đ</td>
+                               
+
+                                <td>{{ number_format( $order->total_amount, 0, ',', '.') }} đ</td>
+
                                 <td>
                                     @if($order->payment_id == '2')
                                         <span class="badge bg-success">COD</span>
@@ -214,7 +217,7 @@
                                         <p class="mb-1"><strong>Ghi chú:</strong> {{ $order->note }}</p>
                                         @endif
                                         {{-- <h6 class="fw-bold mt-3 mb-2">Sản phẩm:</h6>
-                                        @if($order->orderItems?->isNotEmpty())
+                                        @if($order->orderItems?->isNotEmpt  y())
                                             <ul class="list-unstyled mb-0">
                                                 @foreach($order->orderItems as $item)
                                                     <li>- {{ $item->product_name }} ({{ $item->quantity }} x {{ number_format($item->price, 0, ',', '.') }} đ)</li>
@@ -250,11 +253,14 @@
                                             <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
                                         @endif
                                     </td>
-                                    <td>{{ number_format($item->variant->price, 0, ',', '.') }} đ</td>
-                                    <td>{{ $item->quantity }}</td>
+                                    <td>Giá/1sp: {{ number_format($item->variant->price, 0, ',', '.') }} đ</td>
+                                    <td>SL: {{ $item->quantity }}</td>
                                     <td class="fw-bold">
-                                        {{ number_format($item->variant->price * $item->quantity, 0, ',', '.') }} đ
+                                        Thành tiền: {{ number_format($item->variant->price * $item->quantity, 0, ',', '.') }} đ
                                     </td>
+                                    @if($order->refunds->flatMap->items->sum('quantity') > 0)
+                                  <td class="fw-bold" style="color: red">Số Lượng sp Hoàn : {{$order->refunds->flatMap->items->sum('quantity');}} sp</td> 
+                                    @endif
                                 </tr>
                                 @endforeach
                                         

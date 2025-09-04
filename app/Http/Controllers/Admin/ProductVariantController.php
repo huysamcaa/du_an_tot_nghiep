@@ -116,11 +116,28 @@ class ProductVariantController extends Controller
     }
 
     public function destroy(Product $product, ProductVariant $variant)
-    {
-        // Thay vì xóa mềm -> set inactive
-        $variant->update(['is_active' => 0]);
-        return back()->with('success', 'Biến thể đã bị tắt');
+{
+    // Xóa ảnh thumbnail nếu có
+    if ($variant->thumbnail) {
+        Storage::delete($variant->thumbnail);
     }
+    
+    // Xóa các relationship trước (nếu cần)
+    $variant->attributeValues()->detach();
+    
+    // Xóa biến thể
+    $variant->delete();
+    
+    // Trả về JSON response cho AJAX request
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Biến thể đã được xóa thành công.'
+        ]);
+    }
+    
+    return back()->with('success', 'Biến thể đã được xóa thành công.');
+}
 
     public function restore(Product $product, $variantId)
     {

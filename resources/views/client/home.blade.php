@@ -629,7 +629,7 @@
                                 @php
                                     $totalItems = $category->children->sum('direct_products_count');
                                 @endphp
-                                <p>{{ $totalItems }} Items</p>
+                                <p>{{ $totalItems }} Sản phẩm</p>
                             </div>
                             @endforeach
                         </div>
