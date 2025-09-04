@@ -43,6 +43,10 @@ class AdminController extends Controller
         $diffInDays = $from && $to ? $from->diffInDays($to) : null;
         // Lấy các order_id đã hoàn thành
         $orderCompletedStatusId = DB::table('order_statuses')->where('name', 'Đã hoàn thành')->value('id');
+        $refundsSub = DB::table('refunds')
+            ->where('status', 'completed') // tùy nghiệp vụ: chỉ tính hoàn đã hoàn tất
+            ->select('order_id', DB::raw('SUM(total_amount) AS total_refund'))
+            ->groupBy('order_id');
 
         $completedOrderIds = DB::table('orders')
             ->join('order_order_status', function ($join) use ($orderCompletedStatusId) {
@@ -165,7 +169,9 @@ class AdminController extends Controller
         if ($from && $to) {
             $allTimeOrders->whereBetween('created_at', [$from, $to]);
         }
-        $revenue    = $allTimeOrders->sum('total_amount');
+        $revenue = $allTimeOrders
+            ->leftJoinSub($refundsSub, 'r', 'orders.id', '=', 'r.order_id')
+            ->sum(DB::raw('orders.total_amount - COALESCE(r.total_refund, 0)'));
         $orderCount = $allTimeOrders->count();
 
 
