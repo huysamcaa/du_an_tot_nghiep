@@ -1,9 +1,10 @@
 @foreach ($cartItems as $item)
     <div class="cartWidgetProduct">
         <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}"
+
             alt="ảnh" style="height:70%; width:auto"/>
         <a
-            href="{{ route('product.detail', ['id' => $item->product->id]) }}">{{ $item->product->name }}</a>
+            href="{{ route('product.detail', ['id' => $item->product->id]) }}" style="font-size: small;">{{ $item->product->name }}</a>
         <div class="cartProductPrice clearfix">
             @php
             $variant = $item->variant;
@@ -18,9 +19,8 @@
             class="cartRemoveProducts"><i class="fa-solid fa-xmark"></i></a>
     </div>
 @endforeach
-<div class="totalPrice" id="cart-total">Subtotal: <span
+<div class="totalPrice" id="cart-total">Tổng tiền: <span
         class="price">{{ number_format($total) }}đ</span></div>
 <div class="cartWidgetBTN clearfix">
-    <a class="cart" href="{{ route('cart.index') }}">View Cart</a>
-    <a class="checkout" href="{{ route('checkout') }}">Checkout</a>
+    <a class="checkout" href="{{ route('checkout') }}">Giỏ hàng</a>
 </div>

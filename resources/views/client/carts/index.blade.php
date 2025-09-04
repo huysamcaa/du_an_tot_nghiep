@@ -78,9 +78,10 @@
                         <thead>
                             <tr>
                                 <th class="product-select" style="width:10%"><input type="checkbox" id="select-all" > Chọn</th>
-                                <th class="product-name" style="text-align: center">Ảnh</th>
-                                <th class="product-thumbnail" style="text-align: center">Tên sản phẩm</th>
-                                <th class="product-variation">Phân loại</th>
+                                <th class="product-name" style="width:10px; text-align:center">Ảnh</th>
+                                <th class="product-thumbnail" style="width:25%">Tên sản phẩm</th>
+                                <th class="product-variation" style="width:15%">Phân loại</th>
+
                                 <th class="product-price">Giá tiền</th>
                                 <th class="product-quantity">Số lượng</th>
                                 <th class="product-subtotal">Tổng tiền</th>
