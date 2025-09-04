@@ -243,11 +243,6 @@
                                                         <i class="fas fa-map-marker-alt me-1"></i>Đổi địa chỉ nhận hàng
                                                     </a>
                                                 @endif
-
-                                                <button class="btn btn-outline-success btn-sm action-btn">
-                                                    <i class="fas fa-comments me-1"></i>Chat
-                                                </button>
-
                                                 @if ($statusClass === 'completed')
                                                     @php
                                                         $orderId = (int) $order->id;

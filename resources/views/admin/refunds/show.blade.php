@@ -299,53 +299,67 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     jQuery(document).ready(function($) {
-        const statusSelect     = $('#status');
+        const statusSelect = $('#status');
         const bankStatusSelect = $('#bank_account_status');
-        const imgUploadGroup   = $('#img_upload_group');
-        const imgUploadLabel   = $('#img_upload_label');
+        const imgUploadGroup = $('#img_upload_group');
+        const imgUploadLabel = $('#img_upload_label');
         const adminReasonGroup = $('#admin_reason_group');
-        const failReasonGroup  = $('#fail_reason_group');
-        const imgInput         = $('#img_fail_or_completed');
+        const failReasonGroup = $('#fail_reason_group');
+        const imgInput = $('#img_fail_or_completed');
 
         function updateFormState() {
-        const currentStatus = statusSelect.val();
+            const currentStatus = statusSelect.val();
+            const currentBankStatus = bankStatusSelect.val();
+            // reset
+            adminReasonGroup.hide();
+            failReasonGroup.hide();
+            imgUploadGroup.hide();
+            imgInput.prop('required', false);
+            bankStatusSelect.prop('disabled', false); // reset dropdown bank
 
-        // reset
-        adminReasonGroup.hide();
-        failReasonGroup.hide();
-        imgUploadGroup.hide();
-        imgInput.prop('required', false);
-        bankStatusSelect.prop('disabled', false); // reset dropdown bank
+            switch (currentStatus) {
+                case 'completed':
+                    if (currentBankStatus !== 'verified') {
+                        // Thay thế alert() bằng SweetAlert2
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Không thể cập nhật!',
+                            text: 'Vui lòng kiểm tra trạng thái tài khoản ngân hàng thành "Đã xác minh" trước.',
+                            confirmButtonText: 'Đã hiểu'
+                        });
 
-        switch (currentStatus) {
-            case 'completed':
-                imgUploadGroup.show();
-                imgUploadLabel.html('Ảnh chuyển khoản <span class="text-danger">*</span>');
-                imgInput.prop('required', true);
+                        // Trả lại trạng thái ban đầu để người dùng không thể chọn sai
+                        statusSelect.val('{{ $refund->status }}');
+                        return; // Ngăn không cho logic phía dưới chạy tiếp
+                    }
 
-                // auto set bank_account_status = 'sent' và disable select
-                bankStatusSelect.val('sent').prop('disabled', true);
-                break;
+                    imgUploadGroup.show();
+                    imgUploadLabel.html('Ảnh chuyển khoản <span class="text-danger">*</span>');
+                    imgInput.prop('required', true);
 
-            case 'failed':
-                failReasonGroup.show();
-                imgUploadGroup.show();
-                imgUploadLabel.html('Ảnh chứng minh thất bại <span class="text-danger">*</span>');
-                imgInput.prop('required', true);
-                break;
+                    // auto set bank_account_status = 'sent' và disable select
+                    bankStatusSelect.val('sent').prop('disabled', true);
+                    break;
 
-            case 'rejected':
-                adminReasonGroup.show();
-                break;
+                case 'failed':
+                    failReasonGroup.show();
+                    imgUploadGroup.show();
+                    imgUploadLabel.html('Ảnh chứng minh thất bại <span class="text-danger">*</span>');
+                    imgInput.prop('required', true);
+                    break;
 
-            default:
-                // các trạng thái khác, cho phép chỉnh bank bình thường
-                break;
+                case 'rejected':
+                    adminReasonGroup.show();
+                    break;
+
+                default:
+                    // các trạng thái khác, cho phép chỉnh bank bình thường
+                    break;
+            }
         }
-    }
-
 
         statusSelect.on('change', updateFormState);
 

@@ -105,14 +105,14 @@
                                     $isOutOfStock = $item->variant->stock == 0;
                                 } else {
                                     // Nếu không có biến thể
-                                    $price = $item->product->is_sale
-                                        ? $item->product->sale_price
-                                        : $item->product->price;
+                                    $price = $item->variant->is_sale
+                                        ? $item->variant->sale_price
+                                        : $item->variant->price;
 
-                                    // Nếu bảng products có cột stock thì dùng, không thì để false
-                                    $isOutOfStock = property_exists($item->product, 'stock')
-                                        ? $item->product->stock == 0
-                                        : false;
+                                    // // Nếu bảng products có cột stock thì dùng, không thì để false
+                                    // $isOutOfStock = property_exists($item->product, 'stock')
+                                    //     ? $item->product->stock == 0
+                                    //     : false;
                                 }
 
                                 $total += $price * $item->quantity;
