@@ -61,13 +61,16 @@ class OrderController extends Controller
         }
     }
 
-    // Filter by amount range
-    if ($request->has('min_amount') && $request->min_amount != '') {
-        $query->where('total_amount', '>=', $request->min_amount);
-    }
-    if ($request->has('max_amount') && $request->max_amount != '') {
-        $query->where('total_amount', '<=', $request->max_amount);
-    }
+    // Filter by amount range (after deducting refunds)
+        if ($request->has('min_amount') && $request->min_amount != '') {
+            $query->whereRaw('(total_amount - COALESCE((SELECT SUM(total_amount) FROM refunds WHERE refunds.order_id = orders.id AND refunds.status = "completed"), 0)) >= ?', [$request->min_amount]);
+        }   
+
+        if ($request->has('max_amount') && $request->max_amount != '') {
+            $query->whereRaw('(total_amount - COALESCE((SELECT SUM(total_amount) FROM refunds WHERE refunds.order_id = orders.id AND refunds.status = "completed"), 0)) <= ?', [$request->max_amount]);
+        }
+
+    
 
     // Filter by city
     if ($request->has('city') && $request->city != '') {
@@ -231,20 +234,6 @@ class OrderController extends Controller
                 }
             }
         }
-
-            // if ($request->order_status_id == 6) {
-            //     $order = Order::with('items.variant')->findOrFail($orderId);
-            //     foreach ($order->items as $item) {
-            //         if (!$item->variant) {
-            //             $connection->rollBack();
-            //             return back()->with('error', 'Sản phẩm không tồn tại!');
-            //         }
-
-            //         $item->variant->stock += $item->quantity;
-            //         $item->variant->save();
-            //     }
-            // }
-
             OrderOrderStatus::where('order_id', $orderId)->update(['is_current' => 0]);
 
             OrderOrderStatus::create([
@@ -533,10 +522,6 @@ public function showCancelForm2($orderId)
 }
 public function showConfirmRefund(Order $order)
     {
-
-
-
-
         // Load các quan hệ cần thiết với select tối ưu
         $order->load([
             'user:id,name',

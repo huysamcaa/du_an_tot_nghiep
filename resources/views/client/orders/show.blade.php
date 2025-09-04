@@ -208,7 +208,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-end py-3 text-dark price-cell">
+                                    {{-- <td class="text-end py-3 text-dark price-cell">
                                         @if($item->variant->sale_price && $item->variant->sale_price < $item->variant->price)
                                             <span class="text-decoration-line-through text-muted me-2">{{ number_format($item->variant->price) }}₫</span>
                                             <span class="text-danger fw-bold">{{ number_format($item->variant->sale_price) }}₫</span>
@@ -216,6 +216,12 @@
                                         
                                             {{ number_format($item->variant->price) }}₫
                                         @endif
+                                    </td> --}}
+                                    <td class="text-end py-3 text-dark price-cell">
+                                        
+                                        
+                                            {{ number_format($item->price) }}₫
+                                        
                                     </td>
                                     <td class="text-center py-3 text-dark">{{ $item->quantity }}</td>
                                     <td class="text-end pe-4 py-3 fw-bold text-primary">{{ number_format($item->price * $item->quantity) }}₫</td>

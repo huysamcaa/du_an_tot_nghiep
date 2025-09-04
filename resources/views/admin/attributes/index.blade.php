@@ -72,7 +72,7 @@
                             <td>{{ $attr->id }}</td>
                             <td>{{ $attr->name }}</td>
                             <td>{{ $attr->slug }}</td>
-                            
+
                             <td>
                                 <span class="badge bg-{{ $attr->is_active ? 'success' : 'danger' }}">
                                     {{ $attr->is_active ? 'Hiển thị' : 'Ẩn' }}
@@ -80,17 +80,17 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('admin.attributes.edit', $attr) }}" 
-                                       class="btn btn-sm btn-warning" title="Sửa">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('admin.attributes.edit', $attr) }}"
+                                       class="" title="Sửa">
+                                        <img src="{{ asset('assets/admin/img/icons/edit.svg') }}" alt="Sửa">
                                     </a>
-                                    <form action="{{ route('admin.attributes.destroy', $attr) }}" 
-                                          method="POST" 
+                                    <form action="{{ route('admin.attributes.destroy', $attr) }}"
+                                          method="POST"
                                           onsubmit="return confirm('Bạn có chắc muốn xóa thuộc tính này?')">
-                                        @csrf 
+                                        @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
-                                            <i class="fas fa-trash-alt"></i>
+                                        <button type="submit" class="btn btn-link p-0" title="Xóa">
+                                            <img src="{{ asset('assets/admin/img/icons/delete.svg') }}" alt="Xóa">
                                         </button>
                                     </form>
                                 </div>

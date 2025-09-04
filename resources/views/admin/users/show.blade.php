@@ -115,77 +115,56 @@
                 </div>
 
                 {{-- PHẢI: Thống kê & Đơn hàng gần đây (mô phỏng box phải của sản phẩm) --}}
-                <div class="col-lg-4">
-                    <div class="card mb-4 shadow-sm sticky-top" style="top: 100px;">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="fa fa-chart-line me-2"></i>Thống kê & Đơn hàng</h5>
-                        </div>
+               <div class="col-lg-4">
+    <div class="card mb-4 shadow-sm sticky-top" style="top: 100px;">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fa fa-history me-2"></i>Đơn hàng gần đây</h5>
+        </div>
+        <div class="card-body">
+            @if(empty($recentOrders) || $recentOrders->isEmpty())
+                <div class="alert alert-info mb-0 text-center">
+                    Chưa có đơn hàng nào cho người dùng này
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($recentOrders as $o)
+                            @php
+                                $isPaid  = (bool)($o->is_paid ?? false);
+                                $isRf    = (bool)($o->is_refund ?? false);
+                                $statusText  = $isRf ? 'Đã hoàn' : ($isPaid ? 'Đã thanh toán' : 'Chưa thanh toán');
+                                $statusClass = $isRf ? 'bg-danger' : ($isPaid ? 'bg-success' : 'bg-secondary');
+                            @endphp
+                            <tr>
+                                <td>
+                                    @if(Route::has('admin.orders.show'))
+                                        <a href="{{ route('admin.orders.show', $o->id) }}" class="text-primary">
+                                            #{{ $o->code ?? $o->id }}
+                                        </a>
+                                    @else
+                                        #{{ $o->code ?? $o->id }}
+                                    @endif
+                                </td>
+                                <td>{{ optional($o->created_at)->format('d/m/Y H:i') }}</td>
+                                <td><span class="badge {{ $statusClass }}">{{ $statusText }}</span></td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
 
-                        <div class="card-body">
-                            {{-- Tiles thống kê --}}
-                            <div class="row g-3 text-center mb-4">
-                                @foreach([
-                                    ['icon'=>'shopping-cart','label'=>'Tổng đơn','value'=>$stats['orders_total'],'color'=>'primary'],
-                                    ['icon'=>'check-circle','label'=>'Đã mua','value'=>$stats['orders_completed'],'color'=>'success'],
-                                    ['icon'=>'dollar-sign','label'=>'Chi tiêu','value'=>number_format($stats['spent_total'],0,',','.') . ' đ','color'=>'warning'],
-                                  ['icon'=>'ticket','label'=>'Mã giảm giá đã dùng','value'=>($stats['coupons_used'] ?? 0),'color'=>'info'],
-                                ] as $s)
-                                    <div class="col-6">
-                                        <div class="border rounded p-3">
-                                            <i class="fa fa-{{ $s['icon'] }} fs-4 text-{{ $s['color'] }} mb-2"></i>
-                                            <div class="text-muted">{{ $s['label'] }}</div>
-                                            <div class="fw-bold fs-5">{{ $s['value'] }}</div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <hr class="my-4">
-
-                            {{-- Đơn hàng gần đây --}}
-                            <h6 class="text-muted mb-2"><i class="fa fa-history me-2"></i>Đơn hàng gần đây</h6>
-
-                            @if($recentOrders->isEmpty())
-                                <div class="alert alert-info mb-0 text-center">Chưa có đơn hàng nào cho người dùng này</div>
-                            @else
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover mb-0">
-                                        <thead class="table-light">
-                                        <tr>
-                                            <th>Mã đơn</th>
-                                            <th>Thời gian</th>
-                                            <th>Trạng thái</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($recentOrders as $o)
-                                            @php
-                                                $isPaid  = (bool)($o->is_paid ?? false);
-                                                $isRf    = (bool)($o->is_refund ?? false);
-                                                $statusText  = $isRf ? 'Đã hoàn' : ($isPaid ? 'Đã thanh toán' : 'Chưa thanh toán');
-                                                $statusClass = $isRf ? 'bg-danger' : ($isPaid ? 'bg-success' : 'bg-secondary');
-                                            @endphp
-                                            <tr>
-                                                <td>
-                                                    @if(Route::has('admin.orders.show'))
-                                                        <a href="{{ route('admin.orders.show', $o->id) }}" class="text-primary">
-                                                            #{{ $o->code ?? $o->id }}
-                                                        </a>
-                                                    @else
-                                                        #{{ $o->code ?? $o->id }}
-                                                    @endif
-                                                </td>
-                                                <td>{{ optional($o->created_at)->format('d/m/Y H:i') }}</td>
-                                                <td><span class="badge {{ $statusClass }}">{{ $statusText }}</span></td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div> {{-- /col-right --}}
             </div>
         </div>
     </div>

@@ -170,13 +170,13 @@ class ProductController extends Controller
     {
         $product->load(['cartItems', 'orderItems']);
 
-        // Ngăn đổi tên nếu đã có trong giỏ hoặc đơn hàng
-        if (
-            $request->name !== $product->name &&
-            ($product->cartItems()->exists() || $product->orderItems()->exists())
-        ) {
-            return redirect()->back()->with('error', 'Không thể đổi tên sản phẩm đã có trong giỏ hàng hoặc đơn hàng!');
-        }
+        // // Ngăn đổi tên nếu đã có trong giỏ hoặc đơn hàng
+        // if (
+        //     $request->name !== $product->name &&
+        //     ($product->cartItems()->exists() || $product->orderItems()->exists())
+        // ) {
+        //     return redirect()->back()->with('error', 'Không thể đổi tên sản phẩm đã có trong giỏ hàng hoặc đơn hàng!');
+        // }
 
         // Validate dữ liệu
         $data = $request->validate([
@@ -459,10 +459,10 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Nếu sản phẩm đã từng có trong đơn hàng, không cho xóa cứng
-        if ($product->orderItems()->exists()) {
-            return redirect()->back()->with('error', 'Không thể xóa sản phẩm đã có trong đơn hàng!');
-        }
+        // // Nếu sản phẩm đã từng có trong đơn hàng, không cho xóa cứng
+        // if ($product->orderItems()->exists()) {
+        //     return redirect()->back()->with('error', 'Không thể xóa sản phẩm đã có trong đơn hàng!');
+        // }
 
         if ($product->stock > 0) {
             return redirect()->back()->with('error', 'Không thể xóa sản phẩm  vẫn còn số lượng!');

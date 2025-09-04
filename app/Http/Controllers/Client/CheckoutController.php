@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
+
 class CheckoutController extends Controller
 {
     // Cấu hình MoMo
@@ -1482,7 +1483,7 @@ class CheckoutController extends Controller
     {
         $userId = auth()->id();
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $order = \App\Models\Shared\Order::where('code', $code)
                 ->where('user_id', $userId)
@@ -1508,12 +1509,12 @@ class CheckoutController extends Controller
                 'created_at'      => now(),
             ]);
 
-            \DB::commit();
+            DB::commit();
             return redirect()->route('client.orders.show', $order->code)
                 ->with('info', 'Đã huỷ đơn và hoàn lại mã (nếu có).');
         } catch (\Throwable $e) {
-            \DB::rollBack();
-            \Log::error('cancelOrder failed: ' . $e->getMessage(), ['code' => $code, 'user_id' => $userId]);
+            DB::rollBack();
+            Log::error('cancelOrder failed: ' . $e->getMessage(), ['code' => $code, 'user_id' => $userId]);
             return back()->with('error', 'Huỷ đơn thất bại: ' . $e->getMessage());
         }
     }

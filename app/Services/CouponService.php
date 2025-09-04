@@ -239,13 +239,12 @@ class CouponService
                 $q->whereNull('user_group')
                     ->orWhere('user_group', $user->user_group ?? 'guest');
             })
-            ->where('is_active', 1) // 🔥 thêm
+            ->where('is_active', 1) 
             ->where(function ($q) {
                 $q->whereNull('end_date')
                     ->orWhere('end_date', '>=', now());
             })
-            ->get(['id', 'code', 'title', 'usage_limit', 'usage_count']); // 🔥 lấy thêm quota
-
+            ->get(['id', 'code', 'title', 'usage_limit', 'usage_count']);
         // 2) Claimed: còn hạn theo snapshot NGÀY
         $claimed = DB::table('coupon_user as cu')
             ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
@@ -254,7 +253,7 @@ class CouponService
                 $q->whereNull('cu.end_date')
                     ->orWhere('cu.end_date', '>=', now());
             })
-            ->get(['c.id', 'c.code', 'c.title', 'c.usage_limit', 'c.usage_count']); // 🔥 quota
+            ->get(['c.id', 'c.code', 'c.title', 'c.usage_limit', 'c.usage_count']);
 
         // 3) Gộp + bỏ những mã đã dùng
         $candidates = collect($public)->concat($claimed)

@@ -39,6 +39,20 @@ class UserAddressController extends Controller
      */
     public function store(Request $request)
     {
+        // Lấy người dùng hiện tại
+        $user = Auth::user();
+
+        // Đếm số lượng địa chỉ hiện có của người dùng
+        $addressCount = $user->addresses()->count();
+
+        // Định nghĩa giới hạn
+        $addressLimit = 5;
+
+        // Kiểm tra nếu người dùng đã đạt đến giới hạn
+        if ($addressCount >= $addressLimit) {
+            return back()->with('error', 'Bạn chỉ có thể thêm tối đa 5 địa chỉ giao hàng.');
+        }
+        
         $request->validate([
             'fullname'     => 'required|string|max:100',
             'phone_number' => ['required', 'regex:/^0[0-9]{9}$/'],

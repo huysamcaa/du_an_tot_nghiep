@@ -131,80 +131,108 @@
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th width="80">Hình ảnh</th>
-                                        <th>Sản phẩm</th>
-                                        <th width="120">Giá</th>
-                                        <th width="100">SL</th>
-                                        <th width="150">Tổng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $subtotal = 0;
-                                        $shippingFee = $order->shipping_fee ?? 30000;
-                                    @endphp
+    <thead class="table-light">
+        <tr>
+            <th width="80">Hình ảnh</th>
+            <th>Sản phẩm</th>
+            <th width="120">Giá</th>
+            <th width="100">SL</th>
+            <th width="150">Tổng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php
+            $subtotal = 0;
+            $shippingFee = $order->shipping_fee ?? 30000;
+        @endphp
+        @foreach ($order->items as $item)
+            @php
+                $itemPrice = $item->variant->price ?? ($item->price ?? 0);
+                $itemTotal = $itemPrice * $item->quantity;
+                $subtotal += $itemTotal;
+            @endphp
+            <tr>
+                <td>
+                    <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? '')) }}"
+                         width="60" class="img-thumbnail">
+                </td>
+                <td>
+                    <div class="fw-bold">{{ $item->name }}</div>
+                    @isset($item->attributes_variant)
+                        @foreach ($item->attributes_variant as $key => $variant)
+                            <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span>
+                            @if (!$loop->last)
+                                |
+                            @endif
+                        @endforeach
+                    @endisset
+                    @php
+                        $product = \App\Models\Admin\Product::find($item->product_id);
+                    @endphp
+                    @if ($product)
+                        <div class="small text-muted">Thương hiệu: {{ $product->brand->name ?? 'N/A' }}</div>
+                    @endif
+                </td>
+                <td>{{ number_format($itemPrice, 0, ',', '.') }} đ</td>
+                <td>{{ $item->quantity }}</td>
+                <td class="fw-bold">{{ number_format($itemTotal, 0, ',', '.') }} đ</td>
+            </tr>
+        @endforeach
+    </tbody>
+    <tfoot class="table-light">
+        <tr>
+            <th colspan="4" class="text-end">Tạm tính:</th>
+            <th>{{ number_format($subtotal, 0, ',', '.') }} đ</th>
+        </tr>
+        <tr>
+            <th colspan="4" class="text-end">Phí vận chuyển:</th>
+            <th>{{ number_format($shippingFee, 0, ',', '.') }} đ</th>
+        </tr>
+        @if ($order->coupon_code)
+            <tr>
+                <th colspan="4" class="text-end">Mã giảm giá ({{ $order->coupon_code }}):</th>
+                <th>- {{ number_format($order->coupon_discount_value, 0, ',', '.') }} đ</th>
+            </tr>
+        @endif
+        <tr>
+            <th colspan="4" class="text-end">Tổng cộng:</th>
+            <th>{{ number_format($item->variant->price * $item->quantity, 0, ',', '.') }} đ</th>
+        </tr>
 
-                                    @foreach ($order->items as $item)
-                                        @php
-                                            $product = \App\Models\Admin\Product::find($item->product_id);
-                                            $itemPrice = $item->variant->price ?? ($item->price ?? 0);
-                                            $itemTotal = $itemPrice * $item->quantity;
-                                            $subtotal += $itemTotal;
-                                        @endphp
-                                        <tr>
-                                            <td>
+        @php
+            $totalRefundQuantity = $order->refunds->flatMap->items->sum('quantity');
+            $refundAmount = $order->refunds()->where('status', 'completed')->sum('total_amount');
+            $finalAmount = $order->total_amount - $refundAmount;
+        @endphp
 
-                                                <img src="{{ asset('storage/' . $item->variant->thumbnail) }}"
-                                                    width="60" class="img-thumbnail">
-
-                                            </td>
-                                            <td>
-                                                <div class="fw-bold">{{ $item->name }}</div>
-
-                                                {{-- Hiển thị thông tin biến thể nếu có --}}
-                                                @isset($item->attributes_variant)
-                                                    @foreach ($item->attributes_variant as $key => $variant)
-                                                        <span>{{ $variant['attribute_name'] }}: {{ $variant['value'] }}</span>
-                                                        |
-                                                    @endforeach
-                                                @endisset
-
-                                                @if ($product)
-                                                    <div class="small text-muted">Thương hiệu:
-                                                        {{ $product->brand->name ?? 'N/A' }}</div>
-                                                @endif
-                                            </td>
-                                            <td>{{ number_format($itemPrice, 0, ',', '.') }} đ</td>
-                                            <td>{{ $item->quantity }}</td>
-                                            <td class="fw-bold">
-                                                {{ number_format($itemTotal, 0, ',', '.') }} đ
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <th colspan="4" class="text-end">Tạm tính:</th>
-                                        <th>{{ number_format($subtotal, 0, ',', '.') }} đ</th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="4" class="text-end">Phí vận chuyển:</th>
-                                        <th>30.000 đ</th>
-                                    </tr>
-                                    @if ($order->coupon_code)
-                                        <tr>
-                                            <th colspan="4" class="text-end">Mã giảm giá ({{ $order->coupon_code }}):
-                                            </th>
-                                            <th>- {{ number_format($order->coupon_discount_value, 0, ',', '.') }} đ</th>
-                                        </tr>
-                                    @endif
-                                    <tr>
-                                        <th colspan="4" class="text-end">Tổng cộng:</th>
-                                        <th>{{ number_format($order->total_amount, 0, ',', '.') }} đ</th>
-                                    </tr>
-                                </tfoot>
+        @if ($totalRefundQuantity > 0)
+            <tr>
+                <th colspan="4" class="text-end" style="color: red;">Tổng sản phẩm hoàn:</th>
+                <th style="color: red;">{{ $totalRefundQuantity }} sp</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="text-end" style="color: red;">Số tiền hoàn:</th>
+                <th style="color: red;">{{ number_format($refundAmount, 0, ',', '.') }} đ</th>
+            </tr>
+            {{-- Lặp qua từng lý do hoàn tiền nếu có nhiều lần hoàn --}}
+            @foreach($order->refunds as $refund)
+            <tr>
+                <th colspan="4" class="text-end" style="color: red;">Lý do hoàn ({{ $refund->id ?? '' }}):</th>
+                <th style="color: red;">{{ $refund->reason ?? 'N/A' }}</th>
+            </tr>
+           
+            @endforeach
+            <tr>
+                <th colspan="4" class="text-end" style="color: blue;">Tổng tiền thực nhận:</th>
+                <th style="color: blue;">{{ number_format($finalAmount, 0, ',', '.') }} đ</th>
+            </tr>
+        @endif
+    </tfoot>
+</table>
+                            <table>
+                                
+                               
+                              
                             </table>
                         </div>
                     </div>

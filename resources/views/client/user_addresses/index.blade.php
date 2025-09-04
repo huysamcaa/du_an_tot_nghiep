@@ -285,7 +285,7 @@
         });
     </script>
 @endif
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {{-- Script để tự động tải phường/xã khi thay đổi tỉnh/thành phố (sử dụng JS) --}}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -329,6 +329,53 @@
             });
         });
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteForms = document.querySelectorAll('.delete-address-form');
+
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                // Ngăn chặn form submit ngay lập tức
+                e.preventDefault();
+
+                // Hiển thị SweetAlert2 để xác nhận
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    text: "Bạn sẽ không thể hoàn tác hành động này!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Đồng ý, xóa địa chỉ!',
+                    cancelButtonText: 'Hủy bỏ'
+                }).then((result) => {
+                    // Nếu người dùng xác nhận, gửi form
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // Di chuyển hai đoạn code thông báo vào đây
+        const successMessage = '{{ session('success_address') }}';
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: successMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+        const errorMessage = '{{ session('error') }}';
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: errorMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+    }); 
 </script>
 <style>
     .pageBannerSection {

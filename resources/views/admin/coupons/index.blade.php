@@ -205,21 +205,23 @@
                                 <td>{{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->format('d/m/Y H:i') : '--' }}</td>
                                 <td>{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->format('d/m/Y H:i') : '--' }}</td>
                                 <td>
+                                    <div class="d-flex align-items-center justify-content-center" style="gap: 10px;">
                                     <a href="{{ route('admin.coupon.show', $coupon->id) }}"
-                                       class="btn btn-sm btn-outline-info" title="Xem">
-                                        <i class="fa fa-eye"></i>
+                                       class="" title="Xem">
+                                        <img src="{{ asset('assets/admin/img/icons/eye.svg') }}" alt="Xem">
                                     </a>
                                     <a href="{{ route('admin.coupon.edit', $coupon->id) }}"
-                                       class="btn btn-sm btn-outline-warning" title="Sửa">
-                                        <i class="fa fa-edit"></i>
+                                       class="" title="Sửa">
+                                        <img src="{{ asset('assets/admin/img/icons/edit.svg') }}" alt="Sửa">
                                     </a>
                                     {{-- Xóa đơn lẻ: submit form ẩn bên dưới --}}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                    <button type="submit" class="btn btn-link p-0" title="Xóa"
                                             form="delete-coupon-{{ $coupon->id }}"
                                             onclick="return confirm('Xác nhận xóa mã này?')">
-                                        <i class="fa fa-trash"></i>
+                                        <img src="{{ asset('assets/admin/img/icons/delete.svg') }}" alt="Xóa">
                                     </button>
-                                </td>
+                                     </div>
+
                             </tr>
                         @empty
                             <tr>

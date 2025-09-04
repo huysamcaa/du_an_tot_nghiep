@@ -135,6 +135,10 @@ class RefundController extends Controller
 
     $validated = $request->validate($rules);
 
+    if ($request->status === 'completed' && $refund->bank_account_status !== 'verified') {
+        return back()->withErrors(['error' => 'Không thể hoàn thành yêu cầu vì tài khoản ngân hàng chưa được xác minh.'])->withInput();
+    }
+    
     // Kiểm tra thay đổi trước khi cập nhật
     $isUnchanged =
         ($request->status === $refund->status) &&
