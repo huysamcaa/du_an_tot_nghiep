@@ -135,7 +135,13 @@ class CouponService
         $endDate          = $pivot->end_date   ?? $coupon->end_date;
 
         $hasSnapshot = !is_null($pivot);
-
+        //  Luôn chặn theo trạng thái thật của coupon (kể cả snapshot)
+        if (!$coupon->is_active) {
+            throw ValidationException::withMessages(['coupon' => 'Mã giảm giá đã bị vô hiệu hoá.']);
+        }
+        if (!self::hasQuota($coupon)) {
+            throw ValidationException::withMessages(['coupon' => 'Mã giảm giá đã hết lượt sử dụng.']);
+        }
         // 6) Validate thời gian (luôn theo snapshot nếu có)
         if ($startDate && $now->lt($startDate)) {
             throw ValidationException::withMessages(['coupon' => 'Mã giảm giá chưa được bắt đầu.']);
@@ -225,63 +231,69 @@ class CouponService
      *   'disabled' => [ ['code'=>..., 'title'=>..., 'reason'=>'Đã sử dụng'|'Hết hạn'|...], ... ],
      * ]
      */
-   public static function getCheckoutOptions(Collection $cartItems, User $user): array
-{
-    // Chỉ lấy các mã user đã NHẬN (snapshot ở pivot), chưa dùng & còn hạn theo NGÀY
-    $claimed = DB::table('coupon_user as cu')
-        ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
-        ->where('cu.user_id', $user->id)
-        // chưa dùng
-        ->whereNull('cu.used_at')
-        ->whereNull('cu.order_id')
-        // đã bắt đầu (nếu có start_date)
-        ->where(function ($q) {
-            $q->whereNull('cu.start_date')
-              ->orWhere('cu.start_date', '<=', now());
-        })
-        // chưa hết hạn theo NGÀY (nếu có end_date)
-        ->where(function ($q) {
-            $q->whereNull('cu.end_date')
-              ->orWhere('cu.end_date', '>=', now());
-        })
-        ->get(['c.id', 'c.code', 'c.title']);
+    public static function getCheckoutOptions(Collection $cartItems, User $user): array
+    {
+        // 1) Public ứng viên: đúng group + còn hạn theo NGÀY + is_active
+        $public = Coupon::query()
+            ->where(function ($q) use ($user) {
+                $q->whereNull('user_group')
+                    ->orWhere('user_group', $user->user_group ?? 'guest');
+            })
+            ->where('is_active', 1) 
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->get(['id', 'code', 'title', 'usage_limit', 'usage_count']);
+        // 2) Claimed: còn hạn theo snapshot NGÀY
+        $claimed = DB::table('coupon_user as cu')
+            ->join('coupons as c', 'c.id', '=', 'cu.coupon_id')
+            ->where('cu.user_id', $user->id)
+            ->where(function ($q) {
+                $q->whereNull('cu.end_date')
+                    ->orWhere('cu.end_date', '>=', now());
+            })
+            ->get(['c.id', 'c.code', 'c.title', 'c.usage_limit', 'c.usage_count']);
 
-    // Ứng viên giờ CHỈ là các mã đã nhận
-    $candidates = collect($claimed)
-        // vẫn loại an toàn nếu lỡ đã đánh dấu used ở một dòng khác
-        ->reject(fn($c) => self::userHasUsedCoupon($user, $c->id))
-        ->values();
+        // 3) Gộp + bỏ những mã đã dùng
+        $candidates = collect($public)->concat($claimed)
+            ->unique('id')
+            ->reject(fn($c) => self::userHasUsedCoupon($user, $c->id))
+            // 🔥 Ẩn luôn mã hết lượt
+            ->reject(function ($c) {
+                // chuyển sang model để dùng helper (hoặc check trực tiếp usage_count/limit)
+                $coupon = Coupon::find($c->id);
+                return !$coupon || !self::hasQuota($coupon);
+            })
+            ->values();
 
-    $usable = [];
-    $disabled = [];
+        $usable = [];
+        $disabled = [];
 
-    foreach ($candidates as $c) {
-        try {
-            // validate theo snapshot => nếu không dùng được sẽ ném lỗi có lý do
-            $res = self::validateAndApply($c->code, $cartItems, $user);
-
-            $usable[] = [
-                'id'       => $c->id,
-                'code'     => $c->code,
-                'title'    => $c->title,
-                'discount' => $res['discount'],
-            ];
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $msg = collect($e->errors())->flatten()->first() ?? 'Không thể áp dụng mã này.';
-            $disabled[] = [
-                'id'     => $c->id,
-                'code'   => $c->code,
-                'title'  => $c->title,
-                'reason' => $msg,
-            ];
+        foreach ($candidates as $c) {
+            try {
+                $res = self::validateAndApply($c->code, $cartItems, $user);
+                $usable[] = [
+                    'id'       => $c->id,
+                    'code'     => $c->code,
+                    'title'    => $c->title,
+                    'discount' => $res['discount'],
+                ];
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $msg = collect($e->errors())->flatten()->first() ?? 'Không thể áp dụng mã này.';
+                $disabled[] = [
+                    'id'     => $c->id,
+                    'code'   => $c->code,
+                    'title'  => $c->title,
+                    'reason' => $msg,
+                ];
+            }
         }
+
+        usort($usable, fn($a, $b) => $b['discount'] <=> $a['discount']);
+        return compact('usable', 'disabled');
     }
 
-    // Sắp xếp mã dùng được theo mức giảm dần
-    usort($usable, fn($a, $b) => $b['discount'] <=> $a['discount']);
-
-    return compact('usable', 'disabled');
-}
 
 
     /** ====== ĐÁNH DẤU ĐÃ DÙNG / ROLLBACK ================================= */
@@ -374,5 +386,10 @@ class CouponService
                 }
             }
         });
+    }
+    // CouponService
+    private static function hasQuota(Coupon $coupon): bool
+    {
+        return is_null($coupon->usage_limit) || $coupon->usage_count < $coupon->usage_limit;
     }
 }

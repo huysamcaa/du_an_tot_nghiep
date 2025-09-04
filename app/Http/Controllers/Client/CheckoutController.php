@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
+
 class CheckoutController extends Controller
 {
     // Cấu hình MoMo
@@ -330,8 +331,8 @@ class CheckoutController extends Controller
             $orderCode = 'DH' . strtoupper(Str::random(8));
             $sessionId = session()->getId();
 
-        // Lưu vào cache để phòng session bị mất
-        Cache::put('vnpay_order_' . $sessionId, $orderData, 3600); // 1 giờ
+            // Lưu vào cache để phòng session bị mất
+            Cache::put('vnpay_order_' . $sessionId, $orderData, 3600); // 1 giờ
             // Thêm timestamp để kiểm soát thời gian sống
             $orderData['created_at'] = now()->timestamp;
 
@@ -379,50 +380,58 @@ class CheckoutController extends Controller
 
             return redirect()->away($this->vnpayConfig['vnp_Url'] . '?' . http_build_query($paymentData));
         } catch (\Exception $e) {
-        Log::error('VNPay Payment Error: ' . $e->getMessage());
-        return back()->with('error', 'Không thể khởi tạo thanh toán VNPay: ' . $e->getMessage());
+            Log::error('VNPay Payment Error: ' . $e->getMessage());
+            return back()->with('error', 'Không thể khởi tạo thanh toán VNPay: ' . $e->getMessage());
+        }
     }
-}
 
     protected function processRegularOrder(Request $request, $couponData)
-{
-    $order = null;
+    {
+        $order = null;
 
-    DB::beginTransaction();
-    try {
-        $orderData = Session::get('pending_order');
-        $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
-        $this->clearCartItems($orderData['selected_items']);
-
-        $this->createOrderNotification($order);
-
-        // Cập nhật trạng thái mã giảm giá (idempotent)
-        $this->markCouponUsedForOrder($order);
-
-        DB::commit();
-        Session::forget('pending_order');
-
-        // 👉 Gửi mail xác nhận (sau khi commit, tránh deadlock)
+        DB::beginTransaction();
         try {
-            Mail::to($order->email)->send(new OrderPlacedMail($order));
-        } catch (\Exception $mailEx) {
-            Log::error('Send Mail Order Error: ' . $mailEx->getMessage());
+            $orderData = Session::get('pending_order');
+            $order = $this->saveOrderToDatabase($orderData); // CHỈ gọi 1 lần
+            $this->clearCartItems($orderData['selected_items']);
+
+            $this->createOrderNotification($order);
+
+            // Cập nhật trạng thái mã giảm giá (idempotent)
+            $this->markCouponUsedForOrder($order);
+
+            DB::commit();
+            Session::forget('pending_order');
+
+            // 👉 Gửi mail xác nhận (sau khi commit, tránh deadlock)
+            try {
+                Mail::to($order->email)->send(new OrderPlacedMail($order));
+            } catch (\Exception $mailEx) {
+                Log::error('Send Mail Order Error: ' . $mailEx->getMessage());
+            }
+
+            return redirect()->route('client.orders.show', $order->code)
+                ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
+        } catch (\Illuminate\Validation\ValidationException $ve) {
+            DB::rollBack();
+            if ($order) {
+                $this->rollbackCouponForOrder($order);
+            }
+
+            $msg = collect($ve->errors())->flatten()->first() ?? 'Mã giảm giá không khả dụng.';
+            return back()->with('error', $msg)->withInput();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Regular Order Error: ' . $e->getMessage());
+
+            // Hoàn mã nếu trước đó đã đánh dấu dùng
+            if ($order) {
+                $this->rollbackCouponForOrder($order);
+            }
+
+            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
-
-        return redirect()->route('client.orders.show', $order->code)
-            ->with('success', 'Đặt hàng thành công! Vui lòng chờ xác nhận từ cửa hàng.');
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        Log::error('Regular Order Error: ' . $e->getMessage());
-
-        // Hoàn mã nếu trước đó đã đánh dấu dùng
-        if ($order) {
-            $this->rollbackCouponForOrder($order);
-        }
-
-        return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
     }
-}
 
     // ==================== CALLBACK HANDLERS ====================
 
@@ -480,7 +489,7 @@ class CheckoutController extends Controller
      * MoMo Return URL - User redirect back
      * Đây là khi user được redirect về từ MoMo
      */
-     public function momoReturn(Request $request)
+    public function momoReturn(Request $request)
     {
         Log::info('MoMo Return', $request->all());
 
@@ -507,7 +516,14 @@ class CheckoutController extends Controller
             // Kiểm tra đơn hàng đã được tạo chưa (từ IPN)
             $order = Order::where('code', $orderCode)->first();
             if ($order) {
-                $this->markCouponUsedForOrder($order);
+                try {
+                    $this->markCouponUsedForOrder($order);
+                } catch (\Illuminate\Validation\ValidationException $ve) {
+                    $msg = collect($ve->errors())->flatten()->first()
+                        ?? 'Mã giảm giá không còn lượt sử dụng.';
+                    return redirect()->route('cart.index')->with('error', $msg);
+                }
+
                 // Kiểm tra xem trạng thái đã tồn tại chưa trước khi tạo mới
                 $existingStatus = OrderOrderStatus::where('order_id', $order->id)
                     ->where('order_status_id', 1)
@@ -582,7 +598,7 @@ class CheckoutController extends Controller
     /**
      * VNPay Return URL - User redirect back
      */
-     public function vnpayReturn(Request $request)
+    public function vnpayReturn(Request $request)
     {
         Log::info('VNPay Return - Full Request Data:', $request->all());
         Log::debug('Session data before:', session()->all());
@@ -645,7 +661,14 @@ class CheckoutController extends Controller
                 $this->reduceStock($order);
                 $this->clearCartItems($orderData['selected_items']);
             }
-            $this->markCouponUsedForOrder($order);
+            try {
+                $this->markCouponUsedForOrder($order);
+            } catch (\Illuminate\Validation\ValidationException $ve) {
+                DB::rollBack();
+                $msg = collect($ve->errors())->flatten()->first()
+                    ?? 'Mã giảm giá không còn lượt sử dụng.';
+                return redirect()->route('cart.index')->with('error', $msg);
+            }
 
             // Kiểm tra trạng thái đã tồn tại chưa
             $existingStatus = OrderOrderStatus::where([
@@ -692,75 +715,83 @@ class CheckoutController extends Controller
     }
 
     protected function reconstructOrderFromVNPayData($vnpayData)
-{
-    try {
-        $orderInfo = json_decode($vnpayData['vnp_OrderInfo'] ?? '{}', true);
-        if (empty($orderInfo)) {
+    {
+        try {
+            $orderInfo = json_decode($vnpayData['vnp_OrderInfo'] ?? '{}', true);
+            if (empty($orderInfo)) {
+                return null;
+            }
+
+            // Lấy thông tin cơ bản từ VNPay
+            $userId = $orderInfo['user_id'] ?? null;
+            $orderCode = $vnpayData['vnp_TxnRef'] ?? null;
+            $amount = ($vnpayData['vnp_Amount'] ?? 0) / 100;
+            $sessionId = $orderInfo['session_id'] ?? null;
+
+            if (!$userId || !$orderCode) {
+                return null;
+            }
+
+            // Thử lấy thông tin từ cache hoặc session cũ (nếu có mechanism)
+            $cachedData = null;
+            if ($sessionId) {
+                $cachedData = Cache::get('vnpay_order_' . $sessionId);
+            }
+
+            if ($cachedData) {
+                return $cachedData;
+            }
+
+            // Tạo lại dữ liệu đơn hàng cơ bản (fallback)
+            return [
+                'user_id' => $userId,
+                'payment_id' => 4, // VNPay
+                'total_amount' => $amount,
+                'is_paid' => true,
+                'created_at' => $orderInfo['timestamp'] ?? now()->timestamp,
+                'selected_items' => [], // Không thể lấy lại, để array rỗng
+                'cart_items' => [], // Không thể lấy lại, để array rỗng
+                'phone_number' => 'N/A', // Giá trị mặc định
+                'email' => User::find($userId)->email ?? 'N/A',
+                'fullname' => User::find($userId)->name ?? 'Khách hàng',
+                'address' => 'Địa chỉ không xác định',
+                // Thêm các field khác nếu cần
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to reconstruct order from VNPay data: ' . $e->getMessage());
             return null;
         }
-
-        // Lấy thông tin cơ bản từ VNPay
-        $userId = $orderInfo['user_id'] ?? null;
-        $orderCode = $vnpayData['vnp_TxnRef'] ?? null;
-        $amount = ($vnpayData['vnp_Amount'] ?? 0) / 100;
-        $sessionId = $orderInfo['session_id'] ?? null;
-
-        if (!$userId || !$orderCode) {
-            return null;
-        }
-
-        // Thử lấy thông tin từ cache hoặc session cũ (nếu có mechanism)
-        $cachedData = null;
-        if ($sessionId) {
-            $cachedData = Cache::get('vnpay_order_' . $sessionId);
-        }
-
-        if ($cachedData) {
-            return $cachedData;
-        }
-
-        // Tạo lại dữ liệu đơn hàng cơ bản (fallback)
-        return [
-            'user_id' => $userId,
-            'payment_id' => 4, // VNPay
-            'total_amount' => $amount,
-            'is_paid' => true,
-            'created_at' => $orderInfo['timestamp'] ?? now()->timestamp,
-            'selected_items' => [], // Không thể lấy lại, để array rỗng
-            'cart_items' => [], // Không thể lấy lại, để array rỗng
-            'phone_number' => 'N/A', // Giá trị mặc định
-            'email' => User::find($userId)->email ?? 'N/A',
-            'fullname' => User::find($userId)->name ?? 'Khách hàng',
-            'address' => 'Địa chỉ không xác định',
-            // Thêm các field khác nếu cần
-        ];
-        
-    } catch (\Exception $e) {
-        Log::error('Failed to reconstruct order from VNPay data: ' . $e->getMessage());
-        return null;
     }
-}
+    // === COUPON HELPERS =======================================================
     // === COUPON HELPERS =======================================================
     protected function markCouponUsedForOrder(\App\Models\Shared\Order $order): void
     {
-        try {
-            if (!empty($order->coupon_id)) {
-                $coupon = \App\Models\Coupon::find($order->coupon_id);
-                $user   = \App\Models\User::find($order->user_id);
+        if (empty($order->coupon_id)) {
+            return;
+        }
 
-                if ($coupon && $user) {
-                    \App\Services\CouponService::markUsed(
-                        $user,
-                        $coupon,
-                        $order,
-                        (float)($order->coupon_discount ?? 0)
-                    );
-                }
-            }
-        } catch (\Throwable $e) {
-            \Log::error('markCouponUsedForOrder failed: ' . $e->getMessage(), ['order_id' => $order->id ?? null]);
+        $coupon = \App\Models\Coupon::find($order->coupon_id);
+        $user   = \App\Models\User::find($order->user_id);
+
+        if (!$coupon || !$user) {
+            return;
+        }
+
+        try {
+            \App\Services\CouponService::markUsed(
+                $user,
+                $coupon,
+                $order,
+                (float)($order->coupon_discount ?? 0)
+            );
+        } catch (\RuntimeException $e) {
+            // quota về 0, hoặc chạm usage_limit tại thời điểm race condition
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'coupon' => 'Xin lỗi, mã vừa hết lượt sử dụng. Vui lòng chọn mã khác.',
+            ]);
         }
     }
+
 
     protected function rollbackCouponForOrder(\App\Models\Shared\Order $order): void
     {
@@ -802,63 +833,68 @@ class CheckoutController extends Controller
     }
 
     protected function processMomoSuccess($momoData, $orderCode)
-    {
-        DB::beginTransaction();
-        try {
-            $orderData = $this->getOrderDataFromCache($orderCode) ?? Session::get('pending_order');
-            if (!$orderData) {
-                throw new \Exception('Không tìm thấy thông tin đơn hàng');
-            }
-
-            // Tránh tạo trùng
-            $order = Order::where('code', $orderCode)->first();
-            if (!$order) {
-                $order = $this->saveOrderToDatabase($orderData);
-                $order->update(['code' => $orderCode]);
-            }
-
-            $order->update(['is_paid' => 1]);
-            $this->reduceStock($order);
-            $this->clearCartItems($orderData['selected_items']);
-
-            // Mark coupon used (idempotent)
-            $this->markCouponUsedForOrder($order);
-
-
-            // Trạng thái đã thanh toán (ví dụ ID = 9)
-            $existingStatus = OrderOrderStatus::where('order_id', $order->id)
-                ->where('order_status_id', 9)
-                ->where('modified_by', $order->user_id ?? 5)
-                ->first();
-
-            if (!$existingStatus) {
-                OrderOrderStatus::create([
-                    'order_id'        => $order->id,
-                    'order_status_id' => 9,
-                    'modified_by'     => $order->user_id ?? 5,
-                    'notes'           => 'Thanh toán qua MoMo thành công (IPN)',
-                    'is_current'      => 1,
-                    'updated_at'      => now(),
-                    'created_at'      => now(),
-                ]);
-            }
-            $order = $this->saveOrderToDatabase($orderData);
-            if (!empty($order->coupon_id)) {
-                DB::table('coupon_user')
-                    ->where('user_id', $order->user_id)
-                    ->where('coupon_id', $order->coupon_id)
-                    ->update(['used_at' => now(), 'order_id' => $order->id]);
-            }
-
-
-            DB::commit();
-            Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('MoMo IPN Processing Error: ' . $e->getMessage());
-            throw $e;
+{
+    DB::beginTransaction();
+    try {
+        $orderData = $this->getOrderDataFromCache($orderCode) ?? Session::get('pending_order');
+        if (!$orderData) {
+            throw new \Exception('Không tìm thấy thông tin đơn hàng');
         }
+
+        // Tránh tạo trùng
+        $order = Order::where('code', $orderCode)->first();
+        if (!$order) {
+            $order = $this->saveOrderToDatabase($orderData);
+            $order->update(['code' => $orderCode]);
+        }
+
+        $order->update(['is_paid' => 1]);
+        $this->reduceStock($order);
+        $this->clearCartItems($orderData['selected_items']);
+
+        // Chỉ gọi 1 lần – không cập nhật tay coupon_user
+        try {
+            $this->markCouponUsedForOrder($order);
+        } catch (\Illuminate\Validation\ValidationException $ve) {
+            Log::warning('Coupon quota reached at IPN time', [
+                'order_id'  => $order->id,
+                'coupon_id' => $order->coupon_id,
+                'error'     => $ve->errors(),
+            ]);
+            // Tuỳ chính sách: vẫn coi thanh toán thành công, support xử lý sau
+        }
+
+        // Ghi trạng thái đã thanh toán (ví dụ status_id = 9)
+        $existingStatus = OrderOrderStatus::where('order_id', $order->id)
+            ->where('order_status_id', 9)
+            ->where('modified_by', $order->user_id ?? 5)
+            ->first();
+
+        if (!$existingStatus) {
+            OrderOrderStatus::create([
+                'order_id'        => $order->id,
+                'order_status_id' => 9,
+                'modified_by'     => $order->user_id ?? 5,
+                'notes'           => 'Thanh toán qua MoMo thành công (IPN)',
+                'is_current'      => 1,
+                'updated_at'      => now(),
+                'created_at'      => now(),
+            ]);
+        }
+
+        DB::commit();
+        Log::info('MoMo IPN - Order processed successfully', ['order_code' => $orderCode]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('MoMo IPN Processing Error: ' . $e->getMessage());
+        throw $e;
     }
+}
+
+
+
+
+
     protected function getOrderDataFromCache($orderCode)
     {
         // Implement cache mechanism nếu cần
@@ -981,25 +1017,25 @@ class CheckoutController extends Controller
         return $isValid;
     }
 
-    
+
     protected function calculateCartTotal($selectedItems)
-{
-    return CartItem::with(['product', 'variant'])
-        ->where('user_id', auth()->id())
-        ->whereIn('id', $selectedItems)
-        ->get()
-        ->sum(function ($item) {
-            // Nếu có variant và variant đang active
-            if ($item->variant && $item->variant->is_active == 1) {
-                $price = $item->variant->sale_price ?? $item->variant->price;
-            } 
-            // Nếu có variant nhưng không active, hoặc không có variant
-            else {
-                $price = $item->variant->price ?? 0;
-            }
-            return $price * $item->quantity;
-        });
-}
+    {
+        return CartItem::with(['product', 'variant'])
+            ->where('user_id', auth()->id())
+            ->whereIn('id', $selectedItems)
+            ->get()
+            ->sum(function ($item) {
+                // Nếu có variant và variant đang active
+                if ($item->variant && $item->variant->is_active == 1) {
+                    $price = $item->variant->sale_price ?? $item->variant->price;
+                }
+                // Nếu có variant nhưng không active, hoặc không có variant
+                else {
+                    $price = $item->variant->price ?? 0;
+                }
+                return $price * $item->quantity;
+            });
+    }
 
     protected function getAvailableCoupons()
     {
@@ -1009,8 +1045,6 @@ class CheckoutController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->get();
-
-
     }
 
 
@@ -1449,7 +1483,7 @@ class CheckoutController extends Controller
     {
         $userId = auth()->id();
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $order = \App\Models\Shared\Order::where('code', $code)
                 ->where('user_id', $userId)
@@ -1475,12 +1509,12 @@ class CheckoutController extends Controller
                 'created_at'      => now(),
             ]);
 
-            \DB::commit();
+            DB::commit();
             return redirect()->route('client.orders.show', $order->code)
                 ->with('info', 'Đã huỷ đơn và hoàn lại mã (nếu có).');
         } catch (\Throwable $e) {
-            \DB::rollBack();
-            \Log::error('cancelOrder failed: ' . $e->getMessage(), ['code' => $code, 'user_id' => $userId]);
+            DB::rollBack();
+            Log::error('cancelOrder failed: ' . $e->getMessage(), ['code' => $code, 'user_id' => $userId]);
             return back()->with('error', 'Huỷ đơn thất bại: ' . $e->getMessage());
         }
     }

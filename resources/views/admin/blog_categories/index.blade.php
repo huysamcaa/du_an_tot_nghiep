@@ -29,11 +29,13 @@
             <td>{{ $cat->slug }}</td>
             <td>{{ $cat->is_active ? 'Hiển thị' : 'Ẩn' }}</td>
             <td>
-              <a href="{{ route('admin.blog_categories.edit', $cat) }}" class="btn btn-sm btn-warning">Sửa</a>
+                  <div class="d-flex align-items-center justify-content-center" style="gap: 10px;">
+              <a href="{{ route('admin.blog_categories.edit', $cat) }}" class=""><img src="{{ asset('assets/admin/img/icons/edit.svg') }}" alt="Sửa"></a>
               <form action="{{ route('admin.blog_categories.destroy', $cat) }}" method="POST" style="display:inline-block">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Xóa?')">Xóa</button>
+                <button type="submit" class="btn btn-link p-0" onclick="return confirm('Bạn chắc chắn muốn xóa?')"> <img src="{{ asset('assets/admin/img/icons/delete.svg') }}" alt="Xóa"></button>
               </form>
+                  </div>
             </td>
           </tr>
           @endforeach

@@ -414,7 +414,6 @@
         .text-success {
             color: #27ae60 !important;
         }
-        
     </style>
 </head>
 
@@ -426,7 +425,8 @@
                     <div class="pageBannerContent text-center">
                         <h2>Thanh toán đơn hàng</h2>
                         <div class="pageBannerPath">
-                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thanh toán</span>
+                            <a href="{{ route('client.home') }}">Trang chủ</a>&nbsp;&nbsp;>&nbsp;&nbsp;<span>Thanh
+                                toán</span>
                         </div>
                     </div>
                 </div>
@@ -458,20 +458,23 @@
                                 <h3>Địa Chỉ Nhận Hàng</h3>
                             </div>
                             <div class="checkout-card-body">
-                                @if($userAddresses->count() > 0)
-                                    <div class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
+                                @if ($userAddresses->count() > 0)
+                                    <div
+                                        class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
                                         <div class="address-info flex-grow-1 pe-3">
                                             <div class="address-name fw-bold mb-1" id="mainAddressName">
-                                                {{ $defaultAddress ? $defaultAddress->fullname : (auth()->user()->name ?? '') }}
+                                                {{ $defaultAddress ? $defaultAddress->fullname : auth()->user()->name ?? '' }}
                                                 @if ($defaultAddress)
                                                     <span class="default-badge">Mặc định</span>
                                                 @endif
                                             </div>
                                             <div class="address-phone text-muted small mb-1" id="mainAddressPhone">
-                                                (+84) {{ $defaultAddress ? $defaultAddress->phone_number : (auth()->user()->phone_number ?? '') }}
+                                                (+84)
+                                                {{ $defaultAddress ? $defaultAddress->phone_number : auth()->user()->phone_number ?? '' }}
                                             </div>
                                             <div class="address-details small text-wrap">
-                                                <select name="address_id" class="address-select form-select" id="addressSelect" required>
+                                                <select name="address_id" class="address-select form-select"
+                                                    id="addressSelect" required>
                                                     @foreach ($userAddresses as $address)
                                                         <option value="{{ $address->id }}"
                                                             {{ $defaultAddress && $defaultAddress->id == $address->id ? 'selected' : '' }}
@@ -485,10 +488,12 @@
                                             </div>
                                         </div>
                                         <div class="address-actions text-end">
-                                            <button type="button" class="btn change-address-btn" data-bs-toggle="modal" data-bs-target="#changeAddressModal">
+                                            <button type="button" class="btn change-address-btn" data-bs-toggle="modal"
+                                                data-bs-target="#changeAddressModal">
                                                 <i class="bi bi-pencil-square me-1"></i> Thay đổi
                                             </button>
-                                            <button type="button" class="btn select-address" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                            <button type="button" class="btn select-address" data-bs-toggle="modal"
+                                                data-bs-target="#addAddressModal">
                                                 <i class="bi bi-plus-circle me-1"></i> Thêm mới
                                             </button>
                                         </div>
@@ -496,7 +501,8 @@
                                 @else
                                     <div class="no-address-message">
                                         <p>Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ để tiếp tục thanh toán.</p>
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#addAddressModal">
                                             <i class="bi bi-plus-circle me-1"></i> Thêm địa chỉ mới
                                         </button>
                                     </div>
@@ -515,18 +521,22 @@
                                     <div class="coupon-info">
                                         <div class="coupon-code">
                                             Chưa áp dụng mã giảm giá
-                                            <span class="discount-badge" id="appliedCouponBadge" style="display: none;"></span>
+                                            <span class="discount-badge" id="appliedCouponBadge"
+                                                style="display: none;"></span>
                                         </div>
                                         <div class="coupon-details" id="couponDetails">
                                             Chọn hoặc nhập mã giảm giá để tiết kiệm hơn
                                         </div>
-                                        <div class="coupon-value text-success fw-bold" id="couponValue" style="display: none;"></div>
+                                        <div class="coupon-value text-success fw-bold" id="couponValue"
+                                            style="display: none;"></div>
                                     </div>
                                     <div class="coupon-actions text-end">
-                                        <button type="button" class="btn change-coupon-btn" data-bs-toggle="modal" data-bs-target="#changeCouponModal">
+                                        <button type="button" class="btn change-coupon-btn" data-bs-toggle="modal"
+                                            data-bs-target="#changeCouponModal">
                                             <i class="bi bi-pencil-square me-1"></i> Chọn Mã
                                         </button>
-                                        <button type="button" class="btn select-coupon" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                                        <button type="button" class="btn select-coupon" data-bs-toggle="modal"
+                                            data-bs-target="#addCouponModal">
                                             <i class="bi bi-plus-circle me-1"></i> Nhập Mã
                                         </button>
                                     </div>
@@ -548,7 +558,8 @@
                                         <img src="{{ asset('storage/' . ($item->variant->thumbnail ?? $item->product->thumbnail)) }}"
                                             class="product-image rounded border" alt="Cart Item">
                                         <div class="product-info">
-                                            <div class="product-name fw-bold mb-1" title="{{ $item->product->name }}">
+                                            <div class="product-name fw-bold mb-1"
+                                                title="{{ $item->product->name }}">
                                                 {{ $item->product->name }}
                                             </div>
                                             @if ($item->variant)
@@ -609,7 +620,8 @@
                                     <img src="https://th.bing.com/th/id/OIP.sdjsIUIEBcdxUtOdhD8iOAAAAA?w=162&h=180&c=7&r=0&o=7&pid=1.7&rm=3"
                                         alt="COD" class="payment-icon">
                                     <div class="payment-info">
-                                        <label for="paymentMethod02" class="payment-name">Thanh toán khi nhận hàng</label>
+                                        <label for="paymentMethod02" class="payment-name">Thanh toán khi nhận
+                                            hàng</label>
                                         <div class="payment-desc">
                                             Thanh toán bằng tiền mặt khi giao hàng.
                                         </div>
@@ -652,7 +664,8 @@
                                 <div class="price-row"
                                     style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
                                     <span class="price-label">Tổng cộng</span>
-                                    <span class="price-value total" id="final-total">{{ number_format($total + 30000) }}đ</span>
+                                    <span class="price-value total"
+                                        id="final-total">{{ number_format($total + 30000) }}đ</span>
                                 </div>
                                 <button type="submit" class="checkout-btn" id="submitOrderBtn">
                                     <i class="fas fa-check-circle me-2"></i> ĐẶT HÀNG
@@ -666,7 +679,8 @@
     </section>
 
     <!-- Modal Thêm Địa Chỉ Mới -->
-    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -674,7 +688,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST" novalidate>
+                    <form id="addAddressForm" action="{{ route('user.addresses.store') }}" method="POST"
+                        novalidate>
                         @csrf
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -685,8 +700,9 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <input type="tel" name="phone_number" class="form-control" placeholder="Số điện thoại"
-                                    value="{{ old('phone_number') }}" pattern="^0[0-9]{9}$" required>
+                                <input type="tel" name="phone_number" class="form-control"
+                                    placeholder="Số điện thoại" value="{{ old('phone_number') }}"
+                                    pattern="^0[0-9]{9}$" required>
                                 @error('phone_number')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
@@ -723,7 +739,8 @@
                             </div>
                             <div class="col-12">
                                 <input type="text" name="address" id="addressInput-add" class="form-control"
-                                    placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="{{ old('address') }}" required>
+                                    placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="{{ old('address') }}"
+                                    required>
                                 @error('address')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
@@ -747,7 +764,8 @@
     </div>
 
     <!-- Modal Thay Đổi Địa Chỉ -->
-    <div class="modal fade" id="changeAddressModal" tabindex="-1" aria-labelledby="changeAddressModalLabel" aria-hidden="true">
+    <div class="modal fade" id="changeAddressModal" tabindex="-1" aria-labelledby="changeAddressModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -757,10 +775,12 @@
                 <div class="modal-body">
                     <div class="address-list">
                         @foreach ($userAddresses as $address)
-                            <div class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
+                            <div
+                                class="address-item border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-start">
                                 <div class="form-check flex-grow-1 pe-3">
-                                    <input class="form-check-input address-radio" type="radio" name="selected_address"
-                                        value="{{ $address->id }}" id="address{{ $address->id }}"
+                                    <input class="form-check-input address-radio" type="radio"
+                                        name="selected_address" value="{{ $address->id }}"
+                                        id="address{{ $address->id }}"
                                         {{ $defaultAddress && $defaultAddress->id == $address->id ? 'checked' : '' }}
                                         data-address="{{ $address->address }}"
                                         data-phone="{{ $address->phone_number }}"
@@ -773,7 +793,8 @@
                                                     <span class="default-badge">Mặc định</span>
                                                 @endif
                                             </div>
-                                            <div class="address-phone text-muted small mb-1">(+84) {{ $address->phone_number }}</div>
+                                            <div class="address-phone text-muted small mb-1">(+84)
+                                                {{ $address->phone_number }}</div>
                                             <div class="address-details small text-wrap">{{ $address->address }}</div>
                                         </div>
                                     </label>
@@ -791,7 +812,8 @@
     </div>
 
     <!-- Modal Thêm Mã Giảm Giá Mới -->
-    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -802,7 +824,8 @@
                     <div class="mb-3">
                         <label class="form-label">Nhập mã giảm giá</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="newCouponCode" placeholder="Nhập mã giảm giá">
+                            <input type="text" class="form-control" id="newCouponCode"
+                                placeholder="Nhập mã giảm giá">
                             <button class="btn btn-danger" type="button" id="applyNewCoupon">Áp dụng</button>
                         </div>
                         <div id="couponMessage" class="mt-2"></div>
@@ -813,7 +836,8 @@
     </div>
 
     <!-- Modal Thay Đổi Mã Giảm Giá -->
-    <div class="modal fade" id="changeCouponModal" tabindex="-1" aria-labelledby="changeCouponModalLabel" aria-hidden="true">
+    <div class="modal fade" id="changeCouponModal" tabindex="-1" aria-labelledby="changeCouponModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -823,27 +847,30 @@
                 <div class="modal-body">
                     <div class="coupon-list">
                         <div class="form-check mb-3">
-                            <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="" id="couponNone" checked>
+                            <input class="form-check-input coupon-radio" type="radio" name="selected_coupon"
+                                value="" id="couponNone" checked>
                             <label class="form-check-label w-100" for="couponNone">
                                 <div class="coupon-option">
                                     <div class="coupon-code">Không sử dụng mã giảm giá</div>
                                 </div>
                             </label>
                         </div>
-                        @foreach(($couponOptions['usable'] ?? []) as $c)
+                        @foreach ($couponOptions['usable'] ?? [] as $c)
                             <div class="form-check mb-3">
-                                <input class="form-check-input coupon-radio" type="radio" name="selected_coupon" value="{{ $c['code'] }}" id="coupon_{{ $c['id'] }}">
+                                <input class="form-check-input coupon-radio" type="radio" name="selected_coupon"
+                                    value="{{ $c['code'] }}" id="coupon_{{ $c['id'] }}">
                                 <label class="form-check-label w-100" for="coupon_{{ $c['id'] }}">
                                     <div class="coupon-option">
                                         <div class="coupon-code">
                                             {{ $c['code'] }}
-                                            <span class="discount-badge">Ước tính giảm {{ number_format($c['discount']) }}₫</span>
+                                            <span class="discount-badge">Ước tính giảm
+                                                {{ number_format($c['discount']) }}₫</span>
                                         </div>
                                     </div>
                                 </label>
                             </div>
                         @endforeach
-                        @foreach(($couponOptions['disabled'] ?? []) as $c)
+                        @foreach ($couponOptions['disabled'] ?? [] as $c)
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" disabled>
                                 <label class="form-check-label w-100">
@@ -886,21 +913,22 @@
                     const address = selectedOption.data('address');
                     const phone = selectedOption.data('phone');
                     const fullname = selectedOption.data('fullname');
-                    
+
                     $('#hiddenField7').val(address || '');
                     $('#hiddenField5').val(phone || '{{ auth()->user()->phone_number ?? '' }}');
-                    
+
                     if (fullname) {
                         const nameParts = fullname.split(' ');
                         $('#hiddenField1').val(nameParts[0] || '');
                         $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                     }
-                    
+
                     $('#mainAddressName').text(fullname || '{{ auth()->user()->name ?? '' }}');
                     $('#mainAddressPhone').text('(+84) ' + (phone || '{{ auth()->user()->phone_number ?? '' }}'));
                 } else {
                     $('#hiddenField7').val('{{ $defaultAddress->address ?? '' }}');
-                    $('#hiddenField5').val('{{ $defaultAddress->phone_number ?? (auth()->user()->phone_number ?? '') }}');
+                    $('#hiddenField5').val(
+                        '{{ $defaultAddress->phone_number ?? (auth()->user()->phone_number ?? '') }}');
                 }
             }
 
@@ -921,7 +949,7 @@
                     $('#hiddenField1').val(nameParts[0] || '');
                     $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                 }
-                
+
                 $('#mainAddressName').text(fullname || '');
                 $('#mainAddressPhone').text('(+84) ' + (phone || ''));
             });
@@ -944,7 +972,7 @@
                         $('#hiddenField1').val(nameParts[0] || '');
                         $('#hiddenField2').val(nameParts.slice(1).join(' ') || '');
                     }
-                    
+
                     $('#mainAddressName').text(fullname || '');
                     $('#mainAddressPhone').text('(+84) ' + (phone || ''));
 
@@ -988,15 +1016,19 @@
                     return;
                 }
 
-                const selectedItems = $('input[name="selected_items[]"]').map(function(){return $(this).val();}).get();
-                const couponMessage = $('#couponMessage').removeClass('text-danger text-success').html('Đang kiểm tra...');
+                const selectedItems = $('input[name="selected_items[]"]').map(function() {
+                    return $(this).val();
+                }).get();
+                const couponMessage = $('#couponMessage').removeClass('text-danger text-success').html(
+                    'Đang kiểm tra...');
 
                 $.post('{{ route('checkout.coupons.preview') }}', {
                     _token: '{{ csrf_token() }}',
                     code: couponCode,
                     selected_items: selectedItems
                 }).done(function(res) {
-                    couponMessage.addClass('text-success').html('<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
+                    couponMessage.addClass('text-success').html(
+                        '<i class="fas fa-check-circle"></i> Áp dụng mã thành công!');
                     applyCouponUI(couponCode, res.discount, res.coupon);
                     setTimeout(() => $('#addCouponModal').modal('hide'), 700);
                 }).fail(function(xhr) {
@@ -1015,10 +1047,11 @@
                     $('#couponDetails').html(
                         couponMeta ?
                         (couponMeta.discount_type === 'percent' ?
-                            `Giảm ${couponMeta.discount_value}%` :
+                            `Giảm ${formatPercent(couponMeta.discount_value)}` :
                             `Giảm ${Number(couponMeta.discount_value).toLocaleString('vi-VN')}₫`) :
                         'Đã áp dụng mã'
                     );
+
                     $('#couponValue').text(`-${Math.round(discount).toLocaleString('vi-VN')}₫`).show();
                     $('#discount-row').show();
                     $('#discount-amount').text('-' + Math.round(discount).toLocaleString('vi-VN') + 'đ');
@@ -1041,7 +1074,7 @@
             // Xử lý khi thêm địa chỉ thành công
             $('#addAddressForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 // Kiểm tra dữ liệu phía client
                 const fullnameInput = $('[name="fullname"]');
                 const phoneInput = $('[name="phone_number"]');
@@ -1049,28 +1082,38 @@
                 const wardInput = $('[name="ward"]');
                 const addressInput = $('[name="address"]');
                 const phonePattern = /^0[0-9]{9}$/;
-                
+
                 $('.error-message').remove();
                 let hasError = false;
 
                 if (!fullnameInput.val().trim()) {
-                    fullnameInput.after('<div class="text-danger small mt-1 error-message">Họ và tên là bắt buộc.</div>');
+                    fullnameInput.after(
+                        '<div class="text-danger small mt-1 error-message">Họ và tên là bắt buộc.</div>'
+                        );
                     hasError = true;
                 }
                 if (!phonePattern.test(phoneInput.val())) {
-                    phoneInput.after('<div class="text-danger small mt-1 error-message">Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.</div>');
+                    phoneInput.after(
+                        '<div class="text-danger small mt-1 error-message">Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.</div>'
+                        );
                     hasError = true;
                 }
                 if (!provinceInput.val()) {
-                    provinceInput.after('<div class="text-danger small mt-1 error-message">Vui lòng chọn tỉnh/thành phố.</div>');
+                    provinceInput.after(
+                        '<div class="text-danger small mt-1 error-message">Vui lòng chọn tỉnh/thành phố.</div>'
+                        );
                     hasError = true;
                 }
                 if (!wardInput.val()) {
-                    wardInput.after('<div class="text-danger small mt-1 error-message">Vui lòng chọn phường/xã.</div>');
+                    wardInput.after(
+                        '<div class="text-danger small mt-1 error-message">Vui lòng chọn phường/xã.</div>'
+                        );
                     hasError = true;
                 }
                 if (!addressInput.val().trim()) {
-                    addressInput.after('<div class="text-danger small mt-1 error-message">Địa chỉ cụ thể là bắt buộc.</div>');
+                    addressInput.after(
+                        '<div class="text-danger small mt-1 error-message">Địa chỉ cụ thể là bắt buộc.</div>'
+                        );
                     hasError = true;
                 }
 
@@ -1080,7 +1123,8 @@
 
                 const submitBtn = $(this).find('button[type="submit"]');
                 const originalText = submitBtn.html();
-                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
 
                 $.ajax({
                     url: $(this).attr('action'),
@@ -1089,7 +1133,7 @@
                     dataType: 'json',
                     success: function(response) {
                         submitBtn.prop('disabled', false).html(originalText);
-                        
+
                         if (response && response.success && response.data) {
                             const newOption = new Option(
                                 response.data.full_address || response.data.address,
@@ -1117,13 +1161,15 @@
                             $('#addAddressModal').modal('hide');
                             alert('Thêm địa chỉ thành công!');
                         } else {
-                            alert('Có lỗi xảy ra: ' + (response.message || 'Dữ liệu trả về không hợp lệ. Vui lòng kiểm tra server.'));
+                            alert('Có lỗi xảy ra: ' + (response.message ||
+                                'Dữ liệu trả về không hợp lệ. Vui lòng kiểm tra server.'
+                                ));
                         }
                     },
                     error: function(xhr) {
                         submitBtn.prop('disabled', false).html(originalText);
                         $('.error-message').remove();
-                        
+
                         let errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại!';
                         if (xhr.status === 422) {
                             const errors = xhr.responseJSON?.errors || {};
@@ -1131,21 +1177,25 @@
                             for (const field in errors) {
                                 const input = $(`[name="${field}"]`);
                                 if (input.length) {
-                                    input.after(`<div class="text-danger small mt-1 error-message">${errors[field][0]}</div>`);
+                                    input.after(
+                                        `<div class="text-danger small mt-1 error-message">${errors[field][0]}</div>`
+                                        );
                                 }
                                 errorMessages.push(errors[field][0]);
                             }
                             if (errorMessages.length > 0) {
-                                errorMessage = 'Vui lòng kiểm tra: \n' + errorMessages.join('\n');
+                                errorMessage = 'Vui lòng kiểm tra: \n' + errorMessages.join(
+                                    '\n');
                             }
                         } else if (xhr.status === 419) {
                             errorMessage = 'Phiên làm việc hết hạn. Vui lòng tải lại trang!';
                         } else if (xhr.status === 500) {
-                            errorMessage = 'Lỗi server: ' + (xhr.responseJSON?.message || 'Vui lòng kiểm tra log server.');
+                            errorMessage = 'Lỗi server: ' + (xhr.responseJSON?.message ||
+                                'Vui lòng kiểm tra log server.');
                         } else {
                             errorMessage = 'Bạn Chắc Chắn Đây Là Địa Chỉ Của Mình Chứ?';
                         }
-                        
+
                         alert(errorMessage);
                     }
                 });
@@ -1210,93 +1260,107 @@
                 addModal.show();
             @endif
         });
+        function formatPercent(v) {
+    const n = Number(v);
+    if (Number.isNaN(n)) return v + '%';
+    // số nguyên => "35", số thập phân => cắt '0' thừa: "35.50" -> "35.5", "35.00" -> "35"
+    return (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/,'')) + '%';
+}
+
     </script>
     <script>
-    // Xử lý submit form thêm địa chỉ bằng AJAX
-    $(function() {
-        $('#addAddressForm').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const url = form.attr('action');
-            const method = form.attr('method') || 'POST';
+        // Xử lý submit form thêm địa chỉ bằng AJAX
+        $(function() {
+            $('#addAddressForm').on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const url = form.attr('action');
+                const method = form.attr('method') || 'POST';
 
-            // Xóa thông báo lỗi cũ
-            form.find('.is-invalid').removeClass('is-invalid');
-            form.find('.invalid-feedback.ajax-error').remove();
+                // Xóa thông báo lỗi cũ
+                form.find('.is-invalid').removeClass('is-invalid');
+                form.find('.invalid-feedback.ajax-error').remove();
 
-            $.ajax({
-                url: url,
-                method: method,
-                data: form.serialize(),
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                success: function(response) {
-                    // Mong controller trả JSON { success: true, address: {...} }
-                    if (response && response.success) {
-                        // Thêm option mới vào select địa chỉ và chọn nó
-                        const addr = response.address;
-                        const option = $('<option>')
-                            .val(addr.id)
-                            .text(addr.address)
-                            .attr('data-address', addr.address)
-                            .attr('data-phone', addr.phone_number)
-                            .attr('data-fullname', addr.fullname);
-                        $('#addressSelect').append(option).val(addr.id).trigger('change');
+                $.ajax({
+                    url: url,
+                    method: method,
+                    data: form.serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Mong controller trả JSON { success: true, address: {...} }
+                        if (response && response.success) {
+                            // Thêm option mới vào select địa chỉ và chọn nó
+                            const addr = response.address;
+                            const option = $('<option>')
+                                .val(addr.id)
+                                .text(addr.address)
+                                .attr('data-address', addr.address)
+                                .attr('data-phone', addr.phone_number)
+                                .attr('data-fullname', addr.fullname);
+                            $('#addressSelect').append(option).val(addr.id).trigger('change');
 
-                        // Cập nhật hiển thị tên/sdt/ẩn
-                        $('#mainAddressName').text(addr.fullname || '');
-                        $('#mainAddressPhone').text('(+84) ' + (addr.phone_number || ''));
-                        $('#hiddenField7').val(addr.address || '');
-                        $('#hiddenField5').val(addr.phone_number || '');
-                        if (addr.fullname) {
-                            const parts = addr.fullname.split(' ');
-                            $('#hiddenField1').val(parts[0] || '');
-                            $('#hiddenField2').val(parts.slice(1).join(' ') || '');
-                        }
+                            // Cập nhật hiển thị tên/sdt/ẩn
+                            $('#mainAddressName').text(addr.fullname || '');
+                            $('#mainAddressPhone').text('(+84) ' + (addr.phone_number || ''));
+                            $('#hiddenField7').val(addr.address || '');
+                            $('#hiddenField5').val(addr.phone_number || '');
+                            if (addr.fullname) {
+                                const parts = addr.fullname.split(' ');
+                                $('#hiddenField1').val(parts[0] || '');
+                                $('#hiddenField2').val(parts.slice(1).join(' ') || '');
+                            }
 
-                        // Đóng modal (Bootstrap 5)
-                        const addModalEl = document.getElementById('addAddressModal');
-                        const addModal = bootstrap.Modal.getInstance(addModalEl) || new bootstrap.Modal(addModalEl);
-                        addModal.hide();
+                            // Đóng modal (Bootstrap 5)
+                            const addModalEl = document.getElementById('addAddressModal');
+                            const addModal = bootstrap.Modal.getInstance(addModalEl) ||
+                                new bootstrap.Modal(addModalEl);
+                            addModal.hide();
 
-                        // Reset form
-                        form[0].reset();
+                            // Reset form
+                            form[0].reset();
 
-                        // Thông báo
-                        if (window.toastr) toastr.success(response.message || 'Thêm địa chỉ thành công');
-                    } else {
-                        // Nếu controller trả redirect HTML, fallback reload
-                        if (response && response.redirect) {
-                            window.location.href = response.redirect;
+                            // Thông báo
+                            if (window.toastr) toastr.success(response.message ||
+                                'Thêm địa chỉ thành công');
                         } else {
-                            window.location.reload();
+                            // Nếu controller trả redirect HTML, fallback reload
+                            if (response && response.redirect) {
+                                window.location.href = response.redirect;
+                            } else {
+                                window.location.reload();
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            // Hiển thị error tương ứng dưới input
+                            Object.keys(errors).forEach(function(key) {
+                                const input = form.find('[name="' + key + '"]');
+                                if (!input.length) {
+                                    // nếu field dạng nested (eg: province[id]) thử select bằng contains
+                                    const alt = form.find('[name^="' + key + '"]');
+                                    if (alt.length) input = alt.first();
+                                }
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    const msg = $(
+                                        '<div class="invalid-feedback ajax-error"></div>'
+                                        ).text(errors[key][0]);
+                                    input.after(msg);
+                                }
+                            });
+                        } else {
+                            console.error('Add address error', xhr);
+                            if (window.toastr) toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
                         }
                     }
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                        const errors = xhr.responseJSON.errors;
-                        // Hiển thị error tương ứng dưới input
-                        Object.keys(errors).forEach(function (key) {
-                            const input = form.find('[name="' + key + '"]');
-                            if (!input.length) {
-                                // nếu field dạng nested (eg: province[id]) thử select bằng contains
-                                const alt = form.find('[name^="' + key + '"]');
-                                if (alt.length) input = alt.first();
-                            }
-                            if (input.length) {
-                                input.addClass('is-invalid');
-                                const msg = $('<div class="invalid-feedback ajax-error"></div>').text(errors[key][0]);
-                                input.after(msg);
-                            }
-                        });
-                    } else {
-                        console.error('Add address error', xhr);
-                        if (window.toastr) toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
-                    }
-                }
+                });
             });
         });
-    });
-</script>
+    </script>
 </body>
+
 </html>

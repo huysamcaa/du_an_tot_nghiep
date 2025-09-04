@@ -90,16 +90,18 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="btn btn-sm btn-outline-warning" title="Sửa">
-                        <i class="fa fa-edit"></i>
+                      <div class="d-flex align-items-center justify-content-center" style="gap: 10px;">
+                    <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="" title="Sửa">
+                       <img src="{{ asset('assets/admin/img/icons/edit.svg') }}" alt="Sửa">
                     </a>
                     <form action="{{ route('admin.blogs.destroy', $blog->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Xóa bài viết này?')">
                         @csrf
                         @method('DELETE')
-                        <button class="btn btn-sm btn-outline-danger" title="Xóa">
-                            <i class="fa fa-trash"></i>
+                        <button class="btn btn-link p-0" title="Xóa">
+                             <img src="{{ asset('assets/admin/img/icons/delete.svg') }}" alt="Xóa">
                         </button>
                     </form>
+                      </div>
                 </td>
             </tr>
         @empty
